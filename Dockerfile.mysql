@@ -1,0 +1,16 @@
+FROM mysql:8.3
+
+# Set environment variables
+ENV MYSQL_ROOT_PASSWORD=rootpassword \
+    MYSQL_DATABASE=mydatabase \
+    MYSQL_USER=myuser \
+    MYSQL_PASSWORD=mypassword
+
+# Expose MySQL port
+EXPOSE 3306
+
+# Define volume for MySQL data storage
+VOLUME ["/var/lib/mysql"]
+
+# Default command to run MySQL server
+CMD ["mysqld"]
