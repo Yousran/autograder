@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       accept_responses,
       show_detailed_score,
       is_ordered,
-      questions, // Array soal
+      questions,
     } = await req.json();
 
     if (!test_title || !test_duration) {
@@ -80,8 +80,7 @@ export async function POST(req: Request) {
         test_duration,
         accept_responses: accept_responses ?? false,
         show_detailed_score: show_detailed_score ?? false,
-        //TODO: ganti menjadi is_ordered
-        is_unordered: is_ordered ?? false,
+        is_ordered: is_ordered ?? false,
         join_code,
         EssayQuestions: {
           create: essayQuestionsData,

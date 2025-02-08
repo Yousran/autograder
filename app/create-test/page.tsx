@@ -80,7 +80,7 @@ export default function CreateTestPage() {
         accept_responses: acceptResponses,
         show_detailed_score: showDetailedScore,
         is_ordered: isOrdered,
-        questions, // array soal
+        questions,
       };
       
       const token = localStorage.getItem("token");
@@ -179,7 +179,7 @@ export default function CreateTestPage() {
               </div>
 
               <div className="flex items-center justify-between">
-                <Label htmlFor="is_ordered">Is Ordered</Label>
+                <Label htmlFor="is_ordered">Ordered</Label>
                 <Switch
                   id="is_ordered"
                   checked={isOrdered}

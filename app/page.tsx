@@ -1,16 +1,20 @@
 //TODO: login
 //TODO: logout
-//TODO: profile page
 //TODO: auth ui
 //TODO: api auth middleware
 //TODO: create test
+//TODO: profile page
+//TODO: show created test
+//TODO: edit title, edit settings
 
-//TODO: edit test
-//TODO: share join code and QR code
 //TODO: join test
 //TODO: working test
 //TODO: test result
 //TODO: edit test result
+//TODO: share join code and QR code
+//TODO: create choice question,set true first choice by default
+//TODO: settings true by default
+//TODO: is_ordered and unordered
 //TODO: optional test duration using alarm input
 //TODO: edit profile
 //TODO: login with google

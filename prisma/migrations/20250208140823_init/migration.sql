@@ -19,7 +19,7 @@ CREATE TABLE `Test` (
     `test_duration` INTEGER NOT NULL,
     `accept_responses` BOOLEAN NOT NULL,
     `show_detailed_score` BOOLEAN NOT NULL,
-    `is_unordered` BOOLEAN NOT NULL,
+    `is_ordered` BOOLEAN NOT NULL,
 
     UNIQUE INDEX `Test_join_code_key`(`join_code`),
     PRIMARY KEY (`id`)
