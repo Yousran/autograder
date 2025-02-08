@@ -32,7 +32,7 @@ model Test {
   test_duration      Int
   accept_responses   Boolean
   show_detailed_score Boolean
-  is_unordered       Boolean
+  is_ordered       Boolean
 
   creator   User   @relation("UserTests", fields: [creator_id], references: [id])
   EssayQuestions EssayQuestion[]
