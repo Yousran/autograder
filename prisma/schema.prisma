@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  role_id  Int
+  username String
+  email    String  @unique
+  password String
+
+  Test      Test[]      @relation("UserTests")
+  Participant Participant[]
+}
+
+model Test {
+  id                 Int    @id @default(autoincrement())
+  creator_id         Int
+  test_title         String
+  join_code          String @unique
+  test_duration      Int
+  accept_responses   Boolean
+  show_detailed_score Boolean
+  is_unordered       Boolean
+
+  creator   User   @relation("UserTests", fields: [creator_id], references: [id])
+  EssayQuestions EssayQuestion[]
+  ChoiceQuestions ChoiceQuestion[]
+  Participants   Participant[]
+}
+
+model EssayQuestion {
+  id         Int    @id @default(autoincrement())
+  test_id    Int
+  question   String
+  answer_key String
+
+  test       Test @relation(fields: [test_id], references: [id])
+  EssayAnswers EssayAnswer[]
+}
+
+model ChoiceQuestion {
+  id       Int    @id @default(autoincrement())
+  test_id  Int
+  question String
+
+  test    Test @relation(fields: [test_id], references: [id])
+  Choices Choice[]
+  ChoiceAnswers ChoiceAnswer[]
+}
+
+model Choice {
+  id          Int    @id @default(autoincrement())
+  question_id Int
+  choice_text String
+  is_right    Boolean
+
+  question ChoiceQuestion @relation(fields: [question_id], references: [id])
+  ChoiceAnswers ChoiceAnswer[]
+}
+
+model Participant {
+  id         Int    @id @default(autoincrement())
+  user_id    Int
+  test_id    Int
+  username   String
+  total_score Int?
+  start_time DateTime
+
+  user User @relation(fields: [user_id], references: [id])
+  test Test @relation(fields: [test_id], references: [id])
+  EssayAnswers EssayAnswer[]
+  ChoiceAnswers ChoiceAnswer[]
+}
+
+model EssayAnswer {
+  id              Int    @id @default(autoincrement())
+  participant_id  Int
+  essay_question_id Int
+  answer         String
+  score          Int?
+
+  participant Participant @relation(fields: [participant_id], references: [id])
+  essayQuestion EssayQuestion @relation(fields: [essay_question_id], references: [id])
+}
+
+model ChoiceAnswer {
+  id               Int    @id @default(autoincrement())
+  participant_id   Int
+  choice_question_id Int
+  choice_id        Int
+  score           Int?
+
+  participant   Participant @relation(fields: [participant_id], references: [id])
+  choiceQuestion ChoiceQuestion @relation(fields: [choice_question_id], references: [id])
+  choice        Choice @relation(fields: [choice_id], references: [id])
+}
