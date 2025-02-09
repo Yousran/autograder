@@ -31,33 +31,58 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Test not found" }, { status: 404 });
   }
 
+  let existingParticipant;
   let newParticipant;
+
+  // Check for existing participant
   if (user) {
-    const userr = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { username: true }
+    existingParticipant = await prisma.participant.findFirst({
+      where: {
+        test_id: test.id,
+        user_id: user.id
+      }
     });
-    if (userr) {
+  } else {
+    existingParticipant = await prisma.participant.findFirst({
+      where: {
+        test_id: test.id,
+        username: username
+      }
+    });
+  }
+
+  // If participant exists, use existing data
+  if (existingParticipant) {
+    newParticipant = existingParticipant;
+  } 
+  // If no existing participant, create new one
+  else {
+    if (user) {
+      const userr = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { username: true }
+      });
+      if (userr) {
+        newParticipant = await prisma.participant.create({
+          data: {
+            test_id: test.id,
+            user_id: user.id,
+            username: userr.username,
+            start_time: new Date(startTime),
+          }
+        }); 
+      }
+    } else {
+      console.log("User not found, creating participant without user_id");
       newParticipant = await prisma.participant.create({
         data: {
           test_id: test.id,
-          user_id: user.id,
-          username: userr.username,
+          user_id: null,
+          username: username,
           start_time: new Date(startTime),
         }
-      }); 
+      });
     }
-  } else {
-    console.log("User not found, creating participant without user_id");
-    //TODO: error payload
-    newParticipant = await prisma.participant.create({
-      data: {
-        test_id: test.id,
-        user_id: null,
-        username: username,
-        start_time: new Date(startTime),
-      }
-    });
   }
   
   return NextResponse.json(

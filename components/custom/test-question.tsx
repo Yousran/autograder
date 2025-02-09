@@ -1,5 +1,6 @@
+//dir: components/custom/test-question.tsx
 import { FC } from "react";
-import { Question } from "@/app/test/[joinCode]/start/page";
+import { Question } from "@/app/test/start/page";
 
 type TestQuestionProps = {
   question: Question;

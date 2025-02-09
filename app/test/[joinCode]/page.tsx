@@ -65,9 +65,7 @@ export default function TestJoinPage() {
       const result = await response.json();
 
       if (response.ok) {
-        alert("Test started successfully!");
-        localStorage.setItem("participant", JSON.stringify(result.participant));
-        router.push(`/app/test/${joinCode}/start`);
+        router.push(`/app/test/start`);
       } else {
         alert(result.error || "Failed to start test");
       }

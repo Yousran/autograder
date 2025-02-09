@@ -1,3 +1,4 @@
+//dirname: /app/test/start/page.tsx
 "use client";
 
 import { useState, useEffect, FC } from "react";
@@ -29,7 +30,6 @@ const Home: FC = () => {
   const [testData, setTestData] = useState<TestData | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [markedQuestions, setMarkedQuestions] = useState<Record<number, boolean>>({});
-  // State untuk menyimpan jawaban. Key-nya bisa berupa ID soal (bukan index)
   const [answers, setAnswers] = useState<Record<number, string | number>>({});
 
   useEffect(() => {

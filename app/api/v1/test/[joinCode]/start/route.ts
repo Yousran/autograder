@@ -1,3 +1,4 @@
+//dir: app/api/v1/test/[joinCode]/start/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
