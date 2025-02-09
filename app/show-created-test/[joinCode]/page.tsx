@@ -116,7 +116,7 @@ export default function ShowCreatedTestPage() {
           <p className="text-xl font-semibold">{testData.test_title}</p>
           <div className="flex gap-2">
             <p className="text-lg w-full">{testData.join_code}</p>
-            <Button>Show QR</Button>
+            <Button><i className="bx bx-qr text-lg"></i></Button>
           </div>
         </Card>
         <Tabs defaultValue="question" className="w-full sm:w-2/5">

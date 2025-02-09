@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     }
 
     // Generate join_code unik
-    const join_code = Math.random().toString(36).substr(2, 8).toUpperCase();
+    const join_code = Math.random().toString(36).slice(2, 8).toUpperCase();
 
     // Siapkan data nested untuk soal essay dan soal pilihan ganda
     const essayQuestionsData: { question: string; answer_key: string }[] = [];

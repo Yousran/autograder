@@ -66,13 +66,13 @@ model Choice {
 
 model Participant {
   id         Int    @id @default(autoincrement())
-  user_id    Int
+  user_id    Int?
   test_id    Int
-  username   String
+  username   String?
   total_score Int?
   start_time DateTime
 
-  user User @relation(fields: [user_id], references: [id])
+  user User? @relation(fields: [user_id], references: [id])
   test Test @relation(fields: [test_id], references: [id])
   EssayAnswers EssayAnswer[]
   ChoiceAnswers ChoiceAnswer[]
