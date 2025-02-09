@@ -1,4 +1,4 @@
-//api/v1/start-test/route.ts
+// app/api/v1/start-test/route.ts
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/middleware/auth";
@@ -12,13 +12,9 @@ export async function POST(req: Request) {
   console.log("Authenticated user:", user);
   
   const { username, joinCode, startTime } = body;
-  console.log("Extracted values:", {
-    username,
-    joinCode,
-    startTime
-  });
+  console.log("Extracted values:", { username, joinCode, startTime });
 
-  if (!joinCode || !startTime){
+  if (!joinCode || !startTime) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
@@ -27,14 +23,14 @@ export async function POST(req: Request) {
     select: { id: true }
   });
 
-  if (!test){
+  if (!test) {
     return NextResponse.json({ error: "Test not found" }, { status: 404 });
   }
 
   let existingParticipant;
   let newParticipant;
 
-  // Check for existing participant
+  // Cek apakah participant sudah ada berdasarkan user (jika authenticated) atau username
   if (user) {
     existingParticipant = await prisma.participant.findFirst({
       where: {
@@ -51,11 +47,11 @@ export async function POST(req: Request) {
     });
   }
 
-  // If participant exists, use existing data
+  // Jika sudah ada, gunakan data participant yang sudah ada
   if (existingParticipant) {
     newParticipant = existingParticipant;
   } 
-  // If no existing participant, create new one
+  // Jika belum ada, buat participant baru
   else {
     if (user) {
       const userr = await prisma.user.findUnique({
@@ -85,6 +81,7 @@ export async function POST(req: Request) {
     }
   }
   
+  // Mengembalikan data participant (termasuk test_id) ke UI
   return NextResponse.json(
     { message: "Test Started", participant: newParticipant },
     { status: 201 }

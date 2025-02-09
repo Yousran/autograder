@@ -1,9 +1,8 @@
-//app/test/[joinCode]/page.tsx
+// app/test/[joinCode]/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +37,6 @@ export default function TestJoinPage() {
         const participantsRes = await fetch(`/api/v1/test/${joinCode}/count-participants`);
         const participantsJson = await participantsRes.json();
         setParticipantCount(participantsJson.participant_count);
-
       } catch (error) {
         console.error("Error fetching test data:", error);
       }
@@ -56,8 +54,8 @@ export default function TestJoinPage() {
       const response = await fetch("/api/v1/start-test", {
         method: "POST",
         headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ username, joinCode, startTime: new Date().toISOString() }),
       });
@@ -65,11 +63,17 @@ export default function TestJoinPage() {
       const result = await response.json();
 
       if (response.ok) {
-        router.push(`/app/test/start`);
+        // Simpan data participant (opsional)
+        localStorage.setItem("participant", JSON.stringify(result.participant));
+        // Redirect ke halaman test start dengan mengirim query string: participantId, testId, dan startTime
+        router.push(
+          `/start-test?participantId=${result.participant.id}&testId=${result.participant.test_id}&startTime=${result.participant.start_time}`
+        );
       } else {
         alert(result.error || "Failed to start test");
       }
-    } catch {
+    } catch (error) {
+      console.error(error);
       alert("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -104,7 +108,7 @@ export default function TestJoinPage() {
               </p>
             </Card>
           </div>
-          {!isAuthenticated ? (
+          {!isAuthenticated && (
             <Input
               type="text"
               placeholder="Enter Username"
@@ -112,7 +116,7 @@ export default function TestJoinPage() {
               onChange={(e) => setUsername(e.target.value)}
               className="w-full"
             />
-          ) : null}
+          )}
           <Button
             variant="default"
             className="w-full"

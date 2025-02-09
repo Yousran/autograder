@@ -1,6 +1,6 @@
 //dir: components/custom/test-question.tsx
 import { FC } from "react";
-import { Question } from "@/app/test/start/page";
+import { Question } from "@/app/start-test/page";
 
 type TestQuestionProps = {
   question: Question;

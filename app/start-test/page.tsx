@@ -1,11 +1,11 @@
-//dirname: /app/test/start/page.tsx
+// app/start-test/page.tsx
 "use client";
 
 import { useState, useEffect, FC } from "react";
+import { useSearchParams } from "next/navigation";
 import TestQuestion from "@/components/custom/test-question";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { useParams } from "next/navigation";
 
 type Choice = {
   id: number;
@@ -25,19 +25,25 @@ export type TestData = {
   questions: Question[];
 };
 
-const Home: FC = () => {
-  const { joinCode } = useParams();
+const TestStartPage: FC = () => {
+  // Ambil query parameter: participantId, testId, startTime
+  const searchParams = useSearchParams();
+  const participantId = searchParams.get("participantId");
+  const testId = searchParams.get("testId");
+  const startTime = searchParams.get("startTime");
+
   const [testData, setTestData] = useState<TestData | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [markedQuestions, setMarkedQuestions] = useState<Record<number, boolean>>({});
   const [answers, setAnswers] = useState<Record<number, string | number>>({});
 
   useEffect(() => {
-    if (!joinCode) return;
+    if (!testId) return;
 
     const fetchTestData = async () => {
       try {
-        const response = await fetch(`/api/v1/test/${joinCode}/start`);
+        // Panggil API route berdasarkan testId
+        const response = await fetch(`/api/v1/test/start?testId=${testId}`);
         if (!response.ok) throw new Error("Failed to fetch test data");
         const data = await response.json();
         setTestData(data.test);
@@ -47,7 +53,7 @@ const Home: FC = () => {
     };
 
     fetchTestData();
-  }, [joinCode]);
+  }, [testId]);
 
   // Handler untuk perubahan jawaban di tiap soal
   const handleAnswerChange = (questionId: number, answer: string | number) => {
@@ -76,17 +82,10 @@ const Home: FC = () => {
     }));
   };
 
-  // Handler untuk menyelesaikan test dan mempersiapkan data yang akan dikirim ke API backend
+  // Handler untuk menyelesaikan test (selanjutnya dapat mengirim data ke API submit)
   const handleFinish = async () => {
-    // Ambil data participant dari localStorage (misalnya sudah disimpan sebelumnya)
-    const participantData = localStorage.getItem("participant");
-    if (!participantData) {
-      console.error("Tidak ada data participant di localStorage");
-      return;
-    }
-    const participant = JSON.parse(participantData);
-
-    // Pisahkan jawaban berdasarkan tipe soal
+    const participantData = { id: participantId, test_id: testId, startTime };
+    // Siapkan payload berdasarkan tipe soal
     const essayAnswers =
       testData?.questions
         .filter((q) => q.type === "essay")
@@ -100,22 +99,20 @@ const Home: FC = () => {
         .filter((q) => q.type === "choice")
         .map((q) => ({
           choice_question_id: q.id,
-          // Pastikan jawaban berupa number (ID pilihan) atau null jika belum memilih
           choice_id: (answers[q.id] as number) || null,
         })) || [];
 
-    // Payload yang akan dikirim ke API backend
     const payload = {
-      participant_id: participant.id,
+      participant_id: participantData.id,
       essayAnswers,
       choiceAnswers,
     };
 
     console.log("Submit payload:", payload);
 
-    // Contoh pengiriman data (saat API backend sudah tersedia)
+    // Contoh pengiriman data ke API backend
     // try {
-    //   const response = await fetch(`/api/v1/test/${joinCode}/submit`, {
+    //   const response = await fetch(`/api/v1/test/submit`, {
     //     method: "POST",
     //     headers: { "Content-Type": "application/json" },
     //     body: JSON.stringify(payload),
@@ -123,7 +120,7 @@ const Home: FC = () => {
     //   if (!response.ok) {
     //     throw new Error("Submit test failed");
     //   }
-    //   // Tindak lanjut jika berhasil, misalnya navigasi ke halaman hasil
+    //   // Tindak lanjut jika berhasil
     // } catch (error) {
     //   console.error(error);
     // }
@@ -146,7 +143,7 @@ const Home: FC = () => {
           </SheetTrigger>
         </div>
         <SheetContent>
-        <SheetTitle>Question List</SheetTitle>
+          <SheetTitle>Question List</SheetTitle>
           <div className="p-4">
             {testData.questions.map((_, index) => (
               <button
@@ -168,9 +165,7 @@ const Home: FC = () => {
         <div className="flex justify-center h-auto w-full p-4">
           <TestQuestion
             question={currentQuestion}
-            // Kirim jawaban yang tersimpan untuk soal ini (jika ada)
             selectedAnswer={answers[currentQuestion.id]}
-            // Fungsi untuk mengubah jawaban soal ini
             onAnswerChange={(answer) => handleAnswerChange(currentQuestion.id, answer)}
           />
         </div>
@@ -196,4 +191,4 @@ const Home: FC = () => {
   );
 };
 
-export default Home;
+export default TestStartPage;
