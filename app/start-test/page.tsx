@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import TestQuestion from "@/components/custom/test-question";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import router from "next/router";
 
 type Choice = {
   id: number;
@@ -30,7 +31,7 @@ const TestStartPage: FC = () => {
   const searchParams = useSearchParams();
   const participantId = searchParams.get("participantId");
   const testId = searchParams.get("testId");
-  const startTime = searchParams.get("startTime");
+  // const startTime = searchParams.get("startTime");
 
   const [testData, setTestData] = useState<TestData | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -84,46 +85,49 @@ const TestStartPage: FC = () => {
 
   // Handler untuk menyelesaikan test (selanjutnya dapat mengirim data ke API submit)
   const handleFinish = async () => {
-    const participantData = { id: participantId, test_id: testId, startTime };
-    // Siapkan payload berdasarkan tipe soal
-    const essayAnswers =
-      testData?.questions
-        .filter((q) => q.type === "essay")
-        .map((q) => ({
-          essay_question_id: q.id,
-          answer: (answers[q.id] as string) || "",
-        })) || [];
-
-    const choiceAnswers =
-      testData?.questions
-        .filter((q) => q.type === "choice")
-        .map((q) => ({
-          choice_question_id: q.id,
-          choice_id: (answers[q.id] as number) || null,
-        })) || [];
-
+    if (!participantId || !testId) {
+      console.error("Missing participantId or testId");
+      return;
+    }
+  
+    // Pastikan jawaban essay selalu berupa string
+    const essayAnswers = testData?.questions
+      .filter((q) => q.type === "essay")
+      .map((q) => ({
+        essay_question_id: q.id,
+        answer: String(answers[q.id] || ""), // Konversi ke string
+      })) || [];
+  
+    const choiceAnswers = testData?.questions
+      .filter((q) => q.type === "choice")
+      .map((q) => ({
+        choice_question_id: q.id,
+        choice_id: (answers[q.id] as number) || null,
+      })) || [];
+  
     const payload = {
-      participant_id: participantData.id,
+      participant_id: participantId,
       essayAnswers,
       choiceAnswers,
     };
-
-    console.log("Submit payload:", payload);
-
-    // Contoh pengiriman data ke API backend
-    // try {
-    //   const response = await fetch(`/api/v1/test/submit`, {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify(payload),
-    //   });
-    //   if (!response.ok) {
-    //     throw new Error("Submit test failed");
-    //   }
-    //   // Tindak lanjut jika berhasil
-    // } catch (error) {
-    //   console.error(error);
-    // }
+  
+    try {
+      const response = await fetch(`/api/v1/test/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Submit test failed");
+      }
+  
+      const result = await response.json();
+      console.log("Test submitted successfully", result);
+      router.push(`/result/${participantId}`);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   if (!testData) {

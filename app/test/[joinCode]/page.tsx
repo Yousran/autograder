@@ -91,14 +91,14 @@ export default function TestJoinPage() {
           <div className="w-full flex justify-center items-center gap-4">
             <Card className="w-full flex flex-col items-center p-4">
               <i className="bx bx-time text-7xl"></i>
-              <p className="text-lg font-semibold text-primary">
+              <p className="text-lg font-semibold text-primary overflow-ellipsis">
                 {testData ? `${testData.test_duration} min` : "Loading..."}
               </p>
             </Card>
             <Card className="w-full flex flex-col items-center p-4">
               <i className="bx bx-list-ol text-7xl"></i>
-              <p className="text-lg font-semibold text-primary">
-                {testData ? `${testData.total_questions} Questions` : "Loading..."}
+              <p className="text-lg font-semibold text-primary overflow-ellipsis whitespace-nowrap">
+              {testData ? `${testData.total_questions} Questions` : "Loading..."}
               </p>
             </Card>
             <Card className="w-full flex flex-col items-center p-4">
