@@ -1,6 +1,7 @@
 // app/create-test/page.tsx
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { CreateQuestion } from "@/components/custom/create-question";
 import Navbar from "@/components/custom/navbar";
 import { Button } from "@/components/ui/button";
@@ -9,9 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-
 export default function CreateTestPage() {
-  // State untuk data test
+  const router = useRouter();
   const [testTitle, setTestTitle] = useState("");
   const [testDuration, setTestDuration] = useState<number>(0);
   const [acceptResponses, setAcceptResponses] = useState(false);
@@ -95,8 +95,7 @@ export default function CreateTestPage() {
 
       if (res.ok) {
         const data = await res.json();
-        alert("Test berhasil dibuat!" );
-        console.log(data);
+        router.push(`/show-created-test/${data.join_code}`);
         // Lakukan redirect atau reset form sesuai kebutuhan
       } else {
         const error = await res.json();

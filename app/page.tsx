@@ -6,9 +6,9 @@
 //TODO: profile page
 //TODO: show created test
 //TODO: edit title, edit settings
-
 //TODO: join test
 //TODO: working test
+
 //TODO: test result
 //TODO: edit test result
 //TODO: share join code and QR code
@@ -46,7 +46,7 @@ export default function Home() {
     <>
       <Navbar />
       <div className="flex justify-center items-center min-h-screen p-4">
-        <Card className="w-full max-w-md shadow-lg rounded-2xl">
+        <Card className="w-fit shadow-lg rounded-2xl">
           <CardContent className="flex flex-col gap-6 p-6">
             <h2 className="text-xl font-semibold text-center">Enter Join Code</h2>
             <div className="w-full flex justify-center">
@@ -69,7 +69,7 @@ export default function Home() {
                 </InputOTPGroup>
               </InputOTP>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex gap-4">
               <Button
                 variant="default"
                 className="w-full"

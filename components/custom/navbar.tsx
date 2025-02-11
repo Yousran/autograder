@@ -35,7 +35,12 @@ export default function Navbar() {
   return (
     <nav className="flex justify-between items-center p-4 shadow-sm bg-white">
       {/* Logo */}
-      <div className="text-xl font-bold">Autograder</div>
+      <div 
+        className="text-xl font-bold cursor-pointer" 
+        onClick={() => router.push("/")}
+      >
+        Autograder
+      </div>
 
       {/* Profile Avatar / Login Button */}
       <DropdownMenu>
