@@ -67,6 +67,7 @@ export type TestData = {
 export default function StartTest() {
   const { joinCode } = useParams<{ joinCode: string }>();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [testData, setTestData] = useState<TestData | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(0);
@@ -127,6 +128,7 @@ export default function StartTest() {
     };
   
     try {
+      setIsLoading(true);
       let res;
       if (question.type === "choice") {
         res = await fetch("/api/v1/answer/choice/update", {
@@ -162,7 +164,9 @@ export default function StartTest() {
       setOriginalQuestions((prev) =>
         prev.map((q) => (q.id === question.id ? { ...question } : q))
       );
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       console.error("Error updating question:", err);
     }
   };  
@@ -345,8 +349,8 @@ export default function StartTest() {
       </div>
 
       <footer className="fixed bottom-0 left-0 w-full p-4 flex justify-between items-center">
-        <Button onClick={handlePrev} disabled={currentIndex === 0}>
-          Prev
+        <Button onClick={handlePrev} disabled={currentIndex === 0 || isLoading}>
+          {isLoading ? "Loading..." : "Prev"}
         </Button>
         <div className="flex gap-2">
         <Button
@@ -362,14 +366,17 @@ export default function StartTest() {
         {currentIndex === testData.questions.length - 1 ? (
         <AlertDialog open={showFinishDialog} onOpenChange={setShowFinishDialog}>
         <AlertDialogTrigger asChild>
-          <Button
+            <Button
             onClick={async () => {
-              handleFinalAnswer(); // simpan jawaban terakhir
-              setShowFinishDialog(true); // baru buka dialog
+              setIsLoading(true); // Set loading state
+              await handleFinalAnswer(); // Simpan jawaban terakhir
+              setIsLoading(false); // Reset loading state
+              setShowFinishDialog(true); // Baru buka dialog
             }}
-          >
-            Finish
-          </Button>
+            disabled={isLoading} // Disable button saat loading
+            >
+            {isLoading ? "Loading..." : "Finish"}
+            </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -392,8 +399,8 @@ export default function StartTest() {
         </AlertDialogContent>
       </AlertDialog>      
         ) : (
-        <Button onClick={handleNext}>
-            Next
+        <Button onClick={handleNext} disabled={isLoading}>
+            {isLoading ? "Loading..." : "Next"}
         </Button>
         )}
       </footer>

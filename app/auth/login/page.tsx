@@ -11,11 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function Login() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
 
   const handleLogin = async () => {
+    setIsLoading(true);
     const res = await fetch("/api/v1/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -64,9 +66,9 @@ export default function Login() {
           <Button variant={"secondary"} className="w-fit" onClick={() => router.push("/")}>
             Back
           </Button>
-          <Button className="w-fit" onClick={handleLogin}>
-            Login
-          </Button>
+            <Button className="w-fit" onClick={handleLogin} disabled={isLoading}>
+            {isLoading ? "Loading..." : "Login"}
+            </Button>
         </div>
         <p className="text-center text-sm">
           Dont have an account?{" "}

@@ -10,12 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function Register() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
 
   const handleRegister = async () => {
+    setIsLoading(true);
     const res = await fetch("/api/v1/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -73,8 +75,8 @@ export default function Register() {
             placeholder="Enter your password"
           />
         </div>
-        <Button className="w-full" onClick={handleRegister}>
-          Register
+        <Button className="w-full" onClick={handleRegister} disabled={isLoading}>
+          {isLoading ? "Registering..." : "Register"}
         </Button>
         <p className="text-center text-sm">
           Already have an account?{" "}

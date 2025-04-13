@@ -23,7 +23,7 @@ type DecodedToken = {
 export default function Test() {
   const { joinCode } = useParams();
   const router = useRouter();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState("");
@@ -74,6 +74,7 @@ export default function Test() {
 
   const handleStartTest = async () => {
     try {
+      setIsLoading(true);
       const token = Cookies.get("token");
       const res = await fetch("/api/v1/participant/store", {
         method: "POST",
@@ -92,9 +93,11 @@ export default function Test() {
         Cookies.set("participant", data.participant, { path: "/" });
         router.push(`/test/${joinCode}/start`);
       } else {
+        setIsLoading(false);
         toast.error("Gagal bergabung", { description: data.message });
       }
     } catch (err) {
+      setIsLoading(false);
       console.error(err);
       toast.error("Terjadi kesalahan saat memulai test");
     }
@@ -127,11 +130,11 @@ export default function Test() {
                   onChange={(e) => setUsername(e.target.value)}
                 />
               )}
-              <Button
+                <Button
                 className="w-full"
-                disabled={!testData.acceptResponses || username.trim() === ""}
+                disabled={isLoading || !testData.acceptResponses || username.trim() === ""}
                 onClick={handleStartTest}
-              >
+                >
                 {testData.acceptResponses ? "Start Test" : "Test is not accepting responses"}
               </Button>
             </CardContent>

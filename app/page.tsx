@@ -1,4 +1,10 @@
 // app/page.tsx
+// TODO: unique participant username test
+// TODO: Detailed Score for test creator
+// TODO: Detailed Score for participant
+// TODO: English language for all ui
+// TODO: Add QR Code Feature
+
 "use client";
 
 import Navbar from "@/components/custom/navbar";

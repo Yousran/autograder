@@ -15,7 +15,7 @@ import { Question } from "@/types";
 
 export default function CreateTest() {
   const router = useRouter();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [nextId, setNextId] = useState(1);
   const [testTitle, setTestTitle] = useState("");
@@ -57,6 +57,7 @@ export default function CreateTest() {
     };
 
     try {
+      setIsLoading(true);
       const res = await fetch("/api/v1/test/store", {
         method: "POST",
         headers: {
@@ -78,6 +79,7 @@ export default function CreateTest() {
         });
       }
     } catch (error) {
+      setIsLoading(false);
       console.error(error);
       toast.error("Kesalahan jaringan", {
         description: "Tidak dapat terhubung ke server.",
@@ -137,9 +139,14 @@ export default function CreateTest() {
                   onCheckedChange={setIsOrdered}
                 />
               </div>
-              <Button variant="default" className="w-full" onClick={handleCreateTest}>
-                Create Test
-              </Button>
+                <Button
+                variant="default"
+                className="w-full"
+                onClick={handleCreateTest}
+                disabled={isLoading}
+                >
+                {isLoading ? "Creating..." : "Create Test"}
+                </Button>
             </CardContent>
           </Card>
 
