@@ -1,21 +1,10 @@
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+// lib/auth.ts
+import bcrypt from 'bcrypt';
 
-const SECRET = process.env.JWT_SECRET || "your_secret_key";
-
-export function signToken(payload: object) {
-  return jwt.sign(payload, SECRET, { expiresIn: "7d" });
+export async function hashPassword(password: string) {
+  return bcrypt.hash(password, 10);
 }
 
-export function verifyToken(token: string) {
-  try {
-    return jwt.verify(token, SECRET);
-  } catch {
-    return null;
-  }
-}
-
-export async function getUserFromToken() {
-  const token = (await cookies()).get("token")?.value;
-  return token ? verifyToken(token) : null;
+export async function comparePassword(password: string, hashed: string) {
+  return bcrypt.compare(password, hashed);
 }

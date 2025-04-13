@@ -1,27 +1,6 @@
-//TODO: login
-//TODO: logout
-//TODO: auth ui
-//TODO: api auth middleware
-//TODO: create test
-//TODO: profile page
-//TODO: show created test
-//TODO: edit title, edit settings
-//TODO: join test
-//TODO: working test
-
-//TODO: test result
-//TODO: edit test result
-//TODO: share join code and QR code
-//TODO: create choice question,set true first choice by default
-//TODO: settings true by default
-//TODO: is_ordered and unordered
-//TODO: optional test duration using alarm input
-//TODO: edit profile
-//TODO: login with google
+// app/page.tsx
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Navbar from "@/components/custom/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +10,8 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Home() {
   const router = useRouter();
@@ -45,7 +26,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <div className="flex justify-center items-center min-h-screen p-4">
+      <div className="flex justify-center items-center min-h-screen pt-16">
         <Card className="w-fit shadow-lg rounded-2xl">
           <CardContent className="flex flex-col gap-6 p-6">
             <h2 className="text-xl font-semibold text-center">Enter Join Code</h2>
@@ -69,7 +50,7 @@ export default function Home() {
                 </InputOTPGroup>
               </InputOTP>
             </div>
-            <div className="flex gap-4">
+            <div className="flex w-full gap-4">
               <Button
                 variant="default"
                 className="w-full"
@@ -78,9 +59,10 @@ export default function Home() {
               >
                 Join
               </Button>
-              <Button variant="secondary" className="w-fit">
+              {/* TODO: QR Feature */}
+              {/* <Button variant="secondary" className="w-fit">
                 <i className="bx bx-scan text-lg"></i>
-              </Button>
+              </Button> */}
             </div>
           </CardContent>
         </Card>

@@ -1,34 +1,23 @@
+// app/api/v1/register/route.ts
+
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
+import { hashPassword } from "@/lib/auth";
+
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  try {
-    const { username, email, password } = await req.json();
+  const { username, email, password } = await req.json();
 
-    // Cek apakah email sudah digunakan
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      return NextResponse.json({ error: "Email already registered" }, { status: 400 });
-    }
-
-    // Hash password sebelum menyimpan ke database
-    // const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Simpan user baru ke database
-    await prisma.user.create({
-      data: {
-        username,
-        email,
-        password: password,
-        role_id: 2,
-      },
-    });
-
-    return NextResponse.json({ message: "User registered successfully!" }, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser) {
+    return NextResponse.json({ message: "Email already used" }, { status: 400 });
   }
+
+  const hashedPassword = await hashPassword(password);
+  const user = await prisma.user.create({
+    data: { email, username, password: hashedPassword },
+  });
+
+  return NextResponse.json({ message: "User registered successfully", userId: user.id });
 }

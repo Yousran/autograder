@@ -1,33 +1,26 @@
-// api/v1/login/route.ts (atau nama file login endpoint Anda)
+// app/api/v1/login/route.ts
+
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import prisma from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
+import { comparePassword } from "@/lib/auth";
+import { signJwt } from "@/lib/jwt";
+
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  try {
-    const { email, password } = await req.json();
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-  
-    if (!user || user.password !== password) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
-    }
+  const { email, password } = await req.json();
 
-    // Ubah payload menjadi { id: user.id } agar sesuai dengan pengecekan di create-test
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, {
-      expiresIn: "1h",
-    });
-
-    return NextResponse.json({
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      },
-    });
-  } catch {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || !(await comparePassword(password, user.password))) {
+    return NextResponse.json({ message: "Invalid email or password" }, { status: 401 });
   }
+
+  const token = signJwt({
+    userId: user.id,
+    email: user.email,
+    username: user.username,
+  });
+  
+
+  return NextResponse.json({ token });
 }

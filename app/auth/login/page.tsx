@@ -1,39 +1,38 @@
-"use client";
+// app/auth/login/page.tsx
 
+"use client";
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
 
-export default function LoginPage() {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleLogin = async () => {
-    try {
-      const response = await fetch("/api/v1/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+    const res = await fetch("/api/v1/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      document.cookie = `token=${data.token}; path=/`;
+      toast.success("Login berhasil!", {
+        description: "Selamat datang kembali",
       });
-
-      const data = await response.json();
-      if (!response.ok) {
-        alert(data.error || "Registration failed!");
-        return;
-      }
-
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("username", data.user.username);
-  
-      alert("Login successful!");
       router.push("/");
-    } catch (error) {
-      console.error("Login error:", error);
-      alert("Something went wrong!");
+    } else {
+      toast.error("Login gagal", {
+        description: data.message,
+      });
     }
   };
 
@@ -43,17 +42,37 @@ export default function LoginPage() {
         <h2 className="text-xl font-bold text-center">Login</h2>
         <div>
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" />
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+          />
         </div>
         <div>
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" />
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+          />
         </div>
-        <Button className="w-full" onClick={handleLogin}>
-          Login
-        </Button>
+        <div className="w-full flex items-center justify-center gap-4">
+          <Button variant={"secondary"} className="w-fit" onClick={() => router.push("/")}>
+            Back
+          </Button>
+          <Button className="w-fit" onClick={handleLogin}>
+            Login
+          </Button>
+        </div>
         <p className="text-center text-sm">
-          Dont have an account? <Link href="/auth/register" className="text-blue-600">Register</Link>
+          Dont have an account?{" "}
+          <Link href="/auth/register" className="text-blue-600">
+            Register
+          </Link>
         </p>
       </div>
     </div>

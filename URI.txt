@@ -1,0 +1,44 @@
+==========================APP=========================
+
+/auth/login
+/auth/register
+
+/test/create
+/test/[joinCode]/edit
+
+/test/[joinCode]
+/test/[joinCode]/start
+/test/[joinCode]/result
+
+/profile/[username]
+/profile/[username]/edit
+
+==========================API=========================
+
+/api/v1/register
+/api/v1/login
+/api/v1/profile/show
+/api/v1/profile/update
+
+/api/v1/tests/created
+/api/v1/tests/taken
+
+/api/v1/test/store
+/api/v1/test/show
+
+/api/v1/test/update (akan mengupdate test seperti accept responses dan sebagainya)
+/api/v1/test/destroy
+
+/api/v1/participants (akan dipanggil tiap 5 detik di UI)
+
+/api/v1/participant/store (saat store maka akan membuat answer untuk semua pertanyaan dengan nilai kosong)
+
+/api/v1/participant/show
+/api/v1/participant/update
+
+/api/v1/answer/choice/update
+/api/v1/answer/essay/update
+
+/api/v1/login
+/api/v1/login
+/api/v1/login
