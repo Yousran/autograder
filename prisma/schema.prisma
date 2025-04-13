@@ -15,7 +15,7 @@ datasource db {
 
 model User {
   id        Int      @id @default(autoincrement())
-  username  String?   
+  username  String   @unique
   email     String   @unique
   password  String
 
@@ -31,9 +31,13 @@ model Participant {
   testId    Int
   userId    Int?
   username  String?
-  totalScore     Float?
+  totalScore Float?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([testId])
+  @@index([userId])
 
   // Relations
   test      Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
@@ -55,6 +59,8 @@ model Test {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([creatorId]) // Menambahkan index untuk pencarian berdasarkan creatorId
+
   questions Question[]
   participants Participant[]
   user     User      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
@@ -71,23 +77,25 @@ model Question {
   test      Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
   essay     EssayQuestion?
   choice    ChoiceQuestion?
+
+  @@index([testId]) // Sudah ada, ini sudah cukup
 }
 
 model EssayQuestion {
   id        Int      @id @default(autoincrement())
-  questionText String
-  answerText String
-  
+  questionText String @db.Text
+  answerText String @db.Text
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   question   Question  @relation(fields: [id], references: [id], onDelete: Cascade)
   answers   EssayAnswer[]
 }
 
 model ChoiceQuestion {
   id        Int      @id @default(autoincrement())
-  questionText String
+  questionText String @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -100,11 +108,13 @@ model ChoiceQuestion {
 model Choice {
   id        Int      @id @default(autoincrement())
   questionId Int
-  choiceText String
+  choiceText String @db.Text
   isCorrect Boolean
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([questionId]) // Untuk mempercepat pencarian berdasarkan questionId
 
   question ChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   answers  ChoiceAnswer[]
@@ -114,11 +124,14 @@ model EssayAnswer {
   id        Int      @id @default(autoincrement())
   questionId Int
   participantId Int
-  answerText String @default("")
+  answerText String @db.Text
   score     Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([participantId]) // Untuk mempercepat pencarian berdasarkan participantId
+  @@index([questionId]) // Untuk mempercepat pencarian berdasarkan questionId
 
   question   EssayQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
@@ -128,11 +141,14 @@ model ChoiceAnswer {
   id        Int      @id @default(autoincrement())
   questionId Int
   participantId Int
-  selectedChoiceId Int? @default(0)
+  selectedChoiceId Int?
   score     Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([participantId]) // Untuk mempercepat pencarian berdasarkan participantId
+  @@index([questionId]) // Untuk mempercepat pencarian berdasarkan questionId
 
   participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
   question   ChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
