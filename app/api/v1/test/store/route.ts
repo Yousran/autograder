@@ -29,26 +29,43 @@ interface TestPayload {
   questions: QuestionPayload[];
 }
 
-const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Hindari karakter ambigu
-const base = chars.length;
-const secretKey = 0x5a3c; // Contoh secret key (bisa angka acak rahasia)
+const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const BASE = CHARS.length;
+const CODE_LENGTH = 6;
+const MAX_ID = Math.pow(BASE, CODE_LENGTH) - 1; // 729,000,000 - 1
 
-// Encode
-export function encodeJoinCode(id: number): string {
-  const obfuscated = id ^ secretKey; // XOR dengan secret key
-  let code = "";
-  let current = obfuscated;
+function feistelRound(value: number, roundKey: number): number {
+    return ((value ^ roundKey) + 0xabcd) & 0x7fff; // Operasi sederhana dengan XOR dan penambahan
+}
 
-  while (current > 0) {
-    code = chars[current % base] + code;
-    current = Math.floor(current / base);
-  }
+function feistelEncrypt30(id: number, keys: number[]): number {
+    let left = (id >> 15) & 0x7fff; // 15 bit kiri
+    let right = id & 0x7fff;        // 15 bit kanan
+    
+    for (const key of keys) {
+        const temp = left ^ feistelRound(right, key);
+        left = right;
+        right = temp;
+    }
+    
+    return (left << 15) | right;
+}
 
-  while (code.length < 6) {
-    code = chars[0] + code;
-  }
+function encodeJoinCode(id: number): string {
+    if (id > MAX_ID) throw new Error("ID terlalu besar");
 
-  return code;
+    const secretKey = [0x1234, 0x5678, 0x9abc];
+    
+    const encryptedId = feistelEncrypt30(id, secretKey);
+    let code = "";
+    let current = encryptedId;
+    
+    for (let i = 0; i < CODE_LENGTH; i++) {
+        code = CHARS[current % BASE] + code;
+        current = Math.floor(current / BASE);
+    }
+    
+    return code;
 }
 
 export async function POST(req: Request) {
