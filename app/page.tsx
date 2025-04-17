@@ -1,7 +1,7 @@
 // app/page.tsx
-// TODO: unique participant username test
-// TODO: Detailed Score for test creator
 // TODO: Detailed Score for participant
+// TODO: last question doesnt update when showing test result
+// TODO: Test Join Code Using their UUID and change them into 6 digit code
 // TODO: English language for all ui
 // TODO: Add QR Code Feature
 

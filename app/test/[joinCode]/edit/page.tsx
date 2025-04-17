@@ -219,7 +219,9 @@ export default function EditTest() {
                 participants
                   .filter((p) => p.test.joinCode === joinCode)
                   .map((p) => (
-                    <Card key={p.id}>
+                    <Card key={p.id} 
+                          className="hover:bg-gray-100 cursor-pointer transition"
+                          onClick={() => router.push(`/participant/${joinCode}/${p.id}`)}>
                       <CardContent className="flex justify-between items-center gap-4 px-4 py-4">
                         <div>
                           <p className="font-semibold">
