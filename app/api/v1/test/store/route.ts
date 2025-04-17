@@ -29,6 +29,28 @@ interface TestPayload {
   questions: QuestionPayload[];
 }
 
+const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Hindari karakter ambigu
+const base = chars.length;
+const secretKey = 0x5a3c; // Contoh secret key (bisa angka acak rahasia)
+
+// Encode
+export function encodeJoinCode(id: number): string {
+  const obfuscated = id ^ secretKey; // XOR dengan secret key
+  let code = "";
+  let current = obfuscated;
+
+  while (current > 0) {
+    code = chars[current % base] + code;
+    current = Math.floor(current / base);
+  }
+
+  while (code.length < 6) {
+    code = chars[0] + code;
+  }
+
+  return code;
+}
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as TestPayload;
@@ -50,18 +72,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Invalid test data" }, { status: 400 });
     }
 
-    // Generate unique joinCode
-    const joinCode = Array.from({ length: 6 }, () => {
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-      return chars[Math.floor(Math.random() * chars.length)];
-    }).join("");
-
     const createdTest = await prisma.test.create({
       data: {
         creatorId: user.userId,
         testTitle: body.testTitle,
         testDuration: body.testDuration,
-        joinCode,
+        joinCode: "",
         acceptResponses: body.acceptResponses,
         showDetailedScores: body.showDetailedScore,
         isOrdered: body.isOrdered,
@@ -96,7 +112,20 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ message: "Test created successfully", test: createdTest }, { status: 201 });
+    const joinCode = encodeJoinCode(createdTest.id);
+
+    // Update test dengan joinCode
+    await prisma.test.update({
+      where: { id: createdTest.id },
+      data: { joinCode },
+    });
+
+    const updatedTest = await prisma.test.findUnique({
+      where: { id: createdTest.id },
+      include: { questions: true },
+    });
+
+    return NextResponse.json({ message: "Test created successfully", test: updatedTest }, { status: 201 });
   } catch (error) {
     console.error("Error creating test:", error);
     return NextResponse.json({ message: "Server error", error }, { status: 500 });

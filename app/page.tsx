@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/input-otp";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
 
 export default function Home() {
   const router = useRouter();
@@ -39,6 +40,7 @@ export default function Home() {
             <div className="w-full flex justify-center">
               <InputOTP
                 maxLength={6}
+                pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                 className="flex justify-center"
                 value={joinCode}
                 onChange={(value) => setJoinCode(value.toUpperCase())} // Pastikan huruf kapital
