@@ -98,9 +98,48 @@ export async function POST(req: Request) {
     }
 
     // Grading and updating the score after saving the answer
-    handleGrading(existingAnswer.id, answerText, question.essay.answerText)
+    await handleGrading(existingAnswer.id, answerText, question.essay.answerText)
       .catch(error => console.error("Grading process failed:", error));
 
+    // Ambil jawaban essay & choice peserta
+    const [essayAnswers, choiceAnswers] = await Promise.all([
+      prisma.essayAnswer.findMany({
+        where: { participantId },
+      }),
+      prisma.choiceAnswer.findMany({
+        where: { participantId },
+        include: { choice: true },
+      }),
+    ]);
+
+    // Hitung total skor
+    let totalScore = 0;
+    let maxScore = 0;
+
+    // Skor dari essay
+    for (const answer of essayAnswers) {
+      if (answer.score !== null && answer.score !== undefined) {
+        totalScore += answer.score;
+        maxScore += 5; // anggap skor maksimal essay = 100 per soal (atau sesuaikan)
+      }
+    }
+
+    // Skor dari pilihan ganda
+    for (const answer of choiceAnswers) {
+      if (answer.score !== null && answer.score !== undefined) {
+        totalScore += answer.score;
+        maxScore += 1; // anggap skor maksimal choice = 100 per soal (atau sesuaikan)
+      }
+    }
+
+    // Normalisasi skor ke skala 0-100
+    const finalScore = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
+
+    // Simpan total skor ke database
+    await prisma.participant.update({
+      where: { id: participantId },
+      data: { totalScore: finalScore },
+    });
     return NextResponse.json({ message: "Answer updated and scored successfully" });
   } catch (err) {
     console.error("Error updating essay answer:", err);

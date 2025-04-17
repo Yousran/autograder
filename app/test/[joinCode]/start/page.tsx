@@ -198,7 +198,6 @@ export default function StartTest() {
           isMarked: q.isMarked ?? false,
         }));
         setTestData({ ...data, questions: questionsWithMark });
-        console.log("Test data:", data);
         // Simpan deep copy untuk perbandingan update
         setOriginalQuestions(JSON.parse(JSON.stringify(questionsWithMark)));
       } catch (err) {
