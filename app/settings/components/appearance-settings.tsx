@@ -1,3 +1,4 @@
+// file: app/settings/components/appearance-settings.tsx
 "use client";
 
 import { ThemeSelector } from "@/components/custom/theme-selector";

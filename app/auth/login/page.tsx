@@ -37,7 +37,6 @@ export default function Login() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     try {
       fetch("/api/v1/auth/login", {
         method: "POST",

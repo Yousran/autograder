@@ -1,5 +1,5 @@
+// file: app/settings/page.tsx
 "use client";
-//TODO: Suppress or handle Hydration warning
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getDecodedToken } from "@/lib/auth-client";
@@ -18,12 +18,16 @@ export default function SettingsPage() {
   >("appearance");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<DecodedToken | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const decoded = getDecodedToken();
     setUser(decoded);
     setIsLoggedIn(!!decoded);
   }, []);
+
+  if (!isMounted) return null;
 
   return (
     <div className="w-screen min-h-screen flex justify-center py-16 p-4">

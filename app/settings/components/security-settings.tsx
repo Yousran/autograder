@@ -1,3 +1,4 @@
+// file: app/settings/components/security-settings.tsx
 "use client";
 
 import { useState } from "react";

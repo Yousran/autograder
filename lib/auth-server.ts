@@ -1,4 +1,3 @@
-// lib/jwt.ts
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { DecodedToken } from "../types/token";

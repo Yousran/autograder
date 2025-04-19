@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ export default function Navbar() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<DecodedToken | null>();
+  const pathname = usePathname();
 
   useEffect(() => {
     const decoded = getDecodedToken();
@@ -35,7 +36,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 shadow-sm bg-card text-foreground">
+    <nav className="w-full flex items-center justify-between p-4 shadow-sm bg-card text-foreground">
       <Label
         className="text-2xl font-bold cursor-pointer"
         onClick={() => router.push("/")}
@@ -43,9 +44,9 @@ export default function Navbar() {
         Autograde
       </Label>
       <div className="flex space-x-4">
-        {isLoggedIn ? (
+        {isLoggedIn && pathname !== "/test/create" && (
           <Button onClick={() => router.push("/test/create")}>Make Test</Button>
-        ) : null}
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="cursor-pointer">

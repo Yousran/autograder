@@ -1,3 +1,5 @@
+// file: lib/auth-client.ts
+"use client";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken } from "@/types/token";
