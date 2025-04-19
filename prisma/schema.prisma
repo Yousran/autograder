@@ -62,8 +62,9 @@ model Question {
   id     String @id @default(uuid())
   testId String
 
-  type  QuestionType
-  order Int          @default(0)
+  questionText String       @db.Text
+  type         QuestionType
+  order        Int          @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -79,7 +80,6 @@ model Question {
 // ESSAY QUESTION
 model EssayQuestion {
   id            String  @id @default(uuid())
-  questionText  String  @db.Text
   answerText    String  @db.Text
   isExactAnswer Boolean
   maxScore      Int
@@ -108,8 +108,8 @@ model EssayAnswer {
 
 // CHOICE QUESTION
 model ChoiceQuestion {
-  id                 String  @id @default(uuid())
-  questionText       String  @db.Text
+  id String @id @default(uuid())
+
   isChoiceRandomized Boolean
   maxScore           Int
 
@@ -160,7 +160,6 @@ model ChoiceAnswer {
 model MultipleChoiceQuestion {
   id String @id @default(uuid())
 
-  questionText       String  @db.Text
   isChoiceRandomized Boolean
   maxScore           Int
 
