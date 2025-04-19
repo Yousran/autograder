@@ -43,8 +43,8 @@ export function ProfileSettings({ user }: { user: DecodedToken | null }) {
   const onSubmit = async (values: ProfileFormValues) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/v1/user/update", {
-        method: "POST",
+      const res = await fetch("/api/v1/user/", {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Cookies.get("token") ?? ""}`, // atau dari cookie kalau kamu simpan di sana

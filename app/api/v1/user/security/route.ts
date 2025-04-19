@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { comparePassword, getUserFromToken } from "@/lib/auth-server";
+import {
+  comparePassword,
+  hashPassword,
+  getUserFromToken,
+} from "@/lib/auth-server";
 
 const updateSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(6, "Password is required to confirm changes"),
+  oldPassword: z.string().min(6, "Old password is required"),
+  newPassword: z.string().min(6, "New password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Confirm password is required"),
 });
 
 export async function POST(req: Request) {
@@ -24,7 +28,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const { username, email, password } = parsed.data;
+    const { oldPassword, newPassword, confirmPassword } = parsed.data;
+
+    if (newPassword !== confirmPassword) {
+      return NextResponse.json(
+        { message: "New password and confirm password do not match" },
+        { status: 400 }
+      );
+    }
 
     const authHeader = req.headers.get("authorization") || "";
     const token = authHeader.replace(/^Bearer\s+/, "");
@@ -44,45 +55,29 @@ export async function POST(req: Request) {
     }
 
     // Cocokkan password lama
-    const isPasswordValid = await comparePassword(password, user.password);
+    const isPasswordValid = await comparePassword(oldPassword, user.password);
     if (!isPasswordValid) {
       return NextResponse.json(
-        { message: "Incorrect password" },
+        { message: "Incorrect old password" },
         { status: 401 }
       );
     }
 
-    // Cek apakah username/email sudah dipakai oleh user lain
-    const existing = await prisma.user.findFirst({
-      where: {
-        OR: [{ email }, { username }],
-        NOT: { id: user.id },
-      },
-    });
+    // Hash password baru
+    const hashedNewPassword = await hashPassword(newPassword);
 
-    if (existing) {
-      return NextResponse.json(
-        { message: "Email or username already in use" },
-        { status: 400 }
-      );
-    }
-
-    // Update user
-    const updatedUser = await prisma.user.update({
+    // Update password user
+    await prisma.user.update({
       where: { id: user.id },
-      data: { username, email },
-      select: { id: true, username: true, email: true },
+      data: { password: hashedNewPassword },
     });
 
     return NextResponse.json(
-      {
-        message: "Profile updated successfully",
-        user: updatedUser,
-      },
+      { message: "Password updated successfully" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Update profile error:", error);
+    console.error("Update password error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
