@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import Document from "@tiptap/extension-document";
 import Gapcursor from "@tiptap/extension-gapcursor";
@@ -33,6 +33,7 @@ interface TiptapEditorProps {
   onChange?: (value: string) => void;
   placeholder?: string;
 }
+
 const lowlight = createLowlight(all);
 const limit = 1000;
 
@@ -41,9 +42,6 @@ const TiptapEditor = ({
   onChange,
   placeholder = "Write something...",
 }: TiptapEditorProps) => {
-  const [isFocused, setIsFocused] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
   const editor = useEditor({
     extensions: [
       Document,
@@ -84,51 +82,24 @@ const TiptapEditor = ({
     },
   });
 
-  // Handle external value changes
+  // Sync external changes to the editor
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
       editor.commands.setContent(value);
     }
   }, [value, editor]);
 
-  // Deteksi focus & blur dari editor Tiptap
-  useEffect(() => {
-    if (!editor) return;
-
-    const handleFocus = () => setIsFocused(true);
-    const handleBlur = () => {
-      setTimeout(() => {
-        const active = document.activeElement;
-        if (wrapperRef.current?.contains(active)) return;
-        setIsFocused(false);
-      }, 0);
-    };
-
-    editor.on("focus", handleFocus);
-    editor.on("blur", handleBlur);
-
-    return () => {
-      editor.off("focus", handleFocus);
-      editor.off("blur", handleBlur);
-    };
-  }, [editor]);
-
   if (!editor) return null;
 
   return (
-    <div
-      ref={wrapperRef}
-      className="border-input dark:bg-input/30 w-full rounded-md border bg-transparent text-base shadow-xs outline-none"
-    >
-      {isFocused && <TiptapMenubar editor={editor} />}
+    <div className="border-input dark:bg-input/50 w-full rounded-md border bg-transparent text-base shadow-xs outline-none">
+      <TiptapMenubar editor={editor} />
       <EditorContent editor={editor} />
-      {isFocused && (
-        <div className="m-4 text-sm text-card-foreground">
-          {editor.storage.characterCount.characters()} / {limit} characters
-          <br />
-          {editor.storage.characterCount.words()} words
-        </div>
-      )}
+      <div className="m-4 text-sm text-card-foreground">
+        {editor.storage.characterCount.characters()} / {limit} characters
+        <br />
+        {editor.storage.characterCount.words()} words
+      </div>
     </div>
   );
 };
