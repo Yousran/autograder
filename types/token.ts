@@ -1,5 +1,5 @@
 export type DecodedToken = {
-  userId: number;
+  userId: string;
   email: string;
   username: string;
   exp: number;

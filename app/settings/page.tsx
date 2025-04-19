@@ -1,22 +1,23 @@
 "use client";
-
+//TODO: Suppress or handle Hydration warning
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getDecodedToken } from "@/lib/auth-client";
 import { DecodedToken } from "@/types/token";
-import { ThemeSelector } from "@/components/custom/theme-selector";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
+import { AppearanceSettings } from "./components/appearance-settings";
+import { ProfileSettings } from "./components/profile-settings";
+import { SecuritySettings } from "./components/security-settings";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"profile" | "appearance">(
-    "appearance"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "appearance" | "security"
+  >("appearance");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<DecodedToken | null>();
+  const [user, setUser] = useState<DecodedToken | null>(null);
 
   useEffect(() => {
     const decoded = getDecodedToken();
@@ -37,47 +38,33 @@ export default function SettingsPage() {
       </Button>
       <main className="w-full max-w-3xl flex justify-center gap-4">
         <Card className="w-2/3 min-h-full p-4">
-          {activeTab === "appearance" ? (
-            <div className="space-y-4">
-              <Label className="text-xl font-semibold">
-                Appearance Settings
-              </Label>
-              <Label className="text-md font-medium my-2">Theme</Label>
-              <ThemeSelector />
-              <Label className="text-md font-medium my-2 text-muted-foreground">
-                Language
-              </Label>
-              <div className="flex flex-col gap-2">
-                <Button variant="outline" className="w-full" disabled>
-                  Bahasa Indonesia
-                </Button>
-                <Button variant="outline" className="w-full" disabled>
-                  English
-                </Button>
-              </div>
-              {/* Tambahkan komponen appearance lainnya di sini */}
-            </div>
-          ) : isLoggedIn ? (
-            <div>
-              <Label className="text-xl font-semibold">Profile Settings</Label>
-              {/* TODO: Profile Settings */}
-              <Label className="text-md font-medium my-2">Username</Label>
-              <Button variant="outline" className="w-full" disabled>
-                {user?.username}
-              </Button>
-            </div>
-          ) : null}
+          {activeTab === "appearance" && <AppearanceSettings />}
+          {activeTab === "profile" && isLoggedIn && (
+            <ProfileSettings user={user} />
+          )}
+          {activeTab === "security" && isLoggedIn && (
+            <SecuritySettings user={user} />
+          )}
         </Card>
         <Card className="w-1/3 max-h-fit flex flex-col gap-2 p-4">
-          {isLoggedIn ? (
-            <Button
-              variant={activeTab === "profile" ? "default" : "outline"}
-              className="w-full justify-center md:justify-start"
-              onClick={() => setActiveTab("profile")}
-            >
-              Profile
-            </Button>
-          ) : null}
+          {isLoggedIn && (
+            <>
+              <Button
+                variant={activeTab === "profile" ? "default" : "outline"}
+                className="w-full justify-center md:justify-start"
+                onClick={() => setActiveTab("profile")}
+              >
+                Profile
+              </Button>
+              <Button
+                variant={activeTab === "security" ? "default" : "outline"}
+                className="w-full justify-center md:justify-start"
+                onClick={() => setActiveTab("security")}
+              >
+                Security
+              </Button>
+            </>
+          )}
           <Button
             variant={activeTab === "appearance" ? "default" : "outline"}
             className="w-full justify-center md:justify-start"

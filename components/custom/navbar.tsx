@@ -43,7 +43,9 @@ export default function Navbar() {
         Autograde
       </Label>
       <div className="flex space-x-4">
-        <Button onClick={() => router.push("/test/create")}>Make Test</Button>
+        {isLoggedIn ? (
+          <Button onClick={() => router.push("/test/create")}>Make Test</Button>
+        ) : null}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="cursor-pointer">

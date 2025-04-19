@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth-server";
 import { z } from "zod";
-
-const prisma = new PrismaClient();
 
 // Skema validasi dengan Zod
 const registerSchema = z
