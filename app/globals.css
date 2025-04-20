@@ -217,7 +217,7 @@
   }
 
   pre {
-    background: var(--input);
+    background: oklch(0.3 0 0);
     border-radius: var(--radius-md);
     color: var(--primary);
     font-family: var(--font-mono);
@@ -226,7 +226,7 @@
 
     code {
       background: none;
-      color: inherit;
+      color: oklch(1 0 0);
       font-size: 0.8rem;
       padding: 0;
     }
@@ -246,7 +246,7 @@
     .hljs-name,
     .hljs-selector-id,
     .hljs-selector-class {
-      color: var(--color-red-900);
+      color: var(--color-red-400);
     }
 
     .hljs-number,
@@ -256,23 +256,23 @@
     .hljs-literal,
     .hljs-type,
     .hljs-params {
-      color: var(--color-green-900);
+      color: var(--color-green-400);
     }
 
     .hljs-string,
     .hljs-symbol,
     .hljs-bullet {
-      color: var(--color-blue-900);
+      color: var(--color-blue-400);
     }
 
     .hljs-title,
     .hljs-section {
-      color: var(--color-purple-900);
+      color: var(--color-purple-400);
     }
 
     .hljs-keyword,
     .hljs-selector-tag {
-      color: var(--color-yellow-900);
+      color: var(--color-yellow-400);
     }
 
     .hljs-emphasis {
