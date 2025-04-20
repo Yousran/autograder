@@ -1,41 +1,33 @@
 // file: app/test/create/page.tsx
-
-// TODO: choice question card
-// TODO: max score
-// TODO: choice randomized
-// TODO: multiple choice question card
-
 "use client";
 
 import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import Navbar from "@/components/custom/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { CardQuestion } from "./components/card-question";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { QuestionsBuilder } from "./components/questions-builder";
+import { TestSettings } from "./components/test-settings";
 import { Question } from "@/types/question";
-import { useState } from "react";
-import { PlusIcon } from "lucide-react";
 
-// Schema validasi pakai zod
-const testSchema = z.object({
-  title: z.string().min(1, { message: "Title is required" }),
-  duration: z
+// Schema Zod
+export const testSchema = z.object({
+  title: z.string().min(3, { message: "Title is required" }),
+  description: z.string().optional(),
+  testDuration: z
     .number({ invalid_type_error: "Duration must be a number" })
     .min(1, { message: "Minimum 1 minute" }),
+  startTime: z.date().optional(),
+  endTime: z.date().optional(),
+  acceptResponses: z.boolean(),
+  showDetailedScore: z.boolean(),
+  showCorrectAnswers: z.boolean(),
+  isOrdered: z.boolean(),
 });
 
-type TestFormValues = z.infer<typeof testSchema>;
+export type TestFormValues = z.infer<typeof testSchema>;
 
 const defaultQuestion: Question = {
   id: crypto.randomUUID(),
@@ -48,42 +40,34 @@ const defaultQuestion: Question = {
 };
 
 export default function TestCreatePage() {
-  const [questions, setQuestions] = useState<Question[]>([defaultQuestion]);
-  const form = useForm<TestFormValues>({
-    resolver: zodResolver(testSchema),
-    defaultValues: {
-      title: "",
-      duration: 30,
-    },
+  const [test, setTest] = useState<TestFormValues>({
+    title: "",
+    testDuration: 30,
+    description: "",
+    startTime: undefined,
+    endTime: undefined,
+    acceptResponses: true,
+    showDetailedScore: false,
+    showCorrectAnswers: false,
+    isOrdered: true,
   });
 
-  const onSubmit = (data: TestFormValues) => {
-    console.log("Form submitted", data);
-    console.log("Question submitted", questions);
-    // TODO: handle API call to create test
-  };
+  const [questions, setQuestions] = useState<Question[]>([defaultQuestion]);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fungsi untuk menyisipkan pertanyaan baru
-  const insertQuestion = (insertIndex: number) => {
-    const newQuestion: Question = {
-      id: crypto.randomUUID(),
-      testId: "",
-      type: "ESSAY",
-      questionText: "",
-      order: insertIndex + 1,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+  const handleSubmit = () => {
+    const result = testSchema.safeParse(test);
 
-    const updatedQuestions = [...questions];
-    updatedQuestions.splice(insertIndex, 0, newQuestion);
+    if (!result.success) {
+      const firstError = Object.values(result.error.flatten().fieldErrors)[0];
+      setError(Array.isArray(firstError) ? firstError[0] : "Invalid input");
+      return;
+    }
 
-    // Update urutan pertanyaan
-    updatedQuestions.forEach((q, index) => {
-      q.order = index + 1;
-    });
-
-    setQuestions(updatedQuestions);
+    setError(null);
+    console.log("✅ Valid test data", result.data);
+    console.log("📝 Questions", questions);
+    // TODO: handle API call here
   };
 
   return (
@@ -98,72 +82,49 @@ export default function TestCreatePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Test Title</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter test title" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label htmlFor="title" className="font-medium">
+                    Test Title
+                  </label>
+                  <Input
+                    id="title"
+                    value={test.title}
+                    onChange={(e) =>
+                      setTest({ ...test, title: e.target.value })
+                    }
+                    placeholder="Enter test title"
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="duration"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Duration (minutes)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="30"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button type="submit" className="w-full">
-                    Create Test
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-          <div id="questions" className="flex flex-col gap-4">
-            {questions.map((question, index) => (
-              <div key={question.id} className="flex flex-col gap-4">
-                <CardQuestion
-                  question={question}
-                  questions={questions}
-                  setQuestions={setQuestions}
-                />
-
-                {/* Tombol tambah di antara pertanyaan */}
-                <Button
-                  className="w-full bg-secondary md:h-2 md:bg-secondary md:dark:bg-card md:hover:h-12 md:hover:bg-primary md:hover:dark:bg-primary "
-                  onClick={() => insertQuestion(index + 1)}
-                >
-                  <PlusIcon className="h-12 w-12 stroke-4 stroke-accent-foreground md:stroke-accent" />
+                </div>
+                {error && (
+                  <p className="text-sm text-red-500 mt-1 font-medium">
+                    {error}
+                  </p>
+                )}
+                <Button onClick={handleSubmit} className="w-full">
+                  Create Test
                 </Button>
               </div>
-            ))}
-          </div>
+            </CardContent>
+          </Card>
+
+          <Tabs defaultValue="questions" className="w-full">
+            <TabsList className="w-full grid grid-cols-2">
+              <TabsTrigger value="questions">Questions</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="questions">
+              <QuestionsBuilder
+                questions={questions}
+                setQuestions={setQuestions}
+              />
+            </TabsContent>
+
+            <TabsContent value="settings">
+              <TestSettings test={test} setTest={setTest} />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
