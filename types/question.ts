@@ -7,6 +7,42 @@ export const QuestionType = {
   MULTIPLE_CHOICE: "MULTIPLE_CHOICE",
 } as const;
 
+// src/types/question.ts
+
+export type RawQuestion = {
+  id: string;
+  testId: string;
+  type: QuestionType;
+  questionText: string;
+  order: number;
+  createdAt: string; // masih string dari API
+  updatedAt: string;
+  essay?: {
+    id: string;
+    answerText: string;
+    isExactAnswer: boolean;
+    maxScore: number;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+  choice?: {
+    id: string;
+    isChoiceRandomized: boolean;
+    maxScore: number;
+    createdAt: string;
+    updatedAt: string;
+    choices: Choice[];
+  } | null;
+  multipleChoice?: {
+    id: string;
+    isChoiceRandomized: boolean;
+    maxScore: number;
+    createdAt: string;
+    updatedAt: string;
+    multipleChoices: MultipleChoice[];
+  }[]; // ingat, dari database kamu ini array
+};
+
 export type Question = {
   id: string;
   testId: string;

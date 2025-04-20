@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ test: createdTest }, { status: 201 });
+    return NextResponse.json({ joinCode }, { status: 201 });
   } catch (ZodError) {
     console.error("Validation error:", ZodError);
     return NextResponse.json({ message: ZodError }, { status: 422 });

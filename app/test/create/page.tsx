@@ -3,6 +3,7 @@
 
 import { z } from "zod";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/custom/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,7 @@ export const defaultQuestion: EssayQuestion = {
 };
 
 export default function TestCreatePage() {
+  const router = useRouter();
   const [test, setTest] = useState<TestFormValues>({
     title: "",
     testDuration: 30,
@@ -89,7 +91,7 @@ export default function TestCreatePage() {
     const result = await res.json();
     toast.success("Test created!");
     console.log("Created test:", result.test);
-    return result.test;
+    router.push("/test/" + result.joinCode + "/edit");
   }
 
   return (

@@ -12,9 +12,11 @@ import { Textarea } from "@/components/ui/textarea";
 export function TestSettings({
   test,
   setTest,
+  onUpdateField,
 }: {
   test: TestFormValues;
   setTest: (test: TestFormValues) => void;
+  onUpdateField?: (key: string, value: unknown) => void;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -35,14 +37,15 @@ export function TestSettings({
             />
           </div>
 
+          {/* TODO: Edit Description */}
           <div className="flex flex-col justify-center gap-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={test.description}
-              onChange={(e) =>
-                setTest({ ...test, description: e.target.value })
-              }
+              onChange={(e) => {
+                setTest({ ...test, description: e.target.value });
+              }}
             />
           </div>
 
@@ -50,7 +53,10 @@ export function TestSettings({
             <Label>Accept Responses</Label>
             <Switch
               checked={test.acceptResponses}
-              onCheckedChange={(v) => setTest({ ...test, acceptResponses: v })}
+              onCheckedChange={(v) => {
+                setTest({ ...test, acceptResponses: v });
+                onUpdateField?.("acceptResponses", v);
+              }}
             />
           </div>
 
@@ -58,9 +64,10 @@ export function TestSettings({
             <Label>Show Detailed Score</Label>
             <Switch
               checked={test.showDetailedScore}
-              onCheckedChange={(v) =>
-                setTest({ ...test, showDetailedScore: v })
-              }
+              onCheckedChange={(v) => {
+                setTest({ ...test, showDetailedScore: v });
+                onUpdateField?.("showDetailedScore", v);
+              }}
             />
           </div>
 
@@ -68,9 +75,10 @@ export function TestSettings({
             <Label>Show Correct Answers</Label>
             <Switch
               checked={test.showCorrectAnswers}
-              onCheckedChange={(v) =>
-                setTest({ ...test, showCorrectAnswers: v })
-              }
+              onCheckedChange={(v) => {
+                setTest({ ...test, showCorrectAnswers: v });
+                onUpdateField?.("showCorrectAnswers", v);
+              }}
             />
           </div>
 
@@ -78,7 +86,10 @@ export function TestSettings({
             <Label>Is Ordered</Label>
             <Switch
               checked={test.isOrdered}
-              onCheckedChange={(v) => setTest({ ...test, isOrdered: v })}
+              onCheckedChange={(v) => {
+                setTest({ ...test, isOrdered: v });
+                onUpdateField?.("isOrdered", v);
+              }}
             />
           </div>
         </CardContent>
