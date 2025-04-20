@@ -13,7 +13,7 @@ import {
   RawQuestion,
 } from "@/types/question";
 import { useEffect, useState } from "react";
-import ChoiceComponent from "./choice";
+import ChoiceComponent from "@/components/custom/choice";
 
 export function QuestionCard({ question }: { question: RawQuestion }) {
   const [currentQuestion, setCurrentQuestion] = useState<

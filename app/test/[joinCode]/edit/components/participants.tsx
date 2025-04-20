@@ -13,12 +13,10 @@ export default function Participants({ joinCode }: { joinCode: string }) {
   useEffect(() => {
     async function fetchParticipants() {
       try {
-        const token = getToken();
-
         const res = await fetch(`/api/v1/test/${joinCode}/participants`, {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${getToken()}`,
             "Content-Type": "application/json",
           },
         });

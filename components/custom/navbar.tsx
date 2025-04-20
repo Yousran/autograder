@@ -57,7 +57,13 @@ export default function Navbar() {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {isLoggedIn ? <DropdownMenuItem>Profile</DropdownMenuItem> : null}
+            {isLoggedIn ? (
+              <DropdownMenuItem
+                onClick={() => router.push(`/profile/${user?.username}`)}
+              >
+                Profile
+              </DropdownMenuItem>
+            ) : null}
             <DropdownMenuItem onClick={() => router.push("/settings")}>
               Settings
             </DropdownMenuItem>

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RawQuestion } from "@/types/question";
 import { QuestionCard } from "./question-card";
+import { getToken } from "@/lib/auth-client";
 
 const Questions = ({ joinCode }: { joinCode: string }) => {
   const [questions, setQuestions] = useState<RawQuestion[]>([]);
@@ -11,7 +12,13 @@ const Questions = ({ joinCode }: { joinCode: string }) => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch(`/api/v1/test/${joinCode}/questions`);
+        const res = await fetch(`/api/v1/test/${joinCode}/questions`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        });
         if (!res.ok) {
           throw new Error("Failed to fetch questions");
         }
