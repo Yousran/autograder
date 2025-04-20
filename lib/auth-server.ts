@@ -39,3 +39,9 @@ export function getUserFromToken(token: string) {
     return null;
   }
 }
+
+export function getToken(req: Request) {
+  const authHeader = req.headers.get("authorization") || "";
+  const token = authHeader.replace(/^Bearer\s+/, "");
+  return token;
+}

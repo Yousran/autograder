@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { DecodedToken } from "@/types/token";
 
 export function getDecodedToken(): DecodedToken | null {
-  const token = Cookies.get("token");
+  const token = getToken();
   if (!token) return null;
   try {
     const decoded = jwtDecode<DecodedToken>(token);
@@ -15,4 +15,8 @@ export function getDecodedToken(): DecodedToken | null {
     Cookies.remove("token");
     return null;
   }
+}
+
+export function getToken(): string | null {
+  return Cookies.get("token") || null;
 }

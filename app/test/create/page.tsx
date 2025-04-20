@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QuestionsBuilder } from "./components/questions-builder";
 import { TestSettings } from "./components/test-settings";
-import { Question } from "@/types/question";
+import { EssayQuestion, Question } from "@/types/question";
+import { toast } from "sonner";
+import { getToken } from "@/lib/auth-client";
 
 // Schema Zod
 export const testSchema = z.object({
@@ -29,12 +31,15 @@ export const testSchema = z.object({
 
 export type TestFormValues = z.infer<typeof testSchema>;
 
-const defaultQuestion: Question = {
+export const defaultQuestion: EssayQuestion = {
   id: crypto.randomUUID(),
   testId: "",
   type: "ESSAY",
   questionText: "",
+  answerText: "",
   order: 1,
+  isExactAnswer: false,
+  maxScore: 5,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -53,22 +58,39 @@ export default function TestCreatePage() {
   });
 
   const [questions, setQuestions] = useState<Question[]>([defaultQuestion]);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    const result = testSchema.safeParse(test);
+  async function handleSubmit() {
+    const validation = testSchema.safeParse(test);
 
-    if (!result.success) {
-      const firstError = Object.values(result.error.flatten().fieldErrors)[0];
-      setError(Array.isArray(firstError) ? firstError[0] : "Invalid input");
+    if (!validation.success) {
+      toast.error("Please fill in all required fields.");
       return;
     }
 
-    setError(null);
-    console.log("✅ Valid test data", result.data);
-    console.log("📝 Questions", questions);
-    // TODO: handle API call here
-  };
+    const res = await fetch("/api/v1/test/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({
+        ...validation.data,
+        questions,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      console.error("Gagal submit:", err.message);
+      toast.error("Failed to create test.");
+      return;
+    }
+
+    const result = await res.json();
+    toast.success("Test created!");
+    console.log("Created test:", result.test);
+    return result.test;
+  }
 
   return (
     <div className="max-w-screen min-h-screen flex flex-col">
@@ -96,11 +118,6 @@ export default function TestCreatePage() {
                     placeholder="Enter test title"
                   />
                 </div>
-                {error && (
-                  <p className="text-sm text-red-500 mt-1 font-medium">
-                    {error}
-                  </p>
-                )}
                 <Button onClick={handleSubmit} className="w-full">
                   Create Test
                 </Button>

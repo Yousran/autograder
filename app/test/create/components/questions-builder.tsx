@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { CardQuestion } from "./card-question";
 import { Question } from "@/types/question";
+import { defaultQuestion } from "../page";
 
 export function QuestionsBuilder({
   questions,
@@ -14,10 +15,8 @@ export function QuestionsBuilder({
 }) {
   const insertQuestion = (insertIndex: number) => {
     const newQuestion: Question = {
+      ...defaultQuestion,
       id: crypto.randomUUID(),
-      testId: "",
-      type: "ESSAY",
-      questionText: "",
       order: insertIndex + 1,
       createdAt: new Date(),
       updatedAt: new Date(),
