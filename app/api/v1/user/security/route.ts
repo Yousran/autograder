@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import {
@@ -13,7 +13,7 @@ const updateSchema = z.object({
   confirmPassword: z.string().min(6, "Confirm password is required"),
 });
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const parsed = updateSchema.safeParse(body);
