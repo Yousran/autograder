@@ -3,16 +3,19 @@ import TiptapRenderer from "@/components/custom/tiptap-renderer";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { QuestionWithAnswers } from "../participant-response";
+//TODO: question number based on index in data
 
 export default function Question({
   question,
+  index,
 }: {
   question: QuestionWithAnswers;
+  index: number;
 }) {
   return (
     <Card>
       <CardHeader className="flex items-center justify-between">
-        <Label className="text-2xl font-bold">{question.order}</Label>
+        <Label className="text-2xl font-bold">{index}</Label>
         <Label className="text-2xl font-bold">{question.type}</Label>
       </CardHeader>
       <CardContent>

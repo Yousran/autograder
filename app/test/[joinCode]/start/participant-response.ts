@@ -13,6 +13,8 @@ export type Participant = {
   userId: string | null;
   username: string;
   score: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Test = {
@@ -21,7 +23,7 @@ export type Test = {
   title: string;
   joinCode: string;
   description: string | null;
-  testDuration: number | null;
+  testDuration: number;
   startTime: string | null;
   endTime: string | null;
   acceptResponses: boolean;
@@ -47,7 +49,7 @@ export type EssayQuestionWithAnswers = {
   answerText: string;
   isExactAnswer: boolean;
   maxScore: number;
-  answers: EssayAnswer;
+  answer: EssayAnswer;
 };
 
 export type EssayAnswer = {
@@ -63,7 +65,7 @@ export type ChoiceQuestionWithAnswers = {
   isChoiceRandomized: boolean;
   maxScore: number;
   choices: Choice[];
-  answers: ChoiceAnswer;
+  answer: ChoiceAnswer;
 };
 
 export type Choice = {
