@@ -11,7 +11,7 @@ const ChoiceComponent: React.FC<ChoiceProps> = ({ choice }) => {
     <div
       className={`p-4 border rounded-md ${
         choice.isCorrect
-          ? "bg-green-100 border-green-500"
+          ? "bg-green-100/10 border-green-500"
           : "bg-card border-secondary border-2"
       }`}
     >

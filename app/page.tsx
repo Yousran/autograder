@@ -10,9 +10,18 @@ import {
 } from "@/components/ui/input-otp";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const [joinCode, setJoinCode] = useState<string>("");
+
+  const handleJoin = () => {
+    if (joinCode.length === 6) {
+      router.push(`/test/${joinCode}`);
+    }
+  };
+
   return (
     <div className="max-w-screen min-h-screen flex flex-col">
       <Navbar />
@@ -43,7 +52,7 @@ export default function Home() {
                 </InputOTPGroup>
               </InputOTP>
             </div>
-            <Button>Join</Button>
+            <Button onClick={handleJoin}>Join</Button>
           </CardContent>
         </Card>
       </main>
