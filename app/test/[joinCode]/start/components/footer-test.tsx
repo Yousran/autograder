@@ -21,7 +21,9 @@ import {
 export default function FooterTest({
   handlePrev,
   handleMark,
+  isCurrentMarked,
   handleNext,
+  handlelist,
   isLastQuestion,
   isLoading,
   handleFinish,
@@ -29,7 +31,9 @@ export default function FooterTest({
 }: {
   handlePrev: () => void;
   handleMark: () => void;
+  isCurrentMarked: boolean;
   handleNext: () => void;
+  handlelist: () => void;
   isLastQuestion: boolean;
   isLoading: boolean;
   handleFinish: () => void;
@@ -41,17 +45,23 @@ export default function FooterTest({
         <ChevronLeft />
       </Button>
       <div className="flex items-center justify-center gap-4">
-        <Button variant={"secondary"} onClick={handleMark}>
-          <BookmarkIcon />
+        <Button
+          variant={isCurrentMarked ? "warning" : "secondary"}
+          onClick={handleMark}
+        >
+          <BookmarkIcon
+            className={isCurrentMarked ? "text-black" : "text-card-foreground"}
+          />
         </Button>
-        <Button variant={"secondary"}>
+
+        <Button variant={"secondary"} onClick={handlelist}>
           <ListIcon />
         </Button>
       </div>
       {isLastQuestion ? (
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" onClick={handleFinish}>
+            <Button variant="success" onClick={handleFinish}>
               Finish
             </Button>
           </AlertDialogTrigger>

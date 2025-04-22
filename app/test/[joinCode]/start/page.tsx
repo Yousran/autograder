@@ -11,6 +11,7 @@ import Answer from "./components/answer";
 import { useEffect, useState } from "react";
 import { getParticipantId } from "@/lib/auth-client";
 import { Participant, QuestionWithAnswers, Test } from "./participant-response";
+import QuestionList from "./components/question-list";
 
 export default function StartPage() {
   const [test, setTest] = useState<Test | null>(null);
@@ -22,6 +23,8 @@ export default function StartPage() {
   );
   const isLastQuestion = currentIndex === questions.length - 1;
   const [isLoading, setIsLoading] = useState(false);
+  const [isMarked, setIsMarked] = useState<boolean[]>([]);
+  const [openQuestionList, setOpenQuestionList] = useState(false);
 
   useEffect(() => {
     fetchParticipant();
@@ -44,6 +47,7 @@ export default function StartPage() {
         setParticipant(data.participant);
         setQuestions(data.questions);
         setQuestion(data.questions[0]);
+        setIsMarked(new Array(data.questions.length).fill(false));
       }
     } catch (error) {
       console.error("Error fetching participant:", error);
@@ -131,9 +135,12 @@ export default function StartPage() {
     if (currentIndex > 0) handleNavigation(currentIndex - 1);
   };
 
-  const handleMark = () => {
-    console.log("Question with Answer : ", question);
-    console.log("Mark button clicked");
+  const handleMark = (index: number) => {
+    setIsMarked((prev) => {
+      const updated = [...prev];
+      updated[index] = !updated[index];
+      return updated;
+    });
   };
 
   const handleNext = () => {
@@ -177,9 +184,6 @@ export default function StartPage() {
       <main className="my-16 p-4 flex-grow flex flex-col justify-start items-center gap-6">
         <div className="flex items-center justify-start w-full">
           <Label className="text-2xl font-semibold">{test?.title}</Label>
-          <Label className="text-2xl font-semibold">
-            {isLoading ? "loading" : "selesai"}
-          </Label>
         </div>
         {questions.length > currentIndex && (
           <div className="w-full md:max-w-2xl flex flex-col justify-start gap-4 min-h-screen">
@@ -187,11 +191,21 @@ export default function StartPage() {
             <Answer question={question} setQuestion={setQuestion} />
           </div>
         )}
+        <QuestionList
+          questions={questions}
+          question={question}
+          handleNavigation={handleNavigation}
+          isMarked={isMarked}
+          open={openQuestionList}
+          setOpen={setOpenQuestionList}
+        />
       </main>
       <FooterTest
         handlePrev={handlePrev}
-        handleMark={handleMark}
+        handleMark={handleMark.bind(null, currentIndex)}
+        isCurrentMarked={isMarked[currentIndex]}
         handleNext={handleNext}
+        handlelist={() => setOpenQuestionList((prev) => !prev)}
         isLastQuestion={isLastQuestion}
         isLoading={isLoading}
         handleFinish={handleFinish}
