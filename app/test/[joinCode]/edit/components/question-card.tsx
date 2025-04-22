@@ -51,9 +51,9 @@ export function QuestionCard({ question }: { question: RawQuestion }) {
     ) {
       setCurrentQuestion({
         ...base,
-        isChoiceRandomized: question.multipleChoice[0].isChoiceRandomized,
-        maxScore: question.multipleChoice[0].maxScore,
-        choices: question.multipleChoice[0].multipleChoices,
+        isChoiceRandomized: question.multipleChoice.isChoiceRandomized,
+        maxScore: question.multipleChoice.maxScore,
+        choices: question.multipleChoice.multipleChoices,
       } as MultipleChoiceQuestion);
     }
   }, [question]);

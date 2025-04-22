@@ -7,8 +7,6 @@ export const QuestionType = {
   MULTIPLE_CHOICE: "MULTIPLE_CHOICE",
 } as const;
 
-// src/types/question.ts
-
 export type RawQuestion = {
   id: string;
   testId: string;
@@ -40,7 +38,7 @@ export type RawQuestion = {
     createdAt: string;
     updatedAt: string;
     multipleChoices: MultipleChoice[];
-  }[]; // ingat, dari database kamu ini array
+  } | null; // ingat, dari database kamu ini array
 };
 
 export type Question = {

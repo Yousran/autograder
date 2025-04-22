@@ -182,25 +182,24 @@ model MultipleChoice {
   updatedAt DateTime @updatedAt
 
   question MultipleChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answers  MultipleChoiceAnswer[]
+  answers  MultipleChoiceAnswer[] @relation("MultipleChoiceAnswerSelectedChoices")
 
   @@index([questionId])
 }
 
 model MultipleChoiceAnswer {
-  id               String  @id @default(uuid())
-  questionId       String
-  participantId    String
-  selectedChoiceId String?
+  id            String @id @default(uuid())
+  questionId    String
+  participantId String
 
   score Int @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  participant Participant            @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  question    MultipleChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  choice      MultipleChoice?        @relation(fields: [selectedChoiceId], references: [id], onDelete: Cascade)
+  participant     Participant            @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  question        MultipleChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedChoices MultipleChoice[]       @relation("MultipleChoiceAnswerSelectedChoices")
 
   @@index([participantId])
   @@index([questionId])
