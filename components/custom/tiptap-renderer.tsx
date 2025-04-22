@@ -1,6 +1,7 @@
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
+import { useEffect } from "react";
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
@@ -22,13 +23,9 @@ import HardBreak from "@tiptap/extension-hard-break";
 import Placeholder from "@tiptap/extension-placeholder";
 import { all, createLowlight } from "lowlight";
 
-interface TiptapRendererProps {
-  content: string;
-}
-
 const lowlight = createLowlight(all);
 
-const TiptapRenderer = ({ content }: TiptapRendererProps) => {
+const TiptapRenderer = ({ content }: { content: string }) => {
   const editor = useEditor({
     extensions: [
       Document,
@@ -55,6 +52,12 @@ const TiptapRenderer = ({ content }: TiptapRendererProps) => {
     editable: false,
     immediatelyRender: false,
   });
+
+  useEffect(() => {
+    if (editor) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   if (!editor) return null;
 
