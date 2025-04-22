@@ -2,8 +2,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getDecodedToken } from "@/lib/auth-client";
-import { DecodedToken } from "@/types/token";
+import { getUserDecodedToken } from "@/lib/auth-client";
+import { UserDecodedToken } from "@/types/token";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
@@ -17,12 +17,12 @@ export default function SettingsPage() {
     "profile" | "appearance" | "security"
   >("appearance");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<DecodedToken | null>(null);
+  const [user, setUser] = useState<UserDecodedToken | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    const decoded = getDecodedToken();
+    const decoded = getUserDecodedToken();
     setUser(decoded);
     setIsLoggedIn(!!decoded);
   }, []);

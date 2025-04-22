@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { DecodedToken } from "../types/token";
+import { UserDecodedToken } from "../types/token";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -33,7 +33,7 @@ export async function comparePassword(password: string, hashed: string) {
 export function getUserFromToken(token: string) {
   try {
     // Dekode token untuk mendapatkan informasi user
-    return jwt.verify(token, JWT_SECRET) as DecodedToken;
+    return jwt.verify(token, JWT_SECRET) as UserDecodedToken;
   } catch (error) {
     console.error("JWT verification error:", error);
     return null;

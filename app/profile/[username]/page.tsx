@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
-import { getDecodedToken, getToken } from "@/lib/auth-client";
+import { getUserDecodedToken, getToken } from "@/lib/auth-client";
 
 type TestTaken = {
   title: string;
@@ -22,7 +22,7 @@ export default function ProfilePage() {
   const { username } = useParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const isOwner = username === getDecodedToken()?.username;
+  const isOwner = username === getUserDecodedToken()?.username;
   const [testTaken, setTestTaken] = useState<TestTaken[]>([]);
   const [testCreated, setTestCreated] = useState<TestCreated[]>([]);
 

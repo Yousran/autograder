@@ -1,4 +1,4 @@
-export type DecodedToken = {
+export type UserDecodedToken = {
   userId: string;
   email: string;
   username: string;

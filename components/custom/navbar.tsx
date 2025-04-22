@@ -8,21 +8,21 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { getDecodedToken } from "@/lib/auth-client";
-import { DecodedToken } from "@/types/token";
+import { getUserDecodedToken } from "@/lib/auth-client";
+import { UserDecodedToken } from "@/types/token";
 import { Label } from "../ui/label";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<DecodedToken | null>();
+  const [user, setUser] = useState<UserDecodedToken | null>();
   const pathname = usePathname();
 
   useEffect(() => {
-    const decoded = getDecodedToken();
+    const decoded = getUserDecodedToken();
     setUser(decoded);
     setIsLoggedIn(!!decoded);
   }, []);
