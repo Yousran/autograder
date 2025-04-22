@@ -67,6 +67,14 @@ export async function GET(
               where: {
                 participantId: participant.id,
               },
+              include: {
+                selectedChoices: {
+                  select: {
+                    id: true,
+                    choiceText: true,
+                  },
+                },
+              },
             },
           },
         },
@@ -80,7 +88,17 @@ export async function GET(
       choice: q.choice
         ? { ...q.choice, answer: q.choice.answers[0] || null }
         : null,
-      multipleChoice: q.multipleChoice,
+      multipleChoice: q.multipleChoice
+        ? {
+            ...q.multipleChoice,
+            answer: q.multipleChoice.answers[0]
+              ? {
+                  ...q.multipleChoice.answers[0],
+                  selectedChoices: q.multipleChoice.answers[0].selectedChoices,
+                }
+              : null,
+          }
+        : null,
     }));
 
     if (!questions) {

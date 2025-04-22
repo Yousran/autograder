@@ -87,7 +87,7 @@ export type MultipleChoiceQuestionWithAnswers = {
   isChoiceRandomized: boolean;
   maxScore: number;
   multipleChoices: MultipleChoice[];
-  answers: MultipleChoiceAnswer[];
+  answer: MultipleChoiceAnswer;
 };
 
 export type MultipleChoice = {
@@ -101,5 +101,5 @@ export type MultipleChoiceAnswer = {
   questionId: string;
   participantId: string;
   score: number;
-  selectedChoiceId: string | null;
+  selectedChoices: MultipleChoice[];
 };

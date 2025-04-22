@@ -2,8 +2,6 @@ import { CardContent } from "@/components/ui/card";
 import { QuestionWithAnswers } from "../participant-response";
 import { Button } from "@/components/ui/button";
 
-//TODO: multiple choice answer change in database, api, and types
-
 export default function MultipleChoiceAnswer({
   question,
   setQuestion,
@@ -12,37 +10,40 @@ export default function MultipleChoiceAnswer({
   setQuestion: (updatedQuestion: QuestionWithAnswers) => void;
 }) {
   const handleClick = (choiceId: string) => {
-    if (!question.multipleChoice?.id) {
-      console.error("multipleChoice.id is undefined");
+    if (!question.multipleChoice) {
+      console.error("Multiple choice question is undefined");
       return;
     }
 
-    const currentAnswers = question.multipleChoice.answers || [];
+    const currentAnswer = question.multipleChoice.answer;
+    const currentSelected = currentAnswer.selectedChoices;
 
-    const isAlreadySelected = currentAnswers.some(
-      (answer) => answer.selectedChoiceId === choiceId
+    // Find the complete choice object from available choices
+    const selectedChoice = question.multipleChoice.multipleChoices.find(
+      (choice) => choice.id === choiceId
     );
 
-    const updatedAnswers = isAlreadySelected
-      ? currentAnswers.filter((answer) => answer.selectedChoiceId !== choiceId)
-      : [
-          ...currentAnswers,
-          {
-            id: crypto.randomUUID(), // generate id untuk frontend, backend bisa overwrite nanti
-            questionId: question.id,
-            participantId: currentAnswers[0]?.participantId || "", // fallback kalau belum ada
-            selectedChoiceId: choiceId,
-            score: 0,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-        ];
+    if (!selectedChoice) {
+      console.error("Selected choice not found in available options");
+      return;
+    }
+
+    const isAlreadySelected = currentSelected.some(
+      (choice) => choice.id === choiceId
+    );
+
+    const updatedSelected = isAlreadySelected
+      ? currentSelected.filter((choice) => choice.id !== choiceId)
+      : [...currentSelected, selectedChoice];
 
     const updatedQuestion: QuestionWithAnswers = {
       ...question,
       multipleChoice: {
         ...question.multipleChoice,
-        answers: updatedAnswers,
+        answer: {
+          ...currentAnswer,
+          selectedChoices: updatedSelected,
+        },
       },
     };
 
@@ -52,8 +53,8 @@ export default function MultipleChoiceAnswer({
   return (
     <CardContent className="flex flex-col gap-2">
       {question.multipleChoice?.multipleChoices.map((choice) => {
-        const isSelected = question.multipleChoice?.answers?.some(
-          (answer) => answer.selectedChoiceId === choice.id
+        const isSelected = question.multipleChoice?.answer.selectedChoices.some(
+          (selectedChoice) => selectedChoice.id === choice.id
         );
 
         return (
