@@ -7,7 +7,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { joinCode: string } }
 ) {
-  const { joinCode } = await params;
+  const { joinCode } = params;
 
   const user = await getUserFromToken(getToken(req));
   if (!user) {

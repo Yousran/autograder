@@ -6,7 +6,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { participantId: string } }
 ) {
-  const { participantId } = await params;
+  const { participantId } = params;
 
   try {
     // Ambil data participant berdasarkan participantId

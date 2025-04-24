@@ -6,7 +6,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { participantId: string } }
 ) {
-  const { participantId } = await params;
+  const { participantId } = params;
 
   try {
     const participant = await prisma.participant.findUnique({
