@@ -18,6 +18,7 @@ import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { useState } from "react";
 
 export default function Login() {
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function Login() {
       .string()
       .min(8, { message: "Password must be at least 8 characters." }),
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,6 +39,7 @@ export default function Login() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
     try {
       fetch("/api/v1/auth/login", {
         method: "POST",
@@ -61,6 +64,7 @@ export default function Login() {
       console.error("Error during login:", error);
       toast.error("An error occurred. Please try again.");
     }
+    setIsLoading(false);
   }
 
   return (
@@ -125,7 +129,9 @@ export default function Login() {
                   Register
                 </a>
               </Label>
-              <Button type="submit">Login</Button>
+              <Button type="submit" disabled={isLoading}>
+                Login
+              </Button>
             </CardFooter>
           </form>
         </Form>

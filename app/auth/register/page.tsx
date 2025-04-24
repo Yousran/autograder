@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
 
 export default function Register() {
   const router = useRouter();
@@ -46,8 +47,9 @@ export default function Register() {
       confirmPassword: "",
     },
   });
+  const [isLoading, setIsLoading] = useState(false);
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    setIsLoading(true);
     try {
       fetch("/api/v1/auth/register", {
         method: "POST",
@@ -67,11 +69,14 @@ export default function Register() {
         .catch((error) => {
           console.error(error);
           toast.error("An error occurred. Please try again.");
+          setIsLoading(false);
         });
     } catch (error) {
       console.error(error);
       toast.error("An error occurred. Please try again.");
+      setIsLoading(false);
     }
+    setIsLoading(false);
   }
   return (
     <div className="w-screen min-h-screen flex items-center justify-center">
@@ -153,7 +158,9 @@ export default function Register() {
               />
             </CardContent>
             <CardFooter className="flex justify-end mt-4">
-              <Button type="submit">Register</Button>
+              <Button type="submit" disabled={isLoading}>
+                Register
+              </Button>
             </CardFooter>
           </form>
         </Form>

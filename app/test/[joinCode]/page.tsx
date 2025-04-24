@@ -92,7 +92,7 @@ export default function TestJoinPage() {
   }, [joinCode]);
 
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const fetchPoolingData = async () => {
       try {
         const response = await fetch(`/api/v1/test/${joinCode}/pooling`, {
           method: "GET",
@@ -107,15 +107,20 @@ export default function TestJoinPage() {
         }
 
         const data = await response.json();
-        console.log("Pooling data:", data);
+        console.log("Initial pooling data:", data);
         setAcceptResponses(data.acceptResponses);
         setParticipantCount(data.participantCount);
         setQuestionCount(data.questionCount);
       } catch (error) {
         console.error("Error during pooling fetch:", error);
       }
-    }, 10000);
+    };
 
+    // Call once immediately
+    fetchPoolingData();
+
+    // Setup interval
+    const interval = setInterval(fetchPoolingData, 10000);
     return () => clearInterval(interval);
   }, [joinCode]);
 

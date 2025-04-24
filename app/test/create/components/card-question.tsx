@@ -71,7 +71,7 @@ export function CardQuestion({
                   isCorrect: true,
                 },
               ],
-              isChoiceRandomized: false,
+              isChoiceRandomized: true,
               maxScore: 1,
             } as ChoiceQuestion;
           }
@@ -87,8 +87,8 @@ export function CardQuestion({
                   isCorrect: true,
                 },
               ],
-              isChoiceRandomized: false,
-              maxScore: 5,
+              isChoiceRandomized: true,
+              maxScore: 4,
             };
           }
 
