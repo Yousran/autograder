@@ -27,8 +27,6 @@ export function QuestionCard({ question }: { question: RawQuestion }) {
       type: question.type,
       questionText: question.questionText,
       testId: question.testId,
-      createdAt: new Date(question.createdAt),
-      updatedAt: new Date(question.updatedAt),
     };
 
     if (question.type === QuestionType.ESSAY && question.essay) {

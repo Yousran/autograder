@@ -9,12 +9,12 @@ export const QuestionType = {
 
 export type RawQuestion = {
   id: string;
-  testId: string;
+  testId?: string;
   type: QuestionType;
   questionText: string;
-  order: number;
-  createdAt: string; // masih string dari API
-  updatedAt: string;
+  order?: number;
+  createdAt?: string;
+  updatedAt?: string;
   essay?: {
     id: string;
     answerText: string;
