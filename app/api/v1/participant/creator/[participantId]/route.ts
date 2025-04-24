@@ -1,9 +1,12 @@
 // file: /api/v1/participant/creator/[participantId]/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET({ params }: { params: { participantId: string } }) {
-  const { participantId } = await params;
+export async function GET(
+  req: NextRequest,
+  context: { params: { participantId: string } }
+) {
+  const { participantId } = context.params;
 
   try {
     const participant = await prisma.participant.findUnique({

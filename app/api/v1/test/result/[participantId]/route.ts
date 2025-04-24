@@ -4,9 +4,9 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { participantId: string } }
+  context: { params: { participantId: string } }
 ) {
-  const { participantId } = await params;
+  const { participantId } = context.params;
 
   try {
     // Ambil data participant berdasarkan participantId
