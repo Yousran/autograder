@@ -5,10 +5,12 @@ import { Participant } from "@/types/participant";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getToken } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function Participants({ joinCode }: { joinCode: string }) {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchParticipants() {
@@ -46,7 +48,11 @@ export default function Participants({ joinCode }: { joinCode: string }) {
         </div>
       ) : (
         participants.map((participant) => (
-          <Card key={participant.id}>
+          <Card
+            key={participant.id}
+            onClick={() => router.push(`/participant/${participant.id}`)}
+            className="cursor-pointer hover:bg-card-foreground/10 transition-colors"
+          >
             <CardContent className="flex justify-between gap-4">
               <Label className="text-xl">{participant.username}</Label>
               <Label className="text-3xl font-bold">{participant.score}</Label>
