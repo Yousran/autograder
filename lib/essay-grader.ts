@@ -1,5 +1,4 @@
 import { essayGraderDeepseek } from "@/lib/deepseek";
-import { essayGraderDeepseekV3 } from "@/lib/deepseek-v3";
 /**
  * Grading untuk soal essay dengan mode "Exact Answer"
  */
@@ -45,23 +44,7 @@ export async function gradeSubjectiveEssayAnswer({
   try {
     return await essayGraderDeepseek({ answer, answerKey, minScore, maxScore });
   } catch (error) {
-    if (error instanceof Error && error.message === "Invalid AI response") {
-      console.warn(
-        "Fallback to essayGraderDeepseekV3 due to invalid AI response"
-      );
-      try {
-        return await essayGraderDeepseekV3({
-          answer,
-          answerKey,
-          minScore,
-          maxScore,
-        });
-      } catch (err) {
-        console.error("Fallback essayGraderDeepseekV3 failed:", err);
-      }
-    } else {
-      console.error("Unexpected error in essayGraderDeepseek:", error);
-    }
+    console.error("Unexpected error in essayGraderDeepseek:", error);
   }
 
   // Jika semua gagal, return minScore
