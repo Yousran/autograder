@@ -37,7 +37,7 @@ export default function CountdownTimer({
   }, [endTime, handleFinish, endTest]);
 
   return (
-    <div className="flex items-center bg-primary text-primary-foreground px-4 py-2 rounded-lg">
+    <div className="h-9 flex items-center bg-primary text-primary-foreground px-4 rounded-lg">
       <span className="font-mono font-bold text-lg">
         {formatTime(timeLeft)}
       </span>

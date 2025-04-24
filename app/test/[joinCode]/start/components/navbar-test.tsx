@@ -1,6 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Participant, Test } from "../participant-response";
 import CountdownTimer from "./countdown-timer";
+import { ThemeToggle } from "@/components/custom/theme-toggle";
 
 export default function NavbarTest({
   participant,
@@ -18,12 +19,15 @@ export default function NavbarTest({
       {participant && test && (
         <>
           <Label className="text-2xl font-bold">{participant.username}</Label>
-          <CountdownTimer
-            startTime={participant.createdAt}
-            durationMinutes={test.testDuration}
-            handleFinish={async () => await handleFinish()}
-            endTest={async () => await endTest()}
-          />
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <CountdownTimer
+              startTime={participant.createdAt}
+              durationMinutes={test.testDuration}
+              handleFinish={async () => await handleFinish()}
+              endTest={async () => await endTest()}
+            />
+          </div>
         </>
       )}
     </nav>
