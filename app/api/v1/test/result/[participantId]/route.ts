@@ -26,6 +26,60 @@ export async function GET(
       );
     }
 
+    // Calculate total score from all answer types
+    const essayAnswers = await prisma.essayAnswer.findMany({
+      where: { participantId },
+      include: {
+        question: {
+          select: { maxScore: true },
+        },
+      },
+    });
+
+    const choiceAnswers = await prisma.choiceAnswer.findMany({
+      where: { participantId },
+      include: {
+        question: {
+          select: { maxScore: true },
+        },
+      },
+    });
+
+    const multipleChoiceAnswers = await prisma.multipleChoiceAnswer.findMany({
+      where: { participantId },
+      include: {
+        question: {
+          select: { maxScore: true },
+        },
+      },
+    });
+    const totalScore =
+      essayAnswers.reduce((sum, answer) => sum + answer.score, 0) +
+      choiceAnswers.reduce((sum, answer) => sum + answer.score, 0) +
+      multipleChoiceAnswers.reduce((sum, answer) => sum + answer.score, 0);
+
+    const maxPossibleScore =
+      essayAnswers.reduce((sum, answer) => sum + answer.question.maxScore, 0) +
+      choiceAnswers.reduce((sum, answer) => sum + answer.question.maxScore, 0) +
+      multipleChoiceAnswers.reduce(
+        (sum, answer) => sum + answer.question.maxScore,
+        0
+      );
+
+    const normalizedScore = (totalScore / maxPossibleScore) * 100;
+
+    console.log("Total Score:", totalScore);
+    console.log("Max Possible Score:", maxPossibleScore);
+    console.log("Normalized Score (0-100):", normalizedScore);
+
+    if (normalizedScore !== participant.score) {
+      // Update participant score if it doesn't match the calculated normalized score
+      await prisma.participant.update({
+        where: { id: participantId },
+        data: { score: normalizedScore },
+      });
+    }
+
     // Ambil data test berdasarkan testId yang dimiliki oleh participant
     const test = await prisma.test.findUnique({
       where: { id: participant.testId },
@@ -36,9 +90,13 @@ export async function GET(
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
 
+    const normalizedParticipant = {
+      ...participant,
+      score: normalizedScore, // Update score to normalized score
+    };
     // Kirimkan response dengan data participant dan test title
     return NextResponse.json({
-      participant,
+      participant: normalizedParticipant,
       test,
     });
   } catch (error) {
