@@ -1,6 +1,7 @@
 // file: /app/api/v1/participant/[participantId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { shuffleArray } from "@/lib/shuffle";
 
 export async function GET(
   req: NextRequest,
@@ -46,6 +47,7 @@ export async function GET(
                 id: true,
                 choiceText: true,
               },
+              orderBy: { createdAt: "asc" },
             },
             answers: {
               take: 1,
@@ -62,6 +64,7 @@ export async function GET(
                 id: true,
                 choiceText: true,
               },
+              orderBy: { createdAt: "asc" },
             },
             answers: {
               where: {
@@ -80,7 +83,15 @@ export async function GET(
         },
       },
     });
-    const transformedQuestions = questions.map((q) => ({
+
+    if (!questions) {
+      return NextResponse.json(
+        { error: "Questions not found" },
+        { status: 404 }
+      );
+    }
+
+    let transformedQuestions = questions.map((q) => ({
       ...q,
       essay: q.essay
         ? { ...q.essay, answer: q.essay.answers[0] || null }
@@ -101,11 +112,8 @@ export async function GET(
         : null,
     }));
 
-    if (!questions) {
-      return NextResponse.json(
-        { error: "Questions not found" },
-        { status: 404 }
-      );
+    if (!test.isOrdered) {
+      transformedQuestions = shuffleArray(transformedQuestions); // Fungsi untuk mengacak array
     }
 
     return NextResponse.json({

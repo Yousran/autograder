@@ -83,7 +83,7 @@ export async function POST(
         questionId: q.choice!.id,
         selectedChoiceId: null,
       }));
-    //TODO: multipleChoiceAnswer harusnya bisa lebih dari 1, tapi di backend hanya bisa 1
+
     const multipleChoiceAnswers = questions
       .filter((q) => q.multipleChoice !== null)
       .map((q) => ({

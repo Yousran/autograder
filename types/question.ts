@@ -38,7 +38,7 @@ export type RawQuestion = {
     createdAt: string;
     updatedAt: string;
     multipleChoices: MultipleChoice[];
-  } | null; // ingat, dari database kamu ini array
+  } | null;
 };
 
 export type Question = {
