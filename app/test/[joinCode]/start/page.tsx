@@ -1,6 +1,5 @@
 // file: app/test/[joinCode]/start/page.tsx
 
-//TODO: update text when answer is changed and user clicking navigation button
 "use client";
 
 import { Label } from "@/components/ui/label";
@@ -59,54 +58,62 @@ export default function StartPage() {
     const type = question.type;
 
     if (type === "ESSAY") {
-      // const answer = question.essay?.answer;
-      // if (!answer) return;
-      // await fetch("/api/v1/answer/essay/update", {
-      //   method: "POST",
-      //   body: JSON.stringify({
-      //     id: answer.id,
-      //     answerText: answer.answerText,
-      //   }),
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
+      const answer = question.essay?.answer;
+      if (!answer) return;
+      await fetch("/api/v1/answer/essay", {
+        method: "PATCH",
+        body: JSON.stringify({
+          answerId: answer.id,
+          participantId: participant?.id,
+          answerText: answer.answerText,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       console.log("Essay Update");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log("Essay Finish Update");
     } else if (type === "CHOICE") {
-      // const answer = question.choice?.answer;
-      // if (!answer) return;
-      // await fetch("/api/v1/answer/choice/update", {
-      //   method: "POST",
-      //   body: JSON.stringify({
-      //     id: answer.id,
-      //     selectedChoiceId: answer.selectedChoiceId,
-      //   }),
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
-
-      console.log("Choice Update");
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      try {
+        console.log("Choice Update");
+        const answer = question.choice?.answer;
+        console.log("answer: ", answer);
+        if (!answer) return;
+        const res = await fetch("/api/v1/answer/choice", {
+          method: "PATCH",
+          body: JSON.stringify({
+            answerId: answer.id,
+            participantId: participant?.id,
+            selectedChoiceId: answer.selectedChoiceId,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        console.log("Choice Update Successful :", res);
+      } catch (error) {
+        console.error("Error updating choice answer:", error);
+      }
+      // await new Promise((resolve) => setTimeout(resolve, 3000));
       console.log("Choice Finish Update");
     } else if (type === "MULTIPLE_CHOICE") {
-      // const answers = question.multipleChoice?.answers || [];
-      // await fetch("/api/v1/answer/multiple-choice/update", {
-      //   method: "POST",
-      //   body: JSON.stringify(
-      //     answers.map((a) => ({
-      //       id: a.id,
-      //       selectedChoiceId: a.selectedChoiceId,
-      //     }))
-      //   ),
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
       console.log("Multiple Choice Update");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const answers = question.multipleChoice?.answer.selectedChoices || [];
+      if (!answers) return;
+      console.log("answers: ", answers);
+      await fetch("/api/v1/answer/multiple-choice", {
+        method: "PATCH",
+        body: JSON.stringify({
+          answerId: question.multipleChoice?.answer.id,
+          answers: answers,
+          participantId: participant?.id,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log("Multiple Choice Finish Update");
     }
     setIsLoading(false);
