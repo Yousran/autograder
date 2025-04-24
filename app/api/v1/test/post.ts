@@ -68,8 +68,7 @@ export const testSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
-    console.log("Request body from POST:", body);
+    console.time("create-test");
 
     const userLoggedIn = getUserFromToken(getToken(req));
     if (!userLoggedIn) {
@@ -79,6 +78,7 @@ export async function POST(req: NextRequest) {
     const testData = testSchema.parse(body);
     const joinCode = encodeJoinCodeFromNumber(Date.now());
 
+    // Create the test
     const createdTest = await prisma.test.create({
       data: {
         creatorId: userLoggedIn.userId,
@@ -95,71 +95,82 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    for (const question of testData.questions) {
-      const createdQuestion = await prisma.question.create({
-        data: {
-          testId: createdTest.id,
-          questionText: question.questionText,
-          type: question.type,
-          order: question.order ?? 0,
-        },
-      });
-
-      if (question.type === "ESSAY") {
-        await prisma.essayQuestion.create({
+    // Save all questions in parallel
+    await Promise.all(
+      testData.questions.map(async (question) => {
+        const createdQuestion = await prisma.question.create({
           data: {
-            id: createdQuestion.id,
-            answerText: question.answerText,
-            isExactAnswer: question.isExactAnswer,
-            maxScore: question.maxScore,
-          },
-        });
-      }
-
-      if (question.type === "CHOICE") {
-        await prisma.choiceQuestion.create({
-          data: {
-            id: createdQuestion.id,
-            isChoiceRandomized: question.isChoiceRandomized,
-            maxScore: question.maxScore,
+            testId: createdTest.id,
+            questionText: question.questionText,
+            type: question.type,
+            order: question.order ?? 0,
           },
         });
 
-        await prisma.choice.createMany({
-          data: question.choices.map((choice) => ({
-            questionId: createdQuestion.id,
-            choiceText: choice.choiceText,
-            isCorrect: choice.isCorrect,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          })),
-        });
-      }
+        if (question.type === "ESSAY") {
+          await prisma.essayQuestion.create({
+            data: {
+              id: createdQuestion.id,
+              answerText: question.answerText,
+              isExactAnswer: question.isExactAnswer,
+              maxScore: question.maxScore,
+            },
+          });
+        }
 
-      if (question.type === "MULTIPLE_CHOICE") {
-        await prisma.multipleChoiceQuestion.create({
-          data: {
-            id: createdQuestion.id,
-            isChoiceRandomized: question.isChoiceRandomized,
-            maxScore: question.maxScore,
-          },
-        });
+        if (question.type === "CHOICE") {
+          await prisma.choiceQuestion.create({
+            data: {
+              id: createdQuestion.id,
+              isChoiceRandomized: question.isChoiceRandomized,
+              maxScore: question.maxScore,
+            },
+          });
 
-        await prisma.multipleChoice.createMany({
-          data: question.choices.map((choice) => ({
-            questionId: createdQuestion.id,
-            choiceText: choice.choiceText,
-            isCorrect: choice.isCorrect,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          })),
-        });
-      }
-    }
+          await prisma.choice.createMany({
+            data: question.choices.map((choice) => ({
+              questionId: createdQuestion.id,
+              choiceText: choice.choiceText,
+              isCorrect: choice.isCorrect,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            })),
+          });
+        }
+
+        if (question.type === "MULTIPLE_CHOICE") {
+          await prisma.multipleChoiceQuestion.create({
+            data: {
+              id: createdQuestion.id,
+              isChoiceRandomized: question.isChoiceRandomized,
+              maxScore: question.maxScore,
+            },
+          });
+
+          await prisma.multipleChoice.createMany({
+            data: question.choices.map((choice) => ({
+              questionId: createdQuestion.id,
+              choiceText: choice.choiceText,
+              isCorrect: choice.isCorrect,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            })),
+          });
+        }
+      })
+    );
+
+    console.timeEnd("create-test");
 
     return NextResponse.json({ joinCode }, { status: 201 });
-  } catch (ZodError) {
-    console.error("Validation error:", ZodError);
-    return NextResponse.json({ message: ZodError }, { status: 422 });
+  } catch (error) {
+    console.error("Error creating test:", error);
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ message: error.errors }, { status: 422 });
+    }
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

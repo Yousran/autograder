@@ -125,7 +125,7 @@ export default function TestCreatePage() {
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button className="w-full" disabled={isLoading}>
-                      Create Test
+                      {isLoading ? "Loading..." : "Create Test"}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
