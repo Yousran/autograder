@@ -2,18 +2,18 @@ import { NextRequest } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { joinCode: string } }
+  { params }: { params: Promise<{ joinCode: string }> }
 ) {
-  const { joinCode } = context.params;
+  // const { joinCode } = await params;
   const { GET } = await import("./get");
-  return GET(req, { params: { joinCode } });
+  return GET(req, { params });
 }
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { joinCode: string } }
+  { params }: { params: Promise<{ joinCode: string }> }
 ) {
-  const { joinCode } = context.params;
+  // const { joinCode } = await params;
   const { PATCH } = await import("./patch");
-  return PATCH(req, { params: { joinCode } });
+  return PATCH(req, { params });
 }

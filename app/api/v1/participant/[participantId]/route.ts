@@ -5,9 +5,9 @@ import { shuffleArray } from "@/lib/shuffle";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { participantId: string } }
+  { params }: { params: Promise<{ participantId: string }> }
 ) {
-  const { participantId } = context.params;
+  const { participantId } = await params;
 
   try {
     const participant = await prisma.participant.findUnique({

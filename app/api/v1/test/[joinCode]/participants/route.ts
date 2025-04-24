@@ -5,9 +5,9 @@ import { getToken, getUserFromToken } from "@/lib/auth-server";
 
 export async function GET(
   req: Request,
-  context: { params: { joinCode: string } }
+  { params }: { params: Promise<{ joinCode: string }> }
 ) {
-  const { joinCode } = context.params;
+  const { joinCode } = await params;
 
   const user = await getUserFromToken(getToken(req));
   if (!user) {

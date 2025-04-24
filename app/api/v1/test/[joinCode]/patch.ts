@@ -20,9 +20,9 @@ const BodySchema = z.object({
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { joinCode: string } }
+  { params }: { params: Promise<{ joinCode: string }> }
 ) {
-  const { joinCode } = context.params;
+  const { joinCode } = await params;
   const user = await getUserFromToken(getToken(req));
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

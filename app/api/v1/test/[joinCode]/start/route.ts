@@ -4,10 +4,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: NextRequest,
-  context: { params: { joinCode: string } }
+  { params }: { params: Promise<{ joinCode: string }> }
 ) {
   try {
-    const { joinCode } = context.params;
+    const { joinCode } = await params;
     const { userId, username } = await req.json();
 
     if (!username) {

@@ -5,9 +5,9 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: Request,
-  context: { params: { joinCode: string } }
+  { params }: { params: Promise<{ joinCode: string }> }
 ) {
-  const { joinCode } = context.params;
+  const { joinCode } = await params;
 
   // Authenticate the user
   // const token = await getToken(req);
