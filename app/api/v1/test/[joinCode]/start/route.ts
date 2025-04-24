@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: { joinCode: string } }
 ) {
   try {
-    const { joinCode } = params;
+    const { joinCode } = await params;
     const { userId, username } = await req.json();
 
     if (!username) {

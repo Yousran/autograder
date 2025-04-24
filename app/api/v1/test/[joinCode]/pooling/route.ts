@@ -6,7 +6,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { joinCode: string } }
 ) {
-  const { joinCode } = params;
+  const { joinCode } = await params;
 
   try {
     const test = await prisma.test.findUnique({
