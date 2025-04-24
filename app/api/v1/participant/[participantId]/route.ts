@@ -1,12 +1,9 @@
 // file: /app/api/v1/participant/[participantId]/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { shuffleArray } from "@/lib/shuffle";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { participantId: string } }
-) {
+export async function GET({ params }: { params: { participantId: string } }) {
   const { participantId } = await params;
 
   try {

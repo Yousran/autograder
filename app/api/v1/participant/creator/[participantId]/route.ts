@@ -1,11 +1,8 @@
 // file: /api/v1/participant/creator/[participantId]/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { participantId: string } }
-) {
+export async function GET({ params }: { params: { participantId: string } }) {
   const { participantId } = await params;
 
   try {
