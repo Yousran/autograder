@@ -28,3 +28,7 @@ export function getToken(): string | null {
 export function getParticipantId(): string | null {
   return Cookies.get("participantId") || null;
 }
+
+export function removeParticipantId(): void {
+  Cookies.remove("participantId");
+}

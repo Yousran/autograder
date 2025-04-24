@@ -1,6 +1,9 @@
-// file: /app/api/v1/answer/essay/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import {
+  gradeExactEssayAnswer,
+  gradeSubjectiveEssayAnswer,
+} from "@/lib/essay-grader";
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -14,20 +17,48 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // Check if the answer belongs to the participant
+    // Ambil data untuk validasi dan grading
     const answer = await prisma.essayAnswer.findUnique({
       where: { id: answerId },
-      select: { participantId: true },
+      select: {
+        participantId: true,
+        question: {
+          select: {
+            isExactAnswer: true,
+            maxScore: true,
+            answerText: true, // ini adalah kunci jawaban
+          },
+        },
+      },
     });
 
     if (!answer || answer.participantId !== participantId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    // Update the answer
+    const { isExactAnswer, maxScore, answerText: answerKey } = answer.question;
+    const minScore = 1;
+
+    const score = isExactAnswer
+      ? gradeExactEssayAnswer({
+          answer: answerText,
+          answerKey,
+          minScore,
+          maxScore,
+        })
+      : await gradeSubjectiveEssayAnswer({
+          answer: answerText,
+          answerKey,
+          minScore,
+          maxScore,
+        });
+
     const updated = await prisma.essayAnswer.update({
       where: { id: answerId },
-      data: { answerText },
+      data: {
+        answerText,
+        score,
+      },
     });
 
     return NextResponse.json({ success: true, answer: updated });

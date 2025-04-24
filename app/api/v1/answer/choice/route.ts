@@ -1,6 +1,7 @@
 // file: /app/api/v1/answer/choice/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { gradeChoiceAnswer } from "@/lib/choice-grader";
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -24,10 +25,12 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
+    const score = await gradeChoiceAnswer(selectedChoiceId);
+
     // Update the answer
     const updated = await prisma.choiceAnswer.update({
       where: { id: answerId },
-      data: { selectedChoiceId },
+      data: { selectedChoiceId, score },
     });
 
     return NextResponse.json({ success: true, answer: updated });

@@ -8,11 +8,14 @@ import NavbarTest from "./components/navbar-test";
 import Question from "./components/question";
 import Answer from "./components/answer";
 import { useEffect, useState } from "react";
-import { getParticipantId } from "@/lib/auth-client";
+import { getParticipantId, removeParticipantId } from "@/lib/auth-client";
 import { Participant, QuestionWithAnswers, Test } from "./participant-response";
 import QuestionList from "./components/question-list";
+import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function StartPage() {
+  const router = useRouter();
   const [test, setTest] = useState<Test | null>(null);
   const [participant, setParticipant] = useState<Participant | null>(null);
   const [questions, setQuestions] = useState<QuestionWithAnswers[]>([]);
@@ -22,6 +25,7 @@ export default function StartPage() {
   );
   const isLastQuestion = currentIndex === questions.length - 1;
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchLoading, setIsFetchLoading] = useState(false);
   const [isMarked, setIsMarked] = useState<boolean[]>([]);
   const [openQuestionList, setOpenQuestionList] = useState(false);
 
@@ -30,6 +34,7 @@ export default function StartPage() {
   }, []);
 
   const fetchParticipant = async () => {
+    setIsLoading(true);
     try {
       const id = getParticipantId();
 
@@ -51,10 +56,11 @@ export default function StartPage() {
     } catch (error) {
       console.error("Error fetching participant:", error);
     }
+    setIsLoading(false);
   };
 
   const updateAnswer = async (question: QuestionWithAnswers) => {
-    setIsLoading(true);
+    setIsFetchLoading(true);
     const type = question.type;
 
     if (type === "ESSAY") {
@@ -116,7 +122,7 @@ export default function StartPage() {
       // await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log("Multiple Choice Finish Update");
     }
-    setIsLoading(false);
+    setIsFetchLoading(false);
   };
 
   const handleNavigation = async (newIndex: number) => {
@@ -173,51 +179,86 @@ export default function StartPage() {
   };
 
   const endTest = async () => {
+    setIsLoading(true);
     console.log("Ending test...");
     // Tambahkan logika kirim ke backend, simpan waktu selesai, dll.
     // Redirect jika perlu
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
+    router.push(`/test/result/${participant?.id}`);
+    removeParticipantId();
     console.log("Redirecting to finish page...");
+    setIsLoading(false);
   };
-
-  return (
-    <div className="max-w-screen min-h-screen flex flex-col">
-      <NavbarTest
-        participant={participant}
-        test={test}
-        handleFinish={handleFinish}
-        endTest={endTest}
-      />
-      <main className="my-16 p-4 flex-grow flex flex-col justify-start items-center gap-6">
-        <div className="flex items-center justify-start w-full">
-          <Label className="text-2xl font-semibold">{test?.title}</Label>
-        </div>
-        {questions.length > currentIndex && (
-          <div className="w-full md:max-w-2xl flex flex-col justify-start gap-4 min-h-screen">
-            <Question question={question} index={currentIndex + 1} />
-            <Answer question={question} setQuestion={setQuestion} />
+  if (isLoading) {
+    return (
+      <div className="max-w-screen min-h-screen flex flex-col">
+        <main className="my-16 p-4 flex-grow flex flex-col justify-start items-center gap-6">
+          {/* Title */}
+          <div className="flex items-center justify-start w-full">
+            <Skeleton className="h-8 w-1/2 rounded-md" />
           </div>
-        )}
-        <QuestionList
-          questions={questions}
-          question={question}
-          handleNavigation={handleNavigation}
-          isMarked={isMarked}
-          open={openQuestionList}
-          setOpen={setOpenQuestionList}
+
+          {/* Question & Answer */}
+          <div className="w-full md:max-w-2xl flex flex-col justify-start gap-4 min-h-screen">
+            <Skeleton className="h-6 w-1/3" />
+            <Skeleton className="h-24 w-full rounded-xl" />
+            <Skeleton className="h-10 w-1/2 mt-4" />
+          </div>
+
+          {/* Question List Toggle / Sheet */}
+          <div className="w-full flex justify-end">
+            <Skeleton className="h-10 w-24 rounded-lg" />
+          </div>
+        </main>
+
+        {/* Footer */}
+        <div className="w-full px-4 py-6 border-t flex justify-between items-center">
+          <Skeleton className="h-10 w-24 rounded-lg" />
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="h-10 w-24 rounded-lg" />
+        </div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="max-w-screen min-h-screen flex flex-col">
+        <NavbarTest
+          participant={participant}
+          test={test}
+          handleFinish={handleFinish}
+          endTest={endTest}
         />
-      </main>
-      <FooterTest
-        handlePrev={handlePrev}
-        handleMark={handleMark.bind(null, currentIndex)}
-        isCurrentMarked={isMarked[currentIndex]}
-        handleNext={handleNext}
-        handlelist={() => setOpenQuestionList((prev) => !prev)}
-        isLastQuestion={isLastQuestion}
-        isLoading={isLoading}
-        handleFinish={handleFinish}
-        handleEndTest={endTest}
-      />
-    </div>
-  );
+        <main className="my-16 p-4 flex-grow flex flex-col justify-start items-center gap-6">
+          <div className="flex items-center justify-start w-full">
+            <Label className="text-2xl font-semibold">{test?.title}</Label>
+          </div>
+          {questions.length > currentIndex && (
+            <div className="w-full md:max-w-2xl flex flex-col justify-start gap-4 min-h-screen">
+              <Question question={question} index={currentIndex + 1} />
+              <Answer question={question} setQuestion={setQuestion} />
+            </div>
+          )}
+          <QuestionList
+            questions={questions}
+            question={question}
+            handleNavigation={handleNavigation}
+            isMarked={isMarked}
+            open={openQuestionList}
+            setOpen={setOpenQuestionList}
+          />
+        </main>
+        <FooterTest
+          handlePrev={handlePrev}
+          handleMark={handleMark.bind(null, currentIndex)}
+          isCurrentMarked={isMarked[currentIndex]}
+          handleNext={handleNext}
+          handlelist={() => setOpenQuestionList((prev) => !prev)}
+          isLastQuestion={isLastQuestion}
+          isLoading={isFetchLoading}
+          handleFinish={handleFinish}
+          handleEndTest={endTest}
+        />
+      </div>
+    );
+  }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { MultipleChoice } from "@/types/question";
+import { gradeMultipleChoiceAnswer } from "@/lib/multiple-choice-grader";
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -14,7 +15,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // Check if the answer belongs to the participant
+    // Cek kepemilikan jawaban
     const existingAnswer = await prisma.multipleChoiceAnswer.findUnique({
       where: { id: answerId },
       select: { participantId: true },
@@ -28,14 +29,18 @@ export async function PATCH(req: NextRequest) {
       (choice: MultipleChoice) => choice.id
     );
 
-    // Update selected choices (disconnect all then connect new ones)
+    // Grading sebelum update
+    const score = await gradeMultipleChoiceAnswer(selectedChoiceIds);
+
+    // Update selected choices dan skor
     const updatedAnswer = await prisma.multipleChoiceAnswer.update({
       where: { id: answerId },
       data: {
         selectedChoices: {
-          set: [], // clear existing choices
-          connect: selectedChoiceIds.map((id: string) => ({ id })),
+          set: [], // kosongkan dulu
+          connect: selectedChoiceIds.map((id) => ({ id })),
         },
+        score,
       },
       include: {
         selectedChoices: true,
