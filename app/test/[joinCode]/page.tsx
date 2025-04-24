@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Test } from "@/types/test";
 import { Input } from "@/components/ui/input";
+import { ClockIcon, ListIcon, UsersIcon } from "lucide-react";
 
 export default function TestJoinPage() {
   const router = useRouter();
@@ -28,6 +29,10 @@ export default function TestJoinPage() {
   const [testData, setTestData] = useState<Test | null>(null);
   const [user, setUser] = useState<UserDecodedToken | null>();
   const [username, setUsername] = useState<string | null>(null);
+  const [acceptResponses, setAcceptResponses] = useState(false);
+  const [participantCount, setParticipantCount] = useState(0);
+  const [questionCount, setQuestionCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setUser(getUserDecodedToken());
@@ -36,6 +41,7 @@ export default function TestJoinPage() {
   }, []);
 
   const StartTest = async () => {
+    setIsLoading(true);
     try {
       console.log("Starting test with username:", username);
       const res = await fetch(`/api/v1/test/${joinCode}/start`, {
@@ -56,11 +62,12 @@ export default function TestJoinPage() {
         toast.success("Test started successfully!");
         router.push(`/test/${joinCode}/start`);
       } else {
-        toast.error("Failed to start test: " + data.message);
+        toast.error(data.message);
       }
     } catch (error) {
       console.error("Error starting test:", error);
     }
+    setIsLoading(false);
   };
 
   const handleStartTest = () => {
@@ -84,21 +91,71 @@ export default function TestJoinPage() {
     fetchTest();
   }, [joinCode]);
 
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/v1/test/${joinCode}/pooling`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          console.error("Failed to fetch pooling data");
+          return;
+        }
+
+        const data = await response.json();
+        console.log("Pooling data:", data);
+        setAcceptResponses(data.acceptResponses);
+        setParticipantCount(data.participantCount);
+        setQuestionCount(data.questionCount);
+      } catch (error) {
+        console.error("Error during pooling fetch:", error);
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [joinCode]);
+
   return (
     <div className="max-w-screen min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow flex justify-center items-center">
-        {testData ? (
+        {testData && !isLoading ? (
           <Card className="w-fit h-full flex flex-col items-center justify-center p-4">
-            <>
-              <h1 className="text-xl font-bold">{testData.title}</h1>
-              <p className="text-gray-600">{testData.description}</p>
-              <p className="text-gray-500">{testData.testDuration} minutes</p>
-              <p className="text-gray-500">Join Code: {testData.joinCode}</p>
-            </>
+            <h1 className="text-2xl font-bold text-foreground">
+              {testData.title}
+            </h1>
+            <div className="text-center space-y-6">
+              <p className="text-muted-foreground">{testData.description}</p>
+              <div className="flex justify-center gap-8">
+                <div className="flex flex-col items-center">
+                  <ClockIcon className="w-12 h-12 text-muted-foreground" />
+                  <span className="text-lg text-muted-foreground">
+                    {testData.testDuration} minutes
+                  </span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <ListIcon className="w-12 h-12 text-muted-foreground" />
+                  <span className="text-lg text-muted-foreground">
+                    {questionCount} Questions
+                  </span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <UsersIcon className="w-12 h-12 text-muted-foreground" />
+                  <span className="text-lg text-muted-foreground">
+                    {participantCount} Participants
+                  </span>
+                </div>
+              </div>
+            </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button>Start Test</Button>
+                <Button disabled={!acceptResponses} className="w-full">
+                  Start Test
+                </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -110,19 +167,22 @@ export default function TestJoinPage() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  {!user ? (
-                    <Input
-                      type="text"
-                      placeholder="Enter your name"
-                      value={username || ""}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="w-full mb-4"
-                    />
-                  ) : null}
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleStartTest}>
-                    Confirm
-                  </AlertDialogAction>
+                  <div className="w-full flex flex-col gap-4">
+                    {!user ? (
+                      <Input
+                        type="text"
+                        placeholder="Enter your name"
+                        value={username || ""}
+                        onChange={(e) => setUsername(e.target.value)}
+                      />
+                    ) : null}
+                    <div className="flex justify-end gap-2">
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleStartTest}>
+                        Confirm
+                      </AlertDialogAction>
+                    </div>
+                  </div>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

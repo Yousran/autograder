@@ -17,6 +17,20 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    const participant = await prisma.participant.findUnique({
+      where: { id: participantId },
+      include: {
+        test: true,
+      },
+    });
+
+    if (participant?.test?.acceptResponses === false) {
+      return NextResponse.json(
+        { error: "Test is not accepting responses" },
+        { status: 403 }
+      );
+    }
+
     // Ambil data untuk validasi dan grading
     const answer = await prisma.essayAnswer.findUnique({
       where: { id: answerId },

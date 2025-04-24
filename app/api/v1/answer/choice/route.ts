@@ -15,6 +15,20 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    const participant = await prisma.participant.findUnique({
+      where: { id: participantId },
+      include: {
+        test: true,
+      },
+    });
+
+    if (participant?.test?.acceptResponses === false) {
+      return NextResponse.json(
+        { error: "Test is not accepting responses" },
+        { status: 403 }
+      );
+    }
+
     // Check if the answer belongs to the participant
     const answer = await prisma.choiceAnswer.findUnique({
       where: { id: answerId },

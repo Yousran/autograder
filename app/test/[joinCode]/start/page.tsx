@@ -13,6 +13,7 @@ import { Participant, QuestionWithAnswers, Test } from "./participant-response";
 import QuestionList from "./components/question-list";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export default function StartPage() {
   const router = useRouter();
@@ -63,28 +64,35 @@ export default function StartPage() {
     setIsFetchLoading(true);
     const type = question.type;
 
-    if (type === "ESSAY") {
-      const answer = question.essay?.answer;
-      if (!answer) return;
-      await fetch("/api/v1/answer/essay", {
-        method: "PATCH",
-        body: JSON.stringify({
-          answerId: answer.id,
-          participantId: participant?.id,
-          answerText: answer.answerText,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      console.log("Essay Update");
-      // await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Essay Finish Update");
-    } else if (type === "CHOICE") {
-      try {
+    try {
+      if (type === "ESSAY") {
+        const answer = question.essay?.answer;
+        if (!answer) return;
+        const res = await fetch("/api/v1/answer/essay", {
+          method: "PATCH",
+          body: JSON.stringify({
+            answerId: answer.id,
+            participantId: participant?.id,
+            answerText: answer.answerText,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (res.status === 403) {
+          const errorData = await res.json();
+          if (errorData.error === "Test is not accepting responses") {
+            toast.error(errorData.error);
+          }
+          return;
+        }
+
+        console.log("Essay Update");
+        console.log("Essay Finish Update");
+      } else if (type === "CHOICE") {
         console.log("Choice Update");
         const answer = question.choice?.answer;
-        console.log("answer: ", answer);
         if (!answer) return;
         const res = await fetch("/api/v1/answer/choice", {
           method: "PATCH",
@@ -97,32 +105,48 @@ export default function StartPage() {
             "Content-Type": "application/json",
           },
         });
+
+        if (res.status === 403) {
+          const errorData = await res.json();
+          if (errorData.error === "Test is not accepting responses") {
+            toast.error(errorData.error);
+          }
+          return;
+        }
+
         console.log("Choice Update Successful :", res);
-      } catch (error) {
-        console.error("Error updating choice answer:", error);
+        console.log("Choice Finish Update");
+      } else if (type === "MULTIPLE_CHOICE") {
+        console.log("Multiple Choice Update");
+        const answers = question.multipleChoice?.answer.selectedChoices || [];
+        if (!answers) return;
+        const res = await fetch("/api/v1/answer/multiple-choice", {
+          method: "PATCH",
+          body: JSON.stringify({
+            answerId: question.multipleChoice?.answer.id,
+            answers: answers,
+            participantId: participant?.id,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (res.status === 403) {
+          const errorData = await res.json();
+          if (errorData.error === "Test is not accepting responses") {
+            toast.error(errorData.error);
+          }
+          return;
+        }
+
+        console.log("Multiple Choice Finish Update");
       }
-      // await new Promise((resolve) => setTimeout(resolve, 3000));
-      console.log("Choice Finish Update");
-    } else if (type === "MULTIPLE_CHOICE") {
-      console.log("Multiple Choice Update");
-      const answers = question.multipleChoice?.answer.selectedChoices || [];
-      if (!answers) return;
-      console.log("answers: ", answers);
-      await fetch("/api/v1/answer/multiple-choice", {
-        method: "PATCH",
-        body: JSON.stringify({
-          answerId: question.multipleChoice?.answer.id,
-          answers: answers,
-          participantId: participant?.id,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      // await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Multiple Choice Finish Update");
+    } catch (error) {
+      console.error("Error updating answer:", error);
+    } finally {
+      setIsFetchLoading(false);
     }
-    setIsFetchLoading(false);
   };
 
   const handleNavigation = async (newIndex: number) => {
