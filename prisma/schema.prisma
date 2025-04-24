@@ -14,143 +14,215 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  email     String   @unique
-  password  String
+  id String @id @default(uuid())
+
+  username String @unique
+  email    String @unique
+  password String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  tests        Test[]
   participants Participant[]
-  tests      Test[]
-}
-
-model Participant {
-  id        Int      @id @default(autoincrement())
-  testId    Int
-  userId    Int?
-  username  String?
-  totalScore Float?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([testId])
-  @@index([userId])
-
-  // Relations
-  test      Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
-  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  essayAnswers EssayAnswer[]
-  choiceAnswers ChoiceAnswer[]
 }
 
 model Test {
-  id        Int      @id @default(autoincrement())
-  creatorId Int
-  testTitle String
-  joinCode  String   @unique
-  testDuration Int
-  acceptResponses Boolean
-  showDetailedScores Boolean
-  isOrdered Boolean
+  id        String @id @default(uuid())
+  creatorId String
+
+  title              String
+  joinCode           String    @unique
+  description        String?
+  testDuration       Int?
+  startTime          DateTime?
+  endTime            DateTime?
+  acceptResponses    Boolean
+  showDetailedScore  Boolean
+  showCorrectAnswers Boolean
+  isOrdered          Boolean
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([creatorId]) // Menambahkan index untuk pencarian berdasarkan creatorId
-
-  questions Question[]
+  user         User          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  questions    Question[]
   participants Participant[]
-  user     User      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId])
+}
+
+enum QuestionType {
+  ESSAY
+  CHOICE
+  MULTIPLE_CHOICE
 }
 
 model Question {
-  id        Int      @id @default(autoincrement())
-  testId    Int
+  id     String @id @default(uuid())
+  testId String
+
+  questionText String       @db.Text
+  type         QuestionType
+  order        Int          @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
-  test      Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
-  essay     EssayQuestion?
-  choice    ChoiceQuestion?
+  test           Test                    @relation(fields: [testId], references: [id], onDelete: Cascade)
+  essay          EssayQuestion?
+  choice         ChoiceQuestion?
+  multipleChoice MultipleChoiceQuestion?
 
-  @@index([testId]) // Sudah ada, ini sudah cukup
+  @@index([testId, order])
 }
 
+// ESSAY QUESTION
 model EssayQuestion {
-  id        Int      @id @default(autoincrement())
-  questionText String @db.Text
-  answerText String @db.Text
+  id            String  @id @default(uuid())
+  answerText    String  @db.Text
+  isExactAnswer Boolean
+  maxScore      Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  question   Question  @relation(fields: [id], references: [id], onDelete: Cascade)
-  answers   EssayAnswer[]
-}
-
-model ChoiceQuestion {
-  id        Int      @id @default(autoincrement())
-  questionText String @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  choices   Choice[]
-  question   Question  @relation(fields: [id], references: [id], onDelete: Cascade)
-  answers   ChoiceAnswer[]
-}
-
-model Choice {
-  id        Int      @id @default(autoincrement())
-  questionId Int
-  choiceText String @db.Text
-  isCorrect Boolean
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([questionId]) // Untuk mempercepat pencarian berdasarkan questionId
-
-  question ChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answers  ChoiceAnswer[]
+  question Question      @relation(fields: [id], references: [id], onDelete: Cascade)
+  answers  EssayAnswer[]
 }
 
 model EssayAnswer {
-  id        Int      @id @default(autoincrement())
-  questionId Int
-  participantId Int
+  id            String @id @default(uuid())
+  participantId String
+  questionId    String
+
   answerText String @db.Text
-  score     Int?
+  score      Int    @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([participantId]) // Untuk mempercepat pencarian berdasarkan participantId
-  @@index([questionId]) // Untuk mempercepat pencarian berdasarkan questionId
+  participant Participant   @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  question    EssayQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
 
-  question   EssayQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+// CHOICE QUESTION
+model ChoiceQuestion {
+  id String @id @default(uuid())
+
+  isChoiceRandomized Boolean
+  maxScore           Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  question Question       @relation(fields: [id], references: [id], onDelete: Cascade)
+  choices  Choice[]
+  answers  ChoiceAnswer[]
+}
+
+model Choice {
+  id         String  @id @default(uuid())
+  questionId String
+  choiceText String  @db.Text
+  isCorrect  Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  question ChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers  ChoiceAnswer[]
+
+  @@index([questionId])
 }
 
 model ChoiceAnswer {
-  id        Int      @id @default(autoincrement())
-  questionId Int
-  participantId Int
-  selectedChoiceId Int?
-  score     Int?
+  id               String  @id @default(uuid())
+  questionId       String
+  participantId    String
+  selectedChoiceId String?
+
+  score Int @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([participantId]) // Untuk mempercepat pencarian berdasarkan participantId
-  @@index([questionId]) // Untuk mempercepat pencarian berdasarkan questionId
+  question    ChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  participant Participant    @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  choice      Choice?        @relation(fields: [selectedChoiceId], references: [id], onDelete: Cascade)
 
-  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  question   ChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  choice     Choice? @relation(fields: [selectedChoiceId], references: [id], onDelete: Cascade)
+  @@index([participantId])
+  @@index([questionId])
+  @@index([selectedChoiceId])
+}
+
+// MULTIPLE CHOICE QUESTION
+model MultipleChoiceQuestion {
+  id String @id @default(uuid())
+
+  isChoiceRandomized Boolean
+  maxScore           Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  question        Question               @relation(fields: [id], references: [id], onDelete: Cascade)
+  multipleChoices MultipleChoice[]
+  answers         MultipleChoiceAnswer[]
+}
+
+model MultipleChoice {
+  id         String @id @default(uuid())
+  questionId String
+
+  choiceText String  @db.Text
+  isCorrect  Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  question MultipleChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers  MultipleChoiceAnswer[] @relation("MultipleChoiceAnswerSelectedChoices")
+
+  @@index([questionId])
+}
+
+model MultipleChoiceAnswer {
+  id            String @id @default(uuid())
+  questionId    String
+  participantId String
+
+  score Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participant     Participant            @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  question        MultipleChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedChoices MultipleChoice[]       @relation("MultipleChoiceAnswerSelectedChoices")
+
+  @@index([participantId])
+  @@index([questionId])
+}
+
+model Participant {
+  id     String  @id @default(uuid())
+  testId String
+  userId String?
+
+  username String
+  score    Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  test                  Test                   @relation(fields: [testId], references: [id], onDelete: Cascade)
+  user                  User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  essayAnswers          EssayAnswer[]
+  choiceAnswers         ChoiceAnswer[]
+  multipleChoiceAnswers MultipleChoiceAnswer[]
+
+  @@index([testId])
+  @@index([userId])
+  @@index([username])
 }
