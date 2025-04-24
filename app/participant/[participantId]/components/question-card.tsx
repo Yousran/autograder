@@ -54,7 +54,7 @@ export function QuestionCard({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [score]);
+  }, [answerId, handleUpdateScore, initialScore, score, type]);
 
   return (
     <Card className="w-full">

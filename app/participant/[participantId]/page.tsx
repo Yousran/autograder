@@ -1,6 +1,6 @@
 "use client";
 import Navbar from "@/components/custom/navbar";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,7 +91,7 @@ export default function ParticipantPage() {
     }
   }
 
-  const fetchParticipantData = async () => {
+  const fetchParticipantData = useCallback(async () => {
     try {
       const response = await fetch(
         `/api/v1/participant/creator/${participantId}`,
@@ -117,7 +117,7 @@ export default function ParticipantPage() {
       console.error("Error fetching participant data:", error);
       toast.error("An error occurred while fetching participant data");
     }
-  };
+  }, [participantId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -126,7 +126,7 @@ export default function ParticipantPage() {
       setIsLoading(false);
     };
     fetchData();
-  }, [participantId]);
+  }, [fetchParticipantData, participantId]);
 
   if (isLoading) {
     return (

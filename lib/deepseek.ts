@@ -1,18 +1,4 @@
 // ./lib/deepseek.ts
-<<<<<<< HEAD
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY!,
-  defaultHeaders: {
-    "HTTP-Referer": process.env.SITE_URL || "",
-    "X-Title": process.env.SITE_NAME || "",
-  },
-});
-
-export async function gradeEssayWithAI({
-=======
 import OpenAI from "openai";
 
 const apiKeys = [
@@ -24,7 +10,6 @@ const apiKeys = [
 ].filter(Boolean);
 
 export async function essayGraderDeepseek({
->>>>>>> baru/main
   answer,
   answerKey,
   minScore,
@@ -35,10 +20,6 @@ export async function essayGraderDeepseek({
   minScore: number;
   maxScore: number;
 }): Promise<number> {
-<<<<<<< HEAD
-  try {
-    const res = await openai.chat.completions.create({
-=======
   for (let i = 0; i < apiKeys.length; i++) {
     const key = apiKeys[i];
 
@@ -53,7 +34,6 @@ export async function essayGraderDeepseek({
 
     try {
       const res = await openai.chat.completions.create({
->>>>>>> baru/main
         model: "deepseek/deepseek-chat:free",
         messages: [
           {
@@ -66,28 +46,6 @@ export async function essayGraderDeepseek({
           },
           {
             role: "user",
-<<<<<<< HEAD
-            content:
-              `Jawaban peserta: ${answer}\nKunci jawaban: ${answerKey}\n\nBeri nilai hanya berupa angka.`,
-          },
-        ],
-      });
-      
-
-    const reply = res.choices[0].message.content;
-
-    // Pastikan AI mengembalikan angka valid
-    const score = parseInt(reply || "");
-    if (!isNaN(score) && score >= minScore && score <= maxScore) {
-      return score;
-    }
-
-    throw new Error("Invalid AI response");
-  } catch (error) {
-    console.error("AI grading failed:", error);
-    throw error;
-  }
-=======
             content: `Jawaban peserta: ${answer}\nKunci jawaban: ${answerKey}\n\nBeri nilai hanya berupa angka.`,
           },
         ],
@@ -107,5 +65,4 @@ export async function essayGraderDeepseek({
   }
 
   throw new Error("All API keys failed or returned invalid response.");
->>>>>>> baru/main
 }
