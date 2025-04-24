@@ -5,7 +5,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DecodedToken } from "@/types/token";
+import { UserDecodedToken } from "@/types/token";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -29,7 +29,7 @@ const profileSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
-export function ProfileSettings({ user }: { user: DecodedToken | null }) {
+export function ProfileSettings({ user }: { user: UserDecodedToken | null }) {
   const [loading, setLoading] = useState(false);
 
   const form = useForm<ProfileFormValues>({

@@ -19,7 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { DecodedToken } from "@/types/token";
+import { UserDecodedToken } from "@/types/token";
 
 const securitySchema = z
   .object({
@@ -36,7 +36,7 @@ const securitySchema = z
 
 type SecurityFormValues = z.infer<typeof securitySchema>;
 
-export function SecuritySettings({ user }: { user: DecodedToken | null }) {
+export function SecuritySettings({ user }: { user: UserDecodedToken | null }) {
   const [loading, setLoading] = useState(false);
 
   const form = useForm<SecurityFormValues>({
