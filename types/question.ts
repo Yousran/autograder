@@ -41,6 +41,19 @@ export type RawQuestion = {
   } | null;
 };
 
+export const defaultQuestion: EssayQuestion = {
+  id: crypto.randomUUID(),
+  testId: "",
+  type: "ESSAY",
+  questionText: "",
+  answerText: "",
+  order: 1,
+  isExactAnswer: false,
+  maxScore: 5,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
 export type Question = {
   id: string;
   testId: string;

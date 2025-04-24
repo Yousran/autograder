@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QuestionsBuilder } from "./components/questions-builder";
 import { TestSettings } from "./components/test-settings";
-import { EssayQuestion, Question } from "@/types/question";
+import { defaultQuestion, Question } from "@/types/question";
 import { toast } from "sonner";
 import { getToken } from "@/lib/auth-client";
 import {
@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 // Schema Zod
-export const testSchema = z.object({
+const testSchema = z.object({
   title: z.string().min(3, { message: "Title is required" }),
   description: z.string().optional(),
   testDuration: z
@@ -43,19 +43,6 @@ export const testSchema = z.object({
 });
 
 export type TestFormValues = z.infer<typeof testSchema>;
-
-export const defaultQuestion: EssayQuestion = {
-  id: crypto.randomUUID(),
-  testId: "",
-  type: "ESSAY",
-  questionText: "",
-  answerText: "",
-  order: 1,
-  isExactAnswer: false,
-  maxScore: 5,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
 
 export default function TestCreatePage() {
   const router = useRouter();

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { CardQuestion } from "./card-question";
 import { Question } from "@/types/question";
-import { defaultQuestion } from "../page";
+import { defaultQuestion } from "@/types/question";
 
 export function QuestionsBuilder({
   questions,
