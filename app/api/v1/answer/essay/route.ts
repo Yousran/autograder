@@ -9,6 +9,7 @@ export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
     const { answerId, participantId, answerText } = body;
+    console.time("update-essay-answer");
 
     if (!answerId || !participantId || typeof answerText !== "string") {
       return NextResponse.json(
@@ -17,34 +18,33 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const participant = await prisma.participant.findUnique({
-      where: { id: participantId },
-      include: {
-        test: true,
-      },
-    });
+    // Jalankan paralel
+    const [participant, answer] = await Promise.all([
+      prisma.participant.findUnique({
+        where: { id: participantId },
+        include: { test: true },
+      }),
+      prisma.essayAnswer.findUnique({
+        where: { id: answerId },
+        select: {
+          participantId: true,
+          question: {
+            select: {
+              isExactAnswer: true,
+              maxScore: true,
+              answerText: true, // kunci jawaban
+            },
+          },
+        },
+      }),
+    ]);
 
-    if (participant?.test?.acceptResponses === false) {
+    if (!participant?.test?.acceptResponses) {
       return NextResponse.json(
         { error: "Test is not accepting responses" },
         { status: 403 }
       );
     }
-
-    // Ambil data untuk validasi dan grading
-    const answer = await prisma.essayAnswer.findUnique({
-      where: { id: answerId },
-      select: {
-        participantId: true,
-        question: {
-          select: {
-            isExactAnswer: true,
-            maxScore: true,
-            answerText: true, // ini adalah kunci jawaban
-          },
-        },
-      },
-    });
 
     if (!answer || answer.participantId !== participantId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -75,6 +75,7 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
+    console.timeEnd("update-essay-answer");
     return NextResponse.json({ success: true, answer: updated });
   } catch (error) {
     console.error("Error updating essay answer:", error);

@@ -15,25 +15,24 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const participant = await prisma.participant.findUnique({
-      where: { id: participantId },
-      include: {
-        test: true,
-      },
-    });
+    // Jalankan fetch data participant dan existingAnswer secara paralel
+    const [participant, existingAnswer] = await Promise.all([
+      prisma.participant.findUnique({
+        where: { id: participantId },
+        include: { test: true },
+      }),
+      prisma.multipleChoiceAnswer.findUnique({
+        where: { id: answerId },
+        select: { participantId: true },
+      }),
+    ]);
 
-    if (participant?.test?.acceptResponses === false) {
+    if (!participant?.test?.acceptResponses) {
       return NextResponse.json(
         { error: "Test is not accepting responses" },
         { status: 403 }
       );
     }
-
-    // Cek kepemilikan jawaban
-    const existingAnswer = await prisma.multipleChoiceAnswer.findUnique({
-      where: { id: answerId },
-      select: { participantId: true },
-    });
 
     if (!existingAnswer || existingAnswer.participantId !== participantId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -43,10 +42,10 @@ export async function PATCH(req: NextRequest) {
       (choice: MultipleChoice) => choice.id
     );
 
-    // Grading sebelum update
+    // Grading jawaban
     const score = await gradeMultipleChoiceAnswer(selectedChoiceIds);
 
-    // Update selected choices dan skor
+    // Update jawaban dan skor
     const updatedAnswer = await prisma.multipleChoiceAnswer.update({
       where: { id: answerId },
       data: {
