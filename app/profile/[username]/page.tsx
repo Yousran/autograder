@@ -10,7 +10,8 @@ import { getUserDecodedToken, getToken } from "@/lib/auth-client";
 
 type TestTaken = {
   title: string;
-  totalScore: number;
+  score: number;
+  participantId: string;
 };
 
 type TestCreated = {
@@ -96,13 +97,19 @@ export default function ProfilePage() {
                 </div>
               ) : testTaken.length > 0 ? (
                 testTaken.map((test, index) => (
-                  <Card key={index}>
+                  <Card
+                    key={index}
+                    className="hover:bg-primary/10 hover:scale-101 cursor-pointer transition"
+                    onClick={() =>
+                      router.push(`/test/result/${test.participantId}`)
+                    }
+                  >
                     <CardContent className="flex justify-between gap-4 px-4 py-4">
-                      <Label className="text text-lg font-bold text-center">
+                      <Label className="text text-lg font-bold text-start">
                         {test.title}
                       </Label>
-                      <Label className="text text-lg font-bold text-center">
-                        {test.totalScore}
+                      <Label className="text text-3xl font-bold text-center">
+                        {test.score}
                       </Label>
                     </CardContent>
                   </Card>

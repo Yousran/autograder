@@ -54,17 +54,19 @@ export default function Login() {
             router.push("/");
           } else {
             toast.error("Login failed. Please try again.");
+            setIsLoading(false);
           }
         })
         .catch((error) => {
           console.error(error);
           toast.error("An error occurred. Please try again.");
+          setIsLoading(false);
         });
     } catch (error) {
       console.error("Error during login:", error);
       toast.error("An error occurred. Please try again.");
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
   return (
@@ -130,7 +132,7 @@ export default function Login() {
                 </a>
               </Label>
               <Button type="submit" disabled={isLoading}>
-                Login
+                {isLoading ? "Loading..." : "Login"}
               </Button>
             </CardFooter>
           </form>

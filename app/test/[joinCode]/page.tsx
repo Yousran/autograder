@@ -59,15 +59,16 @@ export default function TestJoinPage() {
 
       if (res.ok) {
         setToken("participantId", data.participantId);
-        toast.success("Test started successfully!");
         router.push(`/test/${joinCode}/start`);
+        toast.success("Test started successfully!");
       } else {
         toast.error(data.message);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Error starting test:", error);
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleStartTest = () => {
@@ -133,7 +134,7 @@ export default function TestJoinPage() {
             <h1 className="text-2xl font-bold text-foreground text-center">
               {testData.title}
             </h1>
-            <div className="text-center space-y-6">
+            <div className="text-center">
               <p className="text-muted-foreground">{testData.description}</p>
               <div className="flex justify-center gap-8">
                 <div className="flex flex-col items-center">

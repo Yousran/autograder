@@ -155,8 +155,8 @@ export default function ParticipantPage() {
                 {participant?.username || "N/A"}
               </Label>
               <Label className="text-3xl font-semibold">
-                {participant?.score !== null
-                  ? Number(participant?.score?.toFixed(2))
+                {typeof participant?.score === "number"
+                  ? Number(participant.score.toFixed(2))
                   : "Not graded yet"}
               </Label>
             </div>

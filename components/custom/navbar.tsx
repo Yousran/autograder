@@ -14,6 +14,7 @@ import { Label } from "../ui/label";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { ArrowLeftIcon } from "lucide-react";
 
 export default function Navbar() {
   const router = useRouter();
@@ -37,12 +38,19 @@ export default function Navbar() {
 
   return (
     <nav className="w-full flex items-center justify-between p-4 shadow-sm bg-card text-foreground">
-      <Label
-        className="text-2xl font-bold cursor-pointer"
-        onClick={() => router.push("/")}
-      >
-        Autograde
-      </Label>
+      {pathname.startsWith("/participant/") ||
+      pathname.match(/^\/test\/[^/]+\/edit$/) ? (
+        <Button size={"icon"} variant="ghost" onClick={() => router.back()}>
+          <ArrowLeftIcon />
+        </Button>
+      ) : (
+        <Label
+          className="text-2xl font-bold cursor-pointer"
+          onClick={() => router.push("/")}
+        >
+          Autograde
+        </Label>
+      )}
       <div className="flex space-x-4">
         {isLoggedIn && pathname !== "/test/create" && (
           <Button onClick={() => router.push("/test/create")}>Make Test</Button>

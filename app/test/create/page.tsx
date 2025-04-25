@@ -65,6 +65,7 @@ export default function TestCreatePage() {
 
     if (!validation.success) {
       toast.error("Please fill in all required fields.");
+      setIsLoading(false);
       return;
     }
 
@@ -92,7 +93,6 @@ export default function TestCreatePage() {
     toast.success("Test created!");
     console.log("Created test:", result.test);
     router.push("/test/" + result.joinCode + "/edit");
-    setIsLoading(false);
   }
 
   return (

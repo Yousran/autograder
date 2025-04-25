@@ -64,6 +64,7 @@ export default function Register() {
             router.push("/auth/login");
           } else {
             toast.error("Registration failed. Please try again.");
+            setIsLoading(false);
           }
         })
         .catch((error) => {
@@ -76,7 +77,6 @@ export default function Register() {
       toast.error("An error occurred. Please try again.");
       setIsLoading(false);
     }
-    setIsLoading(false);
   }
   return (
     <div className="w-screen min-h-screen flex items-center justify-center">
@@ -159,7 +159,7 @@ export default function Register() {
             </CardContent>
             <CardFooter className="flex justify-end mt-4">
               <Button type="submit" disabled={isLoading}>
-                Register
+                {isLoading ? "Loading..." : "Register"}
               </Button>
             </CardFooter>
           </form>
