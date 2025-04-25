@@ -130,11 +130,11 @@ export default function ProfilePage() {
                 testCreated.map((test, index) => (
                   <Card
                     key={index}
-                    className="hover:bg-primary/10 cursor-pointer transition"
+                    className="hover:bg-primary/10 hover:scale-101 cursor-pointer transition"
                     onClick={() => router.push(`/test/${test.joinCode}/edit`)}
                   >
                     <CardContent className="flex justify-start gap-4 px-4 py-4">
-                      <Label className="text text-lg font-bold text-center">
+                      <Label className="text text-lg font-bold text-start">
                         {test.title}
                       </Label>
                     </CardContent>

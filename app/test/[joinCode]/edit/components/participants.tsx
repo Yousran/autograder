@@ -51,7 +51,7 @@ export default function Participants({ joinCode }: { joinCode: string }) {
           <Card
             key={participant.id}
             onClick={() => router.push(`/participant/${participant.id}`)}
-            className="cursor-pointer hover:bg-card-foreground/10 transition-colors"
+            className="cursor-pointer hover:bg-card-foreground/10 hover:scale-101 transition"
           >
             <CardContent className="flex justify-between gap-4">
               <Label className="text-xl">{participant.username}</Label>

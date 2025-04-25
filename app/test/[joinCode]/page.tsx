@@ -129,8 +129,8 @@ export default function TestJoinPage() {
       <Navbar />
       <main className="flex-grow flex justify-center items-center">
         {testData && !isLoading ? (
-          <Card className="w-fit h-full flex flex-col items-center justify-center p-4">
-            <h1 className="text-2xl font-bold text-foreground">
+          <Card className="w-fit max-w-2xl h-full flex flex-col items-center justify-center p-4">
+            <h1 className="text-2xl font-bold text-foreground text-center">
               {testData.title}
             </h1>
             <div className="text-center space-y-6">

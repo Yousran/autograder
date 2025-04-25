@@ -18,6 +18,8 @@ import { TestFormValues } from "../../create/page";
 import Participants from "./components/participants";
 import { Skeleton } from "@/components/ui/skeleton";
 import Questions from "./components/questions";
+import { Button } from "@/components/ui/button";
+import { CopyIcon } from "lucide-react";
 
 export default function TestEditPage() {
   const { joinCode } = useParams<{ joinCode: string }>();
@@ -91,8 +93,20 @@ export default function TestEditPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <div className="w-full flex justify-center items-center rounded-md text-5xl font-bold font-sans p-4 bg-secondary ">
-                  {joinCode}
+                <div className="w-full flex justify-between items-center rounded-md p-4 bg-secondary ">
+                  <p className="w-full text-5xl text-center font-bold font-sans">
+                    {joinCode}
+                  </p>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(joinCode);
+                      toast.success("Join code disalin!");
+                    }}
+                  >
+                    <CopyIcon className="w-5 h-5" />
+                  </Button>
                 </div>
               </CardFooter>
             </Card>
@@ -102,7 +116,7 @@ export default function TestEditPage() {
           <Tabs
             defaultValue="settings"
             onValueChange={(value) => setActiveTab(value)}
-            className="w-full"
+            className="w-full gap-4"
           >
             <TabsList className="w-full grid grid-cols-3">
               <TabsTrigger value="settings">Settings</TabsTrigger>
