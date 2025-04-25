@@ -33,7 +33,7 @@ export function CardQuestion({
   setQuestions: (questions: Question[]) => void;
 }) {
   const [questionType, setQuestionType] = useState<QuestionType>(
-    QuestionType.ESSAY
+    question.type as QuestionType
   );
 
   // Sync questionType with the current question type only if it changes

@@ -1,6 +1,5 @@
 // file: app/test/create/page.tsx
 "use client";
-//TODO: setelah menambahkan choice dan multiple choice, lalu beralih ke tab settings, choice dan multiple choice menghilang
 
 import { z } from "zod";
 import { useState } from "react";
