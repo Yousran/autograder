@@ -35,6 +35,7 @@ export default function Home() {
               <InputOTP
                 maxLength={6}
                 pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                inputMode="text"
                 className="flex justify-center"
                 value={joinCode}
                 onChange={(value) => setJoinCode(value.toUpperCase())}
