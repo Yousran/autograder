@@ -42,9 +42,12 @@ export function TestSettings({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
+              maxLength={500}
+              placeholder="Description of the test"
               value={test.description}
               onChange={(e) => {
                 setTest({ ...test, description: e.target.value });
+                onUpdateField?.("description", e.target.value);
               }}
             />
           </div>

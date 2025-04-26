@@ -61,6 +61,8 @@ export default function TestEditPage() {
       }),
     });
 
+    devLog("Update response:", res);
+
     if (!res.ok) {
       toast.error(`Failed to update ${key}`);
     }

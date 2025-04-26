@@ -30,7 +30,7 @@ import { devLog } from "@/utils/devLog";
 // Schema Zod
 const testSchema = z.object({
   title: z.string().min(3, { message: "Title is required" }),
-  description: z.string().optional(),
+  description: z.string().max(500).optional(),
   testDuration: z
     .number({ invalid_type_error: "Duration must be a number" })
     .min(1, { message: "Minimum 1 minute" }),
@@ -64,6 +64,7 @@ export default function TestCreatePage() {
     setIsLoading(true);
     const validation = testSchema.safeParse(test);
 
+    devLog("Test data:", test);
     if (!validation.success) {
       toast.error("Please fill in all required fields.");
       setIsLoading(false);

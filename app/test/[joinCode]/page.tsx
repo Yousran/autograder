@@ -129,14 +129,18 @@ export default function TestJoinPage() {
   return (
     <div className="max-w-screen min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow flex justify-center items-center">
+      <main className="flex-grow flex justify-center items-center p-4">
         {testData && !isLoading ? (
           <Card className="w-fit max-w-2xl h-full flex flex-col items-center justify-center p-4">
             <h1 className="text-2xl font-bold text-foreground text-center">
               {testData.title}
             </h1>
             <div className="text-center">
-              <p className="text-muted-foreground">{testData.description}</p>
+              {testData.description && (
+                <p className="text-muted-foreground mb-4">
+                  {testData.description}
+                </p>
+              )}
               <div className="flex justify-center gap-8">
                 <div className="flex flex-col items-center">
                   <ClockIcon className="w-12 h-12 text-muted-foreground" />

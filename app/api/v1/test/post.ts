@@ -52,7 +52,7 @@ const questionSchema = z.discriminatedUnion("type", [
 
 export const testSchema = z.object({
   title: z.string().min(3, { message: "Title is required" }),
-  description: z.string().optional(),
+  description: z.string().max(500).optional(),
   testDuration: z
     .number({ invalid_type_error: "Duration must be a number" })
     .min(1, { message: "Minimum 1 minute" }),
@@ -68,7 +68,7 @@ export const testSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.time("create-test");
+    const start = performance.now();
 
     const userLoggedIn = getUserFromToken(getToken(req));
     if (!userLoggedIn) {
@@ -160,7 +160,8 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    console.timeEnd("create-test");
+    const duration = performance.now() - start;
+    console.log(`Create test finished in ${duration.toFixed(2)}ms`);
 
     return NextResponse.json({ joinCode }, { status: 201 });
   } catch (error) {
