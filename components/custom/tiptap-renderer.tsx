@@ -61,7 +61,7 @@ const TiptapRenderer = ({ content }: { content: string }) => {
 
   if (!editor) return null;
 
-  return <EditorContent editor={editor} />;
+  return <EditorContent editor={editor} className="select-none" />;
 };
 
 export default TiptapRenderer;
