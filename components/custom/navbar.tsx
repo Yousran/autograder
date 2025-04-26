@@ -80,9 +80,14 @@ export default function Navbar() {
                 Logout
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem onClick={() => router.push("/auth/login")}>
-                Login
-              </DropdownMenuItem>
+              <>
+                <DropdownMenuItem onClick={() => router.push("/auth/register")}>
+                  Register
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/auth/login")}>
+                  Login
+                </DropdownMenuItem>
+              </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
