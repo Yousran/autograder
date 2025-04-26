@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Questions from "./components/questions";
 import { Button } from "@/components/ui/button";
 import { CopyIcon } from "lucide-react";
+import { devLog } from "@/utils/devLog";
 
 export default function TestEditPage() {
   const { joinCode } = useParams<{ joinCode: string }>();
@@ -41,7 +42,7 @@ export default function TestEditPage() {
     }
     const data = await res.json();
     setTest(data);
-    console.log("Test data:", data);
+    devLog("Test data:", data);
   };
 
   const updateTestField = async (key: string, value: unknown) => {

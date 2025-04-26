@@ -22,6 +22,7 @@ import { MultipleChoiceQuestionCard } from "./multiple-choice-question-card";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { devLog } from "@/utils/devLog";
 
 export function CardQuestion({
   question,
@@ -107,7 +108,7 @@ export function CardQuestion({
       ...q,
       order: idx + 1,
     }));
-    console.log("Filtered questions", reOrdered);
+    devLog("Filtered questions", reOrdered);
     setQuestions(reOrdered);
   };
 

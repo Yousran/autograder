@@ -14,6 +14,7 @@ import QuestionList from "./components/question-list";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { devLog } from "@/utils/devLog";
 
 export default function StartPage() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function StartPage() {
           },
         });
         const data = await response.json();
-        console.log("data:", data);
+        devLog("data:", data);
         setTest(data.test);
         setParticipant(data.participant);
         setQuestions(data.questions);
@@ -88,10 +89,10 @@ export default function StartPage() {
           return;
         }
 
-        console.log("Essay Update");
-        console.log("Essay Finish Update");
+        devLog("Essay Update");
+        devLog("Essay Finish Update");
       } else if (type === "CHOICE") {
-        console.log("Choice Update");
+        devLog("Choice Update");
         const answer = question.choice?.answer;
         if (!answer) return;
         const res = await fetch("/api/v1/answer/choice", {
@@ -114,10 +115,10 @@ export default function StartPage() {
           return;
         }
 
-        console.log("Choice Update Successful :", res);
-        console.log("Choice Finish Update");
+        devLog("Choice Update Successful :", res);
+        devLog("Choice Finish Update");
       } else if (type === "MULTIPLE_CHOICE") {
-        console.log("Multiple Choice Update");
+        devLog("Multiple Choice Update");
         const answers = question.multipleChoice?.answer.selectedChoices || [];
         if (!answers) return;
         const res = await fetch("/api/v1/answer/multiple-choice", {
@@ -140,7 +141,7 @@ export default function StartPage() {
           return;
         }
 
-        console.log("Multiple Choice Finish Update");
+        devLog("Multiple Choice Finish Update");
       }
     } catch (error) {
       console.error("Error updating answer:", error);
@@ -185,7 +186,7 @@ export default function StartPage() {
   };
 
   const handleFinish = async () => {
-    console.log("Finishing test...");
+    devLog("Finishing test...");
     const originalQuestion = questions[currentIndex];
     const hasChanged =
       JSON.stringify(question) !== JSON.stringify(originalQuestion);
@@ -204,13 +205,13 @@ export default function StartPage() {
 
   const endTest = async () => {
     setIsLoading(true);
-    console.log("Ending test...");
+    devLog("Ending test...");
     // Tambahkan logika kirim ke backend, simpan waktu selesai, dll.
     // Redirect jika perlu
     // await new Promise((resolve) => setTimeout(resolve, 2000));
     router.push(`/test/result/${participant?.id}`);
     removeParticipantId();
-    console.log("Redirecting to finish page...");
+    devLog("Redirecting to finish page...");
     setIsLoading(false);
   };
   if (isLoading) {

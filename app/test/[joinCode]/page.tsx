@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Test } from "@/types/test";
 import { Input } from "@/components/ui/input";
 import { ClockIcon, ListIcon, UsersIcon } from "lucide-react";
+import { devLog } from "@/utils/devLog";
 
 export default function TestJoinPage() {
   const router = useRouter();
@@ -36,14 +37,14 @@ export default function TestJoinPage() {
 
   useEffect(() => {
     setUser(getUserDecodedToken());
-    console.log("User decoded token:", getUserDecodedToken());
+    devLog("User decoded token:", getUserDecodedToken());
     setUsername(getUserDecodedToken()?.username || null);
   }, []);
 
   const StartTest = async () => {
     setIsLoading(true);
     try {
-      console.log("Starting test with username:", username);
+      devLog("Starting test with username:", username);
       const res = await fetch(`/api/v1/test/${joinCode}/start`, {
         method: "POST",
         headers: {
@@ -108,7 +109,7 @@ export default function TestJoinPage() {
         }
 
         const data = await response.json();
-        console.log("Initial pooling data:", data);
+        devLog("Initial pooling data:", data);
         setAcceptResponses(data.acceptResponses);
         setParticipantCount(data.participantCount);
         setQuestionCount(data.questionCount);

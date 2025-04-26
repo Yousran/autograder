@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { RawQuestion } from "@/types/question";
 import { QuestionCard } from "./question-card";
 import { getToken } from "@/lib/auth-client";
+import { devLog } from "@/utils/devLog";
 
 const Questions = ({ joinCode }: { joinCode: string }) => {
   const [questions, setQuestions] = useState<RawQuestion[]>([]);
@@ -23,7 +24,7 @@ const Questions = ({ joinCode }: { joinCode: string }) => {
           throw new Error("Failed to fetch questions");
         }
         const data = await res.json();
-        console.log("Fetched questions:", data);
+        devLog("Fetched questions:", data);
         setQuestions(data);
       } catch (error) {
         console.error("Error fetching questions:", error);

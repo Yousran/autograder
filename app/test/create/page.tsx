@@ -25,6 +25,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { devLog } from "@/utils/devLog";
 
 // Schema Zod
 const testSchema = z.object({
@@ -91,7 +92,7 @@ export default function TestCreatePage() {
 
     const result = await res.json();
     toast.success("Test created!");
-    console.log("Created test:", result.test);
+    devLog("Created test:", result.test);
     router.push("/test/" + result.joinCode + "/edit");
   }
 
