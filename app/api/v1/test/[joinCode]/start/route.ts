@@ -51,7 +51,7 @@ export async function POST(
     }
 
     // Create a new participant
-    const participant = await prisma.participant.create({
+    const participantPromise = prisma.participant.create({
       data: {
         testId: test.id,
         userId: userId || null,
@@ -59,7 +59,7 @@ export async function POST(
       },
     });
 
-    const questions = await prisma.question.findMany({
+    const questionsPromise = prisma.question.findMany({
       where: { testId: test.id },
       include: {
         essay: true,
@@ -67,6 +67,11 @@ export async function POST(
         multipleChoice: true,
       },
     });
+
+    const [participant, questions] = await Promise.all([
+      participantPromise,
+      questionsPromise,
+    ]);
 
     const essayAnswers = questions
       .filter((q) => q.essay !== null)
@@ -91,19 +96,28 @@ export async function POST(
         questionId: q.multipleChoice!.id,
       }));
 
-    if (essayAnswers.length > 0) {
-      await prisma.essayAnswer.createMany({ data: essayAnswers });
-    }
+    const createEssayAnswersPromise =
+      essayAnswers.length > 0
+        ? prisma.essayAnswer.createMany({ data: essayAnswers })
+        : Promise.resolve();
 
-    if (choiceAnswers.length > 0) {
-      await prisma.choiceAnswer.createMany({ data: choiceAnswers });
-    }
+    const createChoiceAnswersPromise =
+      choiceAnswers.length > 0
+        ? prisma.choiceAnswer.createMany({ data: choiceAnswers })
+        : Promise.resolve();
 
-    if (multipleChoiceAnswers.length > 0) {
-      await prisma.multipleChoiceAnswer.createMany({
-        data: multipleChoiceAnswers,
-      });
-    }
+    const createMultipleChoiceAnswersPromise =
+      multipleChoiceAnswers.length > 0
+        ? prisma.multipleChoiceAnswer.createMany({
+            data: multipleChoiceAnswers,
+          })
+        : Promise.resolve();
+
+    await Promise.all([
+      createEssayAnswersPromise,
+      createChoiceAnswersPromise,
+      createMultipleChoiceAnswersPromise,
+    ]);
 
     return NextResponse.json(
       {
