@@ -19,8 +19,20 @@ export async function GET(
     const test = await prisma.test.findUnique({
       where: { joinCode },
       include: {
-        participants: true, // Include participants in the response
+        participants: true,
       },
+    });
+
+    const sortedParticipants = test?.participants.sort((a, b) => {
+      if (b.score !== a.score) {
+        return b.score - a.score; // skor tertinggi dulu
+      }
+
+      const aDuration =
+        new Date(a.updatedAt).getTime() - new Date(a.createdAt).getTime();
+      const bDuration =
+        new Date(b.updatedAt).getTime() - new Date(b.createdAt).getTime();
+      return aDuration - bDuration; // waktu tercepat dulu
     });
 
     if (!test) {
@@ -35,7 +47,7 @@ export async function GET(
     }
 
     // Return the participants
-    return NextResponse.json(test.participants);
+    return NextResponse.json(sortedParticipants);
   } catch (error) {
     console.error("Error fetching participants:", error);
     return NextResponse.json(
