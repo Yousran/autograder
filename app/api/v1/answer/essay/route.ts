@@ -9,7 +9,8 @@ export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
     const { answerId, participantId, answerText } = body;
-    console.time("update-essay-answer");
+    // console.time("update-essay-answer");
+    const start = performance.now();
 
     if (!answerId || !participantId || typeof answerText !== "string") {
       return NextResponse.json(
@@ -30,6 +31,7 @@ export async function PATCH(req: NextRequest) {
           participantId: true,
           question: {
             select: {
+              question: true,
               isExactAnswer: true,
               maxScore: true,
               answerText: true, // kunci jawaban
@@ -61,6 +63,7 @@ export async function PATCH(req: NextRequest) {
           maxScore,
         })
       : await gradeSubjectiveEssayAnswer({
+          questionText: answer.question.question.questionText,
           answer: answerText,
           answerKey,
           minScore,
@@ -75,7 +78,9 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
-    console.timeEnd("update-essay-answer");
+    // console.timeEnd("update-essay-answer");
+    const duration = performance.now() - start;
+    console.log(`Update-essay-answer finished in ${duration.toFixed(2)}ms`);
     return NextResponse.json({ success: true, answer: updated });
   } catch (error) {
     console.error("Error updating essay answer:", error);

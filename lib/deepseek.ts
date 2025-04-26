@@ -10,11 +10,13 @@ const apiKeys = [
 ].filter(Boolean);
 
 export async function essayGraderDeepseek({
+  questionText,
   answer,
   answerKey,
   minScore,
   maxScore,
 }: {
+  questionText: string;
   answer: string;
   answerKey: string;
   minScore: number;
@@ -39,14 +41,17 @@ export async function essayGraderDeepseek({
           {
             role: "system",
             content:
-              `Kamu adalah penilai jawaban soal essay. Berikan skor dari ${minScore} hingga ${maxScore} berdasarkan seberapa relevan jawaban peserta dengan kunci jawaban. ` +
+              `Kamu adalah penilai jawaban soal essay. Berikan skor dari ${minScore} hingga ${maxScore} berdasarkan seberapa relevan jawaban peserta dengan pertanyaan dan kunci jawaban. ` +
               `Skor tertinggi (${maxScore}) diberikan jika jawaban sepenuhnya sesuai dengan makna atau informasi inti dari kunci jawaban, meskipun gaya penulisan atau urutan berbeda. ` +
               `Jangan terlalu memperhatikan tanda baca atau sinonim yang tidak memengaruhi makna. kecuali jika soal yang berhubungan dengan kebahasaan` +
-              `\n\nBerikan hanya angka tanpa penjelasan.`,
+              `Berikan nilai yang lebih generous atau lebih mendekati ke nilai tertinggi` +
+              `\n\nIngat, balasan *HANYA* berupa angka bulat tanpa penjelasan atau komentar apapun.`,
           },
           {
             role: "user",
-            content: `Jawaban peserta: ${answer}\nKunci jawaban: ${answerKey}\n\nBeri nilai hanya berupa angka.`,
+            content: `Pertanyaannya adalah: ${questionText}\n
+            Kunci jawaban: ${answerKey}\n
+            Jawaban peserta: ${answer}`,
           },
         ],
       });

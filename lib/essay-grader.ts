@@ -31,18 +31,26 @@ export function gradeExactEssayAnswer({
  */
 
 export async function gradeSubjectiveEssayAnswer({
+  questionText,
   answer,
   answerKey,
   minScore,
   maxScore,
 }: {
+  questionText: string;
   answer: string;
   answerKey: string;
   minScore: number;
   maxScore: number;
 }): Promise<number> {
   try {
-    return await essayGraderDeepseek({ answer, answerKey, minScore, maxScore });
+    return await essayGraderDeepseek({
+      questionText,
+      answer,
+      answerKey,
+      minScore,
+      maxScore,
+    });
   } catch (error) {
     console.error("Unexpected error in essayGraderDeepseek:", error);
   }

@@ -35,7 +35,7 @@ interface TiptapEditorProps {
 }
 
 const lowlight = createLowlight(all);
-const limit = 1000;
+const limit = 600;
 
 const TiptapEditor = ({
   value = "",
