@@ -19,8 +19,16 @@ import Participants from "./components/participants";
 import { Skeleton } from "@/components/ui/skeleton";
 import Questions from "./components/questions";
 import { Button } from "@/components/ui/button";
-import { CopyIcon } from "lucide-react";
+import { CopyIcon, QrCodeIcon } from "lucide-react";
 import { devLog } from "@/utils/devLog";
+import {
+  Dialog,
+  DialogTitle,
+  DialogTrigger,
+  DialogContent,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import QRCode from "react-qr-code";
 
 export default function TestEditPage() {
   const { joinCode } = useParams<{ joinCode: string }>();
@@ -96,7 +104,32 @@ export default function TestEditPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <div className="w-full flex justify-between items-center rounded-md p-4 bg-secondary ">
+                <div className="w-full flex justify-between items-center rounded-md p-4 bg-secondary">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <QrCodeIcon className="w-5 h-5" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md flex flex-col items-center gap-4">
+                      <DialogTitle className="text-lg font-semibold">
+                        Scan to join
+                      </DialogTitle>
+                      <div
+                        style={{
+                          background: "white",
+                          padding: "16px",
+                          borderRadius: "8px",
+                        }}
+                      >
+                        <QRCode
+                          value={`${process.env.SITE_URL}/test/${joinCode}`}
+                        />
+                      </div>
+                      <DialogDescription>{joinCode}</DialogDescription>
+                    </DialogContent>
+                  </Dialog>
+
                   <p className="w-full text-5xl text-center font-bold font-sans">
                     {joinCode}
                   </p>
@@ -105,7 +138,7 @@ export default function TestEditPage() {
                     variant="outline"
                     onClick={async () => {
                       await navigator.clipboard.writeText(joinCode);
-                      toast.success("Join code disalin!");
+                      toast.success("Join code copied!");
                     }}
                   >
                     <CopyIcon className="w-5 h-5" />

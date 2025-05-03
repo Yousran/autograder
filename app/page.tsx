@@ -1,4 +1,3 @@
-//TODO: QR code scanner & Generator
 //TODO: Update Text Editor, using shadcn ContextMenu
 //TODO: Essay Grader using Score and Score explanation
 //TODO: Multiple choice Refactor
@@ -13,6 +12,7 @@
 //TODO: Middleware for pages
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/custom/navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -23,11 +23,16 @@ import {
 } from "@/components/ui/input-otp";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { ScanQrCodeIcon } from "lucide-react";
+import { Scanner } from "@yudiel/react-qr-scanner";
+import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 
 export default function Home() {
   const router = useRouter();
   const [joinCode, setJoinCode] = useState<string>("");
+  const [scannerOpen, setScannerOpen] = useState<boolean>(false);
+  const [cameraError, setCameraError] = useState(false);
 
   const handleJoin = () => {
     if (joinCode.length === 6) {
@@ -35,6 +40,13 @@ export default function Home() {
     }
   };
 
+  const handleScan = (codes: { rawValue: string }[]) => {
+    const code = codes[0]?.rawValue;
+    if (code) {
+      router.push(code);
+      setScannerOpen(false);
+    }
+  };
   return (
     <div className="max-w-screen min-h-screen flex flex-col">
       <Navbar />
@@ -66,7 +78,42 @@ export default function Home() {
                 </InputOTPGroup>
               </InputOTP>
             </div>
-            <Button onClick={handleJoin}>Join</Button>
+
+            <div className="flex justify-center gap-4">
+              <Button onClick={handleJoin} className="flex-1">
+                Join
+              </Button>
+              <Dialog open={scannerOpen} onOpenChange={setScannerOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <ScanQrCodeIcon className="w-5 h-5" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogTitle className="hidden" />
+                  <div className="w-full p-4">
+                    {cameraError ? (
+                      <div className="flex flex-col items-center gap-4 text-center">
+                        <p className="text-sm text-muted-foreground">
+                          Camera cannot be accessed. Make sure camera
+                          permissions are granted through the browser settings.
+                          And then reload the page.
+                        </p>
+                      </div>
+                    ) : (
+                      <Scanner
+                        onScan={handleScan}
+                        onError={() => setCameraError(true)}
+                        formats={["qr_code"]}
+                        components={{ finder: false }}
+                        classNames={{ container: "rounded-xl" }}
+                      />
+                    )}
+                  </div>
+                  <DialogDescription className="hidden" />
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardContent>
         </Card>
       </main>
