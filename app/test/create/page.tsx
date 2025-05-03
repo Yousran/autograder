@@ -152,7 +152,7 @@ export default function TestCreatePage() {
             </CardContent>
           </Card>
 
-          <Tabs defaultValue="questions" className="w-full">
+          <Tabs defaultValue="questions" className="w-full gap-4">
             <TabsList className="w-full grid grid-cols-2">
               <TabsTrigger value="questions">Questions</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
