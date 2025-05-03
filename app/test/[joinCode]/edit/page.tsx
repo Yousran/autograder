@@ -122,9 +122,7 @@ export default function TestEditPage() {
                           borderRadius: "8px",
                         }}
                       >
-                        <QRCode
-                          value={`${process.env.SITE_URL}/test/${joinCode}`}
-                        />
+                        <QRCode value={`/test/${joinCode}`} />
                       </div>
                       <DialogDescription>{joinCode}</DialogDescription>
                     </DialogContent>
