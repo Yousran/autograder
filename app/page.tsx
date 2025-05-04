@@ -1,4 +1,3 @@
-//TODO: fix qr code generation and scan so that google lense can also scan it
 //TODO: Multiple choice Refactor
 //TODO: Server side and client side Types Refactor
 //TODO: question type icon and using shadcn hover
@@ -27,6 +26,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ScanQrCodeIcon } from "lucide-react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { toast } from "sonner";
 
 export default function Home() {
   const router = useRouter();
@@ -42,11 +42,27 @@ export default function Home() {
 
   const handleScan = (codes: { rawValue: string }[]) => {
     const code = codes[0]?.rawValue;
-    if (code) {
-      router.push(code);
-      setScannerOpen(false);
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+    if (!code || !siteUrl) return;
+
+    try {
+      const url = new URL(code);
+
+      const isSameOrigin = url.origin === siteUrl;
+      const isTestPath = /^\/test\/[a-zA-Z0-9_-]+$/.test(url.pathname);
+
+      if (isSameOrigin && isTestPath) {
+        window.location.href = code;
+        setScannerOpen(false);
+      } else {
+        toast.error("QR code are not valid.");
+      }
+    } catch {
+      toast.error("QR code are not valid.");
     }
   };
+
   return (
     <div className="max-w-screen min-h-screen flex flex-col">
       <Navbar />

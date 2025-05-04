@@ -31,6 +31,7 @@ import {
 import QRCode from "react-qr-code";
 
 export default function TestEditPage() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
   const { joinCode } = useParams<{ joinCode: string }>();
   const [test, setTest] = useState<TestFormValues | null>(null);
   const [activeTab, setActiveTab] = useState("settings");
@@ -122,7 +123,7 @@ export default function TestEditPage() {
                           borderRadius: "8px",
                         }}
                       >
-                        <QRCode value={`/test/${joinCode}`} />
+                        <QRCode value={`${siteUrl}/test/${joinCode}`} />
                       </div>
                       <DialogDescription>{joinCode}</DialogDescription>
                     </DialogContent>
