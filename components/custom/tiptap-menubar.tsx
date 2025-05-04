@@ -20,13 +20,8 @@ import {
   ListOrderedIcon,
   TableIcon,
   CodeIcon,
-  ImageIcon,
   VideoIcon,
-  UndoIcon,
-  RedoIcon,
   HighlighterIcon,
-  SplitIcon,
-  MergeIcon,
   ArrowDownIcon,
   ArrowUpIcon,
   ArrowLeftIcon,
@@ -36,17 +31,53 @@ import {
   LayoutPanelLeftIcon,
   LayoutTemplateIcon,
   Trash2Icon,
+  TypeIcon,
+  Undo2Icon,
+  Redo2Icon,
+  ImagePlusIcon,
+  Grid2X2PlusIcon,
+  TableCellsMergeIcon,
+  TableCellsSplitIcon,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const TiptapMenubar = ({ editor }: { editor: Editor }) => {
   if (!editor) return null;
 
+  const getAlignIcon = (editor: Editor) => {
+    if (editor.isActive({ textAlign: "center" }))
+      return <AlignCenterIcon className="h-4 w-4" />;
+    if (editor.isActive({ textAlign: "right" }))
+      return <AlignRightIcon className="h-4 w-4" />;
+    if (editor.isActive({ textAlign: "justify" }))
+      return <AlignJustifyIcon className="h-4 w-4" />;
+    return <AlignLeftIcon className="h-4 w-4" />;
+  };
+
   return (
-    // <div className="border border-input dark:border-input/30 rounded-md shadow-sm">
     <Menubar className="bg-transparent border-none shadow-sm flex flex-wrap rounded-b-none">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => editor.chain().focus().undo().run()}
+        disabled={!editor.can().undo()}
+      >
+        <Undo2Icon className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => editor.chain().focus().redo().run()}
+        disabled={!editor.can().redo()}
+      >
+        <Redo2Icon className="h-4 w-4" />
+      </Button>
+
       {/* Formatting */}
       <MenubarMenu>
-        <MenubarTrigger>Format</MenubarTrigger>
+        <MenubarTrigger>
+          <TypeIcon className="h-4 w-4" />
+        </MenubarTrigger>
         <MenubarContent>
           <MenubarItem
             variant={editor.isActive("bold") ? "active" : "default"}
@@ -95,7 +126,9 @@ const TiptapMenubar = ({ editor }: { editor: Editor }) => {
       </MenubarMenu>
 
       <MenubarMenu>
-        <MenubarTrigger>Align</MenubarTrigger>
+        <MenubarTrigger className="flex items-center gap-2">
+          {getAlignIcon(editor)}
+        </MenubarTrigger>
         <MenubarContent>
           <MenubarItem
             variant={
@@ -138,7 +171,9 @@ const TiptapMenubar = ({ editor }: { editor: Editor }) => {
 
       {/* Insert */}
       <MenubarMenu>
-        <MenubarTrigger>Insert</MenubarTrigger>
+        <MenubarTrigger>
+          <ImagePlusIcon className="h-4 w-4" />
+        </MenubarTrigger>
         <MenubarContent>
           <MenubarItem
             onClick={() =>
@@ -149,7 +184,7 @@ const TiptapMenubar = ({ editor }: { editor: Editor }) => {
                 .run()
             }
           >
-            <TableIcon className="mr-2 h-4 w-4" />
+            <Grid2X2PlusIcon className="mr-2 h-4 w-4" />
             Table
           </MenubarItem>
           <MenubarItem
@@ -158,7 +193,7 @@ const TiptapMenubar = ({ editor }: { editor: Editor }) => {
               if (url) editor.chain().focus().setImage({ src: url }).run();
             }}
           >
-            <ImageIcon className="mr-2 h-4 w-4" />
+            <ImagePlusIcon className="mr-2 h-4 w-4" />
             Image
           </MenubarItem>
           <MenubarItem
@@ -181,7 +216,9 @@ const TiptapMenubar = ({ editor }: { editor: Editor }) => {
 
       {/* Table Controls */}
       <MenubarMenu>
-        <MenubarTrigger>Table</MenubarTrigger>
+        <MenubarTrigger>
+          <TableIcon className="h-4 w-4" />
+        </MenubarTrigger>
         <MenubarContent>
           <MenubarItem
             onClick={() => editor.chain().focus().addColumnBefore().run()}
@@ -226,11 +263,11 @@ const TiptapMenubar = ({ editor }: { editor: Editor }) => {
           <MenubarItem
             onClick={() => editor.chain().focus().mergeCells().run()}
           >
-            <MergeIcon className="mr-2 h-4 w-4" />
+            <TableCellsMergeIcon className="mr-2 h-4 w-4" />
             Merge Cells
           </MenubarItem>
           <MenubarItem onClick={() => editor.chain().focus().splitCell().run()}>
-            <SplitIcon className="mr-2 h-4 w-4" />
+            <TableCellsSplitIcon className="mr-2 h-4 w-4" />
             Split Cell
           </MenubarItem>
           <MenubarItem
@@ -261,29 +298,7 @@ const TiptapMenubar = ({ editor }: { editor: Editor }) => {
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
-
-      {/* History */}
-      <MenubarMenu>
-        <MenubarTrigger>Edit</MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem
-            onClick={() => editor.chain().focus().undo().run()}
-            disabled={!editor.can().undo()}
-          >
-            <UndoIcon className="mr-2 h-4 w-4" />
-            Undo
-          </MenubarItem>
-          <MenubarItem
-            onClick={() => editor.chain().focus().redo().run()}
-            disabled={!editor.can().redo()}
-          >
-            <RedoIcon className="mr-2 h-4 w-4" />
-            Redo
-          </MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
     </Menubar>
-    // </div>
   );
 };
 
