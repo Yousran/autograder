@@ -96,8 +96,9 @@ model EssayAnswer {
   participantId String
   questionId    String
 
-  answerText String @db.Text
-  score      Int    @default(0)
+  answerText       String  @db.Text
+  score            Int     @default(0)
+  scoreExplanation String? @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

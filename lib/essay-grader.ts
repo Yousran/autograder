@@ -1,4 +1,5 @@
 import { essayGraderDeepseek } from "@/lib/deepseek";
+import { EssayGrade } from "@/types/essay-grade";
 /**
  * Grading untuk soal essay dengan mode "Exact Answer"
  */
@@ -42,7 +43,7 @@ export async function gradeSubjectiveEssayAnswer({
   answerKey: string;
   minScore: number;
   maxScore: number;
-}): Promise<number> {
+}): Promise<EssayGrade> {
   try {
     return await essayGraderDeepseek({
       questionText,
@@ -56,5 +57,5 @@ export async function gradeSubjectiveEssayAnswer({
   }
 
   // Jika semua gagal, return minScore
-  return minScore;
+  return { score: minScore, explanation: "Error in grading" } as EssayGrade;
 }

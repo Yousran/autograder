@@ -1,4 +1,3 @@
-//TODO: Essay Grader using Score and Score explanation
 //TODO: fix qr code generation and scan so that google lense can also scan it
 //TODO: Multiple choice Refactor
 //TODO: Server side and client side Types Refactor

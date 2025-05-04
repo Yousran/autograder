@@ -1,4 +1,6 @@
 // ./lib/deepseek.ts
+import { EssayGrade } from "@/types/essay-grade";
+import { devLog } from "@/utils/devLog";
 import OpenAI from "openai";
 
 const apiKeys = [
@@ -21,7 +23,7 @@ export async function essayGraderDeepseek({
   answerKey: string;
   minScore: number;
   maxScore: number;
-}): Promise<number> {
+}): Promise<EssayGrade> {
   for (let i = 0; i < apiKeys.length; i++) {
     const key = apiKeys[i];
 
@@ -41,26 +43,38 @@ export async function essayGraderDeepseek({
           {
             role: "system",
             content:
-              `Kamu adalah penilai jawaban soal essay. Berikan skor dari ${minScore} hingga ${maxScore} berdasarkan seberapa relevan jawaban peserta dengan pertanyaan dan kunci jawaban. ` +
-              `Skor tertinggi (${maxScore}) diberikan jika jawaban sepenuhnya sesuai dengan makna atau informasi inti dari kunci jawaban, meskipun gaya penulisan atau urutan berbeda. ` +
-              `Jangan terlalu memperhatikan tanda baca atau sinonim yang tidak memengaruhi makna. kecuali jika soal yang berhubungan dengan kebahasaan` +
-              `Berikan nilai yang lebih generous atau lebih mendekati ke nilai tertinggi` +
-              `\n\nIngat, balasan *HANYA* berupa angka bulat tanpa penjelasan atau komentar apapun.`,
+              `Kamu adalah penilai jawaban soal essay. Berikan skor dari ${minScore} hingga ${maxScore}. ` +
+              `Jika jawaban tidak relevan, berikan skor ${minScore}. Jika relevan, berikan skor ${maxScore}. ` +
+              `Berikan Balasan dengan format. Score: <Whole Number(score)> Explanation: <explanation>`,
           },
           {
             role: "user",
-            content: `Pertanyaannya adalah: ${questionText}\n
-            Kunci jawaban: ${answerKey}\n
-            Jawaban peserta: ${answer}`,
+            content: `Pertanyaannya adalah : ${questionText}\n
+            Kunci jawabannya adalah : ${answerKey}\n
+            Jawaban peserta adalah : ${answer}`,
           },
         ],
       });
 
-      const reply = res.choices[0].message.content;
-      const score = parseInt(reply || "");
+      const reply = res.choices[0].message.content || "";
 
-      if (!isNaN(score) && score >= minScore && score <= maxScore) {
-        return score;
+      devLog(`Key ${i + 1} response: ${reply}`);
+
+      const match = reply
+        .replace(/\r/g, "")
+        .match(/Score:\s*(\d+)\s*Explanation:\s*([\s\S]*)/);
+
+      if (match) {
+        const score = parseInt(match[1], 10);
+        const explanation = match[2].trim();
+
+        devLog(
+          `Key ${i + 1} returned score: ${score}, explanation: ${explanation}`
+        );
+
+        if (!isNaN(score) && score >= minScore && score <= maxScore) {
+          return { score, explanation };
+        }
       }
 
       console.warn(`Key ${i + 1} returned invalid score:`, reply);

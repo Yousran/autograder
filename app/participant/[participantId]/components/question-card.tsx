@@ -83,6 +83,11 @@ export function QuestionCard({
               {question.essay.participantAnswer?.answerText ||
                 "No answer provided"}
             </Label>
+            <Label className="text-lg font-bold">Score Explanation</Label>
+            <Label className="text-sm font-normal text-primary">
+              {question.essay.participantAnswer?.scoreExplanation ||
+                "No Explanation provided"}
+            </Label>
           </div>
         )}
 

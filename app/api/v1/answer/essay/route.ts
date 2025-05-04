@@ -9,7 +9,6 @@ export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
     const { answerId, participantId, answerText } = body;
-    // console.time("update-essay-answer");
     const start = performance.now();
 
     if (!answerId || !participantId || typeof answerText !== "string") {
@@ -55,30 +54,38 @@ export async function PATCH(req: NextRequest) {
     const { isExactAnswer, maxScore, answerText: answerKey } = answer.question;
     const minScore = 1;
 
-    const score = isExactAnswer
-      ? gradeExactEssayAnswer({
-          answer: answerText,
-          answerKey,
-          minScore,
-          maxScore,
-        })
-      : await gradeSubjectiveEssayAnswer({
-          questionText: answer.question.question.questionText,
-          answer: answerText,
-          answerKey,
-          minScore,
-          maxScore,
-        });
+    let score: number;
+    let explanation: string | null = null; // Initialize explanation
+
+    if (isExactAnswer) {
+      score = gradeExactEssayAnswer({
+        answer: answerText,
+        answerKey,
+        minScore,
+        maxScore,
+      });
+    } else {
+      const result = await gradeSubjectiveEssayAnswer({
+        questionText: answer.question.question.questionText,
+        answer: answerText,
+        answerKey,
+        minScore,
+        maxScore,
+      });
+
+      score = result.score;
+      explanation = result.explanation || null; // Ensure explanation is assigned
+    }
 
     const updated = await prisma.essayAnswer.update({
       where: { id: answerId },
       data: {
         answerText,
         score,
+        ...(explanation && { scoreExplanation: explanation }), // Conditionally include scoreExplanation
       },
     });
 
-    // console.timeEnd("update-essay-answer");
     const duration = performance.now() - start;
     console.log(`Update-essay-answer finished in ${duration.toFixed(2)}ms`);
     return NextResponse.json({ success: true, answer: updated });

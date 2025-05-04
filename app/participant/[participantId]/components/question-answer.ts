@@ -25,6 +25,7 @@ export type EssayAnswerDetail = {
   participantId: string;
   questionId: string;
   answerText: string;
+  scoreExplanation: string;
   score: number;
 };
 
