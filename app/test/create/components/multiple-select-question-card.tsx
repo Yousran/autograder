@@ -5,20 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { QuestionTextEditor } from "./question-text-editor";
 import type {
-  MultipleChoiceQuestion,
+  MultipleSelectQuestion,
   Question,
-  MultipleChoice,
+  MultipleSelectChoice,
 } from "@/types/question";
 import { Trash2, Plus, CheckCircle2 } from "lucide-react";
 import { useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
 
-export function MultipleChoiceQuestionCard({
+export function MultipleSelectQuestionCard({
   question,
   questions,
   setQuestions,
 }: {
-  question: MultipleChoiceQuestion;
+  question: MultipleSelectQuestion;
   questions: Question[];
   setQuestions: (questions: Question[]) => void;
 }) {
@@ -33,7 +33,7 @@ export function MultipleChoiceQuestionCard({
         updatedAt: new Date(),
       };
 
-      const updatedQuestion: MultipleChoiceQuestion = {
+      const updatedQuestion: MultipleSelectQuestion = {
         ...question,
         choices: [defaultChoice],
       };
@@ -45,7 +45,7 @@ export function MultipleChoiceQuestionCard({
     }
   }, [question, questions, setQuestions]);
 
-  const updateQuestion = (updatedQuestion: MultipleChoiceQuestion) => {
+  const updateQuestion = (updatedQuestion: MultipleSelectQuestion) => {
     const updatedQuestions = questions.map((q) =>
       q.id === question.id ? updatedQuestion : q
     );
@@ -73,7 +73,7 @@ export function MultipleChoiceQuestionCard({
   };
 
   const handleAddChoice = () => {
-    const newChoice: MultipleChoice = {
+    const newChoice: MultipleSelectChoice = {
       id: crypto.randomUUID(),
       questionId: question.id,
       choiceText: "",

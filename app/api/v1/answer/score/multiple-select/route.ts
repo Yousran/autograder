@@ -1,4 +1,4 @@
-// file: /api/v1/answer/score/multiple-choice/route.ts
+// file: /api/v1/answer/score/multiple-select/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -14,8 +14,8 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // Update score for multiple choice answer
-    const updatedAnswer = await prisma.multipleChoiceAnswer.update({
+    // Update score for multiple select answer
+    const updatedAnswer = await prisma.multipleSelectAnswer.update({
       where: { id: answerId },
       data: {
         score,
@@ -24,7 +24,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ success: true, answer: updatedAnswer });
   } catch (error) {
-    console.error("Error updating multiple choice answer score:", error);
+    console.error("Error updating multiple select answer score:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

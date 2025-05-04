@@ -2,7 +2,7 @@ import { CardContent } from "@/components/ui/card";
 import { QuestionWithAnswers } from "../participant-response";
 import { Button } from "@/components/ui/button";
 
-export default function MultipleChoiceAnswer({
+export default function MultipleSelectAnswer({
   question,
   setQuestion,
 }: {
@@ -10,16 +10,16 @@ export default function MultipleChoiceAnswer({
   setQuestion: (updatedQuestion: QuestionWithAnswers) => void;
 }) {
   const handleClick = (choiceId: string) => {
-    if (!question.multipleChoice) {
-      console.error("Multiple choice question is undefined");
+    if (!question.multipleSelect) {
+      console.error("Multiple select question is undefined");
       return;
     }
 
-    const currentAnswer = question.multipleChoice.answer;
+    const currentAnswer = question.multipleSelect.answer;
     const currentSelected = currentAnswer.selectedChoices;
 
     // Find the complete choice object from available choices
-    const selectedChoice = question.multipleChoice.multipleChoices.find(
+    const selectedChoice = question.multipleSelect.multipleSelectChoices.find(
       (choice) => choice.id === choiceId
     );
 
@@ -38,8 +38,8 @@ export default function MultipleChoiceAnswer({
 
     const updatedQuestion: QuestionWithAnswers = {
       ...question,
-      multipleChoice: {
-        ...question.multipleChoice,
+      multipleSelect: {
+        ...question.multipleSelect,
         answer: {
           ...currentAnswer,
           selectedChoices: updatedSelected,
@@ -52,8 +52,8 @@ export default function MultipleChoiceAnswer({
 
   return (
     <CardContent className="flex flex-col gap-2">
-      {question.multipleChoice?.multipleChoices.map((choice) => {
-        const isSelected = question.multipleChoice?.answer.selectedChoices.some(
+      {question.multipleSelect?.multipleSelectChoices.map((choice) => {
+        const isSelected = question.multipleSelect?.answer.selectedChoices.some(
           (selectedChoice) => selectedChoice.id === choice.id
         );
 

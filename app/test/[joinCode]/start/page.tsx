@@ -117,14 +117,14 @@ export default function StartPage() {
 
         devLog("Choice Update Successful :", res);
         devLog("Choice Finish Update");
-      } else if (type === "MULTIPLE_CHOICE") {
-        devLog("Multiple Choice Update");
-        const answers = question.multipleChoice?.answer.selectedChoices || [];
+      } else if (type === "MULTIPLE_SELECT") {
+        devLog("Multiple Select Update");
+        const answers = question.multipleSelect?.answer.selectedChoices || [];
         if (!answers) return;
-        const res = await fetch("/api/v1/answer/multiple-choice", {
+        const res = await fetch("/api/v1/answer/multiple-select", {
           method: "PATCH",
           body: JSON.stringify({
-            answerId: question.multipleChoice?.answer.id,
+            answerId: question.multipleSelect?.answer.id,
             answers: answers,
             participantId: participant?.id,
           }),
@@ -141,7 +141,7 @@ export default function StartPage() {
           return;
         }
 
-        devLog("Multiple Choice Finish Update");
+        devLog("Multiple Select Finish Update");
       }
     } catch (error) {
       console.error("Error updating answer:", error);

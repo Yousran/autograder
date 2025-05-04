@@ -30,24 +30,24 @@ const choiceQuestionSchema = baseQuestionSchema.extend({
     .min(2, { message: "At least two choices required" }),
 });
 
-const multipleChoiceSchema = z.object({
+const multipleSelectSchema = z.object({
   choiceText: z.string().min(1),
   isCorrect: z.boolean(),
 });
 
-const multipleChoiceQuestionSchema = baseQuestionSchema.extend({
-  type: z.literal("MULTIPLE_CHOICE"),
+const multipleSelectQuestionSchema = baseQuestionSchema.extend({
+  type: z.literal("MULTIPLE_SELECT"),
   isChoiceRandomized: z.boolean(),
   maxScore: z.number().min(0),
   choices: z
-    .array(multipleChoiceSchema)
+    .array(multipleSelectSchema)
     .min(2, { message: "At least two choices required" }),
 });
 
 const questionSchema = z.discriminatedUnion("type", [
   essayQuestionSchema,
   choiceQuestionSchema,
-  multipleChoiceQuestionSchema,
+  multipleSelectQuestionSchema,
 ]);
 
 export const testSchema = z.object({
@@ -138,8 +138,8 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        if (question.type === "MULTIPLE_CHOICE") {
-          await prisma.multipleChoiceQuestion.create({
+        if (question.type === "MULTIPLE_SELECT") {
+          await prisma.multipleSelectQuestion.create({
             data: {
               id: createdQuestion.id,
               isChoiceRandomized: question.isChoiceRandomized,
@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
             },
           });
 
-          await prisma.multipleChoice.createMany({
+          await prisma.multipleSelectChoice.createMany({
             data: question.choices.map((choice) => ({
               questionId: createdQuestion.id,
               choiceText: choice.choiceText,

@@ -45,7 +45,7 @@ export async function GET(
       },
     });
 
-    const multipleChoiceAnswers = await prisma.multipleChoiceAnswer.findMany({
+    const multipleSelectAnswers = await prisma.multipleSelectAnswer.findMany({
       where: { participantId },
       include: {
         question: {
@@ -56,12 +56,12 @@ export async function GET(
     const totalScore =
       essayAnswers.reduce((sum, answer) => sum + answer.score, 0) +
       choiceAnswers.reduce((sum, answer) => sum + answer.score, 0) +
-      multipleChoiceAnswers.reduce((sum, answer) => sum + answer.score, 0);
+      multipleSelectAnswers.reduce((sum, answer) => sum + answer.score, 0);
 
     const maxPossibleScore =
       essayAnswers.reduce((sum, answer) => sum + answer.question.maxScore, 0) +
       choiceAnswers.reduce((sum, answer) => sum + answer.question.maxScore, 0) +
-      multipleChoiceAnswers.reduce(
+      multipleSelectAnswers.reduce(
         (sum, answer) => sum + answer.question.maxScore,
         0
       );

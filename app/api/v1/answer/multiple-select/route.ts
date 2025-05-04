@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { MultipleChoice } from "@/types/question";
-import { gradeMultipleChoiceAnswer } from "@/lib/multiple-choice-grader";
+import { MultipleSelectChoice } from "@/types/question";
+import { gradeMultipleSelectAnswer } from "@/lib/multiple-select-grader";
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest) {
         where: { id: participantId },
         include: { test: true },
       }),
-      prisma.multipleChoiceAnswer.findUnique({
+      prisma.multipleSelectAnswer.findUnique({
         where: { id: answerId },
         select: { participantId: true },
       }),
@@ -39,14 +39,14 @@ export async function PATCH(req: NextRequest) {
     }
 
     const selectedChoiceIds = answers.map(
-      (choice: MultipleChoice) => choice.id
+      (choice: MultipleSelectChoice) => choice.id
     );
 
     // Grading jawaban
-    const score = await gradeMultipleChoiceAnswer(selectedChoiceIds);
+    const score = await gradeMultipleSelectAnswer(selectedChoiceIds);
 
     // Update jawaban dan skor
-    const updatedAnswer = await prisma.multipleChoiceAnswer.update({
+    const updatedAnswer = await prisma.multipleSelectAnswer.update({
       where: { id: answerId },
       data: {
         selectedChoices: {
@@ -62,7 +62,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ success: true, answer: updatedAnswer });
   } catch (error) {
-    console.error("Error updating multiple choice answer:", error);
+    console.error("Error updating multiple select answer:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -1,5 +1,4 @@
-//TODO: Multiple choice Refactor
-//TODO: Server side and client side Types Refactor
+//TODO: Multiple Select Grading
 //TODO: question type icon and using shadcn hover
 //TODO: Test optional settings when creating a test
 //TODO: When participant joins the test and already have made, join the test
@@ -8,6 +7,11 @@
 //TODO: Comments and Feedback
 //TODO: Tutorials and help
 //TODO: Image Upload and video Insert
+//TODO: creator answer/score refactor to update participant total score
+//TODO: Grader Refactor to update participant total score
+//TODO: Question refactor to order by order
+//TODO: Choice Refactor into Multiple Choice
+//TODO: Server side and client side Types Refactor
 //TODO: Middleware for pages
 "use client";
 import { useState } from "react";

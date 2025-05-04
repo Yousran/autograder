@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import {
   ChoiceQuestion,
   EssayQuestion,
-  MultipleChoiceQuestion,
+  MultipleSelectQuestion,
   QuestionType,
   RawQuestion,
 } from "@/types/question";
@@ -17,7 +17,7 @@ import ChoiceComponent from "@/components/custom/choice";
 
 export function QuestionCard({ question }: { question: RawQuestion }) {
   const [currentQuestion, setCurrentQuestion] = useState<
-    EssayQuestion | ChoiceQuestion | MultipleChoiceQuestion | null
+    EssayQuestion | ChoiceQuestion | MultipleSelectQuestion | null
   >(null);
 
   useEffect(() => {
@@ -44,15 +44,15 @@ export function QuestionCard({ question }: { question: RawQuestion }) {
         choices: question.choice.choices,
       } as ChoiceQuestion);
     } else if (
-      question.type === QuestionType.MULTIPLE_CHOICE &&
-      question.multipleChoice
+      question.type === QuestionType.MULTIPLE_SELECT &&
+      question.multipleSelect
     ) {
       setCurrentQuestion({
         ...base,
-        isChoiceRandomized: question.multipleChoice.isChoiceRandomized,
-        maxScore: question.multipleChoice.maxScore,
-        choices: question.multipleChoice.multipleChoices,
-      } as MultipleChoiceQuestion);
+        isChoiceRandomized: question.multipleSelect.isChoiceRandomized,
+        maxScore: question.multipleSelect.maxScore,
+        choices: question.multipleSelect.multipleSelectChoices,
+      } as MultipleSelectQuestion);
     }
   }, [question]);
 
@@ -93,7 +93,7 @@ export function QuestionCard({ question }: { question: RawQuestion }) {
             </div>
           </div>
         )}
-        {currentQuestion?.type === QuestionType.MULTIPLE_CHOICE && (
+        {currentQuestion?.type === QuestionType.MULTIPLE_SELECT && (
           <div className="flex flex-col gap-4">
             <Label className="text-lg font-bold">Choices</Label>
             <div className="flex flex-col gap-2">

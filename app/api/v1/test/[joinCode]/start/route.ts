@@ -64,7 +64,7 @@ export async function POST(
       include: {
         essay: true,
         choice: true,
-        multipleChoice: true,
+        multipleSelect: true,
       },
     });
 
@@ -89,11 +89,11 @@ export async function POST(
         selectedChoiceId: null,
       }));
 
-    const multipleChoiceAnswers = questions
-      .filter((q) => q.multipleChoice !== null)
+    const multipleSelectAnswers = questions
+      .filter((q) => q.multipleSelect !== null)
       .map((q) => ({
         participantId: participant.id,
-        questionId: q.multipleChoice!.id,
+        questionId: q.multipleSelect!.id,
       }));
 
     const createEssayAnswersPromise =
@@ -106,17 +106,17 @@ export async function POST(
         ? prisma.choiceAnswer.createMany({ data: choiceAnswers })
         : Promise.resolve();
 
-    const createMultipleChoiceAnswersPromise =
-      multipleChoiceAnswers.length > 0
-        ? prisma.multipleChoiceAnswer.createMany({
-            data: multipleChoiceAnswers,
+    const createMultipleSelectAnswersPromise =
+      multipleSelectAnswers.length > 0
+        ? prisma.multipleSelectAnswer.createMany({
+            data: multipleSelectAnswers,
           })
         : Promise.resolve();
 
     await Promise.all([
       createEssayAnswersPromise,
       createChoiceAnswersPromise,
-      createMultipleChoiceAnswersPromise,
+      createMultipleSelectAnswersPromise,
     ]);
 
     return NextResponse.json(

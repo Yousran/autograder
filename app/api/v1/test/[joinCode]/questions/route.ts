@@ -26,9 +26,9 @@ export async function GET(
                 choices: true,
               },
             },
-            multipleChoice: {
+            multipleSelect: {
               include: {
-                multipleChoices: true,
+                multipleSelectChoices: true,
               },
             },
           },

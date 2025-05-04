@@ -57,8 +57,8 @@ export default function QuestionList({
                         (choice) =>
                           choice.id === q.choice?.answer.selectedChoiceId
                       )?.choiceText || ""
-                    : q.type === "MULTIPLE_CHOICE"
-                    ? q.multipleChoice?.answer.selectedChoices
+                    : q.type === "MULTIPLE_SELECT"
+                    ? q.multipleSelect?.answer.selectedChoices
                         .map((selectedChoice) => selectedChoice.choiceText)
                         .join(", ") || ""
                     : ""

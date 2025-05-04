@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { QuestionAnswerDetail } from "./question-answer";
 import ChoiceComponent from "@/components/custom/choice";
-import { Choice, MultipleChoice } from "@/types/question";
+import { Choice, MultipleSelectChoice } from "@/types/question";
 import { Check, XIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useEffect, useRef, useState } from "react";
@@ -21,7 +21,7 @@ export function QuestionCard({
   const initialScore =
     question.essay?.participantAnswer?.score ??
     question.choice?.participantAnswer?.score ??
-    question.multipleChoice?.participantAnswer?.score;
+    question.multipleSelect?.participantAnswer?.score;
 
   const [score, setScore] = useState<number | undefined>(initialScore);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -29,7 +29,7 @@ export function QuestionCard({
   const answerId =
     question.essay?.participantAnswer?.id ??
     question.choice?.participantAnswer?.id ??
-    question.multipleChoice?.participantAnswer?.id;
+    question.multipleSelect?.participantAnswer?.id;
 
   const type = question.type;
 
@@ -111,20 +111,20 @@ export function QuestionCard({
           </div>
         )}
 
-        {question.type === "MULTIPLE_CHOICE" && question.multipleChoice && (
+        {question.type === "MULTIPLE_SELECT" && question.multipleSelect && (
           <div className="flex flex-col gap-4">
             <Label className="text-lg font-bold">Choices</Label>
             <div className="flex flex-col gap-2">
-              {question.multipleChoice.multipleChoices.map((choice) => (
+              {question.multipleSelect.multipleSelectChoices.map((choice) => (
                 <ChoiceComponent
                   key={choice.id}
-                  choice={choice as MultipleChoice}
+                  choice={choice as MultipleSelectChoice}
                 />
               ))}
             </div>
             <Label className="text-lg font-bold">Participant Choice</Label>
             <div className="flex flex-col gap-2">
-              {question.multipleChoice.participantAnswer?.selectedChoices.map(
+              {question.multipleSelect.participantAnswer?.selectedChoices.map(
                 (choice) => (
                   <div
                     key={choice.id}

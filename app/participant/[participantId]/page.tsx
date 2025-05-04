@@ -37,8 +37,8 @@ export default function ParticipantPage() {
         case "CHOICE":
           endpoint = "/api/v1/answer/score/choice";
           break;
-        case "MULTIPLE_CHOICE":
-          endpoint = "/api/v1/answer/score/multiple-choice";
+        case "MULTIPLE_SELECT":
+          endpoint = "/api/v1/answer/score/multiple-select";
           break;
         default:
           throw new Error("Invalid question type");
@@ -65,7 +65,7 @@ export default function ParticipantPage() {
           if (
             q.essay?.participantAnswer?.id === answerId ||
             q.choice?.participantAnswer?.id === answerId ||
-            q.multipleChoice?.participantAnswer?.id === answerId
+            q.multipleSelect?.participantAnswer?.id === answerId
           ) {
             const updated = { ...q };
             if (updated.essay?.participantAnswer?.id === answerId) {
@@ -73,9 +73,9 @@ export default function ParticipantPage() {
             } else if (updated.choice?.participantAnswer?.id === answerId) {
               updated.choice.participantAnswer.score = score;
             } else if (
-              updated.multipleChoice?.participantAnswer?.id === answerId
+              updated.multipleSelect?.participantAnswer?.id === answerId
             ) {
-              updated.multipleChoice.participantAnswer.score = score;
+              updated.multipleSelect.participantAnswer.score = score;
             }
             return updated;
           }

@@ -3,13 +3,13 @@
 export type QuestionAnswerDetail = {
   id: string;
   questionText: string;
-  type: "ESSAY" | "CHOICE" | "MULTIPLE_CHOICE";
+  type: "ESSAY" | "CHOICE" | "MULTIPLE_SELECT";
   order: number;
   maxScore: number;
 
   essay: EssayQuestionDetail | null;
   choice: ChoiceQuestionDetail | null;
-  multipleChoice: MultipleChoiceQuestionDetail | null;
+  multipleSelect: MultipleSelectQuestionDetail | null;
 };
 
 export type EssayQuestionDetail = {
@@ -52,25 +52,25 @@ export type ChoiceAnswerDetail = {
   score: number;
 };
 
-export type MultipleChoiceQuestionDetail = {
+export type MultipleSelectQuestionDetail = {
   id: string;
   isChoiceRandomized: boolean;
   maxScore: number;
-  multipleChoices: MultipleChoiceDetail[];
-  participantAnswer: MultipleChoiceAnswerDetail | null;
+  multipleSelectChoices: MultipleSelectDetail[];
+  participantAnswer: MultipleSelectAnswerDetail | null;
 };
 
-export type MultipleChoiceDetail = {
+export type MultipleSelectDetail = {
   id: string;
   questionId: string;
   choiceText: string;
   isCorrect: boolean;
 };
 
-export type MultipleChoiceAnswerDetail = {
+export type MultipleSelectAnswerDetail = {
   id: string;
   questionId: string;
   participantId: string;
-  selectedChoices: MultipleChoiceDetail[];
+  selectedChoices: MultipleSelectDetail[];
   score: number;
 };

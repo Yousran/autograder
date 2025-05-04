@@ -5,7 +5,7 @@ export type ParticipantResponse = {
   questions: QuestionWithAnswers[];
 };
 
-export type QuestionAnswer = EssayAnswer | ChoiceAnswer | MultipleChoiceAnswer;
+export type QuestionAnswer = EssayAnswer | ChoiceAnswer | MultipleSelectAnswer;
 
 export type Participant = {
   id: string;
@@ -36,12 +36,12 @@ export type QuestionWithAnswers = {
   id: string;
   testId: string;
   questionText: string;
-  type: "ESSAY" | "CHOICE" | "MULTIPLE_CHOICE";
+  type: "ESSAY" | "CHOICE" | "MULTIPLE_SELECT";
   order: number;
 
   essay: EssayQuestionWithAnswers | null;
   choice: ChoiceQuestionWithAnswers | null;
-  multipleChoice: MultipleChoiceQuestionWithAnswers | null;
+  multipleSelect: MultipleSelectQuestionWithAnswers | null;
 };
 
 export type EssayQuestionWithAnswers = {
@@ -82,24 +82,24 @@ export type ChoiceAnswer = {
   selectedChoiceId: string | null;
 };
 
-export type MultipleChoiceQuestionWithAnswers = {
+export type MultipleSelectQuestionWithAnswers = {
   id: string;
   isChoiceRandomized: boolean;
   maxScore: number;
-  multipleChoices: MultipleChoice[];
-  answer: MultipleChoiceAnswer;
+  multipleSelectChoices: MultipleSelect[];
+  answer: MultipleSelectAnswer;
 };
 
-export type MultipleChoice = {
+export type MultipleSelect = {
   id: string;
   questionId: string;
   choiceText: string;
 };
 
-export type MultipleChoiceAnswer = {
+export type MultipleSelectAnswer = {
   id: string;
   questionId: string;
   participantId: string;
   score: number;
-  selectedChoices: MultipleChoice[];
+  selectedChoices: MultipleSelect[];
 };

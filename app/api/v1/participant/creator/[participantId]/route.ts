@@ -45,9 +45,9 @@ export async function GET(
                 },
               },
             },
-            multipleChoice: {
+            multipleSelect: {
               include: {
-                multipleChoices: true,
+                multipleSelectChoices: true,
                 answers: {
                   where: { participantId: participant.id },
                   include: {
@@ -79,14 +79,14 @@ export async function GET(
       .filter((q) => q.choice)
       .flatMap((q) => q.choice?.answers);
 
-    const multipleChoiceAnswers = test.questions
-      .filter((q) => q.multipleChoice)
-      .flatMap((q) => q.multipleChoice?.answers);
+    const multipleSelectAnswers = test.questions
+      .filter((q) => q.multipleSelect)
+      .flatMap((q) => q.multipleSelect?.answers);
 
     const totalScore =
       essayAnswers.reduce((sum, answer) => sum + (answer?.score || 0), 0) +
       choiceAnswers.reduce((sum, answer) => sum + (answer?.score || 0), 0) +
-      multipleChoiceAnswers.reduce(
+      multipleSelectAnswers.reduce(
         (sum, answer) => sum + (answer?.score || 0),
         0
       );
@@ -99,8 +99,8 @@ export async function GET(
         .filter((q) => q.choice)
         .reduce((sum, q) => sum + (q.choice?.maxScore || 0), 0) +
       test.questions
-        .filter((q) => q.multipleChoice)
-        .reduce((sum, q) => sum + (q.multipleChoice?.maxScore || 0), 0);
+        .filter((q) => q.multipleSelect)
+        .reduce((sum, q) => sum + (q.multipleSelect?.maxScore || 0), 0);
 
     const normalizedScore = maxPossibleScore
       ? (totalScore / maxPossibleScore) * 100
@@ -120,7 +120,7 @@ export async function GET(
 
       if (q.essay) maxScore = q.essay.maxScore;
       if (q.choice) maxScore = q.choice.maxScore;
-      if (q.multipleChoice) maxScore = q.multipleChoice.maxScore;
+      if (q.multipleSelect) maxScore = q.multipleSelect.maxScore;
 
       return {
         id: q.id,
@@ -135,14 +135,14 @@ export async function GET(
         choice: q.choice
           ? { ...q.choice, participantAnswer: q.choice.answers[0] || null }
           : null,
-        multipleChoice: q.multipleChoice
+        multipleSelect: q.multipleSelect
           ? {
-              ...q.multipleChoice,
-              participantAnswer: q.multipleChoice.answers[0]
+              ...q.multipleSelect,
+              participantAnswer: q.multipleSelect.answers[0]
                 ? {
-                    ...q.multipleChoice.answers[0],
+                    ...q.multipleSelect.answers[0],
                     selectedChoices:
-                      q.multipleChoice.answers[0].selectedChoices || [],
+                      q.multipleSelect.answers[0].selectedChoices || [],
                   }
                 : null,
             }

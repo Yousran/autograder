@@ -1,10 +1,10 @@
 // file: src/types/question.ts
-export type QuestionType = "ESSAY" | "CHOICE" | "MULTIPLE_CHOICE";
+export type QuestionType = "ESSAY" | "CHOICE" | "MULTIPLE_SELECT";
 
 export const QuestionType = {
   ESSAY: "ESSAY",
   CHOICE: "CHOICE",
-  MULTIPLE_CHOICE: "MULTIPLE_CHOICE",
+  MULTIPLE_SELECT: "MULTIPLE_SELECT",
 } as const;
 
 export type RawQuestion = {
@@ -31,13 +31,13 @@ export type RawQuestion = {
     updatedAt: string;
     choices: Choice[];
   } | null;
-  multipleChoice?: {
+  multipleSelect?: {
     id: string;
     isChoiceRandomized: boolean;
     maxScore: number;
     createdAt: string;
     updatedAt: string;
-    multipleChoices: MultipleChoice[];
+    multipleSelectChoices: MultipleSelectChoice[];
   } | null;
 };
 
@@ -106,14 +106,14 @@ export type ChoiceAnswer = {
   updatedAt: Date;
 };
 
-export type MultipleChoiceQuestion = Question & {
-  type: "MULTIPLE_CHOICE";
+export type MultipleSelectQuestion = Question & {
+  type: "MULTIPLE_SELECT";
   isChoiceRandomized: boolean;
   maxScore: number;
-  choices: MultipleChoice[];
+  choices: MultipleSelectChoice[];
 };
 
-export type MultipleChoice = {
+export type MultipleSelectChoice = {
   id: string;
   questionId: string;
   choiceText: string;
@@ -122,12 +122,12 @@ export type MultipleChoice = {
   updatedAt: Date;
 };
 
-export type MultipleChoiceAnswer = {
+export type MultipleSelectAnswer = {
   id: string;
   questionId: string;
   participantId: string;
   score: number;
-  selectedChoices: MultipleChoice[];
+  selectedChoices: MultipleSelectChoice[];
   createdAt: Date;
   updatedAt: Date;
 };

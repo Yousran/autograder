@@ -1,9 +1,9 @@
 import React from "react";
-import { Choice, MultipleChoice } from "@/types/question";
+import { Choice, MultipleSelectChoice } from "@/types/question";
 import { Check } from "lucide-react"; // Import the Lucide icon
 
 type ChoiceProps = {
-  choice: Choice | MultipleChoice;
+  choice: Choice | MultipleSelectChoice;
 };
 
 const ChoiceComponent: React.FC<ChoiceProps> = ({ choice }) => {

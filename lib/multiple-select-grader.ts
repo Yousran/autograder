@@ -2,15 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { devLog } from "@/utils/devLog";
 
 /**
- * Hitung skor untuk soal multiple choice:
+ * Hitung skor untuk soal multiple Select:
  * +1 untuk setiap pilihan benar yang dipilih,
  * -0.5 untuk setiap pilihan salah yang dipilih,
  * lalu dinormalisasi ke maxScore dan dibulatkan ke bilangan bulat positif.
  */
-export async function gradeMultipleChoiceAnswer(
+export async function gradeMultipleSelectAnswer(
   selectedChoiceIds: string[]
 ): Promise<number> {
-  devLog("=== Mulai gradeMultipleChoiceAnswer ===");
+  devLog("=== Mulai gradeMultipleSelectAnswer ===");
   devLog("Pilihan yang dipilih:", selectedChoiceIds);
 
   if (selectedChoiceIds.length === 0) {
@@ -19,7 +19,7 @@ export async function gradeMultipleChoiceAnswer(
   }
 
   // Ambil data semua pilihan yang dipilih, termasuk info soal dan skor maksimal
-  const selectedChoices = await prisma.multipleChoice.findMany({
+  const selectedChoices = await prisma.multipleSelectChoice.findMany({
     where: {
       id: { in: selectedChoiceIds },
     },
@@ -46,7 +46,7 @@ export async function gradeMultipleChoiceAnswer(
   devLog("Max Score untuk soal ini:", maxScore);
 
   // Ambil semua pilihan yang tersedia untuk soal ini
-  const allChoices = await prisma.multipleChoice.findMany({
+  const allChoices = await prisma.multipleSelectChoice.findMany({
     where: {
       questionId,
     },
@@ -110,7 +110,7 @@ export async function gradeMultipleChoiceAnswer(
   const finalScore = Math.round(normalizedScore);
 
   devLog("Final Score setelah dibulatkan:", finalScore);
-  devLog("=== Selesai gradeMultipleChoiceAnswer ===");
+  devLog("=== Selesai gradeMultipleSelectAnswer ===");
 
   return finalScore;
 }

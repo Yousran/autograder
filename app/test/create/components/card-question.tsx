@@ -12,13 +12,13 @@ import {
 import {
   ChoiceQuestion,
   EssayQuestion,
-  MultipleChoiceQuestion,
+  MultipleSelectQuestion,
   Question,
   QuestionType,
 } from "@/types/question";
 import { EssayQuestionCard } from "./essay-question-card";
 import { ChoiceQuestionCard } from "./choice-question-card";
-import { MultipleChoiceQuestionCard } from "./multiple-choice-question-card";
+import { MultipleSelectQuestionCard } from "./multiple-select-question-card";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -77,7 +77,7 @@ export function CardQuestion({
             } as ChoiceQuestion;
           }
 
-          if (questionType === QuestionType.MULTIPLE_CHOICE) {
+          if (questionType === QuestionType.MULTIPLE_SELECT) {
             return {
               ...base,
               choices: [
@@ -129,8 +129,8 @@ export function CardQuestion({
             <SelectContent>
               <SelectItem value={QuestionType.ESSAY}>Essay</SelectItem>
               <SelectItem value={QuestionType.CHOICE}>Choice</SelectItem>
-              <SelectItem value={QuestionType.MULTIPLE_CHOICE}>
-                Multiple Choice
+              <SelectItem value={QuestionType.MULTIPLE_SELECT}>
+                Multiple Select
               </SelectItem>
             </SelectContent>
           </Select>
@@ -154,9 +154,9 @@ export function CardQuestion({
             setQuestions={setQuestions}
           />
         )}
-        {questionType === QuestionType.MULTIPLE_CHOICE && (
-          <MultipleChoiceQuestionCard
-            question={question as MultipleChoiceQuestion}
+        {questionType === QuestionType.MULTIPLE_SELECT && (
+          <MultipleSelectQuestionCard
+            question={question as MultipleSelectQuestion}
             questions={questions}
             setQuestions={setQuestions}
           />

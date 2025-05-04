@@ -55,7 +55,7 @@ model Test {
 enum QuestionType {
   ESSAY
   CHOICE
-  MULTIPLE_CHOICE
+  MULTIPLE_SELECT
 }
 
 model Question {
@@ -72,7 +72,7 @@ model Question {
   test           Test                    @relation(fields: [testId], references: [id], onDelete: Cascade)
   essay          EssayQuestion?
   choice         ChoiceQuestion?
-  multipleChoice MultipleChoiceQuestion?
+  multipleSelect MultipleSelectQuestion?
 
   @@index([testId, order])
 }
@@ -157,8 +157,8 @@ model ChoiceAnswer {
   @@index([selectedChoiceId])
 }
 
-// MULTIPLE CHOICE QUESTION
-model MultipleChoiceQuestion {
+// MULTIPLE SELECT QUESTION
+model MultipleSelectQuestion {
   id String @id @default(uuid())
 
   isChoiceRandomized Boolean
@@ -167,12 +167,12 @@ model MultipleChoiceQuestion {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  question        Question               @relation(fields: [id], references: [id], onDelete: Cascade)
-  multipleChoices MultipleChoice[]
-  answers         MultipleChoiceAnswer[]
+  question              Question               @relation(fields: [id], references: [id], onDelete: Cascade)
+  multipleSelectChoices MultipleSelectChoice[]
+  answers               MultipleSelectAnswer[]
 }
 
-model MultipleChoice {
+model MultipleSelectChoice {
   id         String @id @default(uuid())
   questionId String
 
@@ -182,13 +182,13 @@ model MultipleChoice {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  question MultipleChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answers  MultipleChoiceAnswer[] @relation("MultipleChoiceAnswerSelectedChoices")
+  question MultipleSelectQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers  MultipleSelectAnswer[] @relation("MultipleSelectAnswerSelectedChoices")
 
   @@index([questionId])
 }
 
-model MultipleChoiceAnswer {
+model MultipleSelectAnswer {
   id            String @id @default(uuid())
   questionId    String
   participantId String
@@ -199,8 +199,8 @@ model MultipleChoiceAnswer {
   updatedAt DateTime @updatedAt
 
   participant     Participant            @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  question        MultipleChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  selectedChoices MultipleChoice[]       @relation("MultipleChoiceAnswerSelectedChoices")
+  question        MultipleSelectQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedChoices MultipleSelectChoice[] @relation("MultipleSelectAnswerSelectedChoices")
 
   @@index([participantId])
   @@index([questionId])
@@ -221,7 +221,7 @@ model Participant {
   user                  User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   essayAnswers          EssayAnswer[]
   choiceAnswers         ChoiceAnswer[]
-  multipleChoiceAnswers MultipleChoiceAnswer[]
+  multipleSelectAnswers MultipleSelectAnswer[]
 
   @@index([testId])
   @@index([userId])

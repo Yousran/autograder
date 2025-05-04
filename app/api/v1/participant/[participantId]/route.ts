@@ -57,9 +57,9 @@ export async function GET(
             },
           },
         },
-        multipleChoice: {
+        multipleSelect: {
           include: {
-            multipleChoices: {
+            multipleSelectChoices: {
               select: {
                 id: true,
                 choiceText: true,
@@ -99,13 +99,13 @@ export async function GET(
       choice: q.choice
         ? { ...q.choice, answer: q.choice.answers[0] || null }
         : null,
-      multipleChoice: q.multipleChoice
+      multipleSelect: q.multipleSelect
         ? {
-            ...q.multipleChoice,
-            answer: q.multipleChoice.answers[0]
+            ...q.multipleSelect,
+            answer: q.multipleSelect.answers[0]
               ? {
-                  ...q.multipleChoice.answers[0],
-                  selectedChoices: q.multipleChoice.answers[0].selectedChoices,
+                  ...q.multipleSelect.answers[0],
+                  selectedChoices: q.multipleSelect.answers[0].selectedChoices,
                 }
               : null,
           }

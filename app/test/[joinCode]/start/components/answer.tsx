@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { QuestionWithAnswers } from "../participant-response";
 import EssayAnswer from "./essay-answer";
 import ChoiceAnswer from "./choice-answer";
-import MultipleChoiceAnswer from "./multiple-choice-answer";
+import MultipleSelectAnswer from "./multiple-select-answer";
 
 export default function Answer({
   question,
@@ -20,8 +20,8 @@ export default function Answer({
       {question.type === "CHOICE" && (
         <ChoiceAnswer question={question} setQuestion={setQuestion} />
       )}
-      {question.type === "MULTIPLE_CHOICE" && (
-        <MultipleChoiceAnswer question={question} setQuestion={setQuestion} />
+      {question.type === "MULTIPLE_SELECT" && (
+        <MultipleSelectAnswer question={question} setQuestion={setQuestion} />
       )}
     </Card>
   );
