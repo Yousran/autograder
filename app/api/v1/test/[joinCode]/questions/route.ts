@@ -19,6 +19,7 @@ export async function GET(
       where: { joinCode },
       include: {
         questions: {
+          orderBy: { order: "asc" },
           include: {
             essay: true,
             choice: {

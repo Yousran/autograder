@@ -82,6 +82,7 @@ export async function GET(
           },
         },
       },
+      orderBy: test.isOrdered ? { order: "asc" } : undefined,
     });
 
     if (!questions) {
@@ -113,7 +114,7 @@ export async function GET(
     }));
 
     if (!test.isOrdered) {
-      transformedQuestions = shuffleArray(transformedQuestions); // Fungsi untuk mengacak array
+      transformedQuestions = shuffleArray(transformedQuestions);
     }
 
     return NextResponse.json({
