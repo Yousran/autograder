@@ -29,6 +29,7 @@ export async function GET(
       include: {
         user: true,
         questions: {
+          orderBy: { order: "asc" },
           include: {
             essay: {
               include: {
