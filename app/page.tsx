@@ -1,17 +1,21 @@
-//TODO: Multiple Select Grading
 //TODO: question type icon and using shadcn hover
 //TODO: Test optional settings when creating a test
-//TODO: When participant joins the test and already have made, join the test
-//TODO: Participant list on test edit update every 5 seconds
 //TODO: Application icon
 //TODO: Comments and Feedback
 //TODO: Tutorials and help
 //TODO: Image Upload and video Insert
-//TODO: creator answer/score refactor to update participant total score
+//TODO: Landing Page
+//TODO: When participant joins the test and already have made, join the test
+//TODO: Participant list on test edit update every 5 seconds
+//TODO: When Updating answer, update total score
 //TODO: Grader Refactor to update participant total score
-//TODO: Question refactor to order by order
+//TODO: creator answer/score refactor to update participant total score
 //TODO: Choice Refactor into Multiple Choice
+//TODO: Multiple Language Support
 //TODO: Server side and client side Types Refactor
+//TODO: Allow only certain participant to join the test
+//TODO: Using Server side rendering for some page as way around next middleware limitations
+//TODO: Safe Exam Browser Support
 //TODO: Middleware for pages
 "use client";
 import { useState } from "react";

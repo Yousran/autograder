@@ -2,15 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { devLog } from "@/utils/devLog";
 
 /**
- * Hitung skor untuk soal multiple Select:
- * +1 untuk setiap pilihan benar yang dipilih,
- * -0.5 untuk setiap pilihan salah yang dipilih,
- * lalu dinormalisasi ke maxScore dan dibulatkan ke bilangan bulat positif.
+ * Hitung skor untuk soal multiple Select dengan metode right minus wrong:
+ * Setiap pilihan (benar/salah) bernilai maxScore / jumlah pilihan.
+ * Skor = (jumlah benar dipilih * poinPerPilihan) + (jumlah salah dipilih * -poinPerPilihan)
+ * Skor minimal 0 (tidak bisa negatif).
  */
 export async function gradeMultipleSelectAnswer(
   selectedChoiceIds: string[]
 ): Promise<number> {
-  devLog("=== Mulai gradeMultipleSelectAnswer ===");
+  devLog("=== Mulai gradeMultipleSelectAnswer (right minus wrong) ===");
   devLog("Pilihan yang dipilih:", selectedChoiceIds);
 
   if (selectedChoiceIds.length === 0) {
@@ -75,42 +75,28 @@ export async function gradeMultipleSelectAnswer(
     }
   }
 
-  // Hitung rawScore
-  let rawScore = 0;
+  // Right minus wrong grading
+  const pointPerChoice = maxScore / allChoices.length;
+  let numCorrectSelected = 0;
+  let numIncorrectSelected = 0;
+
   for (const selectedId of selectedChoiceIds) {
     if (correctChoiceIds.includes(selectedId)) {
-      rawScore += 1; // Pilihan benar
-      devLog(
-        `Pilihan ${selectedId} BENAR (+1), rawScore sekarang = ${rawScore}`
-      );
+      numCorrectSelected++;
+      devLog(`Pilihan ${selectedId} BENAR (+${pointPerChoice})`);
     } else {
-      rawScore -= 0.5; // Pilihan salah
-      devLog(
-        `Pilihan ${selectedId} SALAH (-0.5), rawScore sekarang = ${rawScore}`
-      );
+      numIncorrectSelected++;
+      devLog(`Pilihan ${selectedId} SALAH (-${pointPerChoice})`);
     }
   }
 
-  const maxRawScore = allChoiceIds.length;
+  let score =
+    numCorrectSelected * pointPerChoice - numIncorrectSelected * pointPerChoice;
+  devLog("Skor sebelum dibatasi minimal 0:", score);
 
-  devLog("Max Raw Score (jumlah pilihan benar):", maxRawScore);
+  score = Math.max(0, score);
+  devLog("Final Score setelah dibatasi minimal 0:", score);
+  devLog("=== Selesai gradeMultipleSelectAnswer (right minus wrong) ===");
 
-  if (maxRawScore === 0) {
-    devLog("Tidak ada pilihan benar. Skor = 0");
-    return 0;
-  }
-
-  // Normalisasi
-  let normalizedScore = (rawScore / maxRawScore) * maxScore;
-  devLog("Skor setelah normalisasi (sebelum dibulatkan):", normalizedScore);
-
-  normalizedScore = Math.max(0, normalizedScore);
-  devLog("Skor setelah dicek minimal 0:", normalizedScore);
-
-  const finalScore = Math.round(normalizedScore);
-
-  devLog("Final Score setelah dibulatkan:", finalScore);
-  devLog("=== Selesai gradeMultipleSelectAnswer ===");
-
-  return finalScore;
+  return Math.round(score);
 }
