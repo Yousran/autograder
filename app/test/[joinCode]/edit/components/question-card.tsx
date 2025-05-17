@@ -14,6 +14,7 @@ import {
 } from "@/types/question";
 import { useEffect, useState } from "react";
 import ChoiceComponent from "@/components/custom/choice";
+import { normalizeSnakeCase } from "@/lib/text";
 
 export function QuestionCard({ question }: { question: RawQuestion }) {
   const [currentQuestion, setCurrentQuestion] = useState<
@@ -63,7 +64,7 @@ export function QuestionCard({ question }: { question: RawQuestion }) {
           <div className="flex items-center justify-between gap-4">
             <Label className="text-lg font-bold">{currentQuestion.order}</Label>
             <Label className="text-lg font-bold text-center">
-              {currentQuestion.type}
+              {normalizeSnakeCase(currentQuestion.type)}
             </Label>
           </div>
         </CardHeader>

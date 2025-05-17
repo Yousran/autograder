@@ -3,6 +3,7 @@ import TiptapRenderer from "@/components/custom/tiptap-renderer";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { QuestionWithAnswers } from "../participant-response";
+import { normalizeSnakeCase } from "@/lib/text";
 
 export default function Question({
   question,
@@ -15,7 +16,9 @@ export default function Question({
     <Card>
       <CardHeader className="flex items-center justify-between">
         <Label className="text-2xl font-bold">{index}</Label>
-        <Label className="text-2xl font-bold">{question.type}</Label>
+        <Label className="text-2xl font-bold">
+          {normalizeSnakeCase(question.type)}
+        </Label>
       </CardHeader>
       <CardContent>
         <TiptapRenderer content={question.questionText} />

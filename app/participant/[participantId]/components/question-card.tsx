@@ -10,6 +10,7 @@ import { Check, XIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { normalizeSnakeCase } from "@/lib/text";
 
 export function QuestionCard({
   question,
@@ -62,7 +63,7 @@ export function QuestionCard({
         <div className="flex items-center justify-between gap-4">
           <Label className="text-lg font-bold">{question.order}</Label>
           <Label className="text-lg font-bold text-center">
-            {question.type}
+            {normalizeSnakeCase(question.type)}
           </Label>
         </div>
       </CardHeader>

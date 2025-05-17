@@ -1,4 +1,3 @@
-//TODO: question type icon and using shadcn hover
 //TODO: Test optional settings when creating a test
 //TODO: Application icon
 //TODO: Comments and Feedback
