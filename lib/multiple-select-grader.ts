@@ -75,28 +75,34 @@ export async function gradeMultipleSelectAnswer(
     }
   }
 
-  // Right minus wrong grading
-  const pointPerChoice = maxScore / allChoices.length;
+  // Right minus wrong grading (full score if all correct selected, no penalty for unselected correct)
+  const pointPerCorrect = maxScore / correctChoiceIds.length;
+  const pointPerWrong = maxScore / allChoices.length;
   let numCorrectSelected = 0;
   let numIncorrectSelected = 0;
 
   for (const selectedId of selectedChoiceIds) {
     if (correctChoiceIds.includes(selectedId)) {
       numCorrectSelected++;
-      devLog(`Pilihan ${selectedId} BENAR (+${pointPerChoice})`);
+      devLog(`Pilihan ${selectedId} BENAR (+${pointPerCorrect})`);
     } else {
       numIncorrectSelected++;
-      devLog(`Pilihan ${selectedId} SALAH (-${pointPerChoice})`);
+      devLog(`Pilihan ${selectedId} SALAH (-${pointPerWrong})`);
     }
   }
 
   let score =
-    numCorrectSelected * pointPerChoice - numIncorrectSelected * pointPerChoice;
-  devLog("Skor sebelum dibatasi minimal 0:", score);
+    numCorrectSelected * pointPerCorrect - numIncorrectSelected * pointPerWrong;
+  devLog("Skor sebelum dibatasi minimal 0 dan maksimal maxScore:", score);
 
-  score = Math.max(0, score);
-  devLog("Final Score setelah dibatasi minimal 0:", score);
-  devLog("=== Selesai gradeMultipleSelectAnswer (right minus wrong) ===");
+  score = Math.max(0, Math.min(score, maxScore));
+  devLog(
+    "Final Score setelah dibatasi minimal 0 dan maksimal maxScore:",
+    score
+  );
+  devLog(
+    "=== Selesai gradeMultipleSelectAnswer (right minus wrong, full score logic) ==="
+  );
 
   return Math.round(score);
 }
