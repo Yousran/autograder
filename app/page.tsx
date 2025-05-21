@@ -1,4 +1,5 @@
 //TODO: Test optional settings when creating a test
+//TODO: Randomized Choices
 //TODO: Application icon
 //TODO: Comments and Feedback
 //TODO: Tutorials and help

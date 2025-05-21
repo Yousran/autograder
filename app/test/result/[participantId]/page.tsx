@@ -58,6 +58,16 @@ export default function ResultPage() {
       <Label className="text text-2xl font-bold text-center">
         {loading ? <Skeleton className="w-64 h-8" /> : test?.title}
       </Label>
+      {/* TODO: disable user for accessing the route when showDetailedScore is false */}
+      {test?.showDetailedScore && (
+        <Button
+          variant={"outline"}
+          className="w-full max-w-md"
+          onClick={() => router.push(`/test/result/${participantId}/details`)}
+        >
+          See Details
+        </Button>
+      )}
       <Button className="w-full max-w-md" onClick={() => router.push("/")}>
         Back to Home
       </Button>

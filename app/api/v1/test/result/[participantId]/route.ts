@@ -1,6 +1,7 @@
 // file: /app/api/v1/test/result/[participantId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { devLog } from "@/utils/devLog";
 
 export async function GET(
   req: NextRequest,
@@ -68,9 +69,9 @@ export async function GET(
 
     const normalizedScore = (totalScore / maxPossibleScore) * 100;
 
-    console.log("Total Score:", totalScore);
-    console.log("Max Possible Score:", maxPossibleScore);
-    console.log("Normalized Score (0-100):", normalizedScore);
+    devLog("Total Score:", totalScore);
+    devLog("Max Possible Score:", maxPossibleScore);
+    devLog("Normalized Score (0-100):", normalizedScore);
 
     if (normalizedScore !== participant.score) {
       // Update participant score if it doesn't match the calculated normalized score
@@ -83,7 +84,7 @@ export async function GET(
     // Ambil data test berdasarkan testId yang dimiliki oleh participant
     const test = await prisma.test.findUnique({
       where: { id: participant.testId },
-      select: { title: true },
+      select: { title: true, showDetailedScore: true },
     });
 
     if (!test) {
