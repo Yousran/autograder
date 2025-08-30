@@ -98,7 +98,13 @@ export async function GET(
         ? { ...q.essay, answer: q.essay.answers[0] || null }
         : null,
       choice: q.choice
-        ? { ...q.choice, answer: q.choice.answers[0] || null }
+        ? {
+            ...q.choice,
+            answer: q.choice.answers[0] || null,
+            choices: q.choice.isChoiceRandomized
+              ? shuffleArray(q.choice.choices)
+              : q.choice.choices,
+          }
         : null,
       multipleSelect: q.multipleSelect
         ? {
@@ -109,6 +115,9 @@ export async function GET(
                   selectedChoices: q.multipleSelect.answers[0].selectedChoices,
                 }
               : null,
+            multipleSelectChoices: q.multipleSelect.isChoiceRandomized
+              ? shuffleArray(q.multipleSelect.multipleSelectChoices)
+              : q.multipleSelect.multipleSelectChoices,
           }
         : null,
     }));
