@@ -7,10 +7,9 @@ import { QuestionAnswerDetail } from "./question-answer";
 import ChoiceComponent from "@/components/custom/choice";
 import { Choice, MultipleSelectChoice } from "@/types/question";
 import { Check, XIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import { normalizeSnakeCase } from "@/lib/text";
+import { ScoreSlider } from "@/components/custom/score-slider";
 
 export function QuestionCard({
   question,
@@ -24,7 +23,7 @@ export function QuestionCard({
     question.choice?.participantAnswer?.score ??
     question.multipleSelect?.participantAnswer?.score;
 
-  const [score, setScore] = useState<number | undefined>(initialScore);
+  const [score, setScore] = useState<number>(initialScore ?? 0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const answerId =
@@ -35,17 +34,17 @@ export function QuestionCard({
   const type = question.type;
 
   useEffect(() => {
-    setScore(initialScore); // sync saat props question berubah
+    setScore(initialScore ?? 0); // sync saat props question berubah
   }, [initialScore]);
 
   useEffect(() => {
-    if (score === undefined || answerId === undefined) return;
+    if (answerId === undefined) return;
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
-      if (score !== initialScore) {
+      if (score !== (initialScore ?? 0)) {
         handleUpdateScore(answerId, score, type);
       }
     }, 500);
@@ -155,33 +154,11 @@ export function QuestionCard({
         )}
 
         {answerId && (
-          <>
-            <Label className="text-lg font-bold">Score</Label>
-            <Input
-              type="number"
-              value={score ?? ""}
-              onChange={(e) => {
-                const newScore = parseInt(e.target.value);
-                if (isNaN(newScore)) {
-                  setScore(undefined);
-                  return;
-                }
-
-                if (newScore > question.maxScore) {
-                  toast.warning(`Max score is ${question.maxScore}`);
-                  setScore(question.maxScore);
-                } else if (newScore < 0) {
-                  setScore(0);
-                } else {
-                  setScore(newScore);
-                }
-              }}
-              className="w-full max-w-xs"
-            />
-            <Label className="text-muted-foreground text-sm">
-              Max Score: {question.maxScore}
-            </Label>
-          </>
+          <ScoreSlider
+            value={score}
+            max={question.maxScore}
+            onChange={setScore}
+          />
         )}
       </CardContent>
     </Card>
