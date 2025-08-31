@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { normalizeSnakeCase } from "@/lib/text";
 import ChoiceComponent from "@/components/custom/choice";
 import { Choice, MultipleSelectChoice } from "@/types/question";
+import ScoreProgress from "@/components/custom/score-progress";
 
 interface QuestionCardProps {
   question: {
@@ -11,6 +12,7 @@ interface QuestionCardProps {
     order?: number;
     type: string;
     questionText: string;
+    maxScore: number;
     essay?: {
       participantAnswer?: {
         answerText?: string;
@@ -148,13 +150,15 @@ export default function QuestionCard({
             </div>
           </div>
         )}
-        <Label className="text-lg font-bold">Score</Label>
-        <Label className="text-sm font-normal text-primary">
-          {question.essay?.participantAnswer?.score ??
+        <ScoreProgress
+          score={
+            question.essay?.participantAnswer?.score ??
             question.choice?.participantAnswer?.score ??
             question.multipleSelect?.participantAnswer?.score ??
-            0}
-        </Label>
+            0
+          }
+          maxScore={question.maxScore}
+        />
       </CardContent>
     </Card>
   );
