@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { normalizeSnakeCase } from "@/lib/text";
 import ChoiceComponent from "@/components/custom/choice";
+import { Choice, MultipleSelectChoice } from "@/types/question";
 
 interface QuestionCardProps {
   question: {
@@ -16,24 +17,30 @@ interface QuestionCardProps {
         score?: number | null;
         scoreExplanation?: string;
       } | null;
+      answerText: string;
     } | null;
     choice?: {
       participantAnswer?: {
         selectedChoiceId?: string;
         score?: number | null;
       } | null;
-      choices?: { id: string; choiceText: string }[];
+      choices?: Choice[];
     } | null;
     multipleSelect?: {
       participantAnswer?: {
-        selectedChoices: { id: string; choiceText: string }[];
+        selectedChoices: MultipleSelectChoice[];
         score?: number | null;
       } | null;
+      multipleSelectChoices?: MultipleSelectChoice[];
     } | null;
   };
+  showCorrectAnswers: boolean;
 }
 
-export default function QuestionCard({ question }: QuestionCardProps) {
+export default function QuestionCard({
+  question,
+  showCorrectAnswers,
+}: QuestionCardProps) {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -50,6 +57,14 @@ export default function QuestionCard({ question }: QuestionCardProps) {
         </div>
         {question.type === "ESSAY" && question.essay && (
           <div className="flex flex-col gap-2">
+            {showCorrectAnswers && (
+              <>
+                <Label className="text-lg font-bold">Correct Answer</Label>
+                <Label className="text-sm font-normal text-primary">
+                  {question.essay.answerText}
+                </Label>
+              </>
+            )}
             <Label className="text-lg font-bold">Participant Answer</Label>
             <Label className="text-sm font-normal text-primary">
               {question.essay.participantAnswer?.answerText ||
@@ -67,6 +82,16 @@ export default function QuestionCard({ question }: QuestionCardProps) {
         )}
         {question.type === "CHOICE" && question.choice && (
           <div className="flex flex-col gap-2">
+            {showCorrectAnswers && (
+              <>
+                <Label className="text-lg font-bold">Choices</Label>
+                <div className="flex flex-col gap-2">
+                  {question.choice.choices?.map((choice) => (
+                    <ChoiceComponent key={choice.id} choice={choice} />
+                  ))}
+                </div>
+              </>
+            )}
             <Label className="text-lg font-bold">Participant Choice</Label>
             <div className="flex flex-col gap-2">
               {question.choice.choices?.map((choice) =>
@@ -76,10 +101,7 @@ export default function QuestionCard({ question }: QuestionCardProps) {
                     key={choice.id}
                     choice={{
                       ...choice,
-                      isCorrect: false,
-                      questionId: "",
-                      createdAt: new Date(),
-                      updatedAt: new Date(),
+                      isCorrect: showCorrectAnswers ? choice.isCorrect : false,
                     }}
                   />
                 ) : null
@@ -89,6 +111,18 @@ export default function QuestionCard({ question }: QuestionCardProps) {
         )}
         {question.type === "MULTIPLE_SELECT" && question.multipleSelect && (
           <div className="flex flex-col gap-2">
+            {showCorrectAnswers && (
+              <>
+                <Label className="text-lg font-bold">Choices</Label>
+                <div className="flex flex-col gap-2">
+                  {question.multipleSelect.multipleSelectChoices?.map(
+                    (choice) => (
+                      <ChoiceComponent key={choice.id} choice={choice} />
+                    )
+                  )}
+                </div>
+              </>
+            )}
             <Label className="text-lg font-bold">Participant Choices</Label>
             <div className="flex flex-col gap-2">
               {question.multipleSelect.participantAnswer?.selectedChoices
@@ -99,10 +133,9 @@ export default function QuestionCard({ question }: QuestionCardProps) {
                       key={choice.id}
                       choice={{
                         ...choice,
-                        isCorrect: false,
-                        questionId: "",
-                        createdAt: new Date(),
-                        updatedAt: new Date(),
+                        isCorrect: showCorrectAnswers
+                          ? choice.isCorrect
+                          : false,
                       }}
                     />
                   )

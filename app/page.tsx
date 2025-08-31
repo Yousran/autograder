@@ -1,9 +1,8 @@
-//TODO: Test optional settings when creating a test
 //TODO: Application icon
 //TODO: Comments and Feedback
 //TODO: Tutorials and help
 //TODO: Image Upload and video Insert
-//TODO: Landing Page
+//TODO: Landing Page, using app.autograder subdomain
 //TODO: When participant joins the test and already have made, join the test
 //TODO: Participant list on test edit update every 5 seconds
 //TODO: When Updating answer, update total score

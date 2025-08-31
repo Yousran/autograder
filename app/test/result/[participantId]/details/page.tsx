@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import QuestionCard from "./components/question-card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon } from "lucide-react";
+import { Choice, MultipleSelectChoice } from "@/types/question";
 
 interface Participant {
   id: string;
@@ -16,6 +17,7 @@ interface Participant {
 
 interface Test {
   title: string;
+  showCorrectAnswers: boolean;
 }
 
 interface AnswerDetail {
@@ -24,21 +26,26 @@ interface AnswerDetail {
   type: string;
   maxScore: number;
   essay?: {
-    participantAnswer?: { answerText: string; score: number | null } | null;
+    participantAnswer?: {
+      answerText: string;
+      score: number | null;
+      scoreExplanation?: string;
+    } | null;
+    answerText: string;
   } | null;
   choice?: {
     participantAnswer?: {
       selectedChoiceId: string;
       score: number | null;
     } | null;
-    choices?: { id: string; choiceText: string }[];
+    choices?: Choice[];
   } | null;
   multipleSelect?: {
     participantAnswer?: {
-      selectedChoices: { id: string; choiceText: string }[];
+      selectedChoices: MultipleSelectChoice[];
       score: number | null;
     } | null;
-    multipleSelectChoices?: { id: string; choiceText: string }[];
+    multipleSelectChoices?: MultipleSelectChoice[];
   } | null;
 }
 
@@ -120,7 +127,13 @@ export default function ParticipantResultDetailsPage() {
             ? Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-24 w-full rounded-md" />
               ))
-            : questions.map((q) => <QuestionCard key={q.id} question={q} />)}
+            : questions.map((q) => (
+                <QuestionCard
+                  key={q.id}
+                  question={q}
+                  showCorrectAnswers={test?.showCorrectAnswers || false}
+                />
+              ))}
         </div>
       </main>
     </div>
