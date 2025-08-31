@@ -39,9 +39,11 @@ export default function Home() {
   const [joinCode, setJoinCode] = useState<string>("");
   const [scannerOpen, setScannerOpen] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleJoin = () => {
     if (joinCode.length === 6) {
+      setLoading(true);
       router.push(`/test/${joinCode}`);
     }
   };
@@ -59,6 +61,7 @@ export default function Home() {
       const isTestPath = /^\/test\/[a-zA-Z0-9_-]+$/.test(url.pathname);
 
       if (isSameOrigin && isTestPath) {
+        setLoading(true);
         window.location.href = code;
         setScannerOpen(false);
       } else {
@@ -102,8 +105,12 @@ export default function Home() {
             </div>
 
             <div className="flex justify-center gap-4">
-              <Button onClick={handleJoin} className="flex-1">
-                Join
+              <Button
+                onClick={handleJoin}
+                disabled={loading}
+                className="flex-1"
+              >
+                {loading ? "Loading..." : "Join"}
               </Button>
               <Dialog open={scannerOpen} onOpenChange={setScannerOpen}>
                 <DialogTrigger asChild>
