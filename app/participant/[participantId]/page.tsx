@@ -60,27 +60,49 @@ export default function ParticipantPage() {
       const data = await response.json();
 
       // Update score di state lokal (questions)
-      setQuestions((prev) =>
-        prev.map((q) => {
-          if (
-            q.essay?.participantAnswer?.id === answerId ||
-            q.choice?.participantAnswer?.id === answerId ||
-            q.multipleSelect?.participantAnswer?.id === answerId
+      const updatedQuestions = questions.map((q) => {
+        if (
+          q.essay?.participantAnswer?.id === answerId ||
+          q.choice?.participantAnswer?.id === answerId ||
+          q.multipleSelect?.participantAnswer?.id === answerId
+        ) {
+          const updated = { ...q };
+          if (updated.essay?.participantAnswer?.id === answerId) {
+            updated.essay.participantAnswer.score = score;
+          } else if (updated.choice?.participantAnswer?.id === answerId) {
+            updated.choice.participantAnswer.score = score;
+          } else if (
+            updated.multipleSelect?.participantAnswer?.id === answerId
           ) {
-            const updated = { ...q };
-            if (updated.essay?.participantAnswer?.id === answerId) {
-              updated.essay.participantAnswer.score = score;
-            } else if (updated.choice?.participantAnswer?.id === answerId) {
-              updated.choice.participantAnswer.score = score;
-            } else if (
-              updated.multipleSelect?.participantAnswer?.id === answerId
-            ) {
-              updated.multipleSelect.participantAnswer.score = score;
-            }
-            return updated;
+            updated.multipleSelect.participantAnswer.score = score;
           }
-          return q;
-        })
+          return updated;
+        }
+        return q;
+      });
+
+      setQuestions(updatedQuestions);
+
+      // Recalculate total score and update participant state
+      const totalScore = updatedQuestions.reduce((sum, q) => {
+        const questionScore =
+          q.essay?.participantAnswer?.score ||
+          q.choice?.participantAnswer?.score ||
+          q.multipleSelect?.participantAnswer?.score ||
+          0;
+        return sum + questionScore;
+      }, 0);
+
+      const maxPossibleScore = updatedQuestions.reduce(
+        (sum, q) => sum + q.maxScore,
+        0
+      );
+      const normalizedScore = maxPossibleScore
+        ? (totalScore / maxPossibleScore) * 100
+        : 0;
+
+      setParticipant((prev) =>
+        prev ? { ...prev, score: normalizedScore } : null
       );
 
       toast.success("Score updated successfully");
