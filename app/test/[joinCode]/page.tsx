@@ -23,6 +23,7 @@ import { Test } from "@/types/test";
 import { Input } from "@/components/ui/input";
 import { ClockIcon, ListIcon, UsersIcon } from "lucide-react";
 import { devLog } from "@/utils/devLog";
+import { truncateWords } from "@/lib/text";
 
 export default function TestJoinPage() {
   const router = useRouter();
@@ -133,7 +134,7 @@ export default function TestJoinPage() {
         {testData && !isLoading ? (
           <Card className="w-fit max-w-2xl h-full flex flex-col items-center justify-center p-4">
             <h1 className="text-2xl font-bold text-foreground text-center">
-              {testData.title}
+              {truncateWords(testData.title)}
             </h1>
             <div className="text-center">
               {testData.description && (

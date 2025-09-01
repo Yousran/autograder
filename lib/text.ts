@@ -12,3 +12,18 @@ export function normalizeSnakeCase(input: string): string {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
+
+export function truncateWords(
+  input: string,
+  maxWordLength: number = 20
+): string {
+  return input
+    .split(" ")
+    .map((word) => {
+      if (word.length > maxWordLength) {
+        return word.substring(0, maxWordLength) + "...";
+      }
+      return word;
+    })
+    .join(" ");
+}

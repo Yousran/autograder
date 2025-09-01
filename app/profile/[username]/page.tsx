@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { getUserDecodedToken, getToken } from "@/lib/auth-client";
+import { truncateWords } from "@/lib/text";
 
 type TestTaken = {
   title: string;
@@ -106,7 +107,7 @@ export default function ProfilePage() {
                   >
                     <CardContent className="flex justify-between gap-4 px-4 py-4">
                       <Label className="text text-lg font-bold text-start">
-                        {test.title}
+                        {truncateWords(test.title)}
                       </Label>
                       <Label className="text text-3xl font-bold text-center">
                         {test.score}
@@ -141,8 +142,8 @@ export default function ProfilePage() {
                     onClick={() => router.push(`/test/${test.joinCode}/edit`)}
                   >
                     <CardContent className="flex justify-start gap-4 px-4 py-4">
-                      <Label className="text text-lg font-bold text-start">
-                        {test.title}
+                      <Label className="text text-lg font-bold text-start overflow-ellipsis">
+                        {truncateWords(test.title)}
                       </Label>
                     </CardContent>
                   </Card>

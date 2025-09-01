@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useParams } from "next/navigation";
 import { QuestionCard } from "./components/question-card";
 import { QuestionAnswerDetail } from "./components/question-answer";
+import { truncateWords } from "@/lib/text";
 
 interface Participant {
   id: string;
@@ -168,7 +169,7 @@ export default function ParticipantPage() {
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle className="text-3xl font-semibold text-center">
-              {test?.title || "Test Information"}
+              {truncateWords(test?.title || "Test Information")}
             </CardTitle>
           </CardHeader>
           <CardContent>

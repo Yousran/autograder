@@ -29,6 +29,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import QRCode from "react-qr-code";
+import { truncateWords } from "@/lib/text";
 
 export default function TestEditPage() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
@@ -89,8 +90,8 @@ export default function TestEditPage() {
           {test ? (
             <Card>
               <CardHeader>
-                <CardTitle className="text-3xl font-semibold text-center">
-                  {test.title}
+                <CardTitle className="text-3xl font-semibold text-center overflow-ellipsis">
+                  {truncateWords(test.title)}
                 </CardTitle>
               </CardHeader>
               <CardContent>
