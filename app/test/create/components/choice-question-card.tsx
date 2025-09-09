@@ -167,10 +167,10 @@ export function ChoiceQuestionCard({
             <Input
               id="maxScore"
               type="number"
-              min={0}
-              value={question.maxScore || 1}
+              min={1}
+              value={question.maxScore}
               onChange={(e) => handleMaxScoreChange(Number(e.target.value))}
-              className="w-12"
+              className="w-16"
             />
           </div>
           <div className="w-[50%] flex items-center justify-end gap-2">

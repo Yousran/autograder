@@ -80,10 +80,10 @@ export function EssayQuestionCard({
             <Input
               id="maxScore"
               type="number"
-              min={0}
-              value={question.maxScore | 5}
+              min={1}
+              value={question.maxScore}
               onChange={(e) => handleMaxScoreChange(Number(e.target.value))}
-              className="w-fit"
+              className="w-16"
             />
           </div>
           <div className="w-[50%] flex items-center justify-end gap-2">
