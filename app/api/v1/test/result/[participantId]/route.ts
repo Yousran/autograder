@@ -67,7 +67,10 @@ export async function GET(
         0
       );
 
-    const normalizedScore = (totalScore / maxPossibleScore) * 100;
+    let normalizedScore = 0;
+    if (maxPossibleScore > 0) {
+      normalizedScore = (totalScore / maxPossibleScore) * 100;
+    }
 
     devLog("Total Score:", totalScore);
     devLog("Max Possible Score:", maxPossibleScore);
