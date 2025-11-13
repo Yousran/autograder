@@ -38,7 +38,7 @@ export async function essayGraderDeepseek({
 
     try {
       const res = await openai.chat.completions.create({
-        model: "deepseek/deepseek-chat-v3.1:free",
+        model: "openai/gpt-oss-20b:free",
         messages: [
           {
             role: "system",
