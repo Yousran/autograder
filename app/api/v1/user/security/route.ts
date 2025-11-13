@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import {
-  comparePassword,
-  hashPassword,
-  getUserFromToken,
-} from "@/lib/auth-server";
+import { getCurrentUser } from "@/lib/auth-helpers";
+import { auth } from "@/lib/auth-server";
 
 const updateSchema = z.object({
   oldPassword: z.string().min(6, "Old password is required"),
@@ -37,45 +34,47 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const authHeader = req.headers.get("authorization") || "";
-    const token = authHeader.replace(/^Bearer\s+/, "");
-
-    const userLoggedIn = await getUserFromToken(token);
+    const userLoggedIn = await getCurrentUser(req);
 
     if (!userLoggedIn) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userLoggedIn.userId },
+    // Get the user's credential account to verify old password
+    const account = await prisma.account.findFirst({
+      where: {
+        userId: userLoggedIn.id,
+        providerId: "credential",
+      },
     });
 
-    if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (!account || !account.password) {
+      return NextResponse.json(
+        { message: "No password set for this account" },
+        { status: 400 }
+      );
     }
 
-    // Cocokkan password lama
-    const isPasswordValid = await comparePassword(oldPassword, user.password);
-    if (!isPasswordValid) {
+    // Use Better Auth to change password
+    try {
+      await auth.api.changePassword({
+        body: {
+          newPassword,
+          currentPassword: oldPassword,
+        },
+        headers: req.headers,
+      });
+
+      return NextResponse.json(
+        { message: "Password updated successfully" },
+        { status: 200 }
+      );
+    } catch (error) {
       return NextResponse.json(
         { message: "Incorrect old password" },
         { status: 401 }
       );
     }
-
-    // Hash password baru
-    const hashedNewPassword = await hashPassword(newPassword);
-
-    // Update password user
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { password: hashedNewPassword },
-    });
-
-    return NextResponse.json(
-      { message: "Password updated successfully" },
-      { status: 200 }
-    );
   } catch (error) {
     console.error("Update password error:", error);
     return NextResponse.json(

@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getToken } from "@/lib/auth-client";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -38,11 +37,9 @@ export default function TestEditPage() {
   const [activeTab, setActiveTab] = useState("settings");
 
   const fetchTest = async (joinCode: string) => {
-    const token = getToken();
     const res = await fetch(`/api/v1/test/${joinCode}`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
@@ -57,12 +54,10 @@ export default function TestEditPage() {
 
   const updateTestField = async (key: string, value: unknown) => {
     if (!test) return;
-    const token = getToken();
 
     const res = await fetch(`/api/v1/test/${joinCode}`, {
       method: "PATCH",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

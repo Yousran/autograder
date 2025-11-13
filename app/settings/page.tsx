@@ -1,9 +1,8 @@
 // file: app/settings/page.tsx
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getUserDecodedToken } from "@/lib/auth-client";
-import { UserDecodedToken } from "@/types/token";
+import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
@@ -16,18 +15,10 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<
     "profile" | "appearance" | "security"
   >("appearance");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<UserDecodedToken | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const { data: session } = useSession();
 
-  useEffect(() => {
-    setIsMounted(true);
-    const decoded = getUserDecodedToken();
-    setUser(decoded);
-    setIsLoggedIn(!!decoded);
-  }, []);
-
-  if (!isMounted) return null;
+  const user = session?.user;
+  const isLoggedIn = !!user;
 
   return (
     <div className="w-screen min-h-screen flex justify-center py-16 p-4">

@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
-import { getUserDecodedToken, getToken } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import { truncateWords } from "@/lib/text";
 
 type TestTaken = {
@@ -24,11 +24,26 @@ export default function ProfilePage() {
   const { username } = useParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const isOwner = username === getUserDecodedToken()?.username;
+  const { data: session } = useSession();
+  const user = session?.user;
+
+  // Decode the username from URL and compare with user data
+  const decodedUsername = decodeURIComponent(username?.toString() || "");
+  // Check if viewing own profile (match name or email)
+  const isOwner =
+    user && (decodedUsername === user.name || decodedUsername === user.email);
+
   const [testTaken, setTestTaken] = useState<TestTaken[]>([]);
   const [testCreated, setTestCreated] = useState<TestCreated[]>([]);
 
   useEffect(() => {
+    // Only fetch data if user is logged in and viewing their own profile
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    // Check if this is the user's own profile
     if (!isOwner) {
       setLoading(false);
       return;
@@ -37,22 +52,15 @@ export default function ProfilePage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const takenResponse = await fetch("/api/v1/user/tests/taken", {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        });
+        const [takenResponse, createdResponse] = await Promise.all([
+          fetch("/api/v1/user/tests/taken"),
+          fetch("/api/v1/user/tests/created"),
+        ]);
 
         if (takenResponse.ok) {
           const takenData = await takenResponse.json();
           setTestTaken(takenData);
         }
-
-        const createdResponse = await fetch("/api/v1/user/tests/created", {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        });
 
         if (createdResponse.ok) {
           const createdData = await createdResponse.json();
@@ -66,7 +74,7 @@ export default function ProfilePage() {
     };
 
     fetchData();
-  }, [isOwner, username]);
+  }, [isOwner, user]);
 
   return (
     <div className="max-w-screen min-h-screen flex flex-col">
@@ -74,7 +82,7 @@ export default function ProfilePage() {
       <main className="flex-grow flex flex-col justify-start items-start p-4 gap-6">
         <div className="w-full flex flex-col items-center gap-4">
           <Avatar className="w-32 h-32">
-            <AvatarImage src="#" alt="Profile Picture" />
+            <AvatarImage src={user?.image || undefined} alt="Profile Picture" />
             <AvatarFallback className="text-2xl">
               {username?.toString().charAt(0).toUpperCase() || "U"}
             </AvatarFallback>

@@ -10,7 +10,10 @@ export function AppearanceSettings() {
     <div className="space-y-4">
       <Label className="text-xl font-semibold">Appearance Settings</Label>
       <Label className="text-md font-medium my-2">Theme</Label>
-      <ThemeSelector />
+      {/* FIX ERROR WHEN UPDATING NAME */}
+      <div suppressHydrationWarning>
+        <ThemeSelector />
+      </div>
       <Label className="text-md font-medium my-2 text-muted-foreground">
         Language
       </Label>

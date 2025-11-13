@@ -13,8 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getUserDecodedToken, getToken, setToken } from "@/lib/auth-client";
-import { UserDecodedToken } from "@/types/token";
+import { useSession } from "@/lib/auth-client";
 import { AlertDialogTitle } from "@radix-ui/react-alert-dialog";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -24,12 +23,14 @@ import { Input } from "@/components/ui/input";
 import { ClockIcon, ListIcon, UsersIcon } from "lucide-react";
 import { devLog } from "@/utils/devLog";
 import { truncateWords } from "@/lib/text";
+import Cookies from "js-cookie";
 
 export default function TestJoinPage() {
   const router = useRouter();
   const { joinCode } = useParams<{ joinCode: string }>();
   const [testData, setTestData] = useState<Test | null>(null);
-  const [user, setUser] = useState<UserDecodedToken | null>();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [username, setUsername] = useState<string | null>(null);
   const [acceptResponses, setAcceptResponses] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
@@ -37,10 +38,9 @@ export default function TestJoinPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setUser(getUserDecodedToken());
-    devLog("User decoded token:", getUserDecodedToken());
-    setUsername(getUserDecodedToken()?.username || null);
-  }, []);
+    devLog("User from session:", user);
+    setUsername(user?.name || user?.email || null);
+  }, [user]);
 
   const StartTest = async () => {
     setIsLoading(true);
@@ -50,17 +50,16 @@ export default function TestJoinPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
-          userId: user?.userId,
+          userId: user?.id,
           username,
         }),
       });
       const data = await res.json();
 
       if (res.ok) {
-        setToken("participantId", data.participantId);
+        Cookies.set("participantId", data.participantId, { path: "/" });
         router.push(`/test/${joinCode}/start`);
         toast.success("Test started successfully!");
       } else {

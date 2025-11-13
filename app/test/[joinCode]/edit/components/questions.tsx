@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RawQuestion } from "@/types/question";
 import { QuestionCard } from "./question-card";
-import { getToken } from "@/lib/auth-client";
 import { devLog } from "@/utils/devLog";
 
 const Questions = ({ joinCode }: { joinCode: string }) => {
@@ -17,7 +16,6 @@ const Questions = ({ joinCode }: { joinCode: string }) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`,
           },
         });
         if (!res.ok) {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { encodeJoinCodeFromNumber } from "@/lib/feistelEncrypt";
-import { getToken, getUserFromToken } from "@/lib/auth-server";
+import { getCurrentUser } from "@/lib/auth-helpers";
 
 const baseQuestionSchema = z.object({
   questionText: z.string().min(1, { message: "Question is required" }),
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const start = performance.now();
 
-    const userLoggedIn = getUserFromToken(getToken(req));
+    const userLoggedIn = await getCurrentUser(req);
     if (!userLoggedIn) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
     // Create the test
     const createdTest = await prisma.test.create({
       data: {
-        creatorId: userLoggedIn.userId,
+        creatorId: userLoggedIn.id,
         title: testData.title,
         description: testData.description,
         joinCode,

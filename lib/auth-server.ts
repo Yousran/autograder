@@ -1,48 +1,42 @@
 // file: lib/auth-server.ts
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import { UserDecodedToken } from "../types/token";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { anonymous } from "better-auth/plugins";
+import { prisma } from "./prisma";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-export function signJwt(payload: object) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
-}
+// Only enable Google OAuth if credentials are provided
+const socialProviders =
+  googleClientId && googleClientSecret
+    ? {
+        google: {
+          clientId: googleClientId,
+          clientSecret: googleClientSecret,
+        },
+      }
+    : undefined;
 
-export function verifyJwt(token: string) {
-  try {
-    // Dekode dan verifikasi token menggunakan JWT_SECRET
-    const decoded = jwt.verify(token, JWT_SECRET);
-    console.log("Decoded JWT:", decoded);
-    return decoded;
-  } catch (err) {
-    // Jika ada error (misal token invalid atau expired), return null
-    console.error("JWT verification error:", err);
-    return null;
-  }
-}
-
-export async function hashPassword(password: string) {
-  return bcrypt.hash(password, 10);
-}
-
-export async function comparePassword(password: string, hashed: string) {
-  return bcrypt.compare(password, hashed);
-}
-
-// Fungsi untuk mendapatkan user dari token
-export function getUserFromToken(token: string) {
-  try {
-    // Dekode token untuk mendapatkan informasi user
-    return jwt.verify(token, JWT_SECRET) as UserDecodedToken;
-  } catch (error) {
-    console.error("JWT verification error:", error);
-    return null;
-  }
-}
-
-export function getToken(req: Request) {
-  const authHeader = req.headers.get("authorization") || "";
-  const token = authHeader.replace(/^Bearer\s+/, "");
-  return token;
-}
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,
+  },
+  ...(socialProviders && { socialProviders }),
+  plugins: [
+    anonymous({
+      // Allow guests to create anonymous accounts to join tests
+      // These accounts will be linked to a user if they sign up later
+    }),
+  ],
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL || "http://localhost:3000",
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  ],
+  secret: process.env.BETTER_AUTH_SECRET || "default-secret-for-development",
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+});
