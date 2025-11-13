@@ -10,8 +10,7 @@ export const authClient = createAuthClient({
   plugins: [anonymousClient()],
 });
 
-export const { signIn, signUp, signOut, useSession, useActiveOrganization } =
-  authClient;
+export const { signIn, signUp, signOut, useSession } = authClient;
 
 // Helper functions for participant management (not user auth)
 export function getParticipantId(): string | null {

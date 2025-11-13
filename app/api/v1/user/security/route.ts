@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         { message: "Password updated successfully" },
         { status: 200 }
       );
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: "Incorrect old password" },
         { status: 401 }
