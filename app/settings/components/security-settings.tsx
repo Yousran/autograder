@@ -33,19 +33,8 @@ const securitySchema = z
   });
 
 type SecurityFormValues = z.infer<typeof securitySchema>;
-type SecurityUser = {
-  id?: string;
-  userId?: string;
-  name?: string | null;
-  email?: string | null;
-  emailVerified?: boolean | null;
-  image?: string | null;
-  isAnonymous?: boolean | null;
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
-};
 
-export function SecuritySettings({ user }: { user?: SecurityUser }) {
+export function SecuritySettings({ user }: { user: any }) {
   const [loading, setLoading] = useState(false);
 
   const form = useForm<SecurityFormValues>({
