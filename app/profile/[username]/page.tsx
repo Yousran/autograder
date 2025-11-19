@@ -53,8 +53,8 @@ export default function ProfilePage() {
       try {
         setLoading(true);
         const [takenResponse, createdResponse] = await Promise.all([
-          fetch("/api/v1/user/tests/taken", { credentials: "include" }),
-          fetch("/api/v1/user/tests/created", { credentials: "include" }),
+          fetch("/api/v1/user/tests/taken"),
+          fetch("/api/v1/user/tests/created"),
         ]);
 
         if (takenResponse.ok) {

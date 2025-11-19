@@ -71,7 +71,6 @@ export default function StartPage() {
         if (!answer) return;
         const res = await fetch("/api/v1/answer/essay", {
           method: "PATCH",
-          credentials: "include",
           body: JSON.stringify({
             answerId: answer.id,
             participantId: participant?.id,
@@ -98,7 +97,6 @@ export default function StartPage() {
         if (!answer) return;
         const res = await fetch("/api/v1/answer/choice", {
           method: "PATCH",
-          credentials: "include",
           body: JSON.stringify({
             answerId: answer.id,
             participantId: participant?.id,
@@ -125,7 +123,6 @@ export default function StartPage() {
         if (!answers) return;
         const res = await fetch("/api/v1/answer/multiple-select", {
           method: "PATCH",
-          credentials: "include",
           body: JSON.stringify({
             answerId: question.multipleSelect?.answer.id,
             answers: answers,

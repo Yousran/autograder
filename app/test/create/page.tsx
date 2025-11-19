@@ -72,7 +72,6 @@ export default function TestCreatePage() {
 
     const res = await fetch("/api/v1/test/", {
       method: "POST",
-      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },

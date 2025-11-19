@@ -41,37 +41,27 @@ export const auth = betterAuth({
 });
 
 const BETTER_AUTH_SECRET = process.env.BETTER_AUTH_SECRET;
-if (process.env.NODE_ENV === "production" && !BETTER_AUTH_SECRET) {
+if (!BETTER_AUTH_SECRET) {
   throw new Error(
-    "Missing BETTER_AUTH_SECRET environment variable in production. Set BETTER_AUTH_SECRET to a strong secret."
+    "Missing BETTER_AUTH_SECRET environment variable. Set BETTER_AUTH_SECRET to a strong secret."
   );
 }
 
-// Re-export `auth` configured with an optional secret value. In production we require a
-// secret but in development it's optional to avoid making local dev harder.
-export const configuredAuth = BETTER_AUTH_SECRET
-  ? betterAuth({
-      database: prismaAdapter(prisma, {
-        provider: "postgresql",
-      }),
-      emailAndPassword: {
-        enabled: true,
-        requireEmailVerification: false,
-      },
-      ...(socialProviders && { socialProviders }),
-      plugins: [anonymous({})],
-      trustedOrigins: [
-        process.env.BETTER_AUTH_URL || "http://localhost:3000",
-        process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-      ],
-      secret: BETTER_AUTH_SECRET,
-      baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
-    })
-  : undefined;
-
-// Convenience getter so server code can get the "best" auth object to use on the server.
-// This will return `configuredAuth` when present (production) and fall back to the
-// non-secret `auth` implementation when running locally.
-export function getServerAuth() {
-  return configuredAuth ?? auth;
-}
+// Re-export `auth` configured with a required secret value to avoid unsafe defaults
+export const configuredAuth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,
+  },
+  ...(socialProviders && { socialProviders }),
+  plugins: [anonymous({})],
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL || "http://localhost:3000",
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  ],
+  secret: BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+});

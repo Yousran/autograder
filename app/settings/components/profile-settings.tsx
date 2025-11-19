@@ -46,7 +46,6 @@ export function ProfileSettings({
     try {
       const res = await fetch("/api/v1/user/", {
         method: "PATCH",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },

@@ -62,7 +62,6 @@ export function SecuritySettings({ user }: { user?: SecurityUser }) {
     try {
       const response = await fetch("/api/v1/user/security", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
