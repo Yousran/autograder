@@ -1,4 +1,4 @@
-import { auth } from "./auth-server";
+import { getServerAuth } from "./auth-server";
 import { headers as getHeaders } from "next/headers";
 
 /**
@@ -8,7 +8,12 @@ import { headers as getHeaders } from "next/headers";
 export async function getSession(req?: Request) {
   const headersList = req ? req.headers : await getHeaders();
 
-  const session = await auth.api.getSession({
+  // Use the server auth instance when running on the server.
+  // `getServerAuth()` returns `configuredAuth` when the secret is present,
+  // otherwise falls back to `auth` (dev-friendly).
+  const serverAuth = getServerAuth();
+
+  const session = await serverAuth.api.getSession({
     headers: headersList,
   });
 
