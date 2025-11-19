@@ -37,31 +37,6 @@ export const auth = betterAuth({
     process.env.BETTER_AUTH_URL || "http://localhost:3000",
     process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   ],
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
-});
-
-const BETTER_AUTH_SECRET = process.env.BETTER_AUTH_SECRET;
-if (!BETTER_AUTH_SECRET) {
-  throw new Error(
-    "Missing BETTER_AUTH_SECRET environment variable. Set BETTER_AUTH_SECRET to a strong secret."
-  );
-}
-
-// Re-export `auth` configured with a required secret value to avoid unsafe defaults
-export const configuredAuth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
-  }),
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: false,
-  },
-  ...(socialProviders && { socialProviders }),
-  plugins: [anonymous({})],
-  trustedOrigins: [
-    process.env.BETTER_AUTH_URL || "http://localhost:3000",
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  ],
-  secret: BETTER_AUTH_SECRET,
+  secret: process.env.BETTER_AUTH_SECRET || "default-secret-for-development",
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
 });
