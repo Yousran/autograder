@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Participant } from "@/types/participant";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getToken } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 export default function Participants({ joinCode }: { joinCode: string }) {
@@ -17,6 +18,7 @@ export default function Participants({ joinCode }: { joinCode: string }) {
         const res = await fetch(`/api/v1/test/${joinCode}/participants`, {
           method: "GET",
           headers: {
+            Authorization: `Bearer ${getToken()}`,
             "Content-Type": "application/json",
           },
         });

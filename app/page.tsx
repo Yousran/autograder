@@ -1,4 +1,3 @@
-//TODO: Better Auth Implementation
 //TODO: Application icon
 //TODO: Comments and Feedback
 //TODO: Tutorials and help

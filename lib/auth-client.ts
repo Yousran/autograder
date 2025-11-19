@@ -1,19 +1,30 @@
 // file: lib/auth-client.ts
 "use client";
-
-import { createAuthClient } from "better-auth/react";
-import { anonymousClient } from "better-auth/client/plugins";
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import { UserDecodedToken } from "@/types/token";
 
-export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  plugins: [anonymousClient()],
-});
+export function getUserDecodedToken(): UserDecodedToken | null {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const decoded = jwtDecode<UserDecodedToken>(token);
+    return decoded;
+  } catch (error) {
+    console.error("Invalid token:", error);
+    Cookies.remove("token");
+    return null;
+  }
+}
 
-export const { signIn, signUp, signOut, useSession, useActiveOrganization } =
-  authClient;
+export function setToken(name: string, value: string): void {
+  Cookies.set(name, value, { path: "/" });
+}
 
-// Helper functions for participant management (not user auth)
+export function getToken(): string | null {
+  return Cookies.get("token") || null;
+}
+
 export function getParticipantId(): string | null {
   return Cookies.get("participantId") || null;
 }

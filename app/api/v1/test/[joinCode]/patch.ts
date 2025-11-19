@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth-helpers";
+import { getToken, getUserFromToken } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -23,7 +23,7 @@ export async function PATCH(
   { params }: { params: Promise<{ joinCode: string }> }
 ) {
   const { joinCode } = await params;
-  const user = await getCurrentUser(req);
+  const user = await getUserFromToken(getToken(req));
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
@@ -45,7 +45,7 @@ export async function PATCH(
     where: { joinCode },
   });
 
-  if (!test || test.creatorId !== user.id) {
+  if (!test || test.creatorId !== user.userId) {
     return NextResponse.json(
       { message: "Test not found or not yours" },
       { status: 404 }

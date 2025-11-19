@@ -1,20 +1,25 @@
 // file: /app/api/v1/user/tests/created/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth-helpers";
+import { getToken, getUserFromToken } from "@/lib/auth-server";
 
 export async function GET(req: Request) {
   // Authenticate the user
-  const userLoggedIn = await getCurrentUser(req);
-  console.log("[Tests Created] User:", userLoggedIn?.id, userLoggedIn?.email);
-  if (!userLoggedIn) {
+  const token = await getToken(req);
+  if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Authorize the user
+  const userLoggedIn = await getUserFromToken(token);
+  if (!userLoggedIn) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 404 });
   }
 
   try {
     // Fetch all tests created by the logged-in user
     const tests = await prisma.test.findMany({
-      where: { creatorId: userLoggedIn.id },
+      where: { creatorId: userLoggedIn.userId },
       orderBy: { createdAt: "desc" }, // Order by creation date (newest first)
     });
 

@@ -5,6 +5,8 @@ import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { UserDecodedToken } from "@/types/token";
+import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -20,20 +22,22 @@ import {
 import { Input } from "@/components/ui/input";
 
 const profileSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password is required to confirm changes"),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
-export function ProfileSettings({ user }: { user: any }) {
+export function ProfileSettings({ user }: { user: UserDecodedToken | null }) {
   const [loading, setLoading] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user?.name ?? "",
+      username: user?.username ?? "",
       email: user?.email ?? "",
+      password: "",
     },
   });
 
@@ -44,6 +48,7 @@ export function ProfileSettings({ user }: { user: any }) {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("token") ?? ""}`, // atau dari cookie kalau kamu simpan di sana
         },
         body: JSON.stringify(values),
       });
@@ -56,8 +61,7 @@ export function ProfileSettings({ user }: { user: any }) {
       }
 
       toast.success("Profile updated successfully");
-      // Refresh the page to get updated user data
-      window.location.reload();
+      form.reset({ ...values, password: "" });
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Something went wrong");
@@ -73,12 +77,12 @@ export function ProfileSettings({ user }: { user: any }) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
             control={form.control}
-            name="name"
+            name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Username</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your name" {...field} />
+                  <Input placeholder="Your username" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -93,6 +97,24 @@ export function ProfileSettings({ user }: { user: any }) {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input type="email" placeholder="Your email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Current Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Enter current password"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -1,5 +1,6 @@
 "use client";
 import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,23 +8,31 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { getUserDecodedToken } from "@/lib/auth-client";
+import { UserDecodedToken } from "@/types/token";
 import { Label } from "../ui/label";
+import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon } from "lucide-react";
-import { useSession, signOut } from "@/lib/auth-client";
 
 export default function Navbar() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<UserDecodedToken | null>();
   const pathname = usePathname();
 
-  const user = session?.user;
-  const isLoggedIn = !!user;
+  useEffect(() => {
+    const decoded = getUserDecodedToken();
+    setUser(decoded);
+    setIsLoggedIn(!!decoded);
+  }, []);
 
-  const handleLogout = async () => {
-    await signOut();
-    toast.success("Logout Successful");
+  const handleLogout = () => {
+    Cookies.remove("token");
+    setUser(null);
+    setIsLoggedIn(false);
+    toast.success("Logout Berhasil");
     router.push("/");
   };
 
@@ -49,20 +58,16 @@ export default function Navbar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="cursor-pointer">
-              <AvatarImage src={user?.image || undefined} />
+              <AvatarImage />
               <AvatarFallback className="text-foreground">
-                {user
-                  ? (user.name || user.email || "U").charAt(0).toUpperCase()
-                  : "U"}
+                {user ? user.username.charAt(0).toUpperCase() : "U"}
               </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {isLoggedIn ? (
               <DropdownMenuItem
-                onClick={() =>
-                  router.push(`/profile/${user?.name || user?.email}`)
-                }
+                onClick={() => router.push(`/profile/${user?.username}`)}
               >
                 Profile
               </DropdownMenuItem>

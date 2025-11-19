@@ -13,6 +13,7 @@ import { QuestionsBuilder } from "./components/questions-builder";
 import { TestSettings } from "./components/test-settings";
 import { defaultQuestion, Question } from "@/types/question";
 import { toast } from "sonner";
+import { getToken } from "@/lib/auth-client";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -74,6 +75,7 @@ export default function TestCreatePage() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
       },
       body: JSON.stringify({
         ...validation.data,

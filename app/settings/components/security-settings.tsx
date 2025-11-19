@@ -5,6 +5,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -18,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { UserDecodedToken } from "@/types/token";
 
 const securitySchema = z
   .object({
@@ -34,7 +36,7 @@ const securitySchema = z
 
 type SecurityFormValues = z.infer<typeof securitySchema>;
 
-export function SecuritySettings({ user }: { user: any }) {
+export function SecuritySettings({ user }: { user: UserDecodedToken | null }) {
   const [loading, setLoading] = useState(false);
 
   const form = useForm<SecurityFormValues>({
@@ -53,6 +55,7 @@ export function SecuritySettings({ user }: { user: any }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("token") ?? ""}`,
         },
         body: JSON.stringify(values),
       });

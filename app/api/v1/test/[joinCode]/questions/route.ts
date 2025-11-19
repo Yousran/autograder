@@ -1,7 +1,7 @@
 // file: app/api/v1/test/[joinCode]/questions/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth-helpers";
+import { getToken, getUserFromToken } from "@/lib/auth-server";
 
 export async function GET(
   req: NextRequest,
@@ -9,7 +9,7 @@ export async function GET(
 ) {
   const { joinCode } = await params;
 
-  const user = await getCurrentUser(req);
+  const user = await getUserFromToken(getToken(req));
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
@@ -41,7 +41,7 @@ export async function GET(
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
 
-    if (test.creatorId !== user.id) {
+    if (test.creatorId !== user.userId) {
       return NextResponse.json(
         { error: "You are not authorized to view this test" },
         { status: 403 }
