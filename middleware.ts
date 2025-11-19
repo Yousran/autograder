@@ -1,42 +1,41 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getServerAuth } from "@/lib/auth-server";
+// Do NOT import the server-side auth here; `better-auth` uses dynamic code evaluation
+// and is not allowed in the Edge runtime. Use cookie presence checks in middleware
+// for a light-weight auth gate and use real session validation in API routes.
 
-// Enable detailed auth logging in production only when the env var is present.
-// Set LOG_AUTH_SESSIONS=true in production to enable.
-const LOG_AUTH_SESSIONS =
-  process.env.NODE_ENV === "production" &&
-  process.env.LOG_AUTH_SESSIONS === "true";
+// Always log auth session presence from the middleware. This is a lightweight
+// log that prints whether a session cookie is present and a short preview
+// (first 8 chars) of the cookie value plus the length. This is safe to
+// enable because we mask the token and do not log the full cookie contents.
 
-function maskEmail(email?: string | null) {
-  if (!email) return "<no-email>";
-  const [local, domain] = email.split("@");
-  if (!local || !domain) return "<invalid-email>";
-  return `${local.charAt(0)}***@${domain}`;
-}
+
 
 export async function middleware(request: NextRequest) {
-  // Check for Better Auth session using the server auth instance. We prefer
-  // verifying the session rather than relying on the cookie presence only.
-  const serverAuth = getServerAuth();
-  const session = await serverAuth.api.getSession({
-    headers: request.headers,
-  });
+  // Light-weight cookie presence check. We avoid importing Better Auth code here
+  // because Edge (middleware) doesn't allow the dynamic evaluation it uses.
+  const sessionToken = request.cookies.get("better-auth.session_token");
+  const tokenValue = typeof sessionToken === "string" ? sessionToken : sessionToken?.value;
+  const sessionPresent = !!tokenValue;
 
-  if (LOG_AUTH_SESSIONS) {
-    const userId = (session && session.user && session.user.id) || "<anon>";
-    const maskedEmail = session ? maskEmail(session.user?.email) : "<none>";
+  // Always log. The middleware runs for the matcher routes only,
+  // so this remains focused and not overly verbose.
+  {
+    // Don't log the whole session token (sensitive). Log length and a small preview.
+    const tokenPreview = tokenValue
+      ? `${tokenValue.slice(0, 8)}...(${tokenValue.length} chars)`
+      : "<none>";
     console.log(
       "[AuthMiddleware] path=",
       request.nextUrl.pathname,
-      "userId=",
-      userId,
-      "email=",
-      maskedEmail
+      "sessionPresent=",
+      sessionPresent,
+      "tokenPreview=",
+      tokenPreview
     );
   }
 
-  if (!session) {
+  if (!sessionPresent) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
