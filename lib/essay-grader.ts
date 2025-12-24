@@ -1,5 +1,4 @@
-import { essayGraderDeepseek } from "@/lib/deepseek";
-import { EssayGrade } from "@/types/essay-grade";
+import { essayGraderDeepseek } from "@/lib/openrouter";
 /**
  * Grading untuk soal essay dengan mode "Exact Answer"
  */

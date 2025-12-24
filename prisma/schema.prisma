@@ -5,51 +5,148 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
-  id String @id @default(uuid())
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  username String @unique
-  email    String @unique
-  password String
+  sessions     Session[]
+  accounts     Account[]
+  tests        Test[]
+  participants Participant[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tests        Test[]
-  participants Participant[]
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Participant {
+  id     String  @id @default(cuid())
+  testId String
+  userId String? // Optional: Allows Guest users OR Logged-in users to take tests
+
+  name  String // Keeping this as "Display Name" for the specific test session
+  score Float  @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  test                  Test                   @relation(fields: [testId], references: [id], onDelete: Cascade)
+  user                  User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  essayAnswers          EssayAnswer[]
+  choiceAnswers         ChoiceAnswer[]
+  multipleSelectAnswers MultipleSelectAnswer[]
+
+  @@index([testId])
+  @@index([userId])
+  @@index([name])
 }
 
 model Test {
-  id        String @id @default(uuid())
+  id        String @id @default(cuid())
   creatorId String
 
-  title              String
-  joinCode           String    @unique
-  description        String?   @db.Text
-  testDuration       Int?
-  startTime          DateTime?
-  endTime            DateTime?
-  acceptResponses    Boolean
-  showDetailedScore  Boolean
-  showCorrectAnswers Boolean
-  isOrdered          Boolean
+  title        String
+  joinCode     String    @unique
+  description  String?   @db.Text
+  testDuration Int?
+  startTime    DateTime?
+  endTime      DateTime?
+
+  isAcceptingResponses  Boolean @default(true)
+  loggedInUserOnly      Boolean @default(false)
+  allowMultipleAttempts Boolean @default(true)
+  maxAttempts           Int?
+  showDetailedScore     Boolean @default(true)
+  showCorrectAnswers    Boolean @default(false)
+  isQuestionsOrdered    Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user         User          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  questions    Question[]
-  participants Participant[]
+  user          User               @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  prerequisites TestPrerequisite[] @relation("TestPrerequisites")
+  requiredFor   TestPrerequisite[] @relation("IsPrerequisiteFor")
+  participants  Participant[]
+  questions     Question[]
 
   @@index([creatorId])
+}
+
+model TestPrerequisite {
+  id                 String @id @default(cuid())
+  testId             String // The test that is currently "locked"
+  prerequisiteTestId String // The test that must be completed first
+  minScoreRequired   Float  @default(0)
+
+  test             Test @relation("TestPrerequisites", fields: [testId], references: [id], onDelete: Cascade)
+  prerequisiteTest Test @relation("IsPrerequisiteFor", fields: [prerequisiteTestId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, prerequisiteTestId])
+  @@index([testId])
+  @@index([prerequisiteTestId])
 }
 
 enum QuestionType {
@@ -59,7 +156,7 @@ enum QuestionType {
 }
 
 model Question {
-  id     String @id @default(uuid())
+  id     String @id @default(cuid())
   testId String
 
   questionText String       @db.Text
@@ -77,9 +174,9 @@ model Question {
   @@index([testId, order])
 }
 
-// ESSAY QUESTION
+// --- ESSAY QUESTION ---
 model EssayQuestion {
-  id            String  @id @default(uuid())
+  id            String  @id @default(cuid())
   answerText    String  @db.Text
   isExactAnswer Boolean
   maxScore      Int
@@ -92,7 +189,7 @@ model EssayQuestion {
 }
 
 model EssayAnswer {
-  id            String @id @default(uuid())
+  id            String @id @default(cuid())
   participantId String
   questionId    String
 
@@ -107,9 +204,9 @@ model EssayAnswer {
   question    EssayQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 }
 
-// CHOICE QUESTION
+// --- CHOICE QUESTION ---
 model ChoiceQuestion {
-  id String @id @default(uuid())
+  id String @id @default(cuid())
 
   isChoiceRandomized Boolean
   maxScore           Int
@@ -123,7 +220,7 @@ model ChoiceQuestion {
 }
 
 model Choice {
-  id         String  @id @default(uuid())
+  id         String  @id @default(cuid())
   questionId String
   choiceText String  @db.Text
   isCorrect  Boolean
@@ -138,7 +235,7 @@ model Choice {
 }
 
 model ChoiceAnswer {
-  id               String  @id @default(uuid())
+  id               String  @id @default(cuid())
   questionId       String
   participantId    String
   selectedChoiceId String?
@@ -157,9 +254,9 @@ model ChoiceAnswer {
   @@index([selectedChoiceId])
 }
 
-// MULTIPLE SELECT QUESTION
+// --- MULTIPLE SELECT QUESTION ---
 model MultipleSelectQuestion {
-  id String @id @default(uuid())
+  id String @id @default(cuid())
 
   isChoiceRandomized Boolean
   maxScore           Int
@@ -173,7 +270,7 @@ model MultipleSelectQuestion {
 }
 
 model MultipleSelectChoice {
-  id         String @id @default(uuid())
+  id         String @id @default(cuid())
   questionId String
 
   choiceText String  @db.Text
@@ -189,7 +286,7 @@ model MultipleSelectChoice {
 }
 
 model MultipleSelectAnswer {
-  id            String @id @default(uuid())
+  id            String @id @default(cuid())
   questionId    String
   participantId String
 
@@ -204,26 +301,4 @@ model MultipleSelectAnswer {
 
   @@index([participantId])
   @@index([questionId])
-}
-
-model Participant {
-  id     String  @id @default(uuid())
-  testId String
-  userId String?
-
-  username String
-  score    Int    @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  test                  Test                   @relation(fields: [testId], references: [id], onDelete: Cascade)
-  user                  User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  essayAnswers          EssayAnswer[]
-  choiceAnswers         ChoiceAnswer[]
-  multipleSelectAnswers MultipleSelectAnswer[]
-
-  @@index([testId])
-  @@index([userId])
-  @@index([username])
 }
