@@ -41,11 +41,11 @@ export default function TestCreatePage() {
       testDuration: 30,
       isAcceptingResponses: true,
       loggedInUserOnly: false,
-      allowMultipleAttempts: true,
-      maxAttempts: undefined,
+      maxAttempts: 1,
       showDetailedScore: true,
       showCorrectAnswers: false,
       isQuestionsOrdered: false,
+      prerequisites: [],
       questions: [
         {
           type: QuestionType.ESSAY,

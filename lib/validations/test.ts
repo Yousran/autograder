@@ -50,11 +50,25 @@ export const testFormSchema = z.object({
   // Settings
   isAcceptingResponses: z.boolean().default(true),
   loggedInUserOnly: z.boolean().default(false),
-  allowMultipleAttempts: z.boolean().default(false),
-  maxAttempts: z.coerce.number().optional(),
+  maxAttempts: z.coerce.number().min(1).default(1),
   showDetailedScore: z.boolean().default(true),
   showCorrectAnswers: z.boolean().default(false),
   isQuestionsOrdered: z.boolean().default(false),
+
+  // Prerequisites (optional)
+  prerequisites: z
+    .array(
+      z.object({
+        prerequisiteTestId: z.string().min(1, "Test selection is required"),
+        minScoreRequired: z.coerce
+          .number()
+          .min(0, "Minimum score must be at least 0")
+          .max(100, "Minimum score cannot exceed 100")
+          .default(0),
+      })
+    )
+    .optional()
+    .default([]),
 
   // Array of Questions
   questions: z.array(questionSchema),

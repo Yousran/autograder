@@ -115,13 +115,12 @@ model Test {
   startTime    DateTime?
   endTime      DateTime?
 
-  isAcceptingResponses  Boolean @default(true)
-  loggedInUserOnly      Boolean @default(false)
-  allowMultipleAttempts Boolean @default(true)
-  maxAttempts           Int?
-  showDetailedScore     Boolean @default(true)
-  showCorrectAnswers    Boolean @default(false)
-  isQuestionsOrdered    Boolean @default(false)
+  isAcceptingResponses Boolean @default(true)
+  loggedInUserOnly     Boolean @default(false)
+  maxAttempts          Int?
+  showDetailedScore    Boolean @default(true)
+  showCorrectAnswers   Boolean @default(false)
+  isQuestionsOrdered   Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

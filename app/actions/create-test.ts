@@ -44,7 +44,6 @@ export async function createTest(data: TestFormValues) {
         joinCode,
         isAcceptingResponses: testData.isAcceptingResponses,
         loggedInUserOnly: testData.loggedInUserOnly,
-        allowMultipleAttempts: testData.allowMultipleAttempts,
         maxAttempts: testData.maxAttempts,
         showDetailedScore: testData.showDetailedScore,
         showCorrectAnswers: testData.showCorrectAnswers,
@@ -110,6 +109,17 @@ export async function createTest(data: TestFormValues) {
         },
       },
     });
+
+    // 4. Create prerequisites if any exist
+    if (testData.prerequisites && testData.prerequisites.length > 0) {
+      await prisma.testPrerequisite.createMany({
+        data: testData.prerequisites.map((prereq) => ({
+          testId: newTest.id,
+          prerequisiteTestId: prereq.prerequisiteTestId,
+          minScoreRequired: prereq.minScoreRequired,
+        })),
+      });
+    }
 
     return { success: true, testId: newTest.id };
   } catch (error) {
