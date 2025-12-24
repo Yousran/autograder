@@ -26,7 +26,7 @@ import HardBreak from "@tiptap/extension-hard-break";
 import History from "@tiptap/extension-history";
 import Placeholder from "@tiptap/extension-placeholder";
 import { all, createLowlight } from "lowlight";
-import TiptapMenubar from "./tiptap-menubar";
+import TiptapMenubar from "@/components/custom/tiptap-menubar";
 
 interface TiptapEditorProps {
   value?: string;

@@ -30,8 +30,8 @@ export async function essayGraderDeepseek({
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: key!,
       defaultHeaders: {
-        "HTTP-Referer": process.env.BASE_URL || "",
-        "X-Title": process.env.SITE_NAME || "",
+        "HTTP-Referer": process.env.NEXT_PUBLIC_BASE_URL || "",
+        "X-Title": process.env.NEXT_PUBLIC_APP_NAME || "",
       },
     });
 

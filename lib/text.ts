@@ -27,3 +27,10 @@ export function truncateWords(
     })
     .join(" ");
 }
+
+export function getInitial(input?: string | null): string {
+  if (input && input.length > 0) {
+    return input.charAt(0).toUpperCase();
+  }
+  return "U";
+}

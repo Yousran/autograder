@@ -18,6 +18,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/custom/navbar";
 // import Navbar from "@/components/custom/navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -74,6 +75,7 @@ export default function Home() {
 
   return (
     <div className="max-w-screen min-h-screen flex flex-col">
+      <Navbar />
       <main className="grow flex justify-center items-center">
         <Card className="w-fit h-full flex items-center justify-center">
           <CardContent className="flex flex-col gap-6">
