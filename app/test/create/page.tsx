@@ -71,8 +71,8 @@ export default function TestCreatePage() {
       }
 
       toast.success("Test created successfully!");
-      if (result.testId) {
-        router.push(`/test/${result.testId}`);
+      if (result.joinCode) {
+        router.push(`/test/${result.joinCode}`);
       }
     } catch (error) {
       console.error("Error creating test:", error);

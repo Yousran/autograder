@@ -121,7 +121,7 @@ export async function createTest(data: TestFormValues) {
       });
     }
 
-    return { success: true, testId: newTest.id };
+    return { success: true, testId: newTest.id, joinCode: newTest.joinCode };
   } catch (error) {
     devLog(error);
     return { error: "Failed to create test" };

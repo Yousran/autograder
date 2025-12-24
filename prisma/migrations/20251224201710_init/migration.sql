@@ -84,7 +84,6 @@ CREATE TABLE "Test" (
     "endTime" TIMESTAMP(3),
     "isAcceptingResponses" BOOLEAN NOT NULL DEFAULT true,
     "loggedInUserOnly" BOOLEAN NOT NULL DEFAULT false,
-    "allowMultipleAttempts" BOOLEAN NOT NULL DEFAULT true,
     "maxAttempts" INTEGER,
     "showDetailedScore" BOOLEAN NOT NULL DEFAULT true,
     "showCorrectAnswers" BOOLEAN NOT NULL DEFAULT false,
