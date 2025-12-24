@@ -1,64 +1,149 @@
-import Image from "next/image";
+//TODO: Application icon
+//TODO: Comments and Feedback
+//TODO: Tutorials and help
+//TODO: Image Upload and video Insert
+//TODO: Landing Page, using app.autograder subdomain
+//TODO: When participant joins the test and already have made, join the test
+//TODO: Participant list on test edit update every 5 seconds
+//TODO: When Updating answer, update total score
+//TODO: Grader Refactor to update participant total score
+//TODO: creator answer/score refactor to update participant total score
+//TODO: Choice Refactor into Multiple Choice
+//TODO: Multiple Language Support
+//TODO: Server side and client side Types Refactor
+//TODO: Allow only certain participant to join the test
+//TODO: Using Server side rendering for some page as way around next middleware limitations
+//TODO: Safe Exam Browser Support
+//TODO: Middleware for pages
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+// import Navbar from "@/components/custom/navbar";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { ScanQrCodeIcon } from "lucide-react";
+import { Scanner } from "@yudiel/react-qr-scanner";
+import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { toast } from "sonner";
 
 export default function Home() {
+  const router = useRouter();
+  const [joinCode, setJoinCode] = useState<string>("");
+  const [scannerOpen, setScannerOpen] = useState<boolean>(false);
+  const [cameraError, setCameraError] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleJoin = () => {
+    if (joinCode.length === 6) {
+      setLoading(true);
+      router.push(`/test/${joinCode}`);
+    }
+  };
+
+  const handleScan = (codes: { rawValue: string }[]) => {
+    const code = codes[0]?.rawValue;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+    if (!code || !siteUrl) return;
+
+    try {
+      const url = new URL(code);
+
+      const isSameOrigin = url.origin === siteUrl;
+      const isTestPath = /^\/test\/[a-zA-Z0-9_-]+$/.test(url.pathname);
+
+      if (isSameOrigin && isTestPath) {
+        setLoading(true);
+        window.location.href = code;
+        setScannerOpen(false);
+      } else {
+        toast.error("QR code are not valid.");
+      }
+    } catch {
+      toast.error("QR code are not valid.");
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div className="max-w-screen min-h-screen flex flex-col">
+      <main className="grow flex justify-center items-center">
+        <Card className="w-fit h-full flex items-center justify-center">
+          <CardContent className="flex flex-col gap-6">
+            <h2 className="text-xl font-semibold text-center">
+              Enter Join Code
+            </h2>
+            <div className="w-full flex justify-center">
+              <InputOTP
+                maxLength={6}
+                pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                inputMode="text"
+                className="flex justify-center"
+                value={joinCode}
+                onChange={(value) => setJoinCode(value.toUpperCase())}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                </InputOTPGroup>
+                <InputOTPSeparator />
+                <InputOTPGroup>
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <Button
+                onClick={handleJoin}
+                disabled={loading}
+                className="flex-1"
+              >
+                {loading ? "Loading..." : "Join"}
+              </Button>
+              <Dialog open={scannerOpen} onOpenChange={setScannerOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <ScanQrCodeIcon className="w-5 h-5" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogTitle className="hidden" />
+                  <div className="w-full p-4">
+                    {cameraError ? (
+                      <div className="flex flex-col items-center gap-4 text-center">
+                        <p className="text-sm text-muted-foreground">
+                          Camera cannot be accessed. Make sure camera
+                          permissions are granted through the browser settings.
+                          And then reload the page.
+                        </p>
+                      </div>
+                    ) : (
+                      <Scanner
+                        onScan={handleScan}
+                        onError={() => setCameraError(true)}
+                        formats={["qr_code"]}
+                        components={{ finder: false }}
+                        classNames={{ container: "rounded-xl" }}
+                      />
+                    )}
+                  </div>
+                  <DialogDescription className="hidden" />
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 import {
   Card,
   CardContent,
@@ -95,7 +95,7 @@ export default function SignInPage() {
               onClick={signInWithGoogle}
               disabled={isLoading}
             >
-              <LogIn className="mr-2" /> Continue with Google
+              <FcGoogle className="mr-2" /> Continue with Google
             </Button>
           </div>
 
@@ -147,7 +147,7 @@ export default function SignInPage() {
 
           <div className="mt-4 space-y-2">
             <div className="text-center text-sm">
-              {"Don't have an account?"}
+              {"Don't have an account? "}
               <Link
                 href="/auth/signup"
                 className="text-primary hover:underline font-medium"
