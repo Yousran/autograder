@@ -10,7 +10,7 @@ const apiKeys = [
   process.env.OPENROUTER_API_KEY_5,
 ].filter(Boolean);
 
-export async function essayGraderDeepseek({
+export async function openRouter({
   questionText,
   answer,
   answerKey,
@@ -22,7 +22,7 @@ export async function essayGraderDeepseek({
   answerKey: string;
   minScore: number;
   maxScore: number;
-}): Promise<EssayGrade> {
+}) {
   for (let i = 0; i < apiKeys.length; i++) {
     const key = apiKeys[i];
 

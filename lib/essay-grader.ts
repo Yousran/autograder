@@ -1,4 +1,4 @@
-import { essayGraderDeepseek } from "@/lib/openrouter";
+import { openRouter } from "@/lib/openrouter";
 /**
  * Grading untuk soal essay dengan mode "Exact Answer"
  */
@@ -42,9 +42,9 @@ export async function gradeSubjectiveEssayAnswer({
   answerKey: string;
   minScore: number;
   maxScore: number;
-}): Promise<EssayGrade> {
+}) {
   try {
-    return await essayGraderDeepseek({
+    return await openRouter({
       questionText,
       answer,
       answerKey,
@@ -56,5 +56,5 @@ export async function gradeSubjectiveEssayAnswer({
   }
 
   // Jika semua gagal, return minScore
-  return { score: minScore, explanation: "Error in grading" } as EssayGrade;
+  return { score: minScore, explanation: "--" };
 }
