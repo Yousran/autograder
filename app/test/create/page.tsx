@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QuestionsBuilder } from "./components/questions-builder";
-import { TestSettings } from "./components/test-settings";
+import { TestSettings } from "@/components/custom/test-settings";
 import { toast } from "sonner";
 import {
   AlertDialog,

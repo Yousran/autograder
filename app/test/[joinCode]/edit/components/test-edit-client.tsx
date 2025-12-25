@@ -14,6 +14,7 @@ import { useState } from "react";
 import Participants from "./participants";
 import Questions from "./questions";
 import { Button } from "@/components/ui/button";
+import { TestSettings } from "@/components/custom/test-settings";
 import { CopyIcon, QrCodeIcon } from "lucide-react";
 import {
   Dialog,
@@ -104,14 +105,11 @@ export default function TestEditClient({ test }: { test: TestWithRelations }) {
               <TabsTrigger value="participants">Participants</TabsTrigger>
             </TabsList>
             <TabsContent value="settings">
-              <Card>
-                <CardContent className="p-6">
-                  <Label className="text-lg">
-                    Test settings component will go here. Replace with actual
-                    TestSettings component when ready.
-                  </Label>
-                </CardContent>
-              </Card>
+              {activeTab === "settings" && (
+                <TestSettings
+                // testId={test.id}
+                />
+              )}
             </TabsContent>
             <TabsContent value="participants">
               {activeTab === "participants" && (

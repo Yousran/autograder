@@ -76,4 +76,33 @@ export const testFormSchema = z.object({
 
 export type TestFormValues = z.infer<typeof testFormSchema>;
 
+// Schema for test settings only (without questions) - used in both create and edit
+export const testSettingsSchema = z.object({
+  description: z.string().optional(),
+  testDuration: z.coerce.number().min(0).optional(),
+  startTime: z.coerce.date().optional(),
+  endTime: z.coerce.date().optional(),
+  isAcceptingResponses: z.boolean().default(true),
+  loggedInUserOnly: z.boolean().default(false),
+  maxAttempts: z.coerce.number().min(1).default(1),
+  showDetailedScore: z.boolean().default(true),
+  showCorrectAnswers: z.boolean().default(false),
+  isQuestionsOrdered: z.boolean().default(false),
+  prerequisites: z
+    .array(
+      z.object({
+        prerequisiteTestId: z.string().min(1, "Test selection is required"),
+        minScoreRequired: z.coerce
+          .number()
+          .min(0, "Minimum score must be at least 0")
+          .max(100, "Minimum score cannot exceed 100")
+          .default(0),
+      })
+    )
+    .optional()
+    .default([]),
+});
+
+export type TestSettingsValues = z.infer<typeof testSettingsSchema>;
+
 export const testIdSchema = z.string().min(1, "Test ID is required");
