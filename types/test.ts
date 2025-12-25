@@ -24,7 +24,7 @@ export type QuestionWithAnswers = Question & {
 
 // Full test with all relations
 export type TestWithRelations = Test & {
-  questions: QuestionWithAnswers[];
+  questions: Question[];
   prerequisites: { prerequisiteTestId: string; minScoreRequired: number }[];
   user: { id: string; name?: string | null; email?: string | null };
   participants?: Pick<Participant, "id">[];
