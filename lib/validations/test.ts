@@ -75,3 +75,5 @@ export const testFormSchema = z.object({
 });
 
 export type TestFormValues = z.infer<typeof testFormSchema>;
+
+export const testIdSchema = z.string().min(1, "Test ID is required");

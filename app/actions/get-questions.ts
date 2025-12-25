@@ -2,8 +2,8 @@
 
 import { PrismaClient } from "@/lib/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { z } from "zod";
 import { Question } from "@/types/question";
+import { testIdSchema } from "@/lib/validations/test";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -11,14 +11,12 @@ const adapter = new PrismaPg({
 
 const prisma = new PrismaClient({ adapter });
 
-const paramsSchema = z.object({
-  testId: z.string().min(1, "Missing testId"),
-});
+// using centralized schema from lib/validations/test.ts
 
 export async function getQuestionsByTestId(
   testId: string
 ): Promise<{ success: true; questions: Question[] } | { error: string }> {
-  const parsed = paramsSchema.safeParse({ testId });
+  const parsed = testIdSchema.safeParse(testId);
   if (!parsed.success) {
     return { error: "Invalid testId" };
   }

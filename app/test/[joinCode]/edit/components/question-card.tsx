@@ -8,8 +8,6 @@ import { normalizeSnakeCase } from "@/lib/text";
 import type { Question } from "@/types/question";
 
 export function QuestionCard({ question }: { question: Question }) {
-  // Use shared normalizer from lib/text
-
   return (
     <Card className="w-full">
       <CardHeader>

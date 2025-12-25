@@ -17,6 +17,3 @@ export type ParticipantFormValues = z.infer<typeof participantFormSchema>;
 export const participantIdSchema = z
   .string()
   .min(1, "Participant ID is required");
-
-// Schema for validating test id (server-side)
-export const participantTestIdSchema = z.string().min(1, "Test ID is required");

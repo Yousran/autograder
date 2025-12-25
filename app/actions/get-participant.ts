@@ -4,6 +4,7 @@ import { PrismaClient } from "@/lib/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import type { Participant } from "@/lib/generated/prisma/client";
 import { participantIdSchema } from "@/lib/validations/participant";
+import { testIdSchema } from "@/lib/validations/test";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -62,21 +63,8 @@ export async function getParticipantById(
 export async function getParticipantByTestId(
   testId: string
 ): Promise<{ success: true; participants: Participant[] } | { error: string }> {
-  if (!testId) {
-    return { error: "Missing testId" };
-  }
-
-  // validate testId using schema
-  try {
-    const { participantTestIdSchema } = await import(
-      "@/lib/validations/participant"
-    );
-    const parsed = participantTestIdSchema.safeParse(testId);
-    if (!parsed.success) return { error: "Invalid testId" };
-  } catch (err) {
-    console.error("Error validating testId:", err);
-    return { error: "Invalid testId" };
-  }
+  const parsed = testIdSchema.safeParse(testId);
+  if (!parsed.success) return { error: "Invalid testId" };
 
   try {
     const participants = await prisma.participant.findMany({
