@@ -2,28 +2,77 @@ import type {
   Test,
   Question,
   Participant,
+  EssayQuestion,
+  EssayAnswer,
+  ChoiceQuestion,
+  Choice,
+  ChoiceAnswer,
+  MultipleSelectQuestion,
+  MultipleSelectChoice,
+  MultipleSelectAnswer,
 } from "@/lib/generated/prisma/client";
 
-// Reusable type for questions with all possible answer types
-// export type QuestionWithAnswers = Question & {
-//   essay?: {
-//     id: string;
-//     answerText: string;
-//     isExactAnswer: boolean;
-//     maxScore: number;
-//   } | null;
-//   choice?: (Choice & { choices?: Choice[] }) | null;
-//   multipleSelect?:
-//     | (MultipleSelectChoice & {
-//         multipleSelectChoices?: MultipleSelectChoice[];
-//       })
-//     | null;
-// };
+// Question types for public access (without correct answers)
+export type PublicQuestionWithRelations = Question & {
+  essay?: {
+    id: string;
+    isExactAnswer: boolean;
+    maxScore: number;
+  } | null;
+  choice?: {
+    id: string;
+    isChoiceRandomized: boolean;
+    maxScore: number;
+    choices: { id: string; choiceText: string }[];
+  } | null;
+  multipleSelect?: {
+    id: string;
+    isChoiceRandomized: boolean;
+    maxScore: number;
+    multipleSelectChoices: { id: string; choiceText: string }[];
+  } | null;
+};
 
-// Full test with all relations
+// Question types for creator access (with correct answers and submissions)
+export type CreatorQuestionWithRelations = Question & {
+  essay?:
+    | (EssayQuestion & {
+        answers: EssayAnswer[];
+      })
+    | null;
+  choice?:
+    | (ChoiceQuestion & {
+        choices: Choice[];
+        answers: ChoiceAnswer[];
+      })
+    | null;
+  multipleSelect?:
+    | (MultipleSelectQuestion & {
+        multipleSelectChoices: MultipleSelectChoice[];
+        answers: MultipleSelectAnswer[];
+      })
+    | null;
+};
+
+// Participant type for creator access (with all answers)
+export type CreatorParticipantWithAnswers = Participant & {
+  essayAnswers: EssayAnswer[];
+  choiceAnswers: ChoiceAnswer[];
+  multipleSelectAnswers: MultipleSelectAnswer[];
+};
+
+// Public test (for participants joining) - without correct answers
 export type TestWithRelations = Test & {
-  questions: Question[];
+  questions: PublicQuestionWithRelations[];
   prerequisites: { prerequisiteTestId: string; minScoreRequired: number }[];
   user: { id: string; name?: string | null; email?: string | null };
   participants?: Pick<Participant, "id">[];
+};
+
+// Full test for creator access - with all correct answers and submissions
+export type CreatorTestWithRelations = Test & {
+  questions: CreatorQuestionWithRelations[];
+  prerequisites: { prerequisiteTestId: string; minScoreRequired: number }[];
+  user: { id: string; name?: string | null; email?: string | null };
+  participants: CreatorParticipantWithAnswers[];
 };
