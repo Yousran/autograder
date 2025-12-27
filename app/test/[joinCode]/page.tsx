@@ -1,5 +1,4 @@
-import { getTestByJoinCode } from "@/app/actions/get-test";
-import type { TestWithRelations } from "@/types/test";
+import { getTestByJoinCode } from "@/app/actions/test/get";
 import JoinClient from "./join-client";
 
 type Props = { params: { joinCode: string } | Promise<{ joinCode: string }> };
@@ -22,5 +21,5 @@ export default async function TestJoinPage({ params }: Props) {
 
   const { test } = res;
 
-  return <JoinClient test={test as TestWithRelations} />;
+  return <JoinClient test={test} />;
 }

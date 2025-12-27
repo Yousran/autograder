@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { getInitial } from "@/lib/text";
+import { createTest } from "@/app/actions/test/create";
 
 export default function Navbar() {
   const router = useRouter();
@@ -34,9 +35,7 @@ export default function Navbar() {
       </Label>
 
       <div className="flex items-center space-x-4">
-        {user && (
-          <Button onClick={() => router.push("/test/create")}>Make Test</Button>
-        )}
+        {user && <Button onClick={createTest}>Make Test</Button>}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

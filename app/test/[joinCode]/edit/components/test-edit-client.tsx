@@ -25,9 +25,9 @@ import {
 } from "@/components/ui/dialog";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
-import type { TestWithRelations } from "@/types/test";
+import { Test } from "@/lib/generated/prisma/client";
 
-export default function TestEditClient({ test }: { test: TestWithRelations }) {
+export default function TestEditClient({ test }: { test: Test }) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
   const [activeTab, setActiveTab] = useState("settings");
 

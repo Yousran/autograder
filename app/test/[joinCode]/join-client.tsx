@@ -25,10 +25,7 @@ import { authClient } from "@/lib/auth-client";
 import { createParticipant } from "@/app/actions/create-participant";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  participantFormSchema,
-  type ParticipantFormValues,
-} from "@/lib/validations/participant";
+
 import {
   Form,
   FormControl,
@@ -36,9 +33,9 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import type { TestWithRelations } from "@/types/test";
+import { Test } from "@/lib/generated/prisma/client";
 
-export default function JoinClient({ test }: { test: TestWithRelations }) {
+export default function JoinClient({ test }: { test: Test }) {
   const router = useRouter();
   const { data: session, isPending: isSessionLoading } =
     authClient.useSession();

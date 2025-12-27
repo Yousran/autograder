@@ -1,5 +1,4 @@
-import { creatorGetTestByJoinCode } from "@/app/actions/get-test";
-import type { TestWithRelations } from "@/types/test";
+import { getTestByJoinCode } from "@/app/actions/test/get";
 import TestEditClient from "./components/test-edit-client";
 
 type Props = { params: { joinCode: string } | Promise<{ joinCode: string }> };
@@ -8,7 +7,7 @@ export default async function TestEditPage({ params }: Props) {
   const resolvedParams = await params;
   const { joinCode } = resolvedParams;
 
-  const res = await creatorGetTestByJoinCode(joinCode);
+  const res = await getTestByJoinCode(joinCode);
 
   if ("error" in res) {
     return (
@@ -22,5 +21,5 @@ export default async function TestEditPage({ params }: Props) {
 
   const { test } = res;
 
-  return <TestEditClient test={test as TestWithRelations} />;
+  return <TestEditClient test={test} />;
 }
