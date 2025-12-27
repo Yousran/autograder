@@ -20,11 +20,11 @@ export const testSchema = z
       .optional(),
     startTime: z.coerce.date().optional(),
     endTime: z.coerce.date().optional(),
-    isAcceptingResponses: z.boolean().default(true),
-    loggedInUserOnly: z.boolean().default(false),
-    showDetailedScore: z.boolean().default(true),
-    showCorrectAnswers: z.boolean().default(false),
-    isQuestionsOrdered: z.boolean().default(false),
+    isAcceptingResponses: z.boolean().optional(),
+    loggedInUserOnly: z.boolean().optional(),
+    showDetailedScore: z.boolean().optional(),
+    showCorrectAnswers: z.boolean().optional(),
+    isQuestionsOrdered: z.boolean().optional(),
   })
   .refine(
     (data) => {
