@@ -54,6 +54,9 @@ export async function getTestByJoinCode(joinCode: string) {
       };
     }
 
+    // Check if user is the creator
+    const isCreator = session?.user?.id === test.creatorId;
+
     // Check if user is logged in when required
     if (test.loggedInUserOnly && !session?.user?.id) {
       return {
@@ -62,8 +65,8 @@ export async function getTestByJoinCode(joinCode: string) {
       };
     }
 
-    // Check if test is accepting responses
-    if (!test.isAcceptingResponses) {
+    // Check if test is accepting responses (skip for creator)
+    if (!test.isAcceptingResponses && !isCreator) {
       return {
         success: false,
         error: "This test is not accepting responses",

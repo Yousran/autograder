@@ -8,10 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { truncateWords, getInitial } from "@/lib/text";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  getUserCreatedTests,
-  getUserTakenTest,
-} from "@/app/actions/get-user-tests";
+import { getUserCreatedTests, getUserTakenTests } from "@/app/actions/user/get";
 
 type CreatedTest = {
   id: string;
@@ -51,17 +48,17 @@ export default function ProfilePage() {
       try {
         const [cRes, tRes] = await Promise.all([
           getUserCreatedTests(),
-          getUserTakenTest(),
+          getUserTakenTests(),
         ]);
 
         if (!mounted) return;
 
-        if (cRes?.success) setCreated(cRes.tests ?? []);
+        if (cRes?.success) setCreated(cRes.data ?? []);
         else if (cRes?.error) {
           console.error("getUserCreatedTests error:", cRes.error);
         }
 
-        if (tRes?.success) setTaken(tRes.taken ?? []);
+        if (tRes?.success) setTaken(tRes.participants ?? []);
         else if (tRes?.error) {
           console.error("getUserTakenTest error:", tRes.error);
         }

@@ -5,6 +5,7 @@ import { PrismaClient } from "@/lib/generated/prisma/client";
 import { headers } from "next/headers";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { testSchema, TestValidation } from "@/lib/validations/test";
+import { revalidatePath } from "next/cache";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -89,6 +90,9 @@ export async function editTest(
         }),
       },
     });
+
+    // Revalidate the test edit page to refresh the data
+    revalidatePath(`/test/${existingTest.joinCode}/edit`);
 
     return {
       success: true,

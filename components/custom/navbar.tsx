@@ -25,6 +25,13 @@ export default function Navbar() {
     router.push("/");
   };
 
+  const handleCreateTest = async () => {
+    const result = await createTest();
+    if (result.success && result.joinCode) {
+      router.push(`/test/${result.joinCode}/edit`);
+    }
+  };
+
   return (
     <nav className="w-full flex items-center justify-between p-4 shadow-sm bg-card text-foreground">
       <Label
@@ -35,7 +42,7 @@ export default function Navbar() {
       </Label>
 
       <div className="flex items-center space-x-4">
-        {user && <Button onClick={createTest}>Make Test</Button>}
+        {user && <Button onClick={handleCreateTest}>Make Test</Button>}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

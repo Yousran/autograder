@@ -13,15 +13,15 @@ export const testSchema = z
       .int()
       .positive("Test duration must be positive")
       .optional(),
-    startTime: z.coerce.date().optional(),
-    endTime: z.coerce.date().optional(),
-    isAcceptingResponses: z.boolean().default(true),
-    loggedInUserOnly: z.boolean().default(false),
     maxAttempts: z.coerce
       .number()
       .int()
       .positive("Max attempts must be positive")
       .optional(),
+    startTime: z.coerce.date().optional(),
+    endTime: z.coerce.date().optional(),
+    isAcceptingResponses: z.boolean().default(true),
+    loggedInUserOnly: z.boolean().default(false),
     showDetailedScore: z.boolean().default(true),
     showCorrectAnswers: z.boolean().default(false),
     isQuestionsOrdered: z.boolean().default(false),
