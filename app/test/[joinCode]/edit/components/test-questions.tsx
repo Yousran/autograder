@@ -8,15 +8,14 @@ import { Loader2, PlusIcon } from "lucide-react";
 import { QuestionCard } from "./question-card";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { Form } from "@/components/ui/form";
-import { toast } from "sonner";
 import { createQuestion } from "@/app/actions/question/create";
 import { deleteQuestion } from "@/app/actions/question/delete";
 import { getQuestionsByTestId } from "@/app/actions/question/get";
 import {
-  questionsFormSchema,
+  questionsSchema,
   transformPrismaToFormData,
   PrismaQuestionData,
-} from "@/types/question-form";
+} from "@/types/question";
 
 export function TestQuestions({ testId }: { testId: string }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +23,7 @@ export function TestQuestions({ testId }: { testId: string }) {
   const questionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const form = useForm({
-    resolver: zodResolver(questionsFormSchema),
+    resolver: zodResolver(questionsSchema),
     defaultValues: {
       questions: [],
     },
@@ -85,7 +84,7 @@ export function TestQuestions({ testId }: { testId: string }) {
         }
       }, 100);
 
-      toast.success("Question created");
+      console.log("Question created");
     });
   }, [testId, append, fields.length]);
 

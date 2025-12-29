@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import TiptapEditor from "@/components/custom/tiptap-editor";
-import { QuestionsFormData } from "@/types/question-form";
+import { QuestionsValidation } from "@/types/question";
 import { editQuestion } from "@/app/actions/question/edit";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -28,7 +28,7 @@ export function EssayQuestionCard({
   index,
   questionId,
 }: EssayQuestionCardProps) {
-  const { control, getValues } = useFormContext<QuestionsFormData>();
+  const { control, getValues } = useFormContext<QuestionsValidation>();
   const [isSaving, setIsSaving] = useState(false);
   const initialMount = useRef(true);
 

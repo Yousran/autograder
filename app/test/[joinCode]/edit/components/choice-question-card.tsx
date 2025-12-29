@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Plus, Trash2, Check } from "lucide-react";
 import TiptapEditor from "@/components/custom/tiptap-editor";
-import { QuestionsFormData } from "@/types/question-form";
+import { QuestionsValidation } from "@/types/question";
 import { editQuestion } from "@/app/actions/question/edit";
 import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
@@ -31,7 +31,7 @@ export function ChoiceQuestionCard({
   questionId,
 }: ChoiceQuestionCardProps) {
   const { control, getValues, watch, setValue } =
-    useFormContext<QuestionsFormData>();
+    useFormContext<QuestionsValidation>();
   const [isSaving, setIsSaving] = useState(false);
   const initialMount = useRef(true);
 

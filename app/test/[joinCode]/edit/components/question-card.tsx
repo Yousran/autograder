@@ -16,7 +16,7 @@ import { Loader2, Trash2 } from "lucide-react";
 import { EssayQuestionCard } from "./essay-question-card";
 import { ChoiceQuestionCard } from "./choice-question-card";
 import { MultipleSelectQuestionCard } from "./multiple-select-question-card";
-import { QuestionsFormData, QuestionFormData } from "@/types/question-form";
+import { QuestionsValidation, QuestionValidation } from "@/types/question";
 import { editQuestion } from "@/app/actions/question/edit";
 import { useCallback, useState } from "react";
 
@@ -26,7 +26,7 @@ type QuestionCardProps = {
 };
 
 export function QuestionCard({ index, onDelete }: QuestionCardProps) {
-  const { watch, setValue, getValues } = useFormContext<QuestionsFormData>();
+  const { watch, setValue, getValues } = useFormContext<QuestionsValidation>();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isChangingType, setIsChangingType] = useState(false);
 
@@ -41,7 +41,7 @@ export function QuestionCard({ index, onDelete }: QuestionCardProps) {
       const currentQuestion = getValues(`questions.${index}`);
 
       // Create updated question with proper typing
-      let updatedQuestion: QuestionFormData;
+      let updatedQuestion: QuestionValidation;
 
       if (newType === QuestionType.ESSAY) {
         updatedQuestion = {
