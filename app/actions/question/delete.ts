@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 export async function deleteQuestion(questionId: string) {
   try {
@@ -43,6 +44,9 @@ export async function deleteQuestion(questionId: string) {
     await prisma.question.delete({
       where: { id: questionId },
     });
+
+    // Revalidate the test edit page to refresh the questions list
+    revalidatePath(`/test/${question.test.joinCode}/edit`);
 
     return {
       success: true,
