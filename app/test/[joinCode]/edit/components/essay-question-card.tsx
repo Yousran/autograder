@@ -17,7 +17,6 @@ import { Loader2 } from "lucide-react";
 import TiptapEditor from "@/components/custom/tiptap-editor";
 import { QuestionsFormData } from "@/types/question-form";
 import { editQuestion } from "@/app/actions/question/edit";
-import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
 
 type EssayQuestionCardProps = {
@@ -43,7 +42,7 @@ export function EssayQuestionCard({
         const currentData = getValues(`questions.${index}`);
         const result = await editQuestion(questionId, currentData);
         if (!result.success) {
-          toast.error(result.error || "Failed to save question");
+          console.error(result.error);
         }
       } finally {
         setIsSaving(false);

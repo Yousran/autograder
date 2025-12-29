@@ -97,13 +97,13 @@ export function QuestionCard({ index, onDelete }: QuestionCardProps) {
           if (!result.success) {
             // Revert on failure
             setValue(`questions.${index}`, currentQuestion);
-            toast.error(result.error || "Failed to change question type");
+            console.error(result.error);
           } else {
-            toast.success("Question type changed");
+            console.log("Question type changed");
           }
         } catch {
           setValue(`questions.${index}`, currentQuestion);
-          toast.error("Failed to change question type");
+          console.error("Failed to change question type");
         }
       }
 

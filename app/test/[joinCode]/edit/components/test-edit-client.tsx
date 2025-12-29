@@ -35,7 +35,7 @@ export default function TestEditClient({ test }: { test: Test }) {
       const result = await editTest(test.id, { title: newTitle });
 
       if (!result.success) {
-        toast.error(result.error || "Failed to save title");
+        console.error(result.error);
       } else {
         router.refresh();
       }

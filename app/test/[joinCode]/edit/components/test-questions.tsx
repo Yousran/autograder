@@ -3,6 +3,7 @@
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, PlusIcon } from "lucide-react";
 import { QuestionCard } from "./question-card";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
@@ -46,10 +47,9 @@ export function TestQuestions({ testId }: { testId: string }) {
           );
           form.reset({ questions: formData });
         } else if (result.error) {
-          toast.error(result.error);
+          console.error(result.error);
         }
       } catch (error) {
-        toast.error("Failed to load questions");
         console.error("Error fetching questions:", error);
       } finally {
         setIsLoading(false);
@@ -66,7 +66,7 @@ export function TestQuestions({ testId }: { testId: string }) {
       const result = await createQuestion(testId);
 
       if (!result.success || !result.question) {
-        toast.error(result.error || "Failed to create question");
+        console.error(result.error);
         return;
       }
 
@@ -103,22 +103,18 @@ export function TestQuestions({ testId }: { testId: string }) {
       const result = await deleteQuestion(question.id);
 
       if (!result.success) {
-        toast.error(result.error || "Failed to delete question");
+        console.error(result.error);
         return;
       }
 
       remove(index);
-      toast.success("Question deleted");
+      console.log("Question deleted");
     },
     [form, remove]
   );
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <Skeleton className="h-32 w-full" />;
   }
 
   return (
@@ -145,7 +141,7 @@ export function TestQuestions({ testId }: { testId: string }) {
                 disabled={isCreating}
               >
                 {isCreating ? (
-                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <Loader2 className="h-12 w-12 stroke-4 stroke-accent-foreground md:stroke-accent animate-spin" />
                 ) : (
                   <PlusIcon className="h-12 w-12 stroke-4 stroke-accent-foreground md:stroke-accent" />
                 )}
@@ -160,7 +156,7 @@ export function TestQuestions({ testId }: { testId: string }) {
               disabled={isCreating}
             >
               {isCreating ? (
-                <Loader2 className="h-6 w-6 animate-spin" />
+                <Loader2 className="h-12 w-12 stroke-4 stroke-accent-foreground md:stroke-accent animate-spin" />
               ) : (
                 <PlusIcon className="h-12 w-12 stroke-4 stroke-accent-foreground md:stroke-accent" />
               )}

@@ -49,7 +49,7 @@ export function ChoiceQuestionCard({
       const currentData = getValues(`questions.${index}`);
       const result = await editQuestion(questionId, currentData);
       if (!result.success) {
-        toast.error(result.error || "Failed to save question");
+        console.error(result.error);
       }
     } finally {
       setIsSaving(false);
@@ -91,7 +91,7 @@ export function ChoiceQuestionCard({
   );
 
   const handleAddChoice = useCallback(() => {
-    append({ choiceText: "", isCorrect: false });
+    append({ choiceText: "option", isCorrect: false });
     if (questionId) {
       debouncedSave();
     }

@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebouncedCallback } from "use-debounce";
 import { useTransition } from "react";
-import { toast } from "sonner";
 
 import {
   Card,
@@ -54,7 +53,7 @@ export function TestSettings({ test }: { test: Test }) {
       const result = await editTest(test.id, data);
 
       if (!result.success) {
-        toast.error(result.error || "Failed to save changes");
+        console.error(result.error);
       }
     });
   };
