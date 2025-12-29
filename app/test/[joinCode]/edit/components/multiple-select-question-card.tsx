@@ -11,15 +11,14 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, Trash2, Check } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import TiptapEditor from "@/components/custom/tiptap-editor";
 import { QuestionsValidation } from "@/types/question";
 import { editQuestion } from "@/app/actions/question/edit";
 import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
-import { cn } from "@/lib/utils";
+import { ChoiceList } from "./choice-list";
 
 type MultipleSelectQuestionCardProps = {
   index: number;
@@ -30,7 +29,7 @@ export function MultipleSelectQuestionCard({
   index,
   questionId,
 }: MultipleSelectQuestionCardProps) {
-  const { control, getValues, watch, setValue } =
+  const { control, getValues, setValue } =
     useFormContext<QuestionsValidation>();
   const [isSaving, setIsSaving] = useState(false);
   const initialMount = useRef(true);
@@ -136,77 +135,15 @@ export function MultipleSelectQuestionCard({
       />
 
       {/* Choices */}
-      <div className="space-y-2">
-        <FormLabel>Choices</FormLabel>
-        <FormDescription>
-          Click on choices to mark multiple correct answers
-        </FormDescription>
-        <div className="space-y-2">
-          {fields.map((field, choiceIndex) => {
-            const isCorrect = watch(
-              `questions.${index}.choices.${choiceIndex}.isCorrect`
-            );
-
-            return (
-              <div key={field.id} className="flex items-center gap-2">
-                <FormField
-                  control={control}
-                  name={`questions.${index}.choices.${choiceIndex}.choiceText`}
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <button
-                          type="button"
-                          onClick={() => handleToggleCorrect(choiceIndex)}
-                          className={cn(
-                            "w-full p-4 border-2 rounded-md text-left transition-colors flex items-center gap-2",
-                            isCorrect
-                              ? "bg-green-100/10 border-green-500"
-                              : "bg-card border-secondary hover:border-primary"
-                          )}
-                        >
-                          <Input
-                            placeholder={`Option ${choiceIndex + 1}`}
-                            {...field}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) =>
-                              handleFieldChange(field.onChange)(e.target.value)
-                            }
-                            className="flex-1 border-none shadow-none focus-visible:ring-0 bg-transparent"
-                          />
-                          {isCorrect && (
-                            <Check className="w-5 h-5 text-green-500 shrink-0" />
-                          )}
-                        </button>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveChoice(choiceIndex)}
-                  disabled={fields.length <= 2}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            );
-          })}
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleAddChoice}
-          className="mt-2"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Choice
-        </Button>
-      </div>
+      <ChoiceList
+        questionIndex={index}
+        fields={fields}
+        description="Click on choices to mark multiple correct answers"
+        onChoiceClick={handleToggleCorrect}
+        onAddChoice={handleAddChoice}
+        onRemoveChoice={handleRemoveChoice}
+        onFieldChange={handleFieldChange}
+      />
 
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Max Score */}
