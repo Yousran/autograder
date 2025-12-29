@@ -1,17 +1,10 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { PrismaClient } from "@/lib/generated/prisma/client";
+import { prisma } from "@/lib/prisma";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 import { headers } from "next/headers";
-import { PrismaPg } from "@prisma/adapter-pg";
 import { questionSchema } from "@/lib/validations/question";
-
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
-});
-
-const prisma = new PrismaClient({ adapter });
 
 export async function createQuestion(testId: string) {
   try {

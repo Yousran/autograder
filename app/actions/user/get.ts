@@ -1,15 +1,8 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { PrismaClient } from "@/lib/generated/prisma/client";
+import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
-import { PrismaPg } from "@prisma/adapter-pg";
-
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
-});
-
-const prisma = new PrismaClient({ adapter });
 
 /**
  * Get all tests created by a user
