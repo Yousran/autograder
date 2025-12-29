@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   FormField,
   FormItem,
@@ -13,11 +13,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
 import TiptapEditor from "@/components/custom/tiptap-editor";
 import { QuestionsValidation } from "@/types/question";
 import { editQuestion } from "@/app/actions/question/edit";
 import { useDebouncedCallback } from "use-debounce";
+import { toast } from "sonner";
+import { useSyncTracker } from "../context/optimistic-context";
 
 type EssayQuestionCardProps = {
   index: number;
@@ -29,32 +30,36 @@ export function EssayQuestionCard({
   questionId,
 }: EssayQuestionCardProps) {
   const { control, getValues } = useFormContext<QuestionsValidation>();
-  const [isSaving, setIsSaving] = useState(false);
+  const { trackSync } = useSyncTracker();
   const initialMount = useRef(true);
 
-  // Debounced save function - no useTransition to avoid batching issues
+  // Debounced save function - optimistic UI with global sync tracking
   const debouncedSave = useDebouncedCallback(
     async () => {
       if (!questionId) return;
 
-      setIsSaving(true);
-      try {
-        const currentData = getValues(`questions.${index}`);
-        const result = await editQuestion(questionId, currentData);
-        if (!result.success) {
-          console.error(result.error);
-        }
-      } finally {
-        setIsSaving(false);
-      }
+      await trackSync(
+        `question-${questionId}`,
+        async () => {
+          const currentData = getValues(`questions.${index}`);
+          const result = await editQuestion(questionId, currentData);
+          if (!result.success) {
+            toast.error("Failed to save question");
+          }
+          return result;
+        },
+        "Saving question..."
+      );
     },
     1500 // 1.5 second debounce
   );
 
-  // Handle field change and trigger save
+  // Handle field change - immediate UI update, debounced server sync
   const handleFieldChange = useCallback(
     (onChange: (value: unknown) => void) => (value: unknown) => {
+      // Immediate UI update (optimistic)
       onChange(value);
+      // Debounced server sync
       if (!initialMount.current && questionId) {
         debouncedSave();
       }
@@ -75,10 +80,7 @@ export function EssayQuestionCard({
         name={`questions.${index}.questionText`}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-2">
-              Question
-              {isSaving && <Loader2 className="h-3 w-3 animate-spin" />}
-            </FormLabel>
+            <FormLabel>Question</FormLabel>
             <FormControl>
               <TiptapEditor
                 value={field.value}

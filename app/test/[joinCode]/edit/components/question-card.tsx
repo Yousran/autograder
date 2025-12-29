@@ -19,6 +19,7 @@ import { MultipleSelectQuestionCard } from "./multiple-select-question-card";
 import { QuestionsValidation, QuestionValidation } from "@/types/question";
 import { editQuestion } from "@/app/actions/question/edit";
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
 type QuestionCardProps = {
   index: number;
@@ -37,8 +38,8 @@ export function QuestionCard({ index, onDelete }: QuestionCardProps) {
     async (newType: QuestionType) => {
       if (newType === questionType || isChangingType) return;
 
-      setIsChangingType(true);
       const currentQuestion = getValues(`questions.${index}`);
+      const previousType = currentQuestion.type;
 
       // Create updated question with proper typing
       let updatedQuestion: QuestionValidation;
@@ -81,12 +82,15 @@ export function QuestionCard({ index, onDelete }: QuestionCardProps) {
         };
       }
 
-      // Update local form state first for responsive UI
+      // OPTIMISTIC: Update local form state immediately for responsive UI
       setValue(`questions.${index}`, updatedQuestion, {
         shouldValidate: false,
       });
 
-      // Sync to database if question exists
+      // Show loading state for server sync only
+      setIsChangingType(true);
+
+      // Sync to database if question exists (in background)
       if (currentQuestion.id) {
         try {
           const result = await editQuestion(
@@ -94,15 +98,15 @@ export function QuestionCard({ index, onDelete }: QuestionCardProps) {
             updatedQuestion
           );
           if (!result.success) {
-            // Revert on failure
+            // Rollback on failure
             setValue(`questions.${index}`, currentQuestion);
+            toast.error("Failed to change question type");
             console.error(result.error);
-          } else {
-            console.log("Question type changed");
           }
         } catch {
+          // Rollback on error
           setValue(`questions.${index}`, currentQuestion);
-          console.error("Failed to change question type");
+          toast.error("Failed to change question type");
         }
       }
 

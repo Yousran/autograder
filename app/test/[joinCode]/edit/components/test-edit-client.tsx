@@ -3,14 +3,12 @@
 import Navbar from "@/components/custom/navbar";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useState, useTransition } from "react";
+import { useState, useCallback } from "react";
 import { TestSettings } from "./test-settings";
 import { TestQuestions } from "./test-questions";
 import { TestParticipants } from "./test-participants";
 import { Button } from "@/components/ui/button";
 import { CopyIcon, QrCodeIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogTitle,
@@ -23,24 +21,47 @@ import { toast } from "sonner";
 import { Test } from "@/lib/generated/prisma/client";
 import { InlineTextEdit } from "@/components/custom/inline-text-edit";
 import { editTest } from "@/app/actions/test/edit";
+import { SyncStatusIndicator } from "./sync-status-indicator";
+import {
+  GlobalSyncProvider,
+  useGlobalSync,
+  useSyncTracker,
+} from "../context/optimistic-context";
 
-export default function TestEditClient({ test }: { test: Test }) {
-  const router = useRouter();
+function TestEditContent({ test }: { test: Test }) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
   const [activeTab, setActiveTab] = useState("settings");
-  const [isPending, startTransition] = useTransition();
+  const { globalStatus } = useGlobalSync();
+  const { trackSync } = useSyncTracker();
 
-  const handleSaveTitle = async (newTitle: string) => {
-    startTransition(async () => {
-      const result = await editTest(test.id, { title: newTitle });
+  // Optimistic state for title
+  const [optimisticTitle, setOptimisticTitle] = useState(test.title);
 
-      if (!result.success) {
-        console.error(result.error);
-      } else {
-        router.refresh();
-      }
-    });
-  };
+  const handleSaveTitle = useCallback(
+    async (newTitle: string) => {
+      // Store previous title for rollback
+      const previousTitle = optimisticTitle;
+
+      // Immediate optimistic update
+      setOptimisticTitle(newTitle);
+
+      // Track sync globally
+      await trackSync(
+        "title",
+        async () => {
+          const res = await editTest(test.id, { title: newTitle });
+          if (!res.success) {
+            // Rollback on failure
+            setOptimisticTitle(previousTitle);
+            toast.error(`Failed to save title: ${res.error}`);
+          }
+          return res;
+        },
+        "Saving title..."
+      );
+    },
+    [test.id, optimisticTitle, trackSync]
+  );
 
   return (
     <div className="max-w-screen min-h-screen flex flex-col">
@@ -50,14 +71,10 @@ export default function TestEditClient({ test }: { test: Test }) {
           <Card>
             <CardHeader>
               <CardTitle className="text-3xl font-semibold text-center overflow-ellipsis">
-                {isPending ? (
-                  <Skeleton className="h-8 w-48 mx-auto" />
-                ) : (
-                  <InlineTextEdit
-                    initialValue={test.title}
-                    onSave={handleSaveTitle}
-                  />
-                )}
+                <InlineTextEdit
+                  initialValue={optimisticTitle}
+                  onSave={handleSaveTitle}
+                />
               </CardTitle>
             </CardHeader>
             <CardFooter>
@@ -125,6 +142,26 @@ export default function TestEditClient({ test }: { test: Test }) {
           </Tabs>
         </div>
       </main>
+
+      {/* Floating sync status indicator */}
+      <div className="fixed bottom-6 left-6 z-50">
+        <Button
+          size="icon"
+          variant={globalStatus === "error" ? "destructive" : "secondary"}
+          className="h-12 w-12 rounded-full shadow-lg"
+          disabled
+        >
+          <SyncStatusIndicator status={globalStatus} showLabel={false} />
+        </Button>
+      </div>
     </div>
+  );
+}
+
+export default function TestEditClient({ test }: { test: Test }) {
+  return (
+    <GlobalSyncProvider>
+      <TestEditContent test={test} />
+    </GlobalSyncProvider>
   );
 }

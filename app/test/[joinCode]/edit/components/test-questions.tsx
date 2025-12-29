@@ -15,11 +15,15 @@ import {
   questionsSchema,
   transformPrismaToFormData,
   PrismaQuestionData,
+  getDefaultQuestionFormData,
+  QuestionValidation,
 } from "@/types/question";
+import { QuestionType } from "@/lib/generated/prisma/enums";
+import { toast } from "sonner";
 
 export function TestQuestions({ testId }: { testId: string }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [isCreating, startCreateTransition] = useTransition();
+  const [isCreating, setIsCreating] = useState(false);
   const questionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const form = useForm({
@@ -30,7 +34,7 @@ export function TestQuestions({ testId }: { testId: string }) {
     mode: "onChange",
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, insert } = useFieldArray({
     control: form.control,
     name: "questions",
   });
@@ -59,57 +63,91 @@ export function TestQuestions({ testId }: { testId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [testId]);
 
-  // Create a new question in the database and add to form
-  const handleAddQuestion = useCallback(() => {
-    startCreateTransition(async () => {
+  // Create a new question with optimistic UI
+  const handleAddQuestion = useCallback(async () => {
+    // Prevent multiple simultaneous creates
+    if (isCreating) return;
+
+    // 1) OPTIMISTIC: Immediately add a placeholder question to UI
+    const optimisticOrder = fields.length;
+    const optimisticData = getDefaultQuestionFormData(
+      QuestionType.CHOICE,
+      optimisticOrder
+    );
+
+    // Add with a temporary ID for tracking
+    const tempId = `temp-${Date.now()}`;
+    const optimisticQuestion = { ...optimisticData, id: tempId };
+    append(optimisticQuestion as QuestionValidation);
+
+    // Scroll to the new question immediately (optimistic feedback)
+    setTimeout(() => {
+      const el = questionRefs.current[optimisticOrder.toString()];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 50);
+
+    // 2) SYNC: Create on server in background
+    setIsCreating(true);
+
+    try {
       const result = await createQuestion(testId);
 
       if (!result.success || !result.question) {
-        console.error(result.error);
+        // Rollback: Remove the optimistic item on failure
+        remove(optimisticOrder);
+        toast.error(result.error || "Failed to create question");
         return;
       }
 
-      // Transform the created question to form data
-      const formData = transformPrismaToFormData(
+      // SUCCESS: Replace optimistic placeholder with real server data
+      const created = transformPrismaToFormData(
         result.question as PrismaQuestionData
       );
-      append(formData);
+      form.setValue(`questions.${optimisticOrder}`, created, {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
+    } catch (error) {
+      // Rollback on network error
+      remove(optimisticOrder);
+      toast.error("Failed to create question");
+      console.error(error);
+    } finally {
+      setIsCreating(false);
+    }
+  }, [testId, append, remove, fields.length, form, isCreating]);
 
-      // Scroll to the new question
-      setTimeout(() => {
-        const newIndex = fields.length;
-        const el = questionRefs.current[newIndex.toString()];
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }, 100);
-
-      console.log("Question created");
-    });
-  }, [testId, append, fields.length]);
-
-  // Delete a question from the database and remove from form
+  // Delete a question with optimistic UI and rollback on error
   const handleDeleteQuestion = useCallback(
     async (index: number) => {
-      const question = form.getValues(`questions.${index}`);
+      const current = form.getValues(`questions.${index}`);
 
-      if (!question.id) {
-        // Question doesn't exist in DB yet, just remove from form
-        remove(index);
-        return;
-      }
-
-      const result = await deleteQuestion(question.id);
-
-      if (!result.success) {
-        console.error(result.error);
-        return;
-      }
-
+      // OPTIMISTIC: Immediately remove from UI
       remove(index);
-      console.log("Question deleted");
+
+      // If not persisted yet (temp ID), nothing to sync
+      if (!current.id || current.id.startsWith("temp-")) {
+        return;
+      }
+
+      // SYNC: Delete on server in background
+      try {
+        const result = await deleteQuestion(current.id);
+        if (!result.success) {
+          // Rollback: Re-insert the question on failure
+          insert(index, current as QuestionValidation);
+          toast.error(result.error || "Failed to delete question");
+        }
+      } catch (error) {
+        // Rollback on network error
+        insert(index, current as QuestionValidation);
+        toast.error("Failed to delete question");
+        console.error(error);
+      }
     },
-    [form, remove]
+    [insert, remove, form]
   );
 
   if (isLoading) {

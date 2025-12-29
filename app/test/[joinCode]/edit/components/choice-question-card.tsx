@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormContext, useFieldArray } from "react-hook-form";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   FormField,
   FormItem,
@@ -12,13 +12,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Loader2 } from "lucide-react";
 import TiptapEditor from "@/components/custom/tiptap-editor";
 import { QuestionsValidation } from "@/types/question";
 import { editQuestion } from "@/app/actions/question/edit";
 import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
 import { ChoiceList } from "./choice-list";
+import { useSyncTracker } from "../context/optimistic-context";
 
 type ChoiceQuestionCardProps = {
   index: number;
@@ -31,7 +31,7 @@ export function ChoiceQuestionCard({
 }: ChoiceQuestionCardProps) {
   const { control, getValues, setValue } =
     useFormContext<QuestionsValidation>();
-  const [isSaving, setIsSaving] = useState(false);
+  const { trackSync } = useSyncTracker();
   const initialMount = useRef(true);
 
   const { fields, append, remove } = useFieldArray({
@@ -39,26 +39,30 @@ export function ChoiceQuestionCard({
     name: `questions.${index}.choices`,
   });
 
-  // Debounced save function
+  // Debounced save function - optimistic UI with global sync tracking
   const debouncedSave = useDebouncedCallback(async () => {
     if (!questionId) return;
 
-    setIsSaving(true);
-    try {
-      const currentData = getValues(`questions.${index}`);
-      const result = await editQuestion(questionId, currentData);
-      if (!result.success) {
-        console.error(result.error);
-      }
-    } finally {
-      setIsSaving(false);
-    }
+    await trackSync(
+      `question-${questionId}`,
+      async () => {
+        const currentData = getValues(`questions.${index}`);
+        const result = await editQuestion(questionId, currentData);
+        if (!result.success) {
+          toast.error("Failed to save question");
+        }
+        return result;
+      },
+      "Saving question..."
+    );
   }, 1500);
 
-  // Handle field change and trigger save
+  // Handle field change - immediate UI update, debounced server sync
   const handleFieldChange = useCallback(
     (onChange: (value: unknown) => void) => (value: unknown) => {
+      // Immediate UI update (optimistic)
       onChange(value);
+      // Debounced server sync
       if (!initialMount.current && questionId) {
         debouncedSave();
       }
@@ -74,7 +78,7 @@ export function ChoiceQuestionCard({
   // Handle selecting the correct answer (only one allowed for choice)
   const handleSelectCorrect = useCallback(
     (choiceIndex: number) => {
-      // Set all choices to incorrect first
+      // Immediate UI update (optimistic) - set all choices to incorrect first
       fields.forEach((_, i) => {
         setValue(
           `questions.${index}.choices.${i}.isCorrect`,
@@ -82,6 +86,7 @@ export function ChoiceQuestionCard({
           { shouldDirty: true }
         );
       });
+      // Debounced server sync
       if (!initialMount.current && questionId) {
         debouncedSave();
       }
@@ -90,7 +95,9 @@ export function ChoiceQuestionCard({
   );
 
   const handleAddChoice = useCallback(() => {
+    // Immediate UI update (optimistic)
     append({ choiceText: "option", isCorrect: false });
+    // Debounced server sync
     if (questionId) {
       debouncedSave();
     }
@@ -102,7 +109,9 @@ export function ChoiceQuestionCard({
         toast.error("At least 2 choices are required");
         return;
       }
+      // Immediate UI update (optimistic)
       remove(choiceIndex);
+      // Debounced server sync
       if (questionId) {
         debouncedSave();
       }
@@ -118,10 +127,7 @@ export function ChoiceQuestionCard({
         name={`questions.${index}.questionText`}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-2">
-              Question
-              {isSaving && <Loader2 className="h-3 w-3 animate-spin" />}
-            </FormLabel>
+            <FormLabel>Question</FormLabel>
             <FormControl>
               <TiptapEditor
                 value={field.value}

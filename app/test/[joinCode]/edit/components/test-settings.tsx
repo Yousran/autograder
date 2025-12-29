@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebouncedCallback } from "use-debounce";
-import { useTransition } from "react";
+import { useCallback, useRef } from "react";
 
 import {
   Card,
@@ -27,9 +27,13 @@ import {
 import { TestValidation, testSchema } from "@/lib/validations/test";
 import { Test } from "@/lib/generated/prisma/client";
 import { editTest } from "@/app/actions/test/edit";
+import { toast } from "sonner";
+import { useSyncTracker } from "../context/optimistic-context";
 
 export function TestSettings({ test }: { test: Test }) {
-  const [isPending, startTransition] = useTransition();
+  const { trackSync } = useSyncTracker();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const lastSavedRef = useRef<Record<string, any>>({});
 
   // 1. Initialize Form with Default Values from the DB 'test' object
   const form = useForm({
@@ -47,23 +51,49 @@ export function TestSettings({ test }: { test: Test }) {
     mode: "onChange",
   });
 
-  // 2. The Central Save Handler
-  const handleSave = (data: Partial<TestValidation>) => {
-    startTransition(async () => {
-      const result = await editTest(test.id, data);
+  // 2. The Central Save Handler with global sync tracking
+  const handleSave = useCallback(
+    async (field: keyof TestValidation, value: unknown) => {
+      const data = { [field]: value } as Partial<TestValidation>;
 
-      if (!result.success) {
-        console.error(result.error);
+      // Skip if value hasn't changed
+      if (lastSavedRef.current[field] === value) {
+        return;
       }
-    });
-  };
 
-  // 3. Debouncer for Text/Number Inputs (500ms delay)
+      // Track with global sync
+      await trackSync(
+        `setting-${field}`,
+        async () => {
+          const result = await editTest(test.id, data);
+          if (result.success) {
+            // Update last saved value
+            lastSavedRef.current[field] = value;
+          } else {
+            toast.error(`Failed to save: ${result.error}`);
+          }
+          return result;
+        },
+        `Saving ${field}...`
+      );
+    },
+    [test.id, trackSync]
+  );
+
+  // 3. Debouncer for Text/Number Inputs (1s delay for debounce, immediate UI update)
   const debouncedSave = useDebouncedCallback(
     (field: keyof TestValidation, value: unknown) => {
-      handleSave({ [field]: value });
+      handleSave(field, value);
     },
     1000
+  );
+
+  // Immediate save for switches (but still async)
+  const immediateSave = useCallback(
+    (field: keyof TestValidation, value: unknown) => {
+      handleSave(field, value);
+    },
+    [handleSave]
   );
 
   return (
@@ -71,9 +101,7 @@ export function TestSettings({ test }: { test: Test }) {
       <Card>
         <CardHeader>
           <CardTitle>Test Settings</CardTitle>
-          <CardDescription>
-            {isPending ? "Saving changes..." : "All changes saved"}
-          </CardDescription>
+          <CardDescription>All changes are saved automatically</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           {/* --- TEXT AREA: Description --- */}
@@ -90,7 +118,9 @@ export function TestSettings({ test }: { test: Test }) {
                     maxLength={500}
                     {...field}
                     onChange={(e) => {
+                      // Immediate UI update (optimistic)
                       field.onChange(e);
+                      // Debounced server sync
                       debouncedSave("description", e.target.value);
                     }}
                   />
@@ -112,22 +142,18 @@ export function TestSettings({ test }: { test: Test }) {
                     type="number"
                     placeholder="30"
                     min={1}
-                    // 1. Spread field props (onBlur, name, ref)
                     {...field}
-                    // 2. FIX: Safely handle the value.
-                    // If it's null/undefined, render empty string ""
                     value={(field.value ?? "") as string | number}
-                    // 3. Handle change manually to ensure it's treated as a number
                     onChange={(e) => {
                       const val =
                         e.target.value === ""
                           ? undefined
                           : Number(e.target.value);
 
-                      // Update RHF internal state
+                      // Immediate UI update (optimistic)
                       field.onChange(val);
 
-                      // Auto-save logic
+                      // Debounced server sync (only if valid)
                       const isValid =
                         !form.getFieldState("testDuration").invalid;
                       if (isValid) debouncedSave("testDuration", val);
@@ -159,10 +185,10 @@ export function TestSettings({ test }: { test: Test }) {
                           ? undefined
                           : Number(e.target.value);
 
-                      // Update RHF internal state
+                      // Immediate UI update (optimistic)
                       field.onChange(val);
 
-                      // Auto-save logic
+                      // Debounced server sync (only if valid)
                       const isValid =
                         !form.getFieldState("maxAttempts").invalid;
                       if (isValid) debouncedSave("maxAttempts", val);
@@ -174,7 +200,7 @@ export function TestSettings({ test }: { test: Test }) {
             )}
           />
 
-          {/* --- SWITCHES (Immediate Save) --- */}
+          {/* --- SWITCHES (Immediate UI Update, Async Save) --- */}
 
           <FormField
             control={form.control}
@@ -186,8 +212,10 @@ export function TestSettings({ test }: { test: Test }) {
                   <Switch
                     checked={field.value}
                     onCheckedChange={(checked) => {
+                      // Immediate UI update (optimistic)
                       field.onChange(checked);
-                      handleSave({ isAcceptingResponses: checked });
+                      // Async server sync
+                      immediateSave("isAcceptingResponses", checked);
                     }}
                   />
                 </FormControl>
@@ -207,8 +235,10 @@ export function TestSettings({ test }: { test: Test }) {
                   <Switch
                     checked={field.value}
                     onCheckedChange={(checked) => {
+                      // Immediate UI update (optimistic)
                       field.onChange(checked);
-                      handleSave({ loggedInUserOnly: checked });
+                      // Async server sync
+                      immediateSave("loggedInUserOnly", checked);
                     }}
                   />
                 </FormControl>
@@ -226,8 +256,10 @@ export function TestSettings({ test }: { test: Test }) {
                   <Switch
                     checked={field.value}
                     onCheckedChange={(checked) => {
+                      // Immediate UI update (optimistic)
                       field.onChange(checked);
-                      handleSave({ showDetailedScore: checked });
+                      // Async server sync
+                      immediateSave("showDetailedScore", checked);
                     }}
                   />
                 </FormControl>
@@ -247,8 +279,10 @@ export function TestSettings({ test }: { test: Test }) {
                   <Switch
                     checked={field.value}
                     onCheckedChange={(checked) => {
+                      // Immediate UI update (optimistic)
                       field.onChange(checked);
-                      handleSave({ showCorrectAnswers: checked });
+                      // Async server sync
+                      immediateSave("showCorrectAnswers", checked);
                     }}
                   />
                 </FormControl>
@@ -268,8 +302,10 @@ export function TestSettings({ test }: { test: Test }) {
                   <Switch
                     checked={field.value}
                     onCheckedChange={(checked) => {
+                      // Immediate UI update (optimistic)
                       field.onChange(checked);
-                      handleSave({ isQuestionsOrdered: checked });
+                      // Async server sync
+                      immediateSave("isQuestionsOrdered", checked);
                     }}
                   />
                 </FormControl>
