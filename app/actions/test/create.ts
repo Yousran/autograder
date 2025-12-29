@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
-import { encodeJoinCodeFromNumber } from "@/lib/feistelEncrypt";
+import { generateUniqueJoinCode } from "@/lib/feistelEncrypt";
 import { testSchema, TestValidation } from "@/lib/validations/test";
 
 export async function createTest() {
@@ -18,6 +18,9 @@ export async function createTest() {
         error: "Unauthorized",
       };
     }
+
+    // Generate unique join code first
+    const joinCode = await generateUniqueJoinCode();
 
     // Prepare default test data
     const defaultTestData: TestValidation = {
@@ -35,8 +38,8 @@ export async function createTest() {
     // Validate the test data
     const validatedData = testSchema.parse(defaultTestData);
 
-    // Create the test in the database
-    const test = await prisma.test.create({
+    // Create the test in the database with the generated join code
+    await prisma.test.create({
       data: {
         title: validatedData.title,
         description: validatedData.description,
@@ -50,18 +53,8 @@ export async function createTest() {
         showCorrectAnswers: validatedData.showCorrectAnswers,
         isQuestionsOrdered: validatedData.isQuestionsOrdered,
         creatorId: session.user.id,
-        joinCode: "",
+        joinCode,
       },
-    });
-
-    // Generate join code from the test ID
-    const numericId = parseInt(test.id.replace(/\D/g, "").slice(0, 10)) || 1;
-    const joinCode = encodeJoinCodeFromNumber(numericId);
-
-    // Update the test with the generated join code
-    await prisma.test.update({
-      where: { id: test.id },
-      data: { joinCode },
     });
 
     return {

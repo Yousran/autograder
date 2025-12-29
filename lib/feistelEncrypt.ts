@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+
 const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const BASE = CHARS.length;
 const CODE_LENGTH = 6;
@@ -35,4 +37,24 @@ export function encodeJoinCodeFromNumber(input: number): string {
   }
 
   return code;
+}
+
+// Generate a unique join code with collision retry
+export async function generateUniqueJoinCode(maxRetries = 10): Promise<string> {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    // Use current timestamp + random to generate a unique seed
+    const seed = Date.now() + Math.floor(Math.random() * 1_000_000);
+    const joinCode = encodeJoinCodeFromNumber(seed);
+
+    // Check if this code already exists
+    const existing = await prisma.test.findUnique({
+      where: { joinCode },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return joinCode;
+    }
+  }
+  throw new Error("Failed to generate unique join code after max retries");
 }
