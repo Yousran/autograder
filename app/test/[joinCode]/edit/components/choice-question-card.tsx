@@ -1,1 +1,258 @@
-// choice-question-card.tsx
+"use client";
+
+import { useFormContext, useFieldArray } from "react-hook-form";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Loader2, Plus, Trash2, Check } from "lucide-react";
+import TiptapEditor from "@/components/custom/tiptap-editor";
+import { QuestionsFormData } from "@/types/question-form";
+import { editQuestion } from "@/app/actions/question/edit";
+import { toast } from "sonner";
+import { useDebouncedCallback } from "use-debounce";
+import { cn } from "@/lib/utils";
+
+type ChoiceQuestionCardProps = {
+  index: number;
+  questionId?: string;
+};
+
+export function ChoiceQuestionCard({
+  index,
+  questionId,
+}: ChoiceQuestionCardProps) {
+  const { control, getValues, watch, setValue } =
+    useFormContext<QuestionsFormData>();
+  const [isSaving, setIsSaving] = useState(false);
+  const initialMount = useRef(true);
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: `questions.${index}.choices`,
+  });
+
+  // Debounced save function
+  const debouncedSave = useDebouncedCallback(async () => {
+    if (!questionId) return;
+
+    setIsSaving(true);
+    try {
+      const currentData = getValues(`questions.${index}`);
+      const result = await editQuestion(questionId, currentData);
+      if (!result.success) {
+        toast.error(result.error || "Failed to save question");
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }, 1500);
+
+  // Handle field change and trigger save
+  const handleFieldChange = useCallback(
+    (onChange: (value: unknown) => void) => (value: unknown) => {
+      onChange(value);
+      if (!initialMount.current && questionId) {
+        debouncedSave();
+      }
+    },
+    [questionId, debouncedSave]
+  );
+
+  // Mark initial mount as complete
+  useEffect(() => {
+    initialMount.current = false;
+  }, []);
+
+  // Handle selecting the correct answer (only one allowed for choice)
+  const handleSelectCorrect = useCallback(
+    (choiceIndex: number) => {
+      // Set all choices to incorrect first
+      fields.forEach((_, i) => {
+        setValue(
+          `questions.${index}.choices.${i}.isCorrect`,
+          i === choiceIndex,
+          { shouldDirty: true }
+        );
+      });
+      if (!initialMount.current && questionId) {
+        debouncedSave();
+      }
+    },
+    [fields, setValue, index, questionId, debouncedSave]
+  );
+
+  const handleAddChoice = useCallback(() => {
+    append({ choiceText: "", isCorrect: false });
+    if (questionId) {
+      debouncedSave();
+    }
+  }, [append, questionId, debouncedSave]);
+
+  const handleRemoveChoice = useCallback(
+    (choiceIndex: number) => {
+      if (fields.length <= 2) {
+        toast.error("At least 2 choices are required");
+        return;
+      }
+      remove(choiceIndex);
+      if (questionId) {
+        debouncedSave();
+      }
+    },
+    [fields.length, remove, questionId, debouncedSave]
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Question Text */}
+      <FormField
+        control={control}
+        name={`questions.${index}.questionText`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="flex items-center gap-2">
+              Question
+              {isSaving && <Loader2 className="h-3 w-3 animate-spin" />}
+            </FormLabel>
+            <FormControl>
+              <TiptapEditor
+                value={field.value}
+                onChange={handleFieldChange(field.onChange)}
+                placeholder="Enter your question here..."
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Choices */}
+      <div className="space-y-2">
+        <FormLabel>Choices</FormLabel>
+        <FormDescription>
+          Click on a choice to mark it as the correct answer
+        </FormDescription>
+        <div className="space-y-2">
+          {fields.map((field, choiceIndex) => {
+            const isCorrect = watch(
+              `questions.${index}.choices.${choiceIndex}.isCorrect`
+            );
+
+            return (
+              <div key={field.id} className="flex items-center gap-2">
+                <FormField
+                  control={control}
+                  name={`questions.${index}.choices.${choiceIndex}.choiceText`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectCorrect(choiceIndex)}
+                          className={cn(
+                            "w-full p-4 border-2 rounded-md text-left transition-colors flex items-center gap-2",
+                            isCorrect
+                              ? "bg-green-100/10 border-green-500"
+                              : "bg-card border-secondary hover:border-primary"
+                          )}
+                        >
+                          <Input
+                            placeholder={`Option ${choiceIndex + 1}`}
+                            {...field}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) =>
+                              handleFieldChange(field.onChange)(e.target.value)
+                            }
+                            className="flex-1 border-none shadow-none focus-visible:ring-0 bg-transparent"
+                          />
+                          {isCorrect && (
+                            <Check className="w-5 h-5 text-green-500 shrink-0" />
+                          )}
+                        </button>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleRemoveChoice(choiceIndex)}
+                  disabled={fields.length <= 2}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleAddChoice}
+          className="mt-2"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Choice
+        </Button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4">
+        {/* Max Score */}
+        <FormField
+          control={control}
+          name={`questions.${index}.maxScore`}
+          render={({ field }) => (
+            <FormItem className="flex-1">
+              <FormLabel>Max Score</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={1}
+                  {...field}
+                  onChange={(e) =>
+                    handleFieldChange(field.onChange)(Number(e.target.value))
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Randomize Choices Toggle */}
+        <FormField
+          control={control}
+          name={`questions.${index}.isChoiceRandomized`}
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm flex-1">
+              <div className="space-y-0.5">
+                <FormLabel>Randomize</FormLabel>
+                <FormDescription className="text-xs">
+                  Shuffle choice order
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value ?? false}
+                  onCheckedChange={handleFieldChange(field.onChange)}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      </div>
+    </div>
+  );
+}
