@@ -61,13 +61,16 @@ export async function editQuestion(
       };
     }
 
-    // Construct complete data object for validation based on existing type
+    // Determine the target type - prioritize incoming type if provided
+    const targetType = questionData.type ?? existingQuestion.type;
+    const isTypeChanging =
+      questionData.type && questionData.type !== existingQuestion.type;
+
+    // Construct complete data object for validation based on target type
     let dataToValidate: QuestionValidation;
 
-    if (
-      existingQuestion.type === QuestionType.ESSAY &&
-      existingQuestion.essay
-    ) {
+    if (targetType === QuestionType.ESSAY) {
+      // When changing to ESSAY, use incoming data; otherwise merge with existing
       const essayData =
         questionData.type === QuestionType.ESSAY ? questionData : {};
       dataToValidate = {
@@ -75,68 +78,93 @@ export async function editQuestion(
         questionText:
           questionData.questionText ?? existingQuestion.questionText,
         order: questionData.order ?? existingQuestion.order,
-        answerText: essayData.answerText ?? existingQuestion.essay.answerText,
-        isExactAnswer:
-          essayData.isExactAnswer ?? existingQuestion.essay.isExactAnswer,
-        maxScore:
-          essayData.maxScore ??
-          questionData.maxScore ??
-          existingQuestion.essay.maxScore,
+        answerText: isTypeChanging
+          ? essayData.answerText || "Enter your answer key here..."
+          : essayData.answerText ??
+            existingQuestion.essay?.answerText ??
+            "Enter your answer key here...",
+        isExactAnswer: isTypeChanging
+          ? essayData.isExactAnswer ?? false
+          : essayData.isExactAnswer ??
+            existingQuestion.essay?.isExactAnswer ??
+            false,
+        maxScore: isTypeChanging
+          ? essayData.maxScore ?? questionData.maxScore ?? 0
+          : essayData.maxScore ??
+            questionData.maxScore ??
+            existingQuestion.essay?.maxScore ??
+            0,
       };
-    } else if (
-      existingQuestion.type === QuestionType.CHOICE &&
-      existingQuestion.choice
-    ) {
+    } else if (targetType === QuestionType.CHOICE) {
+      // When changing to CHOICE, use incoming data; otherwise merge with existing
       const choiceData =
         questionData.type === QuestionType.CHOICE ? questionData : {};
+      const defaultChoices = [
+        { choiceText: "Option 1", isCorrect: true },
+        { choiceText: "Option 2", isCorrect: false },
+      ];
       dataToValidate = {
         type: QuestionType.CHOICE,
         questionText:
           questionData.questionText ?? existingQuestion.questionText,
         order: questionData.order ?? existingQuestion.order,
-        isChoiceRandomized:
-          choiceData.isChoiceRandomized ??
-          existingQuestion.choice.isChoiceRandomized,
-        maxScore:
-          choiceData.maxScore ??
-          questionData.maxScore ??
-          existingQuestion.choice.maxScore,
-        choices:
-          choiceData.choices ??
-          existingQuestion.choice.choices.map((c) => ({
-            choiceText: c.choiceText,
-            isCorrect: c.isCorrect,
-          })),
+        isChoiceRandomized: isTypeChanging
+          ? choiceData.isChoiceRandomized ?? false
+          : choiceData.isChoiceRandomized ??
+            existingQuestion.choice?.isChoiceRandomized ??
+            false,
+        maxScore: isTypeChanging
+          ? choiceData.maxScore ?? questionData.maxScore ?? 0
+          : choiceData.maxScore ??
+            questionData.maxScore ??
+            existingQuestion.choice?.maxScore ??
+            0,
+        choices: isTypeChanging
+          ? choiceData.choices ?? defaultChoices
+          : choiceData.choices ??
+            existingQuestion.choice?.choices.map((c) => ({
+              choiceText: c.choiceText,
+              isCorrect: c.isCorrect,
+            })) ??
+            defaultChoices,
       };
-    } else if (
-      existingQuestion.type === QuestionType.MULTIPLE_SELECT &&
-      existingQuestion.multipleSelect
-    ) {
+    } else if (targetType === QuestionType.MULTIPLE_SELECT) {
+      // When changing to MULTIPLE_SELECT, use incoming data; otherwise merge with existing
       const multipleSelectData =
         questionData.type === QuestionType.MULTIPLE_SELECT ? questionData : {};
+      const defaultChoices = [
+        { choiceText: "Option 1", isCorrect: true },
+        { choiceText: "Option 2", isCorrect: false },
+      ];
       dataToValidate = {
         type: QuestionType.MULTIPLE_SELECT,
         questionText:
           questionData.questionText ?? existingQuestion.questionText,
         order: questionData.order ?? existingQuestion.order,
-        isChoiceRandomized:
-          multipleSelectData.isChoiceRandomized ??
-          existingQuestion.multipleSelect.isChoiceRandomized,
-        maxScore:
-          multipleSelectData.maxScore ??
-          questionData.maxScore ??
-          existingQuestion.multipleSelect.maxScore,
-        choices:
-          multipleSelectData.choices ??
-          existingQuestion.multipleSelect.multipleSelectChoices.map((c) => ({
-            choiceText: c.choiceText,
-            isCorrect: c.isCorrect,
-          })),
+        isChoiceRandomized: isTypeChanging
+          ? multipleSelectData.isChoiceRandomized ?? false
+          : multipleSelectData.isChoiceRandomized ??
+            existingQuestion.multipleSelect?.isChoiceRandomized ??
+            false,
+        maxScore: isTypeChanging
+          ? multipleSelectData.maxScore ?? questionData.maxScore ?? 0
+          : multipleSelectData.maxScore ??
+            questionData.maxScore ??
+            existingQuestion.multipleSelect?.maxScore ??
+            0,
+        choices: isTypeChanging
+          ? multipleSelectData.choices ?? defaultChoices
+          : multipleSelectData.choices ??
+            existingQuestion.multipleSelect?.multipleSelectChoices.map((c) => ({
+              choiceText: c.choiceText,
+              isCorrect: c.isCorrect,
+            })) ??
+            defaultChoices,
       };
     } else {
       return {
         success: false,
-        error: "Invalid question type or missing type-specific data",
+        error: "Invalid question type",
       };
     }
 

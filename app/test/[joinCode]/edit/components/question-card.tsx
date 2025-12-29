@@ -50,7 +50,7 @@ export function QuestionCard({ index, onDelete }: QuestionCardProps) {
           questionText: currentQuestion.questionText,
           order: currentQuestion.order,
           maxScore: currentQuestion.maxScore,
-          answerText: "",
+          answerText: "Enter your answer key here...",
           isExactAnswer: false,
           ...(currentQuestion.id && { id: currentQuestion.id }),
         };
