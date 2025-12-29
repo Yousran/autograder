@@ -29,6 +29,8 @@ export async function createTest() {
     // Prepare default test data
     const defaultTestData: TestValidation = {
       title: "Untitled Test",
+      testDuration: 30,
+      maxAttempts: 1,
       description: "",
       isAcceptingResponses: true,
       loggedInUserOnly: false,

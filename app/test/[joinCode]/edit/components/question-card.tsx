@@ -19,7 +19,6 @@ import { MultipleSelectQuestionCard } from "./multiple-select-question-card";
 import { QuestionsFormData, QuestionFormData } from "@/types/question-form";
 import { editQuestion } from "@/app/actions/question/edit";
 import { useCallback, useState } from "react";
-import { toast } from "sonner";
 
 type QuestionCardProps = {
   index: number;

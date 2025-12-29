@@ -36,8 +36,8 @@ export function TestSettings({ test }: { test: Test }) {
     resolver: zodResolver(testSchema),
     defaultValues: {
       description: test.description || undefined,
-      testDuration: test.testDuration || undefined,
-      maxAttempts: test.maxAttempts || undefined,
+      testDuration: test.testDuration,
+      maxAttempts: test.maxAttempts,
       isAcceptingResponses: test.isAcceptingResponses,
       loggedInUserOnly: test.loggedInUserOnly,
       showDetailedScore: test.showDetailedScore,
