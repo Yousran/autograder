@@ -10,6 +10,8 @@ export const participantSchema = z.object({
     .max(255, "Name must be less than 255 characters"),
 });
 
+export type ParticipantValidation = z.infer<typeof participantSchema>;
+
 // Schema for joining a test (using join code instead of testId)
 export const participantJoinSchema = z.object({
   joinCode: z.string().min(1, "Join code is required"),
@@ -18,3 +20,5 @@ export const participantJoinSchema = z.object({
     .min(1, "Name is required")
     .max(255, "Name must be less than 255 characters"),
 });
+
+export type ParticipantJoinValidation = z.infer<typeof participantJoinSchema>;
