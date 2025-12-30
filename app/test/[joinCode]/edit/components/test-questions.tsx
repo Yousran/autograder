@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, PlusIcon } from "lucide-react";
 import { QuestionCard } from "./question-card";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Form } from "@/components/ui/form";
 import { createQuestion } from "@/app/actions/question/create";
 import { deleteQuestion } from "@/app/actions/question/delete";
@@ -64,60 +64,106 @@ export function TestQuestions({ testId }: { testId: string }) {
   }, [testId]);
 
   // Create a new question with optimistic UI
-  const handleAddQuestion = useCallback(async () => {
-    // Prevent multiple simultaneous creates
-    if (isCreating) return;
+  // When insertAtIndex is provided, inserts at that position; otherwise appends at the end
+  const handleAddQuestion = useCallback(
+    async (insertAtIndex?: number) => {
+      // Prevent multiple simultaneous creates
+      if (isCreating) return;
 
-    // 1) OPTIMISTIC: Immediately add a placeholder question to UI
-    const optimisticOrder = fields.length;
-    const optimisticData = getDefaultQuestionFormData(
-      QuestionType.CHOICE,
-      optimisticOrder
-    );
+      // Determine target position: insert at specific index or append at end
+      const targetIndex =
+        insertAtIndex !== undefined ? insertAtIndex : fields.length;
 
-    // Add with a temporary ID for tracking
-    const tempId = `temp-${Date.now()}`;
-    const optimisticQuestion = { ...optimisticData, id: tempId };
-    append(optimisticQuestion as QuestionValidation);
-
-    // Scroll to the new question immediately (optimistic feedback)
-    setTimeout(() => {
-      const el = questionRefs.current[optimisticOrder.toString()];
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }, 50);
-
-    // 2) SYNC: Create on server in background
-    setIsCreating(true);
-
-    try {
-      const result = await createQuestion(testId);
-
-      if (!result.success || !result.question) {
-        // Rollback: Remove the optimistic item on failure
-        remove(optimisticOrder);
-        toast.error(result.error || "Failed to create question");
-        return;
-      }
-
-      // SUCCESS: Replace optimistic placeholder with real server data
-      const created = transformPrismaToFormData(
-        result.question as PrismaQuestionData
+      // 1) OPTIMISTIC: Immediately add a placeholder question to UI
+      const optimisticData = getDefaultQuestionFormData(
+        QuestionType.CHOICE,
+        targetIndex
       );
-      form.setValue(`questions.${optimisticOrder}`, created, {
-        shouldValidate: false,
-        shouldDirty: false,
-      });
-    } catch (error) {
-      // Rollback on network error
-      remove(optimisticOrder);
-      toast.error("Failed to create question");
-      console.error(error);
-    } finally {
-      setIsCreating(false);
-    }
-  }, [testId, append, remove, fields.length, form, isCreating]);
+
+      // Add with a temporary ID for tracking
+      const tempId = `temp-${Date.now()}`;
+      const optimisticQuestion = { ...optimisticData, id: tempId };
+
+      if (insertAtIndex !== undefined) {
+        // Insert at specific position and update orders for subsequent questions
+        insert(insertAtIndex, optimisticQuestion as QuestionValidation);
+
+        // Update orders for subsequent questions in the form state
+        const currentQuestions = form.getValues("questions");
+        for (let i = insertAtIndex + 1; i < currentQuestions.length; i++) {
+          form.setValue(`questions.${i}.order`, i, {
+            shouldValidate: false,
+            shouldDirty: false,
+          });
+        }
+      } else {
+        append(optimisticQuestion as QuestionValidation);
+      }
+
+      // Scroll to the new question immediately (optimistic feedback)
+      setTimeout(() => {
+        const el = questionRefs.current[targetIndex.toString()];
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 50);
+
+      // 2) SYNC: Create on server in background
+      setIsCreating(true);
+
+      try {
+        const result = await createQuestion(testId, insertAtIndex);
+
+        if (!result.success || !result.question) {
+          // Rollback: Remove the optimistic item on failure
+          remove(targetIndex);
+
+          // Rollback orders for subsequent questions if we inserted
+          if (insertAtIndex !== undefined) {
+            const currentQuestions = form.getValues("questions");
+            for (let i = insertAtIndex; i < currentQuestions.length; i++) {
+              form.setValue(`questions.${i}.order`, i, {
+                shouldValidate: false,
+                shouldDirty: false,
+              });
+            }
+          }
+
+          toast.error(result.error || "Failed to create question");
+          return;
+        }
+
+        // SUCCESS: Replace optimistic placeholder with real server data
+        const created = transformPrismaToFormData(
+          result.question as PrismaQuestionData
+        );
+        form.setValue(`questions.${targetIndex}`, created, {
+          shouldValidate: false,
+          shouldDirty: false,
+        });
+      } catch (error) {
+        // Rollback on network error
+        remove(targetIndex);
+
+        // Rollback orders for subsequent questions if we inserted
+        if (insertAtIndex !== undefined) {
+          const currentQuestions = form.getValues("questions");
+          for (let i = insertAtIndex; i < currentQuestions.length; i++) {
+            form.setValue(`questions.${i}.order`, i, {
+              shouldValidate: false,
+              shouldDirty: false,
+            });
+          }
+        }
+
+        toast.error("Failed to create question");
+        console.error(error);
+      } finally {
+        setIsCreating(false);
+      }
+    },
+    [testId, append, insert, remove, fields.length, form, isCreating]
+  );
 
   // Delete a question with optimistic UI and rollback on error
   const handleDeleteQuestion = useCallback(
@@ -174,7 +220,7 @@ export function TestQuestions({ testId }: { testId: string }) {
               <Button
                 type="button"
                 className="w-full bg-secondary md:h-2 md:bg-secondary md:dark:bg-card md:hover:h-12 md:hover:bg-primary md:hover:dark:bg-primary border"
-                onClick={handleAddQuestion}
+                onClick={() => handleAddQuestion(index + 1)}
                 disabled={isCreating}
               >
                 {isCreating ? (
@@ -189,7 +235,7 @@ export function TestQuestions({ testId }: { testId: string }) {
             <Button
               type="button"
               className="w-full bg-secondary md:h-12 md:bg-secondary md:dark:bg-card md:hover:bg-primary md:hover:dark:bg-primary border"
-              onClick={handleAddQuestion}
+              onClick={() => handleAddQuestion()}
               disabled={isCreating}
             >
               {isCreating ? (

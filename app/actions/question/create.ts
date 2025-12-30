@@ -6,7 +6,12 @@ import { QuestionType } from "@/lib/generated/prisma/enums";
 import { headers } from "next/headers";
 import { questionSchema } from "@/lib/validations/question";
 
-export async function createQuestion(testId: string) {
+/**
+ * Creates a new question for a test
+ * @param testId - The ID of the test to add the question to
+ * @param insertAtIndex - Optional index to insert the question at. If provided, all questions at and after this index will have their order incremented.
+ */
+export async function createQuestion(testId: string, insertAtIndex?: number) {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -38,20 +43,38 @@ export async function createQuestion(testId: string) {
       };
     }
 
-    // Get the current max order for questions in this test
-    const maxOrderQuestion = await prisma.question.findFirst({
-      where: { testId },
-      orderBy: { order: "desc" },
-      select: { order: true },
-    });
+    let targetOrder: number;
 
-    const nextOrder = (maxOrderQuestion?.order ?? -1) + 1;
+    if (insertAtIndex !== undefined && insertAtIndex >= 0) {
+      // Insert at specific index: shift all questions at and after this index
+      targetOrder = insertAtIndex;
+
+      // Increment order for all questions at or after the target index
+      await prisma.question.updateMany({
+        where: {
+          testId,
+          order: { gte: targetOrder },
+        },
+        data: {
+          order: { increment: 1 },
+        },
+      });
+    } else {
+      // Append at end: get the current max order
+      const maxOrderQuestion = await prisma.question.findFirst({
+        where: { testId },
+        orderBy: { order: "desc" },
+        select: { order: true },
+      });
+
+      targetOrder = (maxOrderQuestion?.order ?? -1) + 1;
+    }
 
     // Prepare default question data for CHOICE type
     const defaultQuestionData = {
       type: QuestionType.CHOICE,
       questionText: "Untitled Question",
-      order: nextOrder,
+      order: targetOrder,
       isChoiceRandomized: false,
       maxScore: 10,
       choices: [
