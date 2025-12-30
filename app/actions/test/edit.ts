@@ -4,7 +4,6 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { testSchema, TestValidation } from "@/lib/validations/test";
-import { revalidatePath } from "next/cache";
 
 export async function editTest(
   testId: string,
@@ -83,9 +82,6 @@ export async function editTest(
         }),
       },
     });
-
-    // Revalidate the test edit page to refresh the data
-    revalidatePath(`/test/${existingTest.joinCode}/edit`);
 
     return {
       success: true,

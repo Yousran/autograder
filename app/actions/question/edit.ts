@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { QuestionType } from "@/lib/generated/prisma/client";
 import { headers } from "next/headers";
 import { questionSchema, QuestionValidation } from "@/lib/validations/question";
-import { revalidatePath } from "next/cache";
 
 export async function editQuestion(
   questionId: string,
@@ -305,9 +304,6 @@ export async function editQuestion(
         },
       });
     }
-
-    // Revalidate the test edit page to refresh the questions list
-    revalidatePath(`/test/${existingQuestion.test.joinCode}/edit`);
 
     return {
       success: true,

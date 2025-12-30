@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 import { headers } from "next/headers";
 import { questionSchema } from "@/lib/validations/question";
-import { revalidatePath } from "next/cache";
 
 export async function createQuestion(testId: string) {
   try {
@@ -96,9 +95,6 @@ export async function createQuestion(testId: string) {
         },
       },
     });
-
-    // Revalidate the test edit page to refresh the questions list
-    revalidatePath(`/test/${test.joinCode}/edit`);
 
     return {
       success: true,
