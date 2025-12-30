@@ -3,20 +3,20 @@ import { Check } from "lucide-react";
 
 type ChoiceProps = {
   isCorrect: boolean;
-  choiceText: string;
+  children: React.ReactNode;
 };
 
-const ChoiceComponent: React.FC<ChoiceProps> = ({ isCorrect, choiceText }) => {
+const ChoiceComponent: React.FC<ChoiceProps> = ({ isCorrect, children }) => {
   return (
     <div
-      className={`p-4 border rounded-md ${
+      className={`p-4 border rounded-md w-full ${
         isCorrect
           ? "bg-green-100/10 border-green-500"
           : "bg-card border-secondary border-2"
       }`}
     >
-      <div className="flex items-center">
-        <span className="grow">{choiceText}</span>
+      <div className="flex items-center gap-2">
+        {children}
         {isCorrect && (
           <span className="text-green-500 ml-2">
             <Check className="w-5 h-5" />

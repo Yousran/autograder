@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Check } from "lucide-react";
 import { QuestionsValidation } from "@/types/question";
-import { cn } from "@/lib/utils";
+import ChoiceComponent from "@/components/custom/choice";
 
 type ChoiceField = {
   id: string;
@@ -56,40 +56,36 @@ export function ChoiceList({
 
           return (
             <div key={field.id} className="flex items-center gap-2">
-              <FormField
-                control={control}
-                name={`questions.${questionIndex}.choices.${choiceIndex}.choiceText`}
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormControl>
-                      <button
-                        type="button"
-                        onClick={() => onChoiceClick(choiceIndex)}
-                        className={cn(
-                          "w-full p-4 border-2 rounded-md text-left transition-colors flex items-center gap-2",
-                          isCorrect
-                            ? "bg-green-100/10 border-green-500"
-                            : "bg-card border-secondary hover:border-primary"
-                        )}
-                      >
+              <ChoiceComponent isCorrect={isCorrect}>
+                <Button
+                  type="button"
+                  variant={isCorrect ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => onChoiceClick(choiceIndex)}
+                  className="shrink-0"
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <FormField
+                  control={control}
+                  name={`questions.${questionIndex}.choices.${choiceIndex}.choiceText`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
                         <Input
                           placeholder={`Option ${choiceIndex + 1}`}
                           {...field}
-                          onClick={(e) => e.stopPropagation()}
                           onChange={(e) =>
                             onFieldChange(field.onChange)(e.target.value)
                           }
                           className="flex-1 border-none shadow-none focus-visible:ring-0 bg-transparent"
                         />
-                        {isCorrect && (
-                          <Check className="w-5 h-5 text-green-500 shrink-0" />
-                        )}
-                      </button>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </ChoiceComponent>
               <Button
                 type="button"
                 variant="ghost"
