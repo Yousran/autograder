@@ -138,7 +138,7 @@ export default function ParticipantResultEditPage() {
         toast.error("An error occurred while updating the score");
       }
     },
-    [questions, data]
+    [questions, participantId]
   );
 
   if (error && !isCreator) {

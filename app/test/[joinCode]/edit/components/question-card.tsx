@@ -39,7 +39,6 @@ export function QuestionCard({ index, onDelete }: QuestionCardProps) {
       if (newType === questionType || isChangingType) return;
 
       const currentQuestion = getValues(`questions.${index}`);
-      const previousType = currentQuestion.type;
 
       // Create updated question with proper typing
       let updatedQuestion: QuestionValidation;
