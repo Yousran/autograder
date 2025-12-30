@@ -51,7 +51,7 @@ export default function Home() {
 
   const handleScan = (codes: { rawValue: string }[]) => {
     const code = codes[0]?.rawValue;
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    const siteUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
     if (!code || !siteUrl) return;
 

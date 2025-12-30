@@ -29,7 +29,7 @@ import {
 } from "../context/optimistic-context";
 
 function TestEditContent({ test }: { test: Test }) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
   const [activeTab, setActiveTab] = useState("settings");
   const { globalStatus } = useGlobalSync();
   const { trackSync } = useSyncTracker();
