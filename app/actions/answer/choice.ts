@@ -34,6 +34,13 @@ export async function updateChoiceAnswer(input: UpdateChoiceAnswerInput) {
       };
     }
 
+    if (participant.isCompleted) {
+      return {
+        success: false,
+        error: "Test has been completed and answers cannot be modified",
+      };
+    }
+
     // Check if the answer belongs to the participant
     const answer = await prisma.choiceAnswer.findUnique({
       where: { id: answerId },

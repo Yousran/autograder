@@ -52,6 +52,13 @@ export async function updateEssayAnswer(input: UpdateEssayAnswerInput) {
       };
     }
 
+    if (participant.isCompleted) {
+      return {
+        success: false,
+        error: "Test has been completed and answers cannot be modified",
+      };
+    }
+
     if (!answer || answer.participantId !== participantId) {
       return {
         success: false,

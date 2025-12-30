@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 import { getParticipantTestData } from "@/app/actions/participant/get-test-data";
+import { completeParticipantTest } from "@/app/actions/participant/complete";
 import {
   updateEssayAnswer,
   updateChoiceAnswer,
@@ -209,6 +210,15 @@ export default function StartPageClient({
 
     setIsLoading(true);
     devLog("Ending test...");
+
+    // Mark test as completed
+    const result = await completeParticipantTest(data.participant.id);
+    if (!result.success) {
+      toast.error(result.error || "Failed to complete test");
+      setIsLoading(false);
+      return;
+    }
+
     router.push(`/test/result/${data.participant.id}`);
     devLog("Redirecting to result page...");
   }, [data, router]);

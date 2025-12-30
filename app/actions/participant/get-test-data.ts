@@ -33,6 +33,14 @@ export async function getParticipantTestData(participantId: string): Promise<{
       };
     }
 
+    // Check if test is already completed
+    if (participant.isCompleted) {
+      return {
+        success: false,
+        error: "Test has already been completed. You can view your results.",
+      };
+    }
+
     const test = participant.test;
 
     // Get all questions for this test with their answers

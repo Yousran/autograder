@@ -41,6 +41,13 @@ export async function updateMultipleSelectAnswer(
       };
     }
 
+    if (participant.isCompleted) {
+      return {
+        success: false,
+        error: "Test has been completed and answers cannot be modified",
+      };
+    }
+
     if (!existingAnswer || existingAnswer.participantId !== participantId) {
       return {
         success: false,
