@@ -20,6 +20,21 @@ export {
   type QuestionsValidation,
 };
 
+// Choice types for use in components
+export interface Choice {
+  id: string;
+  questionId: string;
+  choiceText: string;
+  isCorrect: boolean;
+}
+
+export interface MultipleSelectChoice {
+  id: string;
+  questionId: string;
+  choiceText: string;
+  isCorrect: boolean;
+}
+
 // Helper type for transforming Prisma data to form data
 export interface PrismaQuestionData {
   id: string;
