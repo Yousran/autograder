@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getParticipantResult } from "@/app/actions/participant/result";
+import { getNextTests, type NextTestInfo } from "@/app/actions/prerequisite";
 import { authClient } from "@/lib/auth-client";
+import { ArrowRight, Lock } from "lucide-react";
 
 interface ParticipantData {
   id: string;
@@ -29,6 +31,7 @@ export default function ResultPage() {
   const { participantId } = useParams<{ participantId: string }>();
   const [participant, setParticipant] = useState<ParticipantData | null>(null);
   const [test, setTest] = useState<TestData | null>(null);
+  const [nextTests, setNextTests] = useState<NextTestInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const { data: session } = authClient.useSession();
 
@@ -41,6 +44,17 @@ export default function ResultPage() {
         if (result.success && result.data) {
           setParticipant(result.data.participant);
           setTest(result.data.test);
+
+          // Fetch next tests if user is logged in
+          if (session?.user?.id) {
+            const nextTestsResult = await getNextTests(
+              result.data.test.id,
+              result.data.participant.score
+            );
+            if (nextTestsResult.success && nextTestsResult.nextTests) {
+              setNextTests(nextTestsResult.nextTests);
+            }
+          }
         } else {
           console.error("Error fetching participant data:", result.error);
         }
@@ -51,7 +65,7 @@ export default function ResultPage() {
       }
     };
     fetchParticipantData();
-  }, [participantId]);
+  }, [participantId, session?.user?.id]);
 
   const canSeeDetails = isCreator || test?.showDetailedScore;
 
@@ -98,6 +112,38 @@ export default function ResultPage() {
         >
           Grade Answers
         </Button>
+      )}
+
+      {/* Continue to Next Test buttons - visible when there are next tests */}
+      {!loading && nextTests.length > 0 && (
+        <div className="w-full max-w-md flex flex-col gap-2">
+          <Label className="text-sm text-muted-foreground text-center">
+            Continue your journey
+          </Label>
+          {nextTests.map((nextTest) => (
+            <Button
+              key={nextTest.id}
+              variant={nextTest.userMeetsRequirement ? "default" : "outline"}
+              className="w-full justify-between"
+              disabled={!nextTest.userMeetsRequirement}
+              onClick={() => router.push(`/test/${nextTest.joinCode}`)}
+            >
+              <span className="flex items-center gap-2">
+                {nextTest.userMeetsRequirement ? (
+                  <ArrowRight className="h-4 w-4" />
+                ) : (
+                  <Lock className="h-4 w-4" />
+                )}
+                {nextTest.title}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {nextTest.userMeetsRequirement
+                  ? "Unlocked"
+                  : `Need ${nextTest.minScoreRequired}%`}
+              </span>
+            </Button>
+          ))}
+        </div>
       )}
 
       <Button className="w-full max-w-md" onClick={() => router.push("/")}>

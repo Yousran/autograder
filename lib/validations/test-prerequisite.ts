@@ -9,3 +9,5 @@ export const testPrerequisiteSchema = z.object({
     .max(100, "Minimum score cannot exceed 100")
     .default(0),
 });
+
+export type TestPrerequisiteValidation = z.infer<typeof testPrerequisiteSchema>;

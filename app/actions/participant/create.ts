@@ -7,6 +7,7 @@ import {
   participantJoinSchema,
   type ParticipantJoinValidation,
 } from "@/lib/validations/participant";
+import { checkTestPrerequisites } from "@/app/actions/prerequisite";
 
 /**
  * Create a new participant for a test
@@ -31,6 +32,7 @@ export async function createParticipant(data: ParticipantJoinValidation) {
             ? { userId: session.user.id }
             : { name: validatedData.name, userId: null },
         },
+        prerequisites: true, // Include prerequisites to check if any exist
       },
     });
 
@@ -80,6 +82,44 @@ export async function createParticipant(data: ParticipantJoinValidation) {
         return {
           success: false,
           error: `You have reached the maximum number of attempts (${test.maxAttempts})`,
+        };
+      }
+    }
+
+    // Check prerequisites (only for logged-in users)
+    if (session?.user?.id && test.prerequisites.length > 0) {
+      const prereqResult = await checkTestPrerequisites(test.id);
+
+      if (!prereqResult.success) {
+        return {
+          success: false,
+          error: prereqResult.error || "Failed to check prerequisites",
+        };
+      }
+
+      if (!prereqResult.canJoin) {
+        // Find the first failed prerequisite to show in error message
+        const failedPrereq = prereqResult.prerequisites?.find((p) => !p.passed);
+        if (failedPrereq) {
+          const scoreMsg =
+            failedPrereq.userBestScore === null
+              ? "You haven't completed"
+              : `Your best score (${failedPrereq.userBestScore.toFixed(
+                  1
+                )}) doesn't meet the required score (${
+                  failedPrereq.requiredScore
+                }) for`;
+
+          return {
+            success: false,
+            error: `${scoreMsg} "${failedPrereq.prerequisiteTestTitle}". Please complete the prerequisite test first.`,
+            prerequisiteJoinCode: failedPrereq.prerequisiteTestJoinCode,
+          };
+        }
+
+        return {
+          success: false,
+          error: "You don't meet the prerequisites for this test",
         };
       }
     }

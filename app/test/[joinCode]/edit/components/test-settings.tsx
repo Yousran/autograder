@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebouncedCallback } from "use-debounce";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 
 import {
   Card,
@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -23,12 +24,387 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { TestValidation, testSchema } from "@/lib/validations/test";
+import {
+  testPrerequisiteSchema,
+  TestPrerequisiteValidation,
+} from "@/lib/validations/test-prerequisite";
 import { Test } from "@/lib/generated/prisma/client";
 import { editTest } from "@/app/actions/test/edit";
+import {
+  getTestPrerequisites,
+  getAvailablePrerequisiteTests,
+  addTestPrerequisite,
+  updateTestPrerequisite,
+  deleteTestPrerequisite,
+} from "@/app/actions/prerequisite";
+import {
+  TestPrerequisiteWithTest,
+  AvailablePrerequisiteTest,
+} from "@/types/test-prerequisite";
 import { toast } from "sonner";
 import { useSyncTracker } from "../context/optimistic-context";
+import { Plus, Trash2, Loader2 } from "lucide-react";
+
+// --- PREREQUISITE SECTION COMPONENT ---
+function PrerequisiteSection({ testId }: { testId: string }) {
+  const { trackSync } = useSyncTracker();
+  const [prerequisites, setPrerequisites] = useState<
+    TestPrerequisiteWithTest[]
+  >([]);
+  const [availableTests, setAvailableTests] = useState<
+    AvailablePrerequisiteTest[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+
+  // Form for adding new prerequisite
+  const addForm = useForm({
+    resolver: zodResolver(testPrerequisiteSchema),
+    defaultValues: {
+      prerequisiteTestId: "",
+      minScoreRequired: 0,
+    },
+  });
+
+  // Load prerequisites and available tests on mount
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      try {
+        const [prereqResult, testsResult] = await Promise.all([
+          getTestPrerequisites(testId),
+          getAvailablePrerequisiteTests(testId),
+        ]);
+
+        if (prereqResult.success && prereqResult.prerequisites) {
+          setPrerequisites(prereqResult.prerequisites);
+        }
+
+        if (testsResult.success && testsResult.tests) {
+          setAvailableTests(testsResult.tests);
+        }
+      } catch (error) {
+        console.error("Error loading prerequisites:", error);
+        toast.error("Failed to load prerequisites");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadData();
+  }, [testId]);
+
+  // Handle adding a new prerequisite
+  const handleAddPrerequisite = async (data: TestPrerequisiteValidation) => {
+    setIsAdding(true);
+    try {
+      const result = await addTestPrerequisite(testId, data);
+      if (result.success && result.prerequisite) {
+        setPrerequisites((prev) => [...prev, result.prerequisite!]);
+        // Remove from available tests
+        setAvailableTests((prev) =>
+          prev.filter((t) => t.id !== data.prerequisiteTestId)
+        );
+        setIsAddDialogOpen(false);
+        addForm.reset();
+        toast.success("Prerequisite added successfully");
+      } else {
+        toast.error(result.error || "Failed to add prerequisite");
+      }
+    } catch (error) {
+      console.error("Error adding prerequisite:", error);
+      toast.error("Failed to add prerequisite");
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  // Handle updating minimum score
+  const handleUpdateScore = async (
+    prerequisiteId: string,
+    minScoreRequired: number
+  ) => {
+    await trackSync(
+      `prereq-${prerequisiteId}`,
+      async () => {
+        const result = await updateTestPrerequisite(
+          prerequisiteId,
+          minScoreRequired
+        );
+        if (result.success && result.prerequisite) {
+          setPrerequisites((prev) =>
+            prev.map((p) =>
+              p.id === prerequisiteId ? result.prerequisite! : p
+            )
+          );
+        } else {
+          toast.error(result.error || "Failed to update prerequisite");
+        }
+        return result;
+      },
+      "Updating minimum score..."
+    );
+  };
+
+  // Debounced score update
+  const debouncedScoreUpdate = useDebouncedCallback(
+    (prerequisiteId: string, score: number) => {
+      handleUpdateScore(prerequisiteId, score);
+    },
+    1000
+  );
+
+  // Handle deleting a prerequisite
+  const handleDeletePrerequisite = async (
+    prerequisiteId: string,
+    prerequisiteTest: AvailablePrerequisiteTest
+  ) => {
+    const result = await deleteTestPrerequisite(prerequisiteId);
+    if (result.success) {
+      setPrerequisites((prev) => prev.filter((p) => p.id !== prerequisiteId));
+      // Add back to available tests
+      setAvailableTests((prev) => [...prev, prerequisiteTest]);
+      toast.success("Prerequisite removed successfully");
+    } else {
+      toast.error(result.error || "Failed to remove prerequisite");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Test Prerequisites</CardTitle>
+          <CardDescription>
+            Require participants to complete other tests first
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Test Prerequisites</CardTitle>
+            <CardDescription>
+              Require participants to complete other tests first
+            </CardDescription>
+          </div>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={availableTests.length === 0}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Prerequisite
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Prerequisite Test</DialogTitle>
+                <DialogDescription>
+                  Select a test that participants must complete before taking
+                  this test.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={addForm.handleSubmit(handleAddPrerequisite)}>
+                <div className="flex flex-col gap-4 py-4">
+                  <FormItem>
+                    <FormLabel>Select Test</FormLabel>
+                    <Select
+                      value={addForm.watch("prerequisiteTestId")}
+                      onValueChange={(value) =>
+                        addForm.setValue("prerequisiteTestId", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a test" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableTests.map((test) => (
+                          <SelectItem key={test.id} value={test.id}>
+                            {test.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {addForm.formState.errors.prerequisiteTestId && (
+                      <p className="text-sm text-destructive">
+                        {addForm.formState.errors.prerequisiteTestId.message}
+                      </p>
+                    )}
+                  </FormItem>
+
+                  <FormItem>
+                    <FormLabel>Minimum Score Required (%)</FormLabel>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      {...addForm.register("minScoreRequired", {
+                        valueAsNumber: true,
+                      })}
+                      placeholder="0"
+                    />
+                    {addForm.formState.errors.minScoreRequired && (
+                      <p className="text-sm text-destructive">
+                        {addForm.formState.errors.minScoreRequired.message}
+                      </p>
+                    )}
+                  </FormItem>
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsAddDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isAdding}>
+                    {isAdding && (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    )}
+                    Add Prerequisite
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {prerequisites.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <p>No prerequisites configured.</p>
+            <p className="text-sm mt-1">
+              Add a prerequisite to require participants to complete other tests
+              first.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {prerequisites.map((prereq) => (
+              <PrerequisiteItem
+                key={prereq.id}
+                prerequisite={prereq}
+                onScoreChange={(score) =>
+                  debouncedScoreUpdate(prereq.id, score)
+                }
+                onDelete={() =>
+                  handleDeletePrerequisite(prereq.id, prereq.prerequisiteTest)
+                }
+              />
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// --- PREREQUISITE ITEM COMPONENT ---
+function PrerequisiteItem({
+  prerequisite,
+  onScoreChange,
+  onDelete,
+}: {
+  prerequisite: TestPrerequisiteWithTest;
+  onScoreChange: (score: number) => void;
+  onDelete: () => void;
+}) {
+  const [localScore, setLocalScore] = useState(prerequisite.minScoreRequired);
+
+  return (
+    <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
+      <div className="flex-1">
+        <p className="font-medium">{prerequisite.prerequisiteTest.title}</p>
+        <p className="text-sm text-muted-foreground">
+          Code: {prerequisite.prerequisiteTest.joinCode}
+        </p>
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-muted-foreground whitespace-nowrap">
+            Min Score:
+          </label>
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            className="w-20"
+            value={localScore}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              setLocalScore(val);
+              onScoreChange(val);
+            }}
+          />
+          <span className="text-sm text-muted-foreground">%</span>
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="text-destructive">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remove Prerequisite</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to remove &quot;
+                {prerequisite.prerequisiteTest.title}&quot; as a prerequisite?
+                Participants will no longer need to complete this test first.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={onDelete}>Remove</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </div>
+  );
+}
 
 export function TestSettings({ test }: { test: Test }) {
   const { trackSync } = useSyncTracker();
@@ -314,6 +690,9 @@ export function TestSettings({ test }: { test: Test }) {
           />
         </CardContent>
       </Card>
+
+      {/* --- PREREQUISITES SECTION --- */}
+      <PrerequisiteSection testId={test.id} />
     </Form>
   );
 }
