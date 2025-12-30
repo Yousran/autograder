@@ -18,6 +18,7 @@ export interface Participant {
   id: string;
   testId: string;
   userId: string | null;
+  isCompleted: boolean;
   name: string;
   score: number;
   createdAt: Date;

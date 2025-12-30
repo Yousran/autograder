@@ -132,3 +132,98 @@ export interface TestGradingStatus {
   pendingEssayAnswers: number;
   percentageComplete: number;
 }
+
+// --- TYPES FOR RESULT/GRADING PAGES ---
+
+// Question with answer detail for displaying in result pages
+export interface QuestionAnswerDetail {
+  id: string;
+  questionText: string;
+  type: "ESSAY" | "CHOICE" | "MULTIPLE_SELECT";
+  order: number;
+  maxScore: number;
+  essay: EssayQuestionDetail | null;
+  choice: ChoiceQuestionDetail | null;
+  multipleSelect: MultipleSelectQuestionDetail | null;
+}
+
+export interface EssayQuestionDetail {
+  id: string;
+  answerText: string;
+  isExactAnswer: boolean;
+  maxScore: number;
+  participantAnswer: EssayAnswerDetail | null;
+}
+
+export interface EssayAnswerDetail {
+  id: string;
+  participantId: string;
+  questionId: string;
+  answerText: string;
+  scoreExplanation: string | null;
+  score: number;
+}
+
+export interface ChoiceQuestionDetail {
+  id: string;
+  isChoiceRandomized: boolean;
+  maxScore: number;
+  choices: ChoiceDetail[];
+  participantAnswer: ChoiceAnswerDetail | null;
+}
+
+export interface ChoiceDetail {
+  id: string;
+  questionId: string;
+  choiceText: string;
+  isCorrect: boolean;
+}
+
+export interface ChoiceAnswerDetail {
+  id: string;
+  questionId: string;
+  participantId: string;
+  selectedChoiceId: string | null;
+  score: number;
+}
+
+export interface MultipleSelectQuestionDetail {
+  id: string;
+  isChoiceRandomized: boolean;
+  maxScore: number;
+  multipleSelectChoices: MultipleSelectChoiceDetail[];
+  participantAnswer: MultipleSelectAnswerDetail | null;
+}
+
+export interface MultipleSelectChoiceDetail {
+  id: string;
+  questionId: string;
+  choiceText: string;
+  isCorrect: boolean;
+}
+
+export interface MultipleSelectAnswerDetail {
+  id: string;
+  questionId: string;
+  participantId: string;
+  selectedChoices: MultipleSelectChoiceDetail[];
+  score: number;
+}
+
+// Full participant result data
+export interface ParticipantResultData {
+  participant: {
+    id: string;
+    name: string;
+    score: number;
+    isCompleted: boolean;
+  };
+  test: {
+    id: string;
+    title: string;
+    showDetailedScore: boolean;
+    showCorrectAnswers: boolean;
+    creatorId: string;
+  };
+  questions: QuestionAnswerDetail[];
+}

@@ -4,3 +4,8 @@ export {
   updateMultipleSelectAnswer,
   type UpdateMultipleSelectAnswerInput,
 } from "./multiple-select";
+export {
+  updateEssayScore,
+  updateChoiceScore,
+  updateMultipleSelectScore,
+} from "./score";
