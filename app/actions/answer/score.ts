@@ -246,8 +246,43 @@ export async function updateMultipleSelectScore(
 
 /**
  * Recalculate and update participant's total score based on all their answers
+ * Calculates as percentage (0-100) of total possible score
  */
 async function recalculateParticipantScore(participantId: string) {
+  // Get participant with test info
+  const participant = await prisma.participant.findUnique({
+    where: { id: participantId },
+    include: {
+      test: {
+        include: {
+          questions: {
+            include: {
+              essay: true,
+              choice: true,
+              multipleSelect: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!participant) {
+    return 0;
+  }
+
+  // Calculate total max score from all questions
+  let totalMaxScore = 0;
+  for (const question of participant.test.questions) {
+    if (question.type === "ESSAY" && question.essay) {
+      totalMaxScore += question.essay.maxScore;
+    } else if (question.type === "CHOICE" && question.choice) {
+      totalMaxScore += question.choice.maxScore;
+    } else if (question.type === "MULTIPLE_SELECT" && question.multipleSelect) {
+      totalMaxScore += question.multipleSelect.maxScore;
+    }
+  }
+
   // Get all answers for this participant
   const [essayAnswers, choiceAnswers, multipleSelectAnswers] =
     await Promise.all([
@@ -271,11 +306,18 @@ async function recalculateParticipantScore(participantId: string) {
     choiceAnswers.reduce((sum, a) => sum + a.score, 0) +
     multipleSelectAnswers.reduce((sum, a) => sum + a.score, 0);
 
+  // Calculate percentage (0-100)
+  let percentageScore = 0;
+  if (totalMaxScore > 0) {
+    percentageScore = (totalScore / totalMaxScore) * 100;
+    percentageScore = Math.round(percentageScore * 100) / 100; // Round to 2 decimal places
+  }
+
   // Update participant's score
   await prisma.participant.update({
     where: { id: participantId },
-    data: { score: totalScore },
+    data: { score: percentageScore },
   });
 
-  return totalScore;
+  return percentageScore;
 }

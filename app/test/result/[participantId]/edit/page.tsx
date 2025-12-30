@@ -124,25 +124,12 @@ export default function ParticipantResultEditPage() {
 
         setQuestions(updatedQuestions);
 
-        // Recalculate total score
-        const totalScore = updatedQuestions.reduce((sum, q) => {
-          const questionScore =
-            q.essay?.participantAnswer?.score ??
-            q.choice?.participantAnswer?.score ??
-            q.multipleSelect?.participantAnswer?.score ??
-            0;
-          return sum + questionScore;
-        }, 0);
-
-        // Update participant score in local state
-        if (data) {
-          setData({
-            ...data,
-            participant: {
-              ...data.participant,
-              score: totalScore,
-            },
-          });
+        // Refetch data to get the correct percentage score calculated by the server
+        const refreshedResult = await getParticipantResultDetails(
+          participantId
+        );
+        if (refreshedResult.success && refreshedResult.data) {
+          setData(refreshedResult.data);
         }
 
         toast.success("Score updated successfully");
