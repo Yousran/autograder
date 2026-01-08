@@ -34,3 +34,13 @@ export function getInitial(input?: string | null): string {
   }
   return "U";
 }
+
+export function decodeUrlParam(input: string | string[] | undefined): string {
+  if (!input) return "";
+  const value = Array.isArray(input) ? input[0] : input;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
