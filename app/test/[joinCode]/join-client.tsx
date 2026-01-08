@@ -182,7 +182,7 @@ export default function JoinClient({
                             <FormItem>
                               <FormControl>
                                 <Input
-                                  placeholder="Enter your name"
+                                  placeholder="Nama Lengkap/NIM/Kelas"
                                   {...field}
                                   onKeyDown={(e) => {
                                     if (e.key === "Enter") {
