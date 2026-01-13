@@ -1,4 +1,4 @@
-// ./lib/deepseek.ts
+// ./lib/openrouter.ts
 import { devLog } from "@/utils/devLog";
 import OpenAI from "openai";
 
@@ -37,7 +37,7 @@ export async function openRouter({
 
     try {
       const res = await openai.chat.completions.create({
-        model: "openai/gpt-oss-20b:free",
+        model: "deepseek/deepseek-r1-0528:free",
         messages: [
           {
             role: "system",
