@@ -1,4 +1,9 @@
-export { updateEssayAnswer, type UpdateEssayAnswerInput } from "./essay";
+export {
+  updateEssayAnswer,
+  saveEssayAnswerText,
+  gradeEssayAnswerAsync,
+  type UpdateEssayAnswerInput,
+} from "./essay";
 export { updateChoiceAnswer, type UpdateChoiceAnswerInput } from "./choice";
 export {
   updateMultipleSelectAnswer,

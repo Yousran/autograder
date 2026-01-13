@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -9,7 +9,8 @@ import { useRouter } from "next/navigation";
 import { getParticipantTestData } from "@/app/actions/participant/get-test-data";
 import { completeParticipantTest } from "@/app/actions/participant/complete";
 import {
-  updateEssayAnswer,
+  saveEssayAnswerText,
+  gradeEssayAnswerAsync,
   updateChoiceAnswer,
   updateMultipleSelectAnswer,
 } from "@/app/actions/answer";
@@ -40,6 +41,9 @@ export default function StartPageClient({
   const [isSaving, setIsSaving] = useState(false);
   const [isMarked, setIsMarked] = useState<boolean[]>([]);
   const [openQuestionList, setOpenQuestionList] = useState(false);
+
+  // Track pending essay grading promises
+  const pendingGradesRef = useRef<Promise<unknown>[]>([]);
 
   const isLastQuestion = data
     ? currentIndex === data.questions.length - 1
@@ -78,7 +82,8 @@ export default function StartPageClient({
       setIsSaving(true);
       try {
         if (q.type === "ESSAY" && q.essay) {
-          const result = await updateEssayAnswer({
+          // Save essay text immediately (fast)
+          const result = await saveEssayAnswerText({
             answerId: q.essay.answer.id,
             participantId: data.participant.id,
             answerText: q.essay.answer.answerText,
@@ -88,10 +93,21 @@ export default function StartPageClient({
             if (result.error === "Test is not accepting responses") {
               toast.error(result.error);
             }
-            devLog("Essay update failed:", result.error);
+            devLog("Essay save failed:", result.error);
             return;
           }
-          devLog("Essay updated successfully");
+
+          // If subjective essay needs async grading, start it in background
+          if (result.needsAsyncGrading) {
+            const gradePromise = gradeEssayAnswerAsync({
+              answerId: q.essay.answer.id,
+              participantId: data.participant.id,
+            });
+            pendingGradesRef.current.push(gradePromise);
+            devLog("Essay saved, grading started in background");
+          } else {
+            devLog("Essay saved and graded (exact match)");
+          }
         } else if (q.type === "CHOICE" && q.choice) {
           if (!q.choice.answer.selectedChoiceId) {
             devLog("No choice selected, skipping update");
@@ -210,6 +226,16 @@ export default function StartPageClient({
 
     setIsLoading(true);
     devLog("Ending test...");
+
+    // Wait for all pending essay grades to complete
+    if (pendingGradesRef.current.length > 0) {
+      devLog(
+        `Waiting for ${pendingGradesRef.current.length} pending essay grades...`
+      );
+      await Promise.all(pendingGradesRef.current);
+      pendingGradesRef.current = [];
+      devLog("All essay grades completed");
+    }
 
     // Mark test as completed
     const result = await completeParticipantTest(data.participant.id);
