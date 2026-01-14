@@ -17,7 +17,11 @@ export const signUpSchema = z
     name: z
       .string()
       .min(2, "Name must be at least 2 characters")
-      .max(50, "Name must be less than 50 characters"),
+      .max(50, "Name must be less than 50 characters")
+      .regex(
+        /^[a-zA-Z0-9_-]+$/,
+        "Name can only contain letters, numbers, hyphens, and underscores"
+      ),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",

@@ -112,7 +112,7 @@ export default function SignUpPage() {
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Nama Lengkap/NIM/Kelas"
+                        placeholder="Nama Lengkap-NIM-Kelas"
                         disabled={isLoading}
                         {...field}
                       />
