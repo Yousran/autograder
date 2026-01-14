@@ -26,7 +26,7 @@ import { editTest } from "@/app/actions/test/edit";
 
 export default function TestEditClient({ test }: { test: Test }) {
   const router = useRouter();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
   const [activeTab, setActiveTab] = useState("settings");
   const [isPending, startTransition] = useTransition();
 
