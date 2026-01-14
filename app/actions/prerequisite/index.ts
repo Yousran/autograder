@@ -551,6 +551,50 @@ export async function updateTestPrerequisite(
   }
 }
 
+// Get the minimum score required if this test is used as a prerequisite for other tests
+// Returns the minimum of all minScoreRequired values (most restrictive)
+export async function getPrerequisiteMinScore(testId: string): Promise<{
+  success: boolean;
+  minScore?: number | null; // null means this test is not a prerequisite for any other test
+  error?: string;
+}> {
+  try {
+    // Get all prerequisites where this test is the prerequisite
+    const prerequisites = await prisma.testPrerequisite.findMany({
+      where: {
+        prerequisiteTestId: testId,
+      },
+      select: {
+        minScoreRequired: true,
+      },
+    });
+
+    if (prerequisites.length === 0) {
+      return {
+        success: true,
+        minScore: null, // Not a prerequisite for any test
+      };
+    }
+
+    // Return the minimum score required (most restrictive)
+    const minScore = Math.min(...prerequisites.map((p) => p.minScoreRequired));
+
+    return {
+      success: true,
+      minScore,
+    };
+  } catch (error) {
+    console.error("Error getting prerequisite min score:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to get prerequisite min score",
+    };
+  }
+}
+
 // Delete a prerequisite
 export async function deleteTestPrerequisite(prerequisiteId: string): Promise<{
   success: boolean;

@@ -6,12 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { getParticipantsByTestId } from "@/app/actions/participant/get";
+import { getPrerequisiteMinScore } from "@/app/actions/prerequisite";
 import type { Participant } from "@/lib/generated/prisma/client";
 
 export function TestParticipants({ testId }: { testId: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [minScoreRequired, setMinScoreRequired] = useState<number | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -19,11 +21,23 @@ export function TestParticipants({ testId }: { testId: string }) {
     async function load() {
       setLoading(true);
       try {
-        const res = await getParticipantsByTestId(testId);
-        if (res && res.success && res.participants) {
-          if (mounted) setParticipants(res.participants);
+        const [participantsRes, minScoreRes] = await Promise.all([
+          getParticipantsByTestId(testId),
+          getPrerequisiteMinScore(testId),
+        ]);
+
+        if (
+          participantsRes &&
+          participantsRes.success &&
+          participantsRes.participants
+        ) {
+          if (mounted) setParticipants(participantsRes.participants);
         } else {
           if (mounted) setParticipants([]);
+        }
+
+        if (minScoreRes && minScoreRes.success) {
+          if (mounted) setMinScoreRequired(minScoreRes.minScore ?? null);
         }
       } catch (err) {
         console.error(err);
@@ -39,6 +53,12 @@ export function TestParticipants({ testId }: { testId: string }) {
       mounted = false;
     };
   }, [testId]);
+
+  // Determine score color based on prerequisite min score
+  const getScoreColor = (score: number) => {
+    if (minScoreRequired === null) return ""; // No prerequisite, use default color
+    return score >= minScoreRequired ? "text-green-500" : "text-red-500";
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -56,7 +76,13 @@ export function TestParticipants({ testId }: { testId: string }) {
           >
             <CardContent className="flex justify-between items-center gap-4 p-6">
               <Label className="text-xl">{participant.name}</Label>
-              <Label className="text-3xl font-bold">{participant.score}</Label>
+              <Label
+                className={`text-3xl font-bold ${getScoreColor(
+                  participant.score
+                )}`}
+              >
+                {participant.score}
+              </Label>
             </CardContent>
           </Card>
         ))
