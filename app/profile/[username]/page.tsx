@@ -6,7 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { truncateWords, getInitial } from "@/lib/text";
+import { truncateWords, getInitial, decodeUrlParam } from "@/lib/text";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getUserCreatedTests, getUserTakenTests } from "@/app/actions/user/get";
 
@@ -87,7 +87,7 @@ export default function ProfilePage() {
             </AvatarFallback>
           </Avatar>
           <Label className="text text-3xl font-bold text-center">
-            {username}
+            {decodeUrlParam(username as string)}
           </Label>
         </div>
 
