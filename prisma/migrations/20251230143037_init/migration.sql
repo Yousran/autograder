@@ -64,6 +64,7 @@ CREATE TABLE "Participant" (
     "id" TEXT NOT NULL,
     "testId" TEXT NOT NULL,
     "userId" TEXT,
+    "isCompleted" BOOLEAN NOT NULL DEFAULT false,
     "name" TEXT NOT NULL,
     "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

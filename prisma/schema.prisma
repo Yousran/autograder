@@ -83,9 +83,10 @@ model Verification {
 }
 
 model Participant {
-  id     String  @id @default(cuid())
-  testId String
-  userId String? // Optional: Allows Guest users OR Logged-in users to take tests
+  id          String  @id @default(cuid())
+  testId      String
+  userId      String? // Optional: Allows Guest users OR Logged-in users to take tests
+  isCompleted Boolean @default(false)
 
   name  String // Keeping this as "Display Name" for the specific test session
   score Float  @default(0)
