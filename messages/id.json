@@ -38,6 +38,14 @@
     "profile": "Profil",
     "logout": "Keluar"
   },
+  "Settings": {
+    "settings": "Pengaturan",
+    "theme": "Tema",
+    "themeSystem": "Sistem",
+    "themeLight": "Terang",
+    "themeDark": "Gelap",
+    "language": "Bahasa"
+  },
   "Common": {
     "loading": "Memuat...",
     "error": "Terjadi kesalahan",

@@ -38,6 +38,14 @@
     "profile": "Profile",
     "logout": "Logout"
   },
+  "Settings": {
+    "settings": "Settings",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language"
+  },
   "Common": {
     "loading": "Loading...",
     "error": "Something went wrong",

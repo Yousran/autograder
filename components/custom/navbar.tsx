@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
+import { SettingsMenu } from "@/components/custom/settings-menu";
 
 export default function Navbar() {
   const t = useTranslations("Navbar");
@@ -53,79 +54,86 @@ export default function Navbar() {
           Autograder
         </Link>
 
-        {/* Avatar + Dropdown */}
-        <TooltipProvider>
-          <DropdownMenu>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <button className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                    <Avatar>
-                      <AvatarImage
-                        src={user?.image ?? ""}
-                        alt={user?.name ?? "User avatar"}
-                      />
-                      <AvatarFallback>
-                        {initials ?? <User className="size-4" />}
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                {user ? user.name : t("account")}
-              </TooltipContent>
-            </Tooltip>
+        {/* Right side controls */}
+        <div className="flex items-center gap-4">
+          {/* Settings */}
+          <TooltipProvider>
+            <SettingsMenu />
+          </TooltipProvider>
 
-            <DropdownMenuContent align="end" className="w-48">
-              {!user ? (
-                <>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/auth/sign-in"
-                      className="flex items-center gap-2"
+          <TooltipProvider>
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <button className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                      <Avatar>
+                        <AvatarImage
+                          src={user?.image ?? ""}
+                          alt={user?.name ?? "User avatar"}
+                        />
+                        <AvatarFallback>
+                          {initials ?? <User className="size-4" />}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  {user ? user.name : t("account")}
+                </TooltipContent>
+              </Tooltip>
+
+              <DropdownMenuContent align="end" className="w-48">
+                {!user ? (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/auth/sign-in"
+                        className="flex items-center gap-2"
+                      >
+                        <LogIn className="size-4" />
+                        {t("signIn")}
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/auth/sign-up"
+                        className="flex items-center gap-2"
+                      >
+                        <UserPlus className="size-4" />
+                        {t("signUp")}
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/profile/${user.id}`}
+                        className="flex items-center gap-2"
+                      >
+                        <User className="size-4" />
+                        {t("profile")}
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      className="flex items-center gap-2 text-destructive focus:text-destructive"
+                      onSelect={handleSignOut}
                     >
-                      <LogIn className="size-4" />
-                      {t("signIn")}
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/auth/sign-up"
-                      className="flex items-center gap-2"
-                    >
-                      <UserPlus className="size-4" />
-                      {t("signUp")}
-                    </Link>
-                  </DropdownMenuItem>
-                </>
-              ) : (
-                <>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={`/profile/${user.id}`}
-                      className="flex items-center gap-2"
-                    >
-                      <User className="size-4" />
-                      {t("profile")}
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem
-                    className="flex items-center gap-2 text-destructive focus:text-destructive"
-                    onSelect={handleSignOut}
-                  >
-                    <LogOut className="size-4" />
-                    {t("logout")}
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </TooltipProvider>
+                      <LogOut className="size-4" />
+                      {t("logout")}
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </TooltipProvider>
+        </div>
       </div>
     </header>
   );
