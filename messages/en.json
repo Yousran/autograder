@@ -24,6 +24,13 @@
     "signingIn": "Signing in...",
     "signingUp": "Signing up..."
   },
+  "Navbar": {
+    "account": "Account",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
   "Common": {
     "loading": "Loading...",
     "error": "Something went wrong",
