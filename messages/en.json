@@ -14,6 +14,12 @@
       "updateSuccess": "Test updated successfully.",
       "notFound": "Test not found.",
       "forbidden": "You are not authorized to update this test."
+    },
+    "joinCode": {
+      "unauthorized": "You must be signed in.",
+      "notFound": "Test not found.",
+      "forbidden": "You are not authorized to modify this test.",
+      "generateFailed": "Failed to generate join code. Please try again."
     }
   },
   "Validation": {
@@ -120,6 +126,20 @@
     },
     "createTestButton": {
       "createTest": "Create New Test"
+    },
+    "joinCode": {
+      "label": "Join Code",
+      "qrCode": "Show QR Code",
+      "generate": "Generate Join Code",
+      "regenerate": "Regenerate",
+      "revoke": "Revoke",
+      "copy": "Copy to clipboard",
+      "generateSuccess": "Join code generated.",
+      "generateFailed": "Failed to generate join code.",
+      "revokeSuccess": "Join code revoked.",
+      "revokeFailed": "Failed to revoke join code.",
+      "expiresIn": "Expires in {time}",
+      "expired": "Code expired — regenerate to issue a new one."
     },
     "test": {
       "titleLabel": "Title",

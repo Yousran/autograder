@@ -2,6 +2,11 @@ import { requireAuth } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { getLocale, getTranslations } from "next-intl/server";
 import { NextResponse } from "next/server";
+import { customAlphabet } from "nanoid";
+
+const nanoid = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 6);
+const TTL_DAYS = 7;
+const MAX_RETRIES = 5;
 
 export async function POST() {
   const auth = await requireAuth();
@@ -10,11 +15,33 @@ export async function POST() {
   const locale = await getLocale();
   const t = await getTranslations({ locale, namespace: "Api.tests" });
 
+  const expiresAt = new Date(Date.now() + TTL_DAYS * 24 * 60 * 60 * 1000);
+  const now = new Date();
+
+  // Generate a unique join code, retrying on collision
+  let joinCode: string | null = null;
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    const candidate = nanoid();
+    const conflict = await prisma.test.findFirst({
+      where: {
+        joinCode: candidate,
+        OR: [{ joinCodeExpiresAt: null }, { joinCodeExpiresAt: { gt: now } }],
+      },
+      select: { id: true },
+    });
+    if (!conflict) {
+      joinCode = candidate;
+      break;
+    }
+  }
+
   try {
     const test = await prisma.test.create({
       data: {
         creatorId: auth.session.user.id,
         title: "Untitled Test",
+        joinCode,
+        joinCodeExpiresAt: joinCode ? expiresAt : null,
       },
     });
 

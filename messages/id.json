@@ -14,6 +14,12 @@
       "updateSuccess": "Ujian berhasil diperbarui.",
       "notFound": "Ujian tidak ditemukan.",
       "forbidden": "Anda tidak memiliki izin untuk memperbarui ujian ini."
+    },
+    "joinCode": {
+      "unauthorized": "Anda harus masuk terlebih dahulu.",
+      "notFound": "Ujian tidak ditemukan.",
+      "forbidden": "Anda tidak memiliki izin untuk mengubah ujian ini.",
+      "generateFailed": "Gagal membuat kode bergabung. Silakan coba lagi."
     }
   },
   "Validation": {
@@ -120,6 +126,20 @@
     },
     "createTestButton": {
       "createTest": "Buat Ujian Baru"
+    },
+    "joinCode": {
+      "label": "Kode Bergabung",
+      "qrCode": "Tampilkan Kode QR",
+      "generate": "Buat Kode Bergabung",
+      "regenerate": "Buat Ulang",
+      "revoke": "Cabut",
+      "copy": "Salin ke clipboard",
+      "generateSuccess": "Kode bergabung berhasil dibuat.",
+      "generateFailed": "Gagal membuat kode bergabung.",
+      "revokeSuccess": "Kode bergabung berhasil dicabut.",
+      "revokeFailed": "Gagal mencabut kode bergabung.",
+      "expiresIn": "Kedaluwarsa dalam {time}",
+      "expired": "Kode kedaluwarsa — buat ulang untuk menerbitkan yang baru."
     },
     "test": {
       "titleLabel": "Judul",
