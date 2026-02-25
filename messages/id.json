@@ -1,0 +1,28 @@
+{
+  "Home": {
+    "title": "Selamat Datang di Autograder",
+    "getStarted": "Mulai"
+  },
+  "Auth": {
+    "signIn": "Masuk",
+    "signUp": "Daftar",
+    "signOut": "Keluar",
+    "email": "Email",
+    "password": "Kata Sandi",
+    "name": "Nama",
+    "forgotPassword": "Lupa kata sandi?",
+    "noAccount": "Belum punya akun?",
+    "alreadyHaveAccount": "Sudah punya akun?"
+  },
+  "Common": {
+    "loading": "Memuat...",
+    "error": "Terjadi kesalahan",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Ubah",
+    "back": "Kembali",
+    "next": "Berikutnya",
+    "submit": "Kirim"
+  }
+}
