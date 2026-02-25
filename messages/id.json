@@ -110,6 +110,21 @@
     "forbidden": "Anda tidak memiliki izin untuk memperbarui ujian ini.",
     "tabSettings": "Pengaturan",
     "tabQuestions": "Pertanyaan",
-    "tabParticipants": "Peserta"
+    "tabParticipants": "Peserta",
+    "descriptionLabel": "Deskripsi",
+    "descriptionPlaceholder": "Tambahkan deskripsi...",
+    "titleLabel": "Judul",
+    "durationLabel": "Durasi (menit)",
+    "maxAttemptsLabel": "Maks. Percobaan",
+    "isAcceptingResponsesLabel": "Menerima Jawaban",
+    "isAcceptingResponsesDesc": "Izinkan peserta mengirimkan jawaban untuk ujian ini.",
+    "isLoggedInUserOnlyLabel": "Hanya Pengguna Masuk",
+    "isLoggedInUserOnlyDesc": "Batasi ujian ini hanya untuk pengguna yang sudah masuk.",
+    "isShowDetailedScoreLabel": "Tampilkan Skor Detail",
+    "isShowDetailedScoreDesc": "Tampilkan rincian skor kepada peserta setelah pengumpulan.",
+    "isShowCorrectAnswersLabel": "Tampilkan Jawaban Benar",
+    "isShowCorrectAnswersDesc": "Ungkapkan jawaban yang benar kepada peserta setelah selesai.",
+    "isQuestionsOrderedLabel": "Urutan Soal Tetap",
+    "isQuestionsOrderedDesc": "Tampilkan soal dalam urutan tetap, bukan acak."
   }
 }

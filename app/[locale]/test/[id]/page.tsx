@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
-import { TestTitleEditable } from "@/components/custom/test-title-editable";
+import { TestTitleEditable } from "./components/test-title-editable";
+import { SettingsTab } from "./components/settings-tab";
 import Navbar from "@/components/custom/navbar";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -16,13 +17,24 @@ export default async function TestPage({ params }: Props) {
 
   const test = await prisma.test.findUnique({
     where: { id },
-    select: { id: true, title: true },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      testDuration: true,
+      maxAttempts: true,
+      isAcceptingResponses: true,
+      isLoggedInUserOnly: true,
+      isShowDetailedScore: true,
+      isShowCorrectAnswers: true,
+      isQuestionsOrdered: true,
+    },
   });
 
   if (!test) notFound();
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col">
+    <div className="min-h-screen h-fit overflow-hidden flex flex-col">
       <Navbar />
       <main className="flex justify-center p-4">
         <div className="mx-auto w-full max-w-2xl flex flex-col gap-4">
@@ -41,7 +53,17 @@ export default async function TestPage({ params }: Props) {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="settings">
-              <Card className="p-6">{t("tabSettings")}</Card>
+              <SettingsTab
+                testId={test.id}
+                initialDescription={test.description}
+                initialDuration={test.testDuration}
+                initialMaxAttempts={test.maxAttempts}
+                initialIsAcceptingResponses={test.isAcceptingResponses}
+                initialIsLoggedInUserOnly={test.isLoggedInUserOnly}
+                initialIsShowDetailedScore={test.isShowDetailedScore}
+                initialIsShowCorrectAnswers={test.isShowCorrectAnswers}
+                initialIsQuestionsOrdered={test.isQuestionsOrdered}
+              />
             </TabsContent>
             <TabsContent value="questions">
               <Card className="p-6">{t("tabQuestions")}</Card>

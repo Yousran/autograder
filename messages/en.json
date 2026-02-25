@@ -110,6 +110,21 @@
     "forbidden": "You are not authorized to update this test.",
     "tabSettings": "Settings",
     "tabQuestions": "Questions",
-    "tabParticipants": "Participants"
+    "tabParticipants": "Participants",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Add a description...",
+    "titleLabel": "Title",
+    "durationLabel": "Duration (minutes)",
+    "maxAttemptsLabel": "Max Attempts",
+    "isAcceptingResponsesLabel": "Accepting Responses",
+    "isAcceptingResponsesDesc": "Allow participants to submit answers to this test.",
+    "isLoggedInUserOnlyLabel": "Logged-in Users Only",
+    "isLoggedInUserOnlyDesc": "Restrict this test to signed-in users only.",
+    "isShowDetailedScoreLabel": "Show Detailed Score",
+    "isShowDetailedScoreDesc": "Show participants a breakdown of their score after submission.",
+    "isShowCorrectAnswersLabel": "Show Correct Answers",
+    "isShowCorrectAnswersDesc": "Reveal the correct answers to participants after they finish.",
+    "isQuestionsOrderedLabel": "Ordered Questions",
+    "isQuestionsOrderedDesc": "Present questions in a fixed order instead of randomizing them."
   }
 }
