@@ -1,7 +1,14 @@
 {
   "Home": {
     "title": "Selamat Datang di Autograder",
-    "getStarted": "Mulai"
+    "getStarted": "Mulai",
+    "enterJoinCode": "Masukkan Kode Ujian",
+    "join": "Bergabung",
+    "scanQrCode": "Pindai Kode QR",
+    "createTest": "Buat Ujian",
+    "or": "atau",
+    "createTestHeading": "Apakah Anda seorang pengajar?",
+    "createTestDescription": "Buat soal ujian, nilai otomatis, dan pantau perkembangan siswa — semua dalam satu tempat."
   },
   "Auth": {
     "signIn": "Masuk",

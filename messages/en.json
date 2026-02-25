@@ -1,7 +1,14 @@
 {
   "Home": {
     "title": "Welcome to Autograder",
-    "getStarted": "Get Started"
+    "getStarted": "Get Started",
+    "enterJoinCode": "Enter Join Code",
+    "join": "Join",
+    "scanQrCode": "Scan QR Code",
+    "createTest": "Create Test",
+    "or": "or",
+    "createTestHeading": "Are you an educator?",
+    "createTestDescription": "Build tests, autograde submissions, and track your students' progress — all in one place."
   },
   "Auth": {
     "signIn": "Sign In",
