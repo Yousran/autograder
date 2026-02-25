@@ -97,5 +97,12 @@
     "minScoreMax": "Minimum score cannot exceed 100",
     "scoreNonNegative": "Score must be 0 or greater",
     "atLeastOneChoice": "Please select at least one choice"
+  },
+  "Tests": {
+    "createTest": "Create New Test",
+    "myTests": "My Tests",
+    "noTests": "You haven't created any tests yet.",
+    "createFailed": "Failed to create test. Please try again.",
+    "unauthorized": "You must be signed in to create a test."
   }
 }

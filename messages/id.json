@@ -97,5 +97,12 @@
     "minScoreMax": "Skor minimum tidak boleh melebihi 100",
     "scoreNonNegative": "Skor harus 0 atau lebih",
     "atLeastOneChoice": "Harap pilih setidaknya satu pilihan"
+  },
+  "Tests": {
+    "createTest": "Buat Ujian Baru",
+    "myTests": "Ujian Saya",
+    "noTests": "Anda belum membuat ujian apapun.",
+    "createFailed": "Gagal membuat ujian. Silakan coba lagi.",
+    "unauthorized": "Anda harus masuk untuk membuat ujian."
   }
 }

@@ -17,10 +17,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ScanQrCode } from "lucide-react";
-import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 import Navbar from "@/components/custom/navbar";
 import { Separator } from "@/components/ui/separator";
+import { CreateTestButton } from "@/components/custom/create-test-button";
 
 export default function Home() {
   const t = useTranslations("Home");
@@ -85,9 +85,7 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground">
                   {t("createTestDescription")}
                 </p>
-                <Button asChild className="w-full">
-                  <Link href="/test/create">{t("createTest")}</Link>
-                </Button>
+                <CreateTestButton className="w-full" />
               </div>
             </>
           )}
