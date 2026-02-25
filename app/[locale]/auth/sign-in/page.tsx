@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function SignInPage() {
   const t = useTranslations("Pages.auth");
@@ -37,10 +38,9 @@ export default function SignInPage() {
       password,
     });
 
-    setLoading(false);
-
     if (error) {
       setError(error.message ?? "Something went wrong");
+      setLoading(false);
       return;
     }
 
@@ -126,7 +126,7 @@ export default function SignInPage() {
             {error && <p className="text-sm text-destructive">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t("signingIn") : t("signIn")}
+              {loading ? <Spinner /> : t("signIn")}
             </Button>
           </form>
         </CardContent>
