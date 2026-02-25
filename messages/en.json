@@ -24,6 +24,13 @@
     "signingIn": "Signing in...",
     "signingUp": "Signing up..."
   },
+  "Upload": {
+    "invalidFile": "File not found or invalid",
+    "unsupportedFormat": "Unsupported file format. Use JPG, PNG, GIF, or WebP.",
+    "fileTooLarge": "File size exceeds the 2 MB limit.",
+    "unauthorized": "Unauthorized",
+    "uploadFailed": "Failed to upload image. Please try again."
+  },
   "Navbar": {
     "account": "Account",
     "signIn": "Sign In",

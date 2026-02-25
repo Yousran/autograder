@@ -24,6 +24,13 @@
     "signingIn": "Sedang masuk...",
     "signingUp": "Sedang mendaftar..."
   },
+  "Upload": {
+    "invalidFile": "File tidak ditemukan atau tidak valid",
+    "unsupportedFormat": "Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WebP.",
+    "fileTooLarge": "Ukuran file melebihi batas 2 MB.",
+    "unauthorized": "Tidak terotorisasi",
+    "uploadFailed": "Gagal mengunggah gambar. Coba lagi."
+  },
   "Navbar": {
     "account": "Akun",
     "signIn": "Masuk",
