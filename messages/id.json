@@ -9,10 +9,20 @@
     "signOut": "Keluar",
     "email": "Email",
     "password": "Kata Sandi",
-    "name": "Nama",
+    "confirmPassword": "Konfirmasi Kata Sandi",
+    "name": "Nama Lengkap",
     "forgotPassword": "Lupa kata sandi?",
     "noAccount": "Belum punya akun?",
-    "alreadyHaveAccount": "Sudah punya akun?"
+    "alreadyHaveAccount": "Sudah punya akun?",
+    "signInTitle": "Selamat datang kembali",
+    "signInDescription": "Masukkan kredensial Anda untuk mengakses akun",
+    "signUpTitle": "Buat akun baru",
+    "signUpDescription": "Masukkan detail Anda untuk memulai",
+    "orContinueWith": "Atau lanjutkan dengan",
+    "continueWithGoogle": "Lanjutkan dengan Google",
+    "passwordMismatch": "Kata sandi tidak cocok",
+    "signingIn": "Sedang masuk...",
+    "signingUp": "Sedang mendaftar..."
   },
   "Common": {
     "loading": "Memuat...",

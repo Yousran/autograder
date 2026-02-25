@@ -9,10 +9,20 @@
     "signOut": "Sign Out",
     "email": "Email",
     "password": "Password",
-    "name": "Name",
+    "confirmPassword": "Confirm Password",
+    "name": "Full Name",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
-    "alreadyHaveAccount": "Already have an account?"
+    "alreadyHaveAccount": "Already have an account?",
+    "signInTitle": "Welcome back",
+    "signInDescription": "Enter your credentials to access your account",
+    "signUpTitle": "Create an account",
+    "signUpDescription": "Enter your details to get started",
+    "orContinueWith": "Or continue with",
+    "continueWithGoogle": "Continue with Google",
+    "passwordMismatch": "Passwords do not match",
+    "signingIn": "Signing in...",
+    "signingUp": "Signing up..."
   },
   "Common": {
     "loading": "Loading...",
