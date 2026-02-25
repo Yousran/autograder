@@ -35,14 +35,14 @@ export function SettingsTab({
   initialIsShowCorrectAnswers,
   initialIsQuestionsOrdered,
 }: Props) {
-  const tTests = useTranslations("Tests");
+  const tComponentTest = useTranslations("Components.test");
 
   return (
     <div className="flex flex-col gap-4">
       <Card className="p-6 flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Label className="text-md font-bold">
-            {tTests("descriptionLabel")}
+            {tComponentTest("descriptionLabel")}
           </Label>
           <TestDescriptionEditable
             testId={testId}
@@ -52,13 +52,13 @@ export function SettingsTab({
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
             <Label className="text-md font-bold">
-              {tTests("durationLabel")}
+              {tComponentTest("durationLabel")}
             </Label>
             <DurationEditable testId={testId} initialValue={initialDuration} />
           </div>
           <div className="flex flex-col gap-1">
             <Label className="text-md font-bold">
-              {tTests("maxAttemptsLabel")}
+              {tComponentTest("maxAttemptsLabel")}
             </Label>
             <MaxAttemptEditable
               testId={testId}
@@ -69,10 +69,10 @@ export function SettingsTab({
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
             <Label className="text-md font-bold">
-              {tTests("isAcceptingResponsesLabel")}
+              {tComponentTest("isAcceptingResponsesLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              {tTests("isAcceptingResponsesDesc")}
+              {tComponentTest("isAcceptingResponsesDesc")}
             </p>
           </div>
           <AcceptingResponsesToggle
@@ -83,10 +83,10 @@ export function SettingsTab({
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
             <Label className="text-md font-bold">
-              {tTests("isLoggedInUserOnlyLabel")}
+              {tComponentTest("isLoggedInUserOnlyLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              {tTests("isLoggedInUserOnlyDesc")}
+              {tComponentTest("isLoggedInUserOnlyDesc")}
             </p>
           </div>
           <LoggedInUserOnlyToggle
@@ -97,10 +97,10 @@ export function SettingsTab({
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
             <Label className="text-md font-bold">
-              {tTests("isShowDetailedScoreLabel")}
+              {tComponentTest("isShowDetailedScoreLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              {tTests("isShowDetailedScoreDesc")}
+              {tComponentTest("isShowDetailedScoreDesc")}
             </p>
           </div>
           <ShowDetailedScoreToggle
@@ -111,10 +111,10 @@ export function SettingsTab({
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
             <Label className="text-md font-bold">
-              {tTests("isShowCorrectAnswersLabel")}
+              {tComponentTest("isShowCorrectAnswersLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              {tTests("isShowCorrectAnswersDesc")}
+              {tComponentTest("isShowCorrectAnswersDesc")}
             </p>
           </div>
           <ShowCorrectAnswersToggle
@@ -125,10 +125,10 @@ export function SettingsTab({
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
             <Label className="text-md font-bold">
-              {tTests("isQuestionsOrderedLabel")}
+              {tComponentTest("isQuestionsOrderedLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              {tTests("isQuestionsOrderedDesc")}
+              {tComponentTest("isQuestionsOrderedDesc")}
             </p>
           </div>
           <QuestionsOrderedToggle

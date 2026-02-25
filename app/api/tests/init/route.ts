@@ -8,7 +8,7 @@ export async function POST() {
   if (!auth.ok) return auth.response;
 
   const locale = await getLocale();
-  const t = await getTranslations({ locale, namespace: "Tests" });
+  const t = await getTranslations({ locale, namespace: "Api.tests" });
 
   try {
     const test = await prisma.test.create({

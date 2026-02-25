@@ -13,7 +13,7 @@ interface Props {
 
 export default async function TestPage({ params }: Props) {
   const { id } = await params;
-  const t = await getTranslations("Tests");
+  const t = await getTranslations("Pages.test");
 
   const test = await prisma.test.findUnique({
     where: { id },

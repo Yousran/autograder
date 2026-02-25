@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { CreateTestButton } from "@/components/custom/create-test-button";
 
 export default function Home() {
-  const t = useTranslations("Home");
+  const t = useTranslations("Pages.home");
   const [code, setCode] = useState("");
   const { data: session } = authClient.useSession();
 

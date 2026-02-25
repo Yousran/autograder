@@ -27,7 +27,8 @@ interface Props {
 }
 
 export function TestDescriptionEditable({ testId, initialDescription }: Props) {
-  const tTests = useTranslations("Tests");
+  const tApiTests = useTranslations("Api.tests");
+  const tComponentTest = useTranslations("Components.test");
   const tCommon = useTranslations("Common");
 
   async function handleSubmit(value: string) {
@@ -41,21 +42,21 @@ export function TestDescriptionEditable({ testId, initialDescription }: Props) {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         toast.error(
-          (data as { error?: string }).error ?? tTests("updateFailed"),
+          (data as { error?: string }).error ?? tApiTests("updateFailed"),
         );
         return;
       }
 
-      toast.success(tTests("updateSuccess"));
+      toast.success(tApiTests("updateSuccess"));
     } catch {
-      toast.error(tTests("updateFailed"));
+      toast.error(tApiTests("updateFailed"));
     }
   }
 
   return (
     <Editable
       defaultValue={initialDescription ?? ""}
-      placeholder={tTests("descriptionPlaceholder")}
+      placeholder={tComponentTest("descriptionPlaceholder")}
       onSubmit={handleSubmit}
       className="group"
     >

@@ -21,7 +21,7 @@ export async function requireAuth(): Promise<AuthSuccess | AuthFailure> {
   const session = await getSession();
   if (!session) {
     const locale = await getLocale();
-    const t = await getTranslations({ locale, namespace: "Upload" });
+    const t = await getTranslations({ locale, namespace: "Api.upload" });
     return {
       ok: false,
       response: NextResponse.json(

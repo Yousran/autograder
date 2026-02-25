@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function MaxAttemptEditable({ testId, initialValue }: Props) {
-  const tTests = useTranslations("Tests");
+  const tApiTests = useTranslations("Api.tests");
   const [value, setValue] = useState<number | undefined>(
     initialValue ?? undefined,
   );
@@ -38,14 +38,14 @@ export function MaxAttemptEditable({ testId, initialValue }: Props) {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         toast.error(
-          (data as { error?: string }).error ?? tTests("updateFailed"),
+          (data as { error?: string }).error ?? tApiTests("updateFailed"),
         );
         return;
       }
 
-      toast.success(tTests("updateSuccess"));
+      toast.success(tApiTests("updateSuccess"));
     } catch {
-      toast.error(tTests("updateFailed"));
+      toast.error(tApiTests("updateFailed"));
     }
   }
 

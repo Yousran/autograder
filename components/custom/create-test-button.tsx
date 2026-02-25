@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 
 export function CreateTestButton({ className }: { className?: string }) {
   const router = useRouter();
-  const t = useTranslations("Tests");
+  const t = useTranslations("Components.createTestButton");
   const handleCreate = async () => {
     const res = await fetch("/api/tests/init", { method: "POST" });
     const data = await res.json();

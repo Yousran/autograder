@@ -21,7 +21,7 @@ import { authClient } from "@/lib/auth-client";
 import { SettingsMenu } from "@/components/custom/settings-menu";
 
 export default function Navbar() {
-  const t = useTranslations("Navbar");
+  const t = useTranslations("Components.navbar");
   const router = useRouter();
   const { data: session } = authClient.useSession();
 

@@ -13,7 +13,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const locale = await getLocale();
 
   const [tTests, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Tests" }),
+    getTranslations({ locale, namespace: "Api.tests" }),
     getTranslations({ locale, namespace: "Validation" }),
   ]);
 

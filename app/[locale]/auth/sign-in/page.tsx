@@ -19,7 +19,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
 export default function SignInPage() {
-  const t = useTranslations("Auth");
+  const t = useTranslations("Pages.auth");
   const router = useRouter();
 
   const [email, setEmail] = useState("");

@@ -18,7 +18,7 @@ const MAX_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
 // Allowed types: JPG, PNG, GIF, WebP. Max size: 2 MB.
 export async function POST(req: NextRequest) {
   const locale = await getLocale();
-  const t = await getTranslations({ locale, namespace: "Upload" });
+  const t = await getTranslations({ locale, namespace: "Api.upload" });
 
   try {
     const authResult = await requireAuth();

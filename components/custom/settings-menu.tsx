@@ -22,7 +22,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { Button } from "../ui/button";
 
 export function SettingsMenu() {
-  const t = useTranslations("Settings");
+  const t = useTranslations("Components.settingsMenu");
   const { theme, setTheme } = useTheme();
   const locale = useLocale();
   const router = useRouter();

@@ -1,68 +1,20 @@
 {
-  "Home": {
-    "title": "Selamat Datang di Autograder",
-    "getStarted": "Mulai",
-    "enterJoinCode": "Masukkan Kode Ujian",
-    "join": "Bergabung",
-    "scanQrCode": "Pindai Kode QR",
-    "createTest": "Buat Ujian",
-    "or": "atau",
-    "createTestHeading": "Apakah Anda seorang pengajar?",
-    "createTestDescription": "Buat soal ujian, nilai otomatis, dan pantau perkembangan siswa — semua dalam satu tempat."
-  },
-  "Auth": {
-    "signIn": "Masuk",
-    "signUp": "Daftar",
-    "signOut": "Keluar",
-    "email": "Email",
-    "password": "Kata Sandi",
-    "confirmPassword": "Konfirmasi Kata Sandi",
-    "name": "Nama Lengkap",
-    "forgotPassword": "Lupa kata sandi?",
-    "noAccount": "Belum punya akun?",
-    "alreadyHaveAccount": "Sudah punya akun?",
-    "signInTitle": "Selamat datang kembali",
-    "signInDescription": "Masukkan kredensial Anda untuk mengakses akun",
-    "signUpTitle": "Buat akun baru",
-    "signUpDescription": "Masukkan detail Anda untuk memulai",
-    "orContinueWith": "Atau lanjutkan dengan",
-    "continueWithGoogle": "Lanjutkan dengan Google",
-    "passwordMismatch": "Kata sandi tidak cocok",
-    "signingIn": "Sedang masuk...",
-    "signingUp": "Sedang mendaftar..."
-  },
-  "Upload": {
-    "invalidFile": "File tidak ditemukan atau tidak valid",
-    "unsupportedFormat": "Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WebP.",
-    "fileTooLarge": "Ukuran file melebihi batas 2 MB.",
-    "unauthorized": "Tidak terotorisasi",
-    "uploadFailed": "Gagal mengunggah gambar. Coba lagi."
-  },
-  "Navbar": {
-    "account": "Akun",
-    "signIn": "Masuk",
-    "signUp": "Daftar",
-    "profile": "Profil",
-    "logout": "Keluar"
-  },
-  "Settings": {
-    "settings": "Pengaturan",
-    "theme": "Tema",
-    "themeSystem": "Sistem",
-    "themeLight": "Terang",
-    "themeDark": "Gelap",
-    "language": "Bahasa"
-  },
-  "Common": {
-    "loading": "Memuat...",
-    "error": "Terjadi kesalahan",
-    "save": "Simpan",
-    "cancel": "Batal",
-    "delete": "Hapus",
-    "edit": "Ubah",
-    "back": "Kembali",
-    "next": "Berikutnya",
-    "submit": "Kirim"
+  "Api": {
+    "upload": {
+      "invalidFile": "File tidak ditemukan atau tidak valid",
+      "unsupportedFormat": "Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WebP.",
+      "fileTooLarge": "Ukuran file melebihi batas 2 MB.",
+      "unauthorized": "Tidak terotorisasi",
+      "uploadFailed": "Gagal mengunggah gambar. Coba lagi."
+    },
+    "tests": {
+      "createFailed": "Gagal membuat ujian. Silakan coba lagi.",
+      "unauthorized": "Anda harus masuk untuk membuat ujian.",
+      "updateFailed": "Gagal memperbarui ujian. Silakan coba lagi.",
+      "updateSuccess": "Ujian berhasil diperbarui.",
+      "notFound": "Ujian tidak ditemukan.",
+      "forbidden": "Anda tidak memiliki izin untuk memperbarui ujian ini."
+    }
   },
   "Validation": {
     "required": "Bidang ini wajib diisi",
@@ -98,33 +50,93 @@
     "scoreNonNegative": "Skor harus 0 atau lebih",
     "atLeastOneChoice": "Harap pilih setidaknya satu pilihan"
   },
-  "Tests": {
-    "createTest": "Buat Ujian Baru",
-    "myTests": "Ujian Saya",
-    "noTests": "Anda belum membuat ujian apapun.",
-    "createFailed": "Gagal membuat ujian. Silakan coba lagi.",
-    "unauthorized": "Anda harus masuk untuk membuat ujian.",
-    "updateSuccess": "Ujian berhasil diperbarui.",
-    "updateFailed": "Gagal memperbarui ujian. Silakan coba lagi.",
-    "notFound": "Ujian tidak ditemukan.",
-    "forbidden": "Anda tidak memiliki izin untuk memperbarui ujian ini.",
-    "tabSettings": "Pengaturan",
-    "tabQuestions": "Pertanyaan",
-    "tabParticipants": "Peserta",
-    "descriptionLabel": "Deskripsi",
-    "descriptionPlaceholder": "Tambahkan deskripsi...",
-    "titleLabel": "Judul",
-    "durationLabel": "Durasi (menit)",
-    "maxAttemptsLabel": "Maks. Percobaan",
-    "isAcceptingResponsesLabel": "Menerima Jawaban",
-    "isAcceptingResponsesDesc": "Izinkan peserta mengirimkan jawaban untuk ujian ini.",
-    "isLoggedInUserOnlyLabel": "Hanya Pengguna Masuk",
-    "isLoggedInUserOnlyDesc": "Batasi ujian ini hanya untuk pengguna yang sudah masuk.",
-    "isShowDetailedScoreLabel": "Tampilkan Skor Detail",
-    "isShowDetailedScoreDesc": "Tampilkan rincian skor kepada peserta setelah pengumpulan.",
-    "isShowCorrectAnswersLabel": "Tampilkan Jawaban Benar",
-    "isShowCorrectAnswersDesc": "Ungkapkan jawaban yang benar kepada peserta setelah selesai.",
-    "isQuestionsOrderedLabel": "Urutan Soal Tetap",
-    "isQuestionsOrderedDesc": "Tampilkan soal dalam urutan tetap, bukan acak."
+  "Common": {
+    "loading": "Memuat...",
+    "error": "Terjadi kesalahan",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Ubah",
+    "back": "Kembali",
+    "next": "Berikutnya",
+    "submit": "Kirim"
+  },
+  "Pages": {
+    "home": {
+      "title": "Selamat Datang di Autograder",
+      "getStarted": "Mulai",
+      "enterJoinCode": "Masukkan Kode Ujian",
+      "join": "Bergabung",
+      "scanQrCode": "Pindai Kode QR",
+      "createTest": "Buat Ujian",
+      "or": "atau",
+      "createTestHeading": "Apakah Anda seorang pengajar?",
+      "createTestDescription": "Buat soal ujian, nilai otomatis, dan pantau perkembangan siswa — semua dalam satu tempat."
+    },
+    "auth": {
+      "signIn": "Masuk",
+      "signUp": "Daftar",
+      "signOut": "Keluar",
+      "email": "Email",
+      "password": "Kata Sandi",
+      "confirmPassword": "Konfirmasi Kata Sandi",
+      "name": "Nama Lengkap",
+      "forgotPassword": "Lupa kata sandi?",
+      "noAccount": "Belum punya akun?",
+      "alreadyHaveAccount": "Sudah punya akun?",
+      "signInTitle": "Selamat datang kembali",
+      "signInDescription": "Masukkan kredensial Anda untuk mengakses akun",
+      "signUpTitle": "Buat akun baru",
+      "signUpDescription": "Masukkan detail Anda untuk memulai",
+      "orContinueWith": "Atau lanjutkan dengan",
+      "continueWithGoogle": "Lanjutkan dengan Google",
+      "passwordMismatch": "Kata sandi tidak cocok",
+      "signingIn": "Sedang masuk...",
+      "signingUp": "Sedang mendaftar..."
+    },
+    "test": {
+      "myTests": "Ujian Saya",
+      "noTests": "Anda belum membuat ujian apapun.",
+      "tabSettings": "Pengaturan",
+      "tabQuestions": "Pertanyaan",
+      "tabParticipants": "Peserta"
+    }
+  },
+  "Components": {
+    "navbar": {
+      "account": "Akun",
+      "signIn": "Masuk",
+      "signUp": "Daftar",
+      "profile": "Profil",
+      "logout": "Keluar"
+    },
+    "settingsMenu": {
+      "settings": "Pengaturan",
+      "theme": "Tema",
+      "themeSystem": "Sistem",
+      "themeLight": "Terang",
+      "themeDark": "Gelap",
+      "language": "Bahasa"
+    },
+    "createTestButton": {
+      "createTest": "Buat Ujian Baru"
+    },
+    "test": {
+      "titleLabel": "Judul",
+      "descriptionLabel": "Deskripsi",
+      "descriptionPlaceholder": "Tambahkan deskripsi...",
+      "durationLabel": "Durasi (menit)",
+      "maxAttemptsLabel": "Maks. Percobaan",
+      "isAcceptingResponsesLabel": "Menerima Jawaban",
+      "isAcceptingResponsesDesc": "Izinkan peserta mengirimkan jawaban untuk ujian ini.",
+      "isLoggedInUserOnlyLabel": "Hanya Pengguna Masuk",
+      "isLoggedInUserOnlyDesc": "Batasi ujian ini hanya untuk pengguna yang sudah masuk.",
+      "isShowDetailedScoreLabel": "Tampilkan Skor Detail",
+      "isShowDetailedScoreDesc": "Tampilkan rincian skor kepada peserta setelah pengumpulan.",
+      "isShowCorrectAnswersLabel": "Tampilkan Jawaban Benar",
+      "isShowCorrectAnswersDesc": "Ungkapkan jawaban yang benar kepada peserta setelah selesai.",
+      "isQuestionsOrderedLabel": "Urutan Soal Tetap",
+      "isQuestionsOrderedDesc": "Tampilkan soal dalam urutan tetap, bukan acak."
+    }
   }
 }
