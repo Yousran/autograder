@@ -107,6 +107,9 @@
     "updateSuccess": "Ujian berhasil diperbarui.",
     "updateFailed": "Gagal memperbarui ujian. Silakan coba lagi.",
     "notFound": "Ujian tidak ditemukan.",
-    "forbidden": "Anda tidak memiliki izin untuk memperbarui ujian ini."
+    "forbidden": "Anda tidak memiliki izin untuk memperbarui ujian ini.",
+    "tabSettings": "Pengaturan",
+    "tabQuestions": "Pertanyaan",
+    "tabParticipants": "Peserta"
   }
 }

@@ -14,6 +14,12 @@ import {
   EditableTrigger,
   EditableToolbar,
 } from "@/components/ui/editable";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Props {
   testId: string;
@@ -53,24 +59,40 @@ export function TestTitleEditable({ testId, initialTitle }: Props) {
       className="group"
     >
       <EditableArea>
-        <EditablePreview className="text-2xl font-bold border-transparent px-0 py-0 rounded-none" />
-        <EditableInput className="text-2xl font-bold" />
+        <EditablePreview className="text-3xl md:text-3xl text-center font-bold border-transparent px-0 py-0 rounded-none" />
+        <EditableInput className="text-3xl md:text-3xl font-bold" />
         <EditableTrigger
           className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
           asChild
         ></EditableTrigger>
       </EditableArea>
       <EditableToolbar>
-        <EditableSubmit asChild>
-          <Button size="sm" aria-label={tCommon("save")}>
-            <CheckIcon className="h-4 w-4" />
-          </Button>
-        </EditableSubmit>
-        <EditableCancel asChild>
-          <Button variant="outline" size="sm" aria-label={tCommon("cancel")}>
-            <XIcon className="h-4 w-4" />
-          </Button>
-        </EditableCancel>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <EditableSubmit asChild>
+                <Button size="sm" aria-label={tCommon("save")}>
+                  <CheckIcon />
+                </Button>
+              </EditableSubmit>
+            </TooltipTrigger>
+            <TooltipContent>{tCommon("save")}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <EditableCancel asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-label={tCommon("cancel")}
+                >
+                  <XIcon />
+                </Button>
+              </EditableCancel>
+            </TooltipTrigger>
+            <TooltipContent>{tCommon("cancel")}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </EditableToolbar>
     </Editable>
   );
