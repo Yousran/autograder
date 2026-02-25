@@ -14,25 +14,22 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
+  id            String    @id
   name          String
   email         String
-  emailVerified Boolean  @default(false)
+  emailVerified Boolean   @default(false)
   image         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  sessions     Session[]
-  accounts     Account[]
-  tests        Test[]
-  participants Participant[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
 
   @@unique([email])
   @@map("user")
 }
 
 model Session {
-  id        String   @id @default(cuid())
+  id        String   @id
   expiresAt DateTime
   token     String
   createdAt DateTime @default(now())
@@ -40,8 +37,7 @@ model Session {
   ipAddress String?
   userAgent String?
   userId    String
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
   @@index([userId])
@@ -49,10 +45,11 @@ model Session {
 }
 
 model Account {
-  id                    String    @id @default(cuid())
+  id                    String    @id
   accountId             String
   providerId            String
   userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -60,18 +57,15 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@index([userId])
   @@map("account")
 }
 
 model Verification {
-  id         String   @id @default(cuid())
+  id         String   @id
   identifier String
   value      String
   expiresAt  DateTime
@@ -80,225 +74,4 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
-}
-
-model Participant {
-  id          String  @id @default(cuid())
-  testId      String
-  userId      String? // Optional: Allows Guest users OR Logged-in users to take tests
-  isCompleted Boolean @default(false)
-
-  name  String // Keeping this as "Display Name" for the specific test session
-  score Float  @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  test                  Test                   @relation(fields: [testId], references: [id], onDelete: Cascade)
-  user                  User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  essayAnswers          EssayAnswer[]
-  choiceAnswers         ChoiceAnswer[]
-  multipleSelectAnswers MultipleSelectAnswer[]
-
-  @@index([testId])
-  @@index([userId])
-  @@index([name])
-}
-
-model Test {
-  id        String @id @default(cuid())
-  creatorId String
-
-  title        String
-  joinCode     String    @unique
-  description  String?   @db.Text
-  testDuration Int?
-  startTime    DateTime?
-  endTime      DateTime?
-
-  isAcceptingResponses Boolean @default(true)
-  loggedInUserOnly     Boolean @default(false)
-  maxAttempts          Int?
-  showDetailedScore    Boolean @default(true)
-  showCorrectAnswers   Boolean @default(false)
-  isQuestionsOrdered   Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user          User               @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  prerequisites TestPrerequisite[] @relation("TestPrerequisites")
-  requiredFor   TestPrerequisite[] @relation("IsPrerequisiteFor")
-  participants  Participant[]
-  questions     Question[]
-
-  @@index([creatorId])
-}
-
-model TestPrerequisite {
-  id                 String @id @default(cuid())
-  testId             String // The test that is currently "locked"
-  prerequisiteTestId String // The test that must be completed first
-  minScoreRequired   Float  @default(0)
-
-  test             Test @relation("TestPrerequisites", fields: [testId], references: [id], onDelete: Cascade)
-  prerequisiteTest Test @relation("IsPrerequisiteFor", fields: [prerequisiteTestId], references: [id], onDelete: Cascade)
-
-  @@unique([testId, prerequisiteTestId])
-  @@index([testId])
-  @@index([prerequisiteTestId])
-}
-
-enum QuestionType {
-  ESSAY
-  CHOICE
-  MULTIPLE_SELECT
-}
-
-model Question {
-  id     String @id @default(cuid())
-  testId String
-
-  questionText String       @db.Text
-  type         QuestionType
-  order        Int          @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  test           Test                    @relation(fields: [testId], references: [id], onDelete: Cascade)
-  essay          EssayQuestion?
-  choice         ChoiceQuestion?
-  multipleSelect MultipleSelectQuestion?
-
-  @@index([testId, order])
-}
-
-// --- ESSAY QUESTION ---
-model EssayQuestion {
-  id            String  @id @default(cuid())
-  answerText    String  @db.Text
-  isExactAnswer Boolean
-  maxScore      Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  question Question      @relation(fields: [id], references: [id], onDelete: Cascade)
-  answers  EssayAnswer[]
-}
-
-model EssayAnswer {
-  id            String @id @default(cuid())
-  participantId String
-  questionId    String
-
-  answerText       String  @db.Text
-  score            Int     @default(0)
-  scoreExplanation String? @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  participant Participant   @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  question    EssayQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-}
-
-// --- CHOICE QUESTION ---
-model ChoiceQuestion {
-  id String @id @default(cuid())
-
-  isChoiceRandomized Boolean
-  maxScore           Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  question Question       @relation(fields: [id], references: [id], onDelete: Cascade)
-  choices  Choice[]
-  answers  ChoiceAnswer[]
-}
-
-model Choice {
-  id         String  @id @default(cuid())
-  questionId String
-  choiceText String  @db.Text
-  isCorrect  Boolean
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  question ChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answers  ChoiceAnswer[]
-
-  @@index([questionId])
-}
-
-model ChoiceAnswer {
-  id               String  @id @default(cuid())
-  questionId       String
-  participantId    String
-  selectedChoiceId String?
-
-  score Int @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  question    ChoiceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  participant Participant    @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  choice      Choice?        @relation(fields: [selectedChoiceId], references: [id], onDelete: Cascade)
-
-  @@index([participantId])
-  @@index([questionId])
-  @@index([selectedChoiceId])
-}
-
-// --- MULTIPLE SELECT QUESTION ---
-model MultipleSelectQuestion {
-  id String @id @default(cuid())
-
-  isChoiceRandomized Boolean
-  maxScore           Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  question              Question               @relation(fields: [id], references: [id], onDelete: Cascade)
-  multipleSelectChoices MultipleSelectChoice[]
-  answers               MultipleSelectAnswer[]
-}
-
-model MultipleSelectChoice {
-  id         String @id @default(cuid())
-  questionId String
-
-  choiceText String  @db.Text
-  isCorrect  Boolean
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  question MultipleSelectQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answers  MultipleSelectAnswer[] @relation("MultipleSelectAnswerSelectedChoices")
-
-  @@index([questionId])
-}
-
-model MultipleSelectAnswer {
-  id            String @id @default(cuid())
-  questionId    String
-  participantId String
-
-  score Int @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  participant     Participant            @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  question        MultipleSelectQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  selectedChoices MultipleSelectChoice[] @relation("MultipleSelectAnswerSelectedChoices")
-
-  @@index([participantId])
-  @@index([questionId])
 }
