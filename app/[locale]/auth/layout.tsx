@@ -18,7 +18,7 @@ export default async function AuthLayout({
 }) {
   const session = await getSession();
   if (session) {
-    redirect("/dashboard");
+    redirect("/");
   }
 
   return <>{children}</>;

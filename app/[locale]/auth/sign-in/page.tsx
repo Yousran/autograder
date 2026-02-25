@@ -44,13 +44,13 @@ export default function SignInPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/");
   }
 
   async function handleGoogle() {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
+      callbackURL: "/",
     });
   }
 
