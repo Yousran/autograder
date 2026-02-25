@@ -103,6 +103,10 @@
     "myTests": "Ujian Saya",
     "noTests": "Anda belum membuat ujian apapun.",
     "createFailed": "Gagal membuat ujian. Silakan coba lagi.",
-    "unauthorized": "Anda harus masuk untuk membuat ujian."
+    "unauthorized": "Anda harus masuk untuk membuat ujian.",
+    "updateSuccess": "Ujian berhasil diperbarui.",
+    "updateFailed": "Gagal memperbarui ujian. Silakan coba lagi.",
+    "notFound": "Ujian tidak ditemukan.",
+    "forbidden": "Anda tidak memiliki izin untuk memperbarui ujian ini."
   }
 }

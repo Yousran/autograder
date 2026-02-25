@@ -103,6 +103,10 @@
     "myTests": "My Tests",
     "noTests": "You haven't created any tests yet.",
     "createFailed": "Failed to create test. Please try again.",
-    "unauthorized": "You must be signed in to create a test."
+    "unauthorized": "You must be signed in to create a test.",
+    "updateSuccess": "Test updated successfully.",
+    "updateFailed": "Failed to update test. Please try again.",
+    "notFound": "Test not found.",
+    "forbidden": "You are not authorized to update this test."
   }
 }
