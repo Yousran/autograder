@@ -110,7 +110,7 @@ model Test {
   creatorId String
 
   title        String
-  joinCode     String    @unique
+  joinCode     String?   @unique
   description  String?   @db.Text
   testDuration Int?
   startTime    DateTime?
