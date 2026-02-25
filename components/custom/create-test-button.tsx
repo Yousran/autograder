@@ -10,7 +10,7 @@ export function CreateTestButton({ className }: { className?: string }) {
     const res = await fetch("/api/tests/init", { method: "POST" });
     const data = await res.json();
 
-    router.push(`/test/${data.id}/edit`);
+    router.push(`/test/${data.id}`);
   };
 
   return (
