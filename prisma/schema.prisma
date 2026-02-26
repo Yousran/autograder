@@ -163,7 +163,7 @@ model Question {
 
   questionText String       @db.Text
   type         QuestionType
-  order        Int          @default(0)
+  order        String       @default("a0")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

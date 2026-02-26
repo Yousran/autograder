@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Question" ALTER COLUMN "order" SET DEFAULT 'a0',
+ALTER COLUMN "order" SET DATA TYPE TEXT;

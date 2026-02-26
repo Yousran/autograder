@@ -134,6 +134,8 @@ export type QuestionInput = z.infer<ReturnType<typeof createQuestionSchema>>;
 export const createQuestionRequestSchema = (t: TranslateFn) =>
   z.object({
     testId: z.cuid(t("testIdRequired")),
+    // Optional: ID of question to insert after. null = insert at start, omitted = append at end.
+    insertAfterId: z.cuid(t("questionIdRequired")).nullable().optional(),
   });
 
 export type CreateQuestionRequestInput = z.infer<
@@ -147,7 +149,7 @@ export type CreateQuestionRequestInput = z.infer<
 export const createQuestionOrderSchema = () =>
   z.object({
     id: z.cuid(),
-    order: z.number().int().nonnegative(),
+    order: z.string().min(1),
   });
 
 export type QuestionOrderInput = z.infer<
