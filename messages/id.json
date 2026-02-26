@@ -140,6 +140,7 @@
       "createFailed": "Gagal menambahkan pertanyaan.",
       "fetchFailed": "Gagal memuat daftar pertanyaan.",
       "deleteFailed": "Gagal menghapus pertanyaan.",
+      "questionTextPlaceholder": "Masukkan teks pertanyaan...",
       "questionType": {
         "essay": "Esai",
         "choice": "Pilihan",
