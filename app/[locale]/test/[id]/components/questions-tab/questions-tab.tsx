@@ -4,7 +4,7 @@ import { useState, useEffect, Fragment } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Sortable } from "@/components/reui/sortable";
-import { QuestionCard } from "./question-card";
+import { QuestionCard } from "./question-card/question-card";
 import { QuestionsSkeleton } from "./questions-skeleton";
 import { AddDivider } from "./add-divider";
 import {

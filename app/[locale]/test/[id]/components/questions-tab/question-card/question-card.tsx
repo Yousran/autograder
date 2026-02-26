@@ -13,8 +13,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { QUESTION_TYPES, getQuestionTypeLabel } from "@/lib/schemas/question";
 import type { QuestionSchema } from "@/lib/schemas/question";
+import { QuestionType } from "@/lib/generated/prisma/enums";
+import { QuestionChoice } from "./question-choice";
+import { QuestionMultipleChoice } from "./question-multiple-choice";
+import { QuestionEssay } from "./question-essay";
 export type { QuestionSchema };
 
 interface QuestionCardProps {
@@ -57,6 +62,19 @@ export function QuestionCard({ question, index, onDelete }: QuestionCardProps) {
             <Trash2Icon />
           </Button>
         </div>
+        <div>
+          <Textarea
+            placeholder={t("questionTextPlaceholder")}
+            value={question.questionText}
+            readOnly
+            className="min-h-24"
+          />
+        </div>
+        {question.type === QuestionType.CHOICE && <QuestionChoice />}
+        {question.type === QuestionType.MULTIPLE_SELECT && (
+          <QuestionMultipleChoice />
+        )}
+        {question.type === QuestionType.ESSAY && <QuestionEssay />}
       </Card>
     </SortableItem>
   );
