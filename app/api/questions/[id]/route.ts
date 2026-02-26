@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
+import { generateKeyBetween } from "fractional-indexing";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { QuestionType } from "@/lib/generated/prisma/enums";
@@ -9,6 +10,10 @@ import {
   defaultChoiceQuestionData,
   defaultMultipleSelectQuestionData,
 } from "@/lib/schemas/question";
+
+function toFractionalKey(order: string): string | null {
+  return /^[a-z]/.test(order) ? order : null;
+}
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -144,6 +149,62 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const data = parsed.data;
 
   try {
+    // Handle reorder: `data.order` is the order of the displaced item (the one
+    // that will sit after the moved question), or null if moved to the end.
+    if ("order" in data) {
+      // Fetch all sibling questions EXCEPT the moved one, sorted by order.
+      const siblings = await prisma.question.findMany({
+        where: { testId: question.testId, NOT: { id } },
+        orderBy: { order: "asc" },
+        select: { order: true },
+      });
+
+      let newOrder: string;
+
+      if (data.order === null) {
+        // Moving to the very end.
+        const last = siblings[siblings.length - 1];
+        newOrder = generateKeyBetween(
+          last ? toFractionalKey(last.order) : null,
+          null,
+        );
+      } else {
+        // `data.order` is the order of the displaced item (the one that will sit
+        // after the moved question). Find what comes before it to generate between.
+        const displacedKey = toFractionalKey(data.order);
+        const displacedIdx = siblings.findIndex((s) => s.order === data.order);
+
+        // Find the nearest sibling before the displaced item with a different
+        // order value (guards against legacy duplicate-order rows).
+        let beforeKey: string | null = null;
+        const start =
+          displacedIdx === -1 ? siblings.length - 1 : displacedIdx - 1;
+        for (let i = start; i >= 0; i--) {
+          const key = toFractionalKey(siblings[i].order);
+          if (key !== displacedKey) {
+            beforeKey = key;
+            break;
+          }
+        }
+
+        newOrder = generateKeyBetween(beforeKey, displacedKey);
+      }
+
+      const updated = await prisma.question.update({
+        where: { id },
+        data: { order: newOrder },
+      });
+      return NextResponse.json(updated);
+    }
+
+    // Type guard: narrowing to discriminated union after reorder check
+    if (!("type" in data)) {
+      return NextResponse.json(
+        { error: tQuestions("updateFailed") },
+        { status: 400 },
+      );
+    }
+
     const updated = await prisma.$transaction(async (tx) => {
       // If the question type changed, delete the old sub-question record
       // (cascade will handle its children)

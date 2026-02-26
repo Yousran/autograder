@@ -100,8 +100,17 @@ export async function POST(req: NextRequest) {
       );
     }
     const afterOrder = toFractionalKey(allQuestions[afterIndex].order);
-    const nextItem = allQuestions[afterIndex + 1];
-    const nextOrder = nextItem ? toFractionalKey(nextItem.order) : null;
+
+    // Find the next item with a different order (skip duplicates)
+    let nextOrder: string | null = null;
+    for (let i = afterIndex + 1; i < allQuestions.length; i++) {
+      const potentialOrder = toFractionalKey(allQuestions[i].order);
+      if (potentialOrder !== afterOrder) {
+        nextOrder = potentialOrder;
+        break;
+      }
+    }
+
     newOrder = generateKeyBetween(afterOrder, nextOrder);
   }
 

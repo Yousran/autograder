@@ -140,6 +140,7 @@
       "createFailed": "Failed to add question.",
       "fetchFailed": "Failed to load questions.",
       "deleteFailed": "Failed to delete question.",
+      "reorderFailed": "Failed to reorder questions. Please try again.",
       "questionTextPlaceholder": "Enter question text...",
       "questionType": {
         "essay": "Essay",

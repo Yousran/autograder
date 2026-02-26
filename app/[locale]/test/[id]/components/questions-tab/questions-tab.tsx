@@ -12,13 +12,16 @@ import {
   defaultQuestionData,
 } from "@/lib/schemas/question";
 
+/** Extends the base schema with the fractional-indexing order value. */
+type QuestionItem = QuestionSchema & { order: string };
+
 interface QuestionsTabProps {
   testId: string;
 }
 
 export function QuestionsTab({ testId }: QuestionsTabProps) {
   const t = useTranslations("Components.questionsTab");
-  const [questions, setQuestions] = useState<QuestionSchema[]>([]);
+  const [questions, setQuestions] = useState<QuestionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,7 +36,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
           toast.error(data?.error ?? t("fetchFailed"));
           return;
         }
-        const data: QuestionSchema[] = await res.json();
+        const data: QuestionItem[] = await res.json();
         if (!cancelled) setQuestions(data);
       } catch {
         if (!cancelled) toast.error(t("fetchFailed"));
@@ -66,12 +69,54 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
   // afterId: string  → insert after that question
   // afterId: null    → insert at beginning
   // afterId: undefined (omitted) → append at end
+  async function handleReorder(newQuestions: QuestionItem[]): Promise<void> {
+    // Drag-and-drop moves exactly one item at a time — find it.
+    const movedItem = newQuestions.find((q, newIdx) => {
+      const prevIdx = questions.findIndex((prev) => prev.id === q.id);
+      return prevIdx !== newIdx;
+    });
+
+    if (!movedItem) return;
+
+    // Optimistic update
+    const previous = questions;
+    setQuestions(newQuestions);
+
+    const newIdx = newQuestions.findIndex((q) => q.id === movedItem.id);
+    // Send the order of the item being displaced (now sits after the drop),
+    // or null if the question was moved to the very end.
+    const afterItem =
+      newIdx < newQuestions.length - 1 ? newQuestions[newIdx + 1] : null;
+
+    const res = await fetch(`/api/questions/${movedItem.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order: afterItem?.order ?? null }),
+    }).catch(() => null);
+
+    if (!res || !res.ok) {
+      setQuestions(previous);
+      const data = await res?.json().catch(() => ({}));
+      toast.error(data?.error ?? t("reorderFailed"));
+      return;
+    }
+
+    // Update the moved item's order from the server's authoritative response.
+    const updated: { order: string } = await res.json();
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.id === movedItem.id ? { ...q, order: updated.order } : q,
+      ),
+    );
+  }
+
   async function handleCreate(afterId?: string | null): Promise<void> {
     const tempId = `temp-${Date.now()}`;
-    const tempItem: QuestionSchema = {
+    const tempItem: QuestionItem = {
       id: tempId,
       type: defaultQuestionData.type,
       questionText: defaultQuestionData.questionText,
+      order: "",
     };
 
     // Optimistic insert
@@ -104,7 +149,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
       return;
     }
 
-    const question = await res.json();
+    const question: QuestionItem = await res.json();
     setQuestions((prev) =>
       prev.map((q) =>
         q.id === tempId
@@ -112,6 +157,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
               id: question.id,
               type: question.type,
               questionText: question.questionText,
+              order: question.order,
             }
           : q,
       ),
@@ -126,7 +172,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     <div className="flex flex-col gap-4">
       <Sortable
         value={questions}
-        onValueChange={setQuestions}
+        onValueChange={handleReorder}
         getItemValue={(item) => item.id}
         strategy="vertical"
         className="flex flex-col"
