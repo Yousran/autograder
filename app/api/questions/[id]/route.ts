@@ -20,7 +20,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
 
   const question = await prisma.question.findUnique({
     where: { id },
-    select: { testId: true },
+    select: { testId: true, type: true },
   });
 
   if (!question) {
@@ -51,7 +51,16 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   }
 
   try {
-    await prisma.question.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      if (question.type === QuestionType.CHOICE) {
+        await tx.choice.deleteMany({ where: { questionId: id } });
+        await tx.choiceQuestion.deleteMany({ where: { id } });
+      } else if (question.type === QuestionType.MULTIPLE_SELECT) {
+        await tx.multipleSelectChoice.deleteMany({ where: { questionId: id } });
+        await tx.multipleSelectQuestion.deleteMany({ where: { id } });
+      }
+      await tx.question.delete({ where: { id } });
+    });
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting question:", error);
