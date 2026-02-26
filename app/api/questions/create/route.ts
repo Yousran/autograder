@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
+import { generateKeyBetween } from "fractional-indexing";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 import { createQuestionRequestSchema } from "@/lib/schemas/question";
+
+/**
+ * Returns the order string if it's a valid fractional-indexing key
+ * (starts with a lowercase letter), or null to treat it as an unbounded edge.
+ * This guards against legacy integer-cast-to-string values in the DB.
+ */
+function toFractionalKey(order: string): string | null {
+  return /^[a-z]/.test(order) ? order : null;
+}
 
 export async function POST(req: NextRequest) {
   const locale = await getLocale();
@@ -32,7 +42,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { testId } = parsed.data;
+  const { testId, insertAfterId } = parsed.data;
 
   const auth = await requireTestCreator(testId);
   if (!auth.ok) {
@@ -54,13 +64,44 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Determine the next order index
-  const lastQuestion = await prisma.question.findFirst({
+  // --- Resolve the fractional index for the new question ---
+  // Fetch all questions ordered so we can find neighbours.
+  const allQuestions = await prisma.question.findMany({
     where: { testId },
-    orderBy: { order: "desc" },
-    select: { order: true },
+    orderBy: { order: "asc" },
+    select: { id: true, order: true },
   });
-  const nextOrder = (lastQuestion?.order ?? -1) + 1;
+
+  let newOrder: string;
+
+  if (insertAfterId === undefined) {
+    // Append at end
+    const last = allQuestions[allQuestions.length - 1];
+    newOrder = generateKeyBetween(
+      last ? toFractionalKey(last.order) : null,
+      null,
+    );
+  } else if (insertAfterId === null) {
+    // Insert at beginning
+    const first = allQuestions[0];
+    newOrder = generateKeyBetween(
+      null,
+      first ? toFractionalKey(first.order) : null,
+    );
+  } else {
+    // Insert after the question with insertAfterId
+    const afterIndex = allQuestions.findIndex((q) => q.id === insertAfterId);
+    if (afterIndex === -1) {
+      return NextResponse.json(
+        { error: tQuestions("questionNotFound") },
+        { status: 404 },
+      );
+    }
+    const afterOrder = toFractionalKey(allQuestions[afterIndex].order);
+    const nextItem = allQuestions[afterIndex + 1];
+    const nextOrder = nextItem ? toFractionalKey(nextItem.order) : null;
+    newOrder = generateKeyBetween(afterOrder, nextOrder);
+  }
 
   try {
     const question = await prisma.question.create({
@@ -68,7 +109,7 @@ export async function POST(req: NextRequest) {
         testId,
         type: QuestionType.CHOICE,
         questionText: "",
-        order: nextOrder,
+        order: newOrder,
         choice: {
           create: {
             isChoiceRandomized: false,
