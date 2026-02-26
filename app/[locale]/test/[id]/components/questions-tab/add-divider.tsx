@@ -17,21 +17,39 @@ export function AddDivider({
   const t = useTranslations("Components.questionsTab");
 
   return (
-    <div className="group/add relative flex items-center justify-center py-1">
+    <div
+      className={cn(
+        "group/add relative transition-[padding] duration-200 py-2",
+        !alwaysVisible && "hover:py-4",
+      )}
+    >
+      {/* Always-visible divider line centered in the wrapper */}
       <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-border pointer-events-none" />
-      <Button
-        size="sm"
-        variant="outline"
+      {/* Button slides in/out via grid-rows height animation */}
+      <div
         className={cn(
-          "relative z-10 bg-background h-7 px-3 text-xs",
-          !alwaysVisible &&
-            "opacity-0 group-hover/add:opacity-100 focus:opacity-100 transition-opacity",
+          "grid transition-[grid-template-rows] duration-200",
+          alwaysVisible
+            ? "grid-rows-[1fr]"
+            : "grid-rows-[0fr] group-hover/add:grid-rows-[1fr]",
         )}
-        onClick={onClick}
       >
-        <PlusIcon className="size-3" />
-        {t("addQuestion")}
-      </Button>
+        <div className="overflow-hidden flex items-center justify-center">
+          <Button
+            size="sm"
+            variant="outline"
+            className={cn(
+              "relative z-10 bg-background h-7 px-3 text-xs",
+              !alwaysVisible &&
+                "opacity-0 group-hover/add:opacity-100 transition-opacity duration-200",
+            )}
+            onClick={onClick}
+          >
+            <PlusIcon className="size-3" />
+            {t("addQuestion")}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

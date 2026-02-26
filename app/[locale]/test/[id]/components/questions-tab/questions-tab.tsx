@@ -126,7 +126,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
         onValueChange={setQuestions}
         getItemValue={(item) => item.id}
         strategy="vertical"
-        className="flex flex-col gap-4"
+        className="flex flex-col"
       >
         {questions.map((question, index) => (
           <Fragment key={question.id}>
