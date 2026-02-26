@@ -17,6 +17,7 @@
     },
     "questions": {
       "createFailed": "Failed to create question. Please try again.",
+      "fetchFailed": "Failed to fetch questions. Please try again.",
       "unauthorized": "You must be signed in to create a question.",
       "notFound": "Test not found.",
       "forbidden": "You are not authorized to modify this test."

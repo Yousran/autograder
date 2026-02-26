@@ -135,3 +135,13 @@ export const createQuestionOrderSchema = () =>
 export type QuestionOrderInput = z.infer<
   ReturnType<typeof createQuestionOrderSchema>
 >;
+
+// ---------------------------------------------------------------------------
+// GET /api/questions query params
+// ---------------------------------------------------------------------------
+
+export const getQuestionsQuerySchema = z.object({
+  testid: z.string().cuid(),
+});
+
+export type GetQuestionsQueryInput = z.infer<typeof getQuestionsQuerySchema>;

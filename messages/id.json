@@ -17,6 +17,7 @@
     },
     "questions": {
       "createFailed": "Gagal membuat pertanyaan. Silakan coba lagi.",
+      "fetchFailed": "Gagal mengambil daftar pertanyaan. Silakan coba lagi.",
       "unauthorized": "Anda harus masuk untuk membuat pertanyaan.",
       "notFound": "Ujian tidak ditemukan.",
       "forbidden": "Anda tidak memiliki izin untuk mengubah ujian ini."
