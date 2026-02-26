@@ -110,6 +110,19 @@ export const createQuestionSchema = (t: TranslateFn) =>
 export type QuestionInput = z.infer<ReturnType<typeof createQuestionSchema>>;
 
 // ---------------------------------------------------------------------------
+// Create question request (API body — only testId; type is resolved server-side)
+// ---------------------------------------------------------------------------
+
+export const createQuestionRequestSchema = (t: TranslateFn) =>
+  z.object({
+    testId: z.string().cuid(t("testIdRequired")),
+  });
+
+export type CreateQuestionRequestInput = z.infer<
+  ReturnType<typeof createQuestionRequestSchema>
+>;
+
+// ---------------------------------------------------------------------------
 // Question ordering (used when reordering questions inside a test)
 // ---------------------------------------------------------------------------
 

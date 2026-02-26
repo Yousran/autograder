@@ -15,6 +15,12 @@
       "notFound": "Ujian tidak ditemukan.",
       "forbidden": "Anda tidak memiliki izin untuk memperbarui ujian ini."
     },
+    "questions": {
+      "createFailed": "Gagal membuat pertanyaan. Silakan coba lagi.",
+      "unauthorized": "Anda harus masuk untuk membuat pertanyaan.",
+      "notFound": "Ujian tidak ditemukan.",
+      "forbidden": "Anda tidak memiliki izin untuk mengubah ujian ini."
+    },
     "joinCode": {
       "unauthorized": "Anda harus masuk terlebih dahulu.",
       "notFound": "Ujian tidak ditemukan.",
@@ -123,6 +129,11 @@
       "themeLight": "Terang",
       "themeDark": "Gelap",
       "language": "Bahasa"
+    },
+    "questionsTab": {
+      "addQuestion": "Tambah Pertanyaan",
+      "creating": "Menambahkan...",
+      "createFailed": "Gagal menambahkan pertanyaan."
     },
     "createTestButton": {
       "createTest": "Buat Ujian Baru"

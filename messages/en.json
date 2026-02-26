@@ -15,6 +15,12 @@
       "notFound": "Test not found.",
       "forbidden": "You are not authorized to update this test."
     },
+    "questions": {
+      "createFailed": "Failed to create question. Please try again.",
+      "unauthorized": "You must be signed in to create a question.",
+      "notFound": "Test not found.",
+      "forbidden": "You are not authorized to modify this test."
+    },
     "joinCode": {
       "unauthorized": "You must be signed in.",
       "notFound": "Test not found.",
@@ -123,6 +129,11 @@
       "themeLight": "Light",
       "themeDark": "Dark",
       "language": "Language"
+    },
+    "questionsTab": {
+      "addQuestion": "Add Question",
+      "creating": "Adding...",
+      "createFailed": "Failed to add question."
     },
     "createTestButton": {
       "createTest": "Create New Test"
