@@ -10,13 +10,19 @@ type TranslateFn = (key: string) => string;
 // Sign-in schema
 // ---------------------------------------------------------------------------
 
-export const createSignInSchema = (t: TranslateFn) =>
+/**
+ * Base object — no refinements, safe to call .partial() on.
+ */
+export const SignInValidationSchema = (t: TranslateFn) =>
   z.object({
     email: z.email({ error: t("invalidEmail") }).min(1, t("emailRequired")),
     password: z.string().min(1, t("passwordRequired")),
   });
 
-export type SignInInput = z.infer<ReturnType<typeof createSignInSchema>>;
+/** Full schema — used for sign-in. */
+export const createSignInSchema = (t: TranslateFn) => SignInValidationSchema(t);
+
+export type SignInCreateInput = z.infer<ReturnType<typeof createSignInSchema>>;
 
 // ---------------------------------------------------------------------------
 // Sign-up schema
@@ -25,7 +31,7 @@ export type SignInInput = z.infer<ReturnType<typeof createSignInSchema>>;
 /**
  * Base object — no refinements, safe to call .partial() on.
  */
-export const createSignUpObjectSchema = (t: TranslateFn) =>
+export const SignUpValidationSchema = (t: TranslateFn) =>
   z.object({
     name: z.string().min(1, t("nameRequired")).min(2, t("nameTooShort")),
     email: z.email({ error: t("invalidEmail") }).min(1, t("emailRequired")),
@@ -38,7 +44,7 @@ export const createSignUpObjectSchema = (t: TranslateFn) =>
 
 /** Full schema with cross-field refinement — used for sign-up. */
 export const createSignUpSchema = (t: TranslateFn) =>
-  createSignUpObjectSchema(t).refine(
+  SignUpValidationSchema(t).refine(
     (data) => data.password === data.confirmPassword,
     {
       error: t("passwordMismatch"),
@@ -46,7 +52,7 @@ export const createSignUpSchema = (t: TranslateFn) =>
     },
   );
 
-export type SignUpInput = z.infer<ReturnType<typeof createSignUpSchema>>;
+export type SignUpCreateInput = z.infer<ReturnType<typeof createSignUpSchema>>;
 
 // ---------------------------------------------------------------------------
 // Update profile schema
@@ -55,7 +61,7 @@ export type SignUpInput = z.infer<ReturnType<typeof createSignUpSchema>>;
 /**
  * Base object — no refinements, safe to call .partial() on.
  */
-export const createUpdateProfileObjectSchema = (t: TranslateFn) =>
+export const UpdateProfileValidationSchema = (t: TranslateFn) =>
   z.object({
     name: z.string().min(1, t("nameRequired")).min(2, t("nameTooShort")),
     image: z
@@ -65,15 +71,16 @@ export const createUpdateProfileObjectSchema = (t: TranslateFn) =>
   });
 
 /** Full schema — used for updating a user profile. */
-export const createUpdateProfileSchema = createUpdateProfileObjectSchema;
+export const createUpdateProfileSchema = (t: TranslateFn) =>
+  UpdateProfileValidationSchema(t);
 
 /** Partial schema for PATCH — all fields optional, no refinements. */
-export const updateProfileSchema = (t: TranslateFn) =>
-  createUpdateProfileObjectSchema(t).partial();
+export const patchUpdateProfileSchema = (t: TranslateFn) =>
+  UpdateProfileValidationSchema(t).partial();
 
-export type UpdateProfileInput = z.infer<
+export type UpdateProfileCreateInput = z.infer<
   ReturnType<typeof createUpdateProfileSchema>
 >;
 export type UpdateProfilePatchInput = z.infer<
-  ReturnType<typeof updateProfileSchema>
+  ReturnType<typeof patchUpdateProfileSchema>
 >;

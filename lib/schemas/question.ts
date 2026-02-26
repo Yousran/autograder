@@ -1,5 +1,21 @@
 import { z } from "zod";
-import { QuestionType } from "../generated/prisma/enums";
+
+export * from "./essay-question";
+export * from "./choice-question";
+export * from "./multiple-choice-question";
+
+import {
+  EssayQuestionValidationSchema,
+  patchEssayQuestionSchema,
+} from "./essay-question";
+import {
+  ChoiceQuestionValidationSchema,
+  patchChoiceQuestionSchema,
+} from "./choice-question";
+import {
+  MultipleSelectQuestionValidationSchema,
+  patchMultipleSelectQuestionSchema,
+} from "./multiple-choice-question";
 
 /**
  * A translation function accepting a key within the "Validation" namespace.
@@ -7,125 +23,28 @@ import { QuestionType } from "../generated/prisma/enums";
  */
 type TranslateFn = (key: string) => string;
 
-// ---------------------------------------------------------------------------
-// Choice (option inside a ChoiceQuestion)
-// ---------------------------------------------------------------------------
-
-export const createChoiceSchema = (t: TranslateFn) =>
-  z.object({
-    id: z.string().optional(),
-    choiceText: z.string().min(1, t("choiceTextRequired")),
-    isCorrect: z.boolean(),
-  });
-
-export type ChoiceInput = z.infer<ReturnType<typeof createChoiceSchema>>;
-
-// ---------------------------------------------------------------------------
-// Multiple-select choice (option inside a MultipleSelectQuestion)
-// ---------------------------------------------------------------------------
-
-export const createMultipleSelectChoiceSchema = (t: TranslateFn) =>
-  z.object({
-    id: z.string().optional(),
-    choiceText: z.string().min(1, t("choiceTextRequired")),
-    isCorrect: z.boolean(),
-  });
-
-export type MultipleSelectChoiceInput = z.infer<
-  ReturnType<typeof createMultipleSelectChoiceSchema>
->;
-
-// ---------------------------------------------------------------------------
-// Essay question
-// ---------------------------------------------------------------------------
-
-/**
- * Base object — no refinements, safe to call .partial() on.
- */
-export const createEssayQuestionObjectSchema = (t: TranslateFn) =>
-  z.object({
-    type: z.literal(QuestionType.ESSAY),
-    questionText: z.string().min(1, t("questionTextRequired")),
-    answerText: z.string().min(1, t("answerTextRequired")),
-    isExactAnswer: z.boolean(),
-    maxScore: z.number().int(t("integer")).positive(t("maxScorePositive")),
-  });
-
-/** Full schema — same as base (no cross-field refinements needed). */
-export const createEssayQuestionSchema = createEssayQuestionObjectSchema;
-
-export type EssayQuestionInput = z.infer<
-  ReturnType<typeof createEssayQuestionSchema>
->;
-
-// ---------------------------------------------------------------------------
-// Choice question
-// ---------------------------------------------------------------------------
-
-/**
- * Base object — no refinements, safe to call .partial() on.
- */
-export const createChoiceQuestionObjectSchema = (t: TranslateFn) =>
-  z.object({
-    type: z.literal(QuestionType.CHOICE),
-    questionText: z.string().min(1, t("questionTextRequired")),
-    isChoiceRandomized: z.boolean(),
-    maxScore: z.number().int(t("integer")).positive(t("maxScorePositive")),
-    choices: z.array(createChoiceSchema(t)).min(2, t("atLeastTwoChoices")),
-  });
-
-/** Full schema with cross-field refinement — used for creating a question. */
-export const createChoiceQuestionSchema = (t: TranslateFn) =>
-  createChoiceQuestionObjectSchema(t).refine(
-    (data) => data.choices.some((c) => c.isCorrect),
-    { error: t("atLeastOneCorrect") },
-  );
-
-export type ChoiceQuestionInput = z.infer<
-  ReturnType<typeof createChoiceQuestionObjectSchema>
->;
-
-// ---------------------------------------------------------------------------
-// Multiple-select question
-// ---------------------------------------------------------------------------
-
-/**
- * Base object — no refinements, safe to call .partial() on.
- */
-export const createMultipleSelectQuestionObjectSchema = (t: TranslateFn) =>
-  z.object({
-    type: z.literal(QuestionType.MULTIPLE_SELECT),
-    questionText: z.string().min(1, t("questionTextRequired")),
-    isChoiceRandomized: z.boolean(),
-    maxScore: z.number().int(t("integer")).positive(t("maxScorePositive")),
-    choices: z
-      .array(createMultipleSelectChoiceSchema(t))
-      .min(2, t("atLeastTwoChoices")),
-  });
-
-/** Full schema with cross-field refinement — used for creating a question. */
-export const createMultipleSelectQuestionSchema = (t: TranslateFn) =>
-  createMultipleSelectQuestionObjectSchema(t).refine(
-    (data) => data.choices.some((c) => c.isCorrect),
-    { error: t("atLeastOneCorrect") },
-  );
-
-export type MultipleSelectQuestionInput = z.infer<
-  ReturnType<typeof createMultipleSelectQuestionObjectSchema>
->;
-
-// ---------------------------------------------------------------------------
-// Discriminated union covering all question types
-// ---------------------------------------------------------------------------
-
+/** Full discriminated union — used for validating any question type on create. */
 export const createQuestionSchema = (t: TranslateFn) =>
   z.discriminatedUnion("type", [
-    createEssayQuestionObjectSchema(t),
-    createChoiceQuestionObjectSchema(t),
-    createMultipleSelectQuestionObjectSchema(t),
+    EssayQuestionValidationSchema(t),
+    ChoiceQuestionValidationSchema(t),
+    MultipleSelectQuestionValidationSchema(t),
   ]);
 
-export type QuestionInput = z.infer<ReturnType<typeof createQuestionSchema>>;
+/** Partial discriminated union for PATCH. */
+export const patchQuestionSchema = (t: TranslateFn) =>
+  z.discriminatedUnion("type", [
+    patchEssayQuestionSchema(t),
+    patchChoiceQuestionSchema(t),
+    patchMultipleSelectQuestionSchema(t),
+  ]);
+
+export type QuestionCreateInput = z.infer<
+  ReturnType<typeof createQuestionSchema>
+>;
+export type QuestionPatchInput = z.infer<
+  ReturnType<typeof patchQuestionSchema>
+>;
 
 // ---------------------------------------------------------------------------
 // Create question request (API body — only testId; type is resolved server-side)
@@ -138,7 +57,7 @@ export const createQuestionRequestSchema = (t: TranslateFn) =>
     insertAfterId: z.cuid(t("questionIdRequired")).nullable().optional(),
   });
 
-export type CreateQuestionRequestInput = z.infer<
+export type QuestionRequestCreateInput = z.infer<
   ReturnType<typeof createQuestionRequestSchema>
 >;
 
@@ -152,45 +71,8 @@ export const createQuestionOrderSchema = () =>
     order: z.string().min(1),
   });
 
-export type QuestionOrderInput = z.infer<
+export type QuestionOrderCreateInput = z.infer<
   ReturnType<typeof createQuestionOrderSchema>
->;
-
-// ---------------------------------------------------------------------------
-// Update question request (PATCH /api/questions/[id]) — partial update
-// ---------------------------------------------------------------------------
-
-/**
- * Partial update schemas — `type` stays required (discriminator) while all
- * other fields become optional, following the same pattern as updateTestSchema.
- */
-export const updateEssayQuestionSchema = (t: TranslateFn) =>
-  createEssayQuestionObjectSchema(t)
-    .omit({ type: true })
-    .partial()
-    .extend({ type: z.literal(QuestionType.ESSAY) });
-
-export const updateChoiceQuestionSchema = (t: TranslateFn) =>
-  createChoiceQuestionObjectSchema(t)
-    .omit({ type: true })
-    .partial()
-    .extend({ type: z.literal(QuestionType.CHOICE) });
-
-export const updateMultipleSelectQuestionSchema = (t: TranslateFn) =>
-  createMultipleSelectQuestionObjectSchema(t)
-    .omit({ type: true })
-    .partial()
-    .extend({ type: z.literal(QuestionType.MULTIPLE_SELECT) });
-
-export const updateQuestionSchema = (t: TranslateFn) =>
-  z.discriminatedUnion("type", [
-    updateEssayQuestionSchema(t),
-    updateChoiceQuestionSchema(t),
-    updateMultipleSelectQuestionSchema(t),
-  ]);
-
-export type UpdateQuestionInput = z.infer<
-  ReturnType<typeof updateQuestionSchema>
 >;
 
 // ---------------------------------------------------------------------------

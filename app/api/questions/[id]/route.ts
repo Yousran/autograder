@@ -3,7 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { QuestionType } from "@/lib/generated/prisma/enums";
-import { updateQuestionSchema } from "@/lib/schemas/question";
+import { patchQuestionSchema } from "@/lib/schemas/question";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -126,7 +126,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   // Validate with discriminated union schema
-  const schema = updateQuestionSchema((key) => tValidation(key));
+  const schema = patchQuestionSchema((key) => tValidation(key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {
