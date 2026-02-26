@@ -1,6 +1,6 @@
 import { requireAuth } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
-import { defaultTestResponse, testResponseSchema } from "@/lib/schemas/test";
+import { defaultTestData, TestSchema } from "@/lib/schemas/test";
 import { getLocale, getTranslations } from "next-intl/server";
 import { NextResponse } from "next/server";
 import { customAlphabet } from "nanoid";
@@ -40,21 +40,21 @@ export async function POST() {
     const test = await prisma.test.create({
       data: {
         creatorId: auth.session.user.id,
-        title: defaultTestResponse.title,
-        description: defaultTestResponse.description,
-        testDuration: defaultTestResponse.testDuration,
-        maxAttempts: defaultTestResponse.maxAttempts,
-        isAcceptingResponses: defaultTestResponse.isAcceptingResponses,
-        isLoggedInUserOnly: defaultTestResponse.isLoggedInUserOnly,
-        isShowDetailedScore: defaultTestResponse.isShowDetailedScore,
-        isShowCorrectAnswers: defaultTestResponse.isShowCorrectAnswers,
-        isQuestionsOrdered: defaultTestResponse.isQuestionsOrdered,
+        title: defaultTestData.title,
+        description: defaultTestData.description,
+        testDuration: defaultTestData.testDuration,
+        maxAttempts: defaultTestData.maxAttempts,
+        isAcceptingResponses: defaultTestData.isAcceptingResponses,
+        isLoggedInUserOnly: defaultTestData.isLoggedInUserOnly,
+        isShowDetailedScore: defaultTestData.isShowDetailedScore,
+        isShowCorrectAnswers: defaultTestData.isShowCorrectAnswers,
+        isQuestionsOrdered: defaultTestData.isQuestionsOrdered,
         joinCode,
         joinCodeExpiresAt: joinCode ? expiresAt : null,
       },
     });
 
-    return NextResponse.json(testResponseSchema.parse(test), { status: 201 });
+    return NextResponse.json(TestSchema.parse(test), { status: 201 });
   } catch (error) {
     console.error("Error creating test:", error);
     return NextResponse.json({ error: t("createFailed") }, { status: 500 });

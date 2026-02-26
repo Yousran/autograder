@@ -3,11 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  defaultTestResponse,
-  testResponseSchema,
-  type TestResponse,
-} from "@/lib/schemas/test";
+import { TestSchema, defaultTestData } from "@/lib/schemas/test";
+import type { Test } from "@/lib/generated/prisma/client";
 import { useTranslations } from "next-intl";
 
 export function CreateTestButton({ className }: { className?: string }) {
@@ -17,9 +14,9 @@ export function CreateTestButton({ className }: { className?: string }) {
 
   const handleCreate = async () => {
     setLoading(true);
-    // Optimistic placeholder — same shape as the real response.
-    const optimistic: TestResponse = {
-      ...defaultTestResponse,
+    // Optimistic placeholder — same shape as the real server data.
+    const optimistic: Test = {
+      ...defaultTestData,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -27,7 +24,7 @@ export function CreateTestButton({ className }: { className?: string }) {
     try {
       const res = await fetch("/api/tests/create", { method: "POST" });
       if (!res.ok) throw new Error(await res.text());
-      const data: TestResponse = testResponseSchema.parse(await res.json());
+      const data: Test = TestSchema.parse(await res.json());
       router.push(`/test/${data.id}`);
     } catch (error) {
       console.error(t("createFailed"), error);

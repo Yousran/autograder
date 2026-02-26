@@ -92,11 +92,17 @@ export type TestCreateInput = z.infer<ReturnType<typeof createTestSchema>>;
 export type TestPatchInput = z.infer<ReturnType<typeof patchTestSchema>>;
 
 // ---------------------------------------------------------------------------
-// API response schema — the shape returned by POST /api/tests/create.
-// Dates are coerced so the schema works for both Prisma Date objects (server)
-// and ISO strings deserialised from JSON (client).
+// TestSchema — Zod schema typed against the Prisma Test model.
+// Dates are coerced so the schema safely handles ISO strings from JSON as
+// well as native Date objects returned directly from Prisma.
 // ---------------------------------------------------------------------------
-export const testResponseSchema = z.object({
+
+/**
+ * Runtime schema for the Prisma `Test` model.
+ * Typed as `z.ZodType<Test>` so TypeScript enforces that it matches the
+ * Prisma model exactly. Use `TestSchema.parse()` to validate API responses.
+ */
+export const TestSchema: z.ZodType<Test> = z.object({
   id: z.string(),
   creatorId: z.string(),
   title: z.string(),
@@ -115,26 +121,3 @@ export const testResponseSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
-
-export type TestResponse = z.infer<typeof testResponseSchema>;
-
-/** Optimistic default — use as a placeholder before the real server response. */
-export const defaultTestResponse: TestResponse = {
-  id: "",
-  creatorId: "",
-  title: "Untitled Test",
-  description: null,
-  joinCode: null,
-  joinCodeExpiresAt: null,
-  testDuration: 60,
-  startTime: null,
-  endTime: null,
-  maxAttempts: 1,
-  isAcceptingResponses: true,
-  isLoggedInUserOnly: false,
-  isShowDetailedScore: true,
-  isShowCorrectAnswers: false,
-  isQuestionsOrdered: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
