@@ -1,4 +1,6 @@
 import { z } from "zod";
+import type { Question } from "../generated/prisma/client";
+import { QuestionType } from "../generated/prisma/enums";
 
 export * from "./essay-question";
 export * from "./choice-question";
@@ -11,6 +13,8 @@ import {
 import {
   ChoiceQuestionValidationSchema,
   patchChoiceQuestionSchema,
+  defaultChoiceQuestionData,
+  defaultChoiceData,
 } from "./choice-question";
 import {
   MultipleSelectQuestionValidationSchema,
@@ -74,6 +78,35 @@ export const createQuestionOrderSchema = () =>
 export type QuestionOrderCreateInput = z.infer<
   ReturnType<typeof createQuestionOrderSchema>
 >;
+
+// ---------------------------------------------------------------------------
+// Shared UI type for displaying a question in a list
+// ---------------------------------------------------------------------------
+
+/** Minimal question shape used by the questions list UI (e.g. QuestionCard). */
+export type QuestionSchema = Pick<Question, "id" | "type" | "questionText">;
+
+// ---------------------------------------------------------------------------
+// Shared default field values — single source of truth for optimistic UI +
+// API route creation. The API always creates CHOICE type by default.
+// ---------------------------------------------------------------------------
+
+/**
+ * Default field values for a newly created question.
+ * Both the API route and the UI optimistic update should derive from this
+ * so they stay in sync.
+ */
+export const defaultQuestionData = {
+  type: QuestionType.CHOICE,
+  questionText: "",
+  isChoiceRandomized: defaultChoiceQuestionData.isChoiceRandomized,
+  maxScore: defaultChoiceQuestionData.maxScore,
+  /** Two starter choices matching what the API seeds on creation. */
+  defaultChoices: [
+    { choiceText: defaultChoiceData.choiceText, isCorrect: true },
+    { choiceText: defaultChoiceData.choiceText, isCorrect: false },
+  ],
+} as const;
 
 // ---------------------------------------------------------------------------
 // GET /api/questions query params

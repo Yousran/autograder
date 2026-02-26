@@ -13,15 +13,11 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { QuestionType } from "@/lib/generated/prisma/enums";
-
-export type QuestionItem = {
-  id: string;
-  type: QuestionType;
-  questionText: string;
-};
+import type { QuestionSchema } from "@/lib/schemas/question";
+export type { QuestionSchema };
 
 interface QuestionCardProps {
-  question: QuestionItem;
+  question: QuestionSchema;
   index: number;
   onDelete: (id: string) => void;
 }

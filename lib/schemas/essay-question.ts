@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { QuestionType } from "../generated/prisma/enums";
+import type { EssayQuestion, Question } from "../generated/prisma/client";
 
 /**
  * A translation function accepting a key within the "Validation" namespace.
@@ -40,3 +41,28 @@ export type EssayQuestionCreateInput = z.infer<
 export type EssayQuestionPatchInput = z.infer<
   ReturnType<typeof patchEssayQuestionSchema>
 >;
+
+// ---------------------------------------------------------------------------
+// Default data for optimistic updates
+// ---------------------------------------------------------------------------
+
+/** Default Question data — use as a placeholder before the real server response in optimistic updates. */
+export const defaultQuestionData: Question = {
+  id: `temp-${crypto.randomUUID()}`,
+  testId: "",
+  questionText: "",
+  type: QuestionType.ESSAY,
+  order: "a0",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+/** Default EssayQuestion data — use as a placeholder before the real server response in optimistic updates. */
+export const defaultEssayQuestionData: EssayQuestion = {
+  id: defaultQuestionData.id,
+  answerText: "",
+  isExactAnswer: false,
+  maxScore: 1,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};

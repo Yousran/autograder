@@ -3,7 +3,12 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { QuestionType } from "@/lib/generated/prisma/enums";
-import { patchQuestionSchema } from "@/lib/schemas/question";
+import {
+  patchQuestionSchema,
+  defaultEssayQuestionData,
+  defaultChoiceQuestionData,
+  defaultMultipleSelectQuestionData,
+} from "@/lib/schemas/question";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -163,9 +168,12 @@ export async function PATCH(req: NextRequest, { params }: Params) {
             essay: {
               upsert: {
                 create: {
-                  answerText: data.answerText ?? "",
-                  isExactAnswer: data.isExactAnswer ?? false,
-                  maxScore: data.maxScore ?? 1,
+                  answerText:
+                    data.answerText ?? defaultEssayQuestionData.answerText,
+                  isExactAnswer:
+                    data.isExactAnswer ??
+                    defaultEssayQuestionData.isExactAnswer,
+                  maxScore: data.maxScore ?? defaultEssayQuestionData.maxScore,
                 },
                 update: {
                   ...(data.answerText !== undefined && {
@@ -201,8 +209,10 @@ export async function PATCH(req: NextRequest, { params }: Params) {
             choice: {
               upsert: {
                 create: {
-                  isChoiceRandomized: data.isChoiceRandomized ?? false,
-                  maxScore: data.maxScore ?? 1,
+                  isChoiceRandomized:
+                    data.isChoiceRandomized ??
+                    defaultChoiceQuestionData.isChoiceRandomized,
+                  maxScore: data.maxScore ?? defaultChoiceQuestionData.maxScore,
                   choices: {
                     createMany: {
                       data: (data.choices ?? []).map((c) => ({
@@ -254,8 +264,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
           multipleSelect: {
             upsert: {
               create: {
-                isChoiceRandomized: data.isChoiceRandomized ?? false,
-                maxScore: data.maxScore ?? 1,
+                isChoiceRandomized:
+                  data.isChoiceRandomized ??
+                  defaultMultipleSelectQuestionData.isChoiceRandomized,
+                maxScore:
+                  data.maxScore ?? defaultMultipleSelectQuestionData.maxScore,
                 multipleSelectChoices: {
                   createMany: {
                     data: (data.choices ?? []).map((c) => ({

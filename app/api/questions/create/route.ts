@@ -3,8 +3,10 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { generateKeyBetween } from "fractional-indexing";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
-import { QuestionType } from "@/lib/generated/prisma/enums";
-import { createQuestionRequestSchema } from "@/lib/schemas/question";
+import {
+  createQuestionRequestSchema,
+  defaultQuestionData,
+} from "@/lib/schemas/question";
 
 /**
  * Returns the order string if it's a valid fractional-indexing key
@@ -107,24 +109,22 @@ export async function POST(req: NextRequest) {
     const question = await prisma.question.create({
       data: {
         testId,
-        type: QuestionType.CHOICE,
-        questionText: "",
+        type: defaultQuestionData.type,
+        questionText: defaultQuestionData.questionText,
         order: newOrder,
         choice: {
           create: {
-            isChoiceRandomized: false,
-            maxScore: 1,
+            isChoiceRandomized: defaultQuestionData.isChoiceRandomized,
+            maxScore: defaultQuestionData.maxScore,
             choices: {
               createMany: {
-                data: [
-                  { choiceText: "", isCorrect: true },
-                  { choiceText: "", isCorrect: false },
-                ],
+                data: [...defaultQuestionData.defaultChoices],
               },
             },
           },
         },
       },
+
       include: {
         choice: {
           include: { choices: true },

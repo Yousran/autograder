@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { QuestionType } from "../generated/prisma/enums";
+import type { ChoiceQuestion, Choice } from "../generated/prisma/client";
 
 /**
  * A translation function accepting a key within the "Validation" namespace.
@@ -62,3 +63,26 @@ export type ChoiceQuestionCreateInput = z.infer<
 export type ChoiceQuestionPatchInput = z.infer<
   ReturnType<typeof patchChoiceQuestionSchema>
 >;
+
+// ---------------------------------------------------------------------------
+// Default data for optimistic updates
+// ---------------------------------------------------------------------------
+
+/** Default Choice data — use as a placeholder before the real server response in optimistic updates. */
+export const defaultChoiceData: Choice = {
+  id: `temp-${crypto.randomUUID()}`,
+  questionId: "",
+  choiceText: "",
+  isCorrect: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+/** Default ChoiceQuestion data — use as a placeholder before the real server response in optimistic updates. */
+export const defaultChoiceQuestionData: ChoiceQuestion = {
+  id: `temp-${crypto.randomUUID()}`,
+  isChoiceRandomized: false,
+  maxScore: 1,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};

@@ -4,10 +4,13 @@ import { useState, useEffect, Fragment } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Sortable } from "@/components/reui/sortable";
-import { QuestionCard, type QuestionItem } from "./question-card";
+import { QuestionCard } from "./question-card";
 import { QuestionsSkeleton } from "./questions-skeleton";
-import { QuestionType } from "@/lib/generated/prisma/enums";
 import { AddDivider } from "./add-divider";
+import {
+  type QuestionSchema,
+  defaultQuestionData,
+} from "@/lib/schemas/question";
 
 interface QuestionsTabProps {
   testId: string;
@@ -15,7 +18,7 @@ interface QuestionsTabProps {
 
 export function QuestionsTab({ testId }: QuestionsTabProps) {
   const t = useTranslations("Components.questionsTab");
-  const [questions, setQuestions] = useState<QuestionItem[]>([]);
+  const [questions, setQuestions] = useState<QuestionSchema[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
           toast.error(data?.error ?? t("fetchFailed"));
           return;
         }
-        const data: QuestionItem[] = await res.json();
+        const data: QuestionSchema[] = await res.json();
         if (!cancelled) setQuestions(data);
       } catch {
         if (!cancelled) toast.error(t("fetchFailed"));
@@ -65,10 +68,10 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
   // afterId: undefined (omitted) → append at end
   async function handleCreate(afterId?: string | null): Promise<void> {
     const tempId = `temp-${Date.now()}`;
-    const tempItem: QuestionItem = {
+    const tempItem: QuestionSchema = {
       id: tempId,
-      type: QuestionType.CHOICE,
-      questionText: "",
+      type: defaultQuestionData.type,
+      questionText: defaultQuestionData.questionText,
     };
 
     // Optimistic insert

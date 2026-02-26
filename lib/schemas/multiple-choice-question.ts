@@ -1,5 +1,9 @@
 import { z } from "zod";
 import { QuestionType } from "../generated/prisma/enums";
+import type {
+  MultipleSelectQuestion,
+  MultipleSelectChoice,
+} from "../generated/prisma/client";
 
 /**
  * A translation function accepting a key within the "Validation" namespace.
@@ -67,3 +71,26 @@ export type MultipleSelectQuestionCreateInput = z.infer<
 export type MultipleSelectQuestionPatchInput = z.infer<
   ReturnType<typeof patchMultipleSelectQuestionSchema>
 >;
+
+// ---------------------------------------------------------------------------
+// Default data for optimistic updates
+// ---------------------------------------------------------------------------
+
+/** Default MultipleSelectChoice data — use as a placeholder before the real server response in optimistic updates. */
+export const defaultMultipleSelectChoiceData: MultipleSelectChoice = {
+  id: `temp-${crypto.randomUUID()}`,
+  questionId: "",
+  choiceText: "",
+  isCorrect: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+/** Default MultipleSelectQuestion data — use as a placeholder before the real server response in optimistic updates. */
+export const defaultMultipleSelectQuestionData: MultipleSelectQuestion = {
+  id: `temp-${crypto.randomUUID()}`,
+  isChoiceRandomized: false,
+  maxScore: 1,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
