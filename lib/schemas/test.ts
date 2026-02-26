@@ -68,3 +68,51 @@ export const updateTestSchema = (t: TranslateFn) =>
 
 export type TestInput = z.infer<ReturnType<typeof createTestSchema>>;
 export type TestUpdateInput = z.infer<ReturnType<typeof updateTestSchema>>;
+
+// ---------------------------------------------------------------------------
+// API response schema — the shape returned by POST /api/tests/create.
+// Dates are coerced so the schema works for both Prisma Date objects (server)
+// and ISO strings deserialised from JSON (client).
+// ---------------------------------------------------------------------------
+export const testResponseSchema = z.object({
+  id: z.string(),
+  creatorId: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  joinCode: z.string().nullable(),
+  joinCodeExpiresAt: z.coerce.date().nullable(),
+  testDuration: z.number().int().nullable(),
+  startTime: z.coerce.date().nullable(),
+  endTime: z.coerce.date().nullable(),
+  maxAttempts: z.number().int().nullable(),
+  isAcceptingResponses: z.boolean(),
+  isLoggedInUserOnly: z.boolean(),
+  isShowDetailedScore: z.boolean(),
+  isShowCorrectAnswers: z.boolean(),
+  isQuestionsOrdered: z.boolean(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
+export type TestResponse = z.infer<typeof testResponseSchema>;
+
+/** Optimistic default — use as a placeholder before the real server response. */
+export const defaultTestResponse: TestResponse = {
+  id: "",
+  creatorId: "",
+  title: "Untitled Test",
+  description: null,
+  joinCode: null,
+  joinCodeExpiresAt: null,
+  testDuration: 60,
+  startTime: null,
+  endTime: null,
+  maxAttempts: 1,
+  isAcceptingResponses: true,
+  isLoggedInUserOnly: false,
+  isShowDetailedScore: true,
+  isShowCorrectAnswers: false,
+  isQuestionsOrdered: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
