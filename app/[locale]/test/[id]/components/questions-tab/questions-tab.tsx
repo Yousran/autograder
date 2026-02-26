@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { PlusIcon } from "lucide-react";
@@ -8,6 +8,7 @@ import { Sortable } from "@/components/reui/sortable";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { QuestionCard, type QuestionItem } from "./question-card";
+import { QuestionType } from "@/lib/generated/prisma/enums";
 
 interface QuestionsTabProps {
   testId: string;
@@ -17,7 +18,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
   const t = useTranslations("Components.questionsTab");
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,30 +62,41 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     }
   }
 
-  function handleCreate() {
-    startTransition(async () => {
-      const res = await fetch("/api/questions/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ testId }),
-      });
+  async function handleCreate(): Promise<void> {
+    const tempId = `temp-${Date.now()}`;
+    setQuestions((prev) => [
+      ...prev,
+      { id: tempId, type: QuestionType.CHOICE, questionText: "" },
+    ]);
+    setIsPending(true);
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data?.error ?? t("createFailed"));
-        return;
-      }
+    const res = await fetch("/api/questions/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ testId }),
+    }).catch(() => null);
 
-      const question = await res.json();
-      setQuestions((prev) => [
-        ...prev,
-        {
-          id: question.id,
-          type: question.type,
-          questionText: question.questionText,
-        },
-      ]);
-    });
+    if (!res || !res.ok) {
+      setQuestions((prev) => prev.filter((q) => q.id !== tempId));
+      const data = await res?.json().catch(() => ({}));
+      toast.error(data?.error ?? t("createFailed"));
+      setIsPending(false);
+      return;
+    }
+
+    const question = await res.json();
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.id === tempId
+          ? {
+              id: question.id,
+              type: question.type,
+              questionText: question.questionText,
+            }
+          : q,
+      ),
+    );
+    setIsPending(false);
   }
 
   if (isLoading) {
