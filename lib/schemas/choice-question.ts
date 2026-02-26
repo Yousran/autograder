@@ -1,31 +1,19 @@
 import { z } from "zod";
 import { QuestionType } from "../generated/prisma/enums";
-import type { ChoiceQuestion, Choice } from "../generated/prisma/client";
+import type { ChoiceQuestion } from "../generated/prisma/client";
+import { createChoiceSchema, defaultChoiceData } from "./choice";
+export {
+  ChoiceValidationSchema,
+  createChoiceSchema,
+  defaultChoiceData,
+} from "./choice";
+export type { ChoiceCreateInput } from "./choice";
 
 /**
  * A translation function accepting a key within the "Validation" namespace.
  * Pass the `t` from `useTranslations("Validation")` or `getTranslations("Validation")`.
  */
 type TranslateFn = (key: string) => string;
-
-// ---------------------------------------------------------------------------
-// Choice (option inside a ChoiceQuestion)
-// ---------------------------------------------------------------------------
-
-/**
- * Base object — no refinements, safe to call .partial() on.
- */
-export const ChoiceValidationSchema = (t: TranslateFn) =>
-  z.object({
-    id: z.string().optional(),
-    choiceText: z.string().min(1, t("choiceTextRequired")),
-    isCorrect: z.boolean(),
-  });
-
-/** Full schema — same as base (no cross-field refinements needed). */
-export const createChoiceSchema = (t: TranslateFn) => ChoiceValidationSchema(t);
-
-export type ChoiceCreateInput = z.infer<ReturnType<typeof createChoiceSchema>>;
 
 // ---------------------------------------------------------------------------
 // Choice question
@@ -68,19 +56,9 @@ export type ChoiceQuestionPatchInput = z.infer<
 // Default data for optimistic updates
 // ---------------------------------------------------------------------------
 
-/** Default Choice data — use as a placeholder before the real server response in optimistic updates. */
-export const defaultChoiceData: Choice = {
-  id: `temp-${crypto.randomUUID()}`,
-  questionId: "",
-  choiceText: "",
-  isCorrect: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
-
 /** Default ChoiceQuestion data — use as a placeholder before the real server response in optimistic updates. */
 export const defaultChoiceQuestionData: ChoiceQuestion = {
-  id: `temp-${crypto.randomUUID()}`,
+  id: defaultChoiceData.id,
   isChoiceRandomized: false,
   maxScore: 1,
   createdAt: new Date(),
