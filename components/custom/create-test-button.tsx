@@ -13,7 +13,7 @@ export function CreateTestButton({ className }: { className?: string }) {
   const handleCreate = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/tests/init", { method: "POST" });
+      const res = await fetch("/api/tests/create", { method: "POST" });
       const data = await res.json();
       router.push(`/test/${data.id}`);
     } catch (error) {
