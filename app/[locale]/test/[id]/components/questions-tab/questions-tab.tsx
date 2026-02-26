@@ -4,8 +4,8 @@ import { useState, useEffect, Fragment } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Sortable } from "@/components/reui/sortable";
-import { Spinner } from "@/components/ui/spinner";
 import { QuestionCard, type QuestionItem } from "./question-card";
+import { QuestionsSkeleton } from "./questions-skeleton";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 import { AddDivider } from "./add-divider";
 
@@ -116,11 +116,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center py-8">
-        <Spinner />
-      </div>
-    );
+    return <QuestionsSkeleton />;
   }
 
   return (
