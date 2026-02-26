@@ -21,6 +21,6 @@
   },
   "registries": {
     "@diceui": "https://diceui.com/r/{name}.json",
-    "@reui": "https://reui.io/r/{style}/{name}.json"
+    "@reui": "https://reui.io/r/styles/radix-nova/{name}.json"
   }
 }
