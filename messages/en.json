@@ -19,6 +19,7 @@
       "createFailed": "Failed to create question. Please try again.",
       "fetchFailed": "Failed to fetch questions. Please try again.",
       "updateFailed": "Failed to update question. Please try again.",
+      "deleteFailed": "Failed to delete question. Please try again.",
       "unauthorized": "You must be signed in to create a question.",
       "notFound": "Test not found.",
       "questionNotFound": "Question not found.",
@@ -137,7 +138,8 @@
       "addQuestion": "Add Question",
       "creating": "Adding...",
       "createFailed": "Failed to add question.",
-      "fetchFailed": "Failed to load questions."
+      "fetchFailed": "Failed to load questions.",
+      "deleteFailed": "Failed to delete question."
     },
     "createTestButton": {
       "createTest": "Create New Test"

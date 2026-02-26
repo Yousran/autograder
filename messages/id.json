@@ -19,6 +19,7 @@
       "createFailed": "Gagal membuat pertanyaan. Silakan coba lagi.",
       "fetchFailed": "Gagal mengambil daftar pertanyaan. Silakan coba lagi.",
       "updateFailed": "Gagal memperbarui pertanyaan. Silakan coba lagi.",
+      "deleteFailed": "Gagal menghapus pertanyaan. Silakan coba lagi.",
       "unauthorized": "Anda harus masuk untuk membuat pertanyaan.",
       "notFound": "Ujian tidak ditemukan.",
       "questionNotFound": "Pertanyaan tidak ditemukan.",
@@ -137,7 +138,8 @@
       "addQuestion": "Tambah Pertanyaan",
       "creating": "Menambahkan...",
       "createFailed": "Gagal menambahkan pertanyaan.",
-      "fetchFailed": "Gagal memuat daftar pertanyaan."
+      "fetchFailed": "Gagal memuat daftar pertanyaan.",
+      "deleteFailed": "Gagal menghapus pertanyaan."
     },
     "createTestButton": {
       "createTest": "Buat Ujian Baru"

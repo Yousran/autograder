@@ -46,8 +46,19 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     };
   }, [testId, t]);
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string): Promise<void> {
+    const previous = questions;
     setQuestions((prev) => prev.filter((q) => q.id !== id));
+
+    const res = await fetch(`/api/questions/${id}`, { method: "DELETE" }).catch(
+      () => null,
+    );
+
+    if (!res || !res.ok) {
+      setQuestions(previous);
+      const data = await res?.json().catch(() => ({}));
+      toast.error(data?.error ?? t("deleteFailed"));
+    }
   }
 
   function handleCreate() {

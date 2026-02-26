@@ -9,6 +9,59 @@ interface Params {
   params: Promise<{ id: string }>;
 }
 
+export async function DELETE(_req: NextRequest, { params }: Params) {
+  const { id } = await params;
+  const locale = await getLocale();
+
+  const tQuestions = await getTranslations({
+    locale,
+    namespace: "Api.questions",
+  });
+
+  const question = await prisma.question.findUnique({
+    where: { id },
+    select: { testId: true },
+  });
+
+  if (!question) {
+    return NextResponse.json(
+      { error: tQuestions("questionNotFound") },
+      { status: 404 },
+    );
+  }
+
+  const auth = await requireTestCreator(question.testId);
+  if (!auth.ok) {
+    if (auth.reason === "unauthenticated") {
+      return NextResponse.json(
+        { error: tQuestions("unauthorized") },
+        { status: 401 },
+      );
+    }
+    if (auth.reason === "not_found") {
+      return NextResponse.json(
+        { error: tQuestions("notFound") },
+        { status: 404 },
+      );
+    }
+    return NextResponse.json(
+      { error: tQuestions("forbidden") },
+      { status: 403 },
+    );
+  }
+
+  try {
+    await prisma.question.delete({ where: { id } });
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    console.error("Error deleting question:", error);
+    return NextResponse.json(
+      { error: tQuestions("deleteFailed") },
+      { status: 500 },
+    );
+  }
+}
+
 export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const locale = await getLocale();
