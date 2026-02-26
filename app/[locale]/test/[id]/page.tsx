@@ -7,6 +7,7 @@ import { JoinCodeCard } from "@/components/custom/join-code-card";
 import Navbar from "@/components/custom/navbar";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { QuestionsTab } from "./components/questions-tab/questions-tab";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -71,7 +72,7 @@ export default async function TestPage({ params }: Props) {
               />
             </TabsContent>
             <TabsContent value="questions">
-              <Card className="p-6">{t("tabQuestions")}</Card>
+              <QuestionsTab />
             </TabsContent>
             <TabsContent value="participants">
               <Card className="p-6">{t("tabParticipants")}</Card>
