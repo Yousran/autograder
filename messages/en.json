@@ -139,7 +139,12 @@
       "creating": "Adding...",
       "createFailed": "Failed to add question.",
       "fetchFailed": "Failed to load questions.",
-      "deleteFailed": "Failed to delete question."
+      "deleteFailed": "Failed to delete question.",
+      "questionType": {
+        "essay": "Essay",
+        "choice": "Choice",
+        "multipleSelect": "Multiple Choice"
+      }
     },
     "createTestButton": {
       "createTest": "Create New Test"

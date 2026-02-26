@@ -1,6 +1,7 @@
 "use client";
 
 import { GripVerticalIcon, Trash2Icon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { SortableItem, SortableItemHandle } from "@/components/reui/sortable";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { QuestionType } from "@/lib/generated/prisma/enums";
+import { QUESTION_TYPES, getQuestionTypeLabel } from "@/lib/schemas/question";
 import type { QuestionSchema } from "@/lib/schemas/question";
 export type { QuestionSchema };
 
@@ -22,13 +23,8 @@ interface QuestionCardProps {
   onDelete: (id: string) => void;
 }
 
-const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
-  [QuestionType.ESSAY]: "Essay",
-  [QuestionType.CHOICE]: "Choice",
-  [QuestionType.MULTIPLE_SELECT]: "Multiple Choice",
-};
-
 export function QuestionCard({ question, index, onDelete }: QuestionCardProps) {
+  const t = useTranslations("Components.questionsTab");
   return (
     <SortableItem value={question.id}>
       <Card className="group p-6">
@@ -46,15 +42,11 @@ export function QuestionCard({ question, index, onDelete }: QuestionCardProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={QuestionType.ESSAY}>
-                {QUESTION_TYPE_LABELS[QuestionType.ESSAY]}
-              </SelectItem>
-              <SelectItem value={QuestionType.CHOICE}>
-                {QUESTION_TYPE_LABELS[QuestionType.CHOICE]}
-              </SelectItem>
-              <SelectItem value={QuestionType.MULTIPLE_SELECT}>
-                {QUESTION_TYPE_LABELS[QuestionType.MULTIPLE_SELECT]}
-              </SelectItem>
+              {QUESTION_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {getQuestionTypeLabel(type, t)}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Button

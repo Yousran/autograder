@@ -109,6 +109,33 @@ export const defaultQuestionData = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Question type display labels (i18n)
+// ---------------------------------------------------------------------------
+
+/** All available question types for iteration and display. */
+export const QUESTION_TYPES = [
+  QuestionType.ESSAY,
+  QuestionType.CHOICE,
+  QuestionType.MULTIPLE_SELECT,
+] as const;
+
+/**
+ * Returns the i18n display label for a question type.
+ * Pass `t` from `useTranslations("Components.questionsTab")`.
+ */
+export function getQuestionTypeLabel(
+  type: QuestionType,
+  t: TranslateFn,
+): string {
+  const map: Record<QuestionType, string> = {
+    [QuestionType.ESSAY]: t("questionType.essay"),
+    [QuestionType.CHOICE]: t("questionType.choice"),
+    [QuestionType.MULTIPLE_SELECT]: t("questionType.multipleSelect"),
+  };
+  return map[type];
+}
+
+// ---------------------------------------------------------------------------
 // GET /api/questions query params
 // ---------------------------------------------------------------------------
 
