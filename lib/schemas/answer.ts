@@ -22,6 +22,14 @@ export type EssayAnswerInput = z.infer<
   ReturnType<typeof createEssayAnswerSchema>
 >;
 
+/** Partial schema for PATCH — all fields optional. */
+export const updateEssayAnswerSchema = (t: TranslateFn) =>
+  createEssayAnswerSchema(t).partial();
+
+export type EssayAnswerUpdateInput = z.infer<
+  ReturnType<typeof updateEssayAnswerSchema>
+>;
+
 // ---------------------------------------------------------------------------
 // Choice answer
 // ---------------------------------------------------------------------------
@@ -38,6 +46,14 @@ export type ChoiceAnswerInput = z.infer<
   ReturnType<typeof createChoiceAnswerSchema>
 >;
 
+/** Partial schema for PATCH — all fields optional. */
+export const updateChoiceAnswerSchema = (t: TranslateFn) =>
+  createChoiceAnswerSchema(t).partial();
+
+export type ChoiceAnswerUpdateInput = z.infer<
+  ReturnType<typeof updateChoiceAnswerSchema>
+>;
+
 // ---------------------------------------------------------------------------
 // Multiple-select answer
 // ---------------------------------------------------------------------------
@@ -52,6 +68,14 @@ export const createMultipleSelectAnswerSchema = (t: TranslateFn) =>
 
 export type MultipleSelectAnswerInput = z.infer<
   ReturnType<typeof createMultipleSelectAnswerSchema>
+>;
+
+/** Partial schema for PATCH — all fields optional. */
+export const updateMultipleSelectAnswerSchema = (t: TranslateFn) =>
+  createMultipleSelectAnswerSchema(t).partial();
+
+export type MultipleSelectAnswerUpdateInput = z.infer<
+  ReturnType<typeof updateMultipleSelectAnswerSchema>
 >;
 
 // ---------------------------------------------------------------------------
@@ -104,4 +128,12 @@ export const createGradeEssayAnswerSchema = (t: TranslateFn) =>
 
 export type GradeEssayAnswerInput = z.infer<
   ReturnType<typeof createGradeEssayAnswerSchema>
+>;
+
+/** Partial schema for PATCH — all fields optional. */
+export const updateGradeEssayAnswerSchema = (t: TranslateFn) =>
+  createGradeEssayAnswerSchema(t).partial();
+
+export type GradeEssayAnswerUpdateInput = z.infer<
+  ReturnType<typeof updateGradeEssayAnswerSchema>
 >;

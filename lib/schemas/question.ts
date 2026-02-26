@@ -78,7 +78,7 @@ export const createChoiceQuestionObjectSchema = (t: TranslateFn) =>
 export const createChoiceQuestionSchema = (t: TranslateFn) =>
   createChoiceQuestionObjectSchema(t).refine(
     (data) => data.choices.some((c) => c.isCorrect),
-    { message: t("atLeastOneCorrect") },
+    { error: t("atLeastOneCorrect") },
   );
 
 export type ChoiceQuestionInput = z.infer<
@@ -107,7 +107,7 @@ export const createMultipleSelectQuestionObjectSchema = (t: TranslateFn) =>
 export const createMultipleSelectQuestionSchema = (t: TranslateFn) =>
   createMultipleSelectQuestionObjectSchema(t).refine(
     (data) => data.choices.some((c) => c.isCorrect),
-    { message: t("atLeastOneCorrect") },
+    { error: t("atLeastOneCorrect") },
   );
 
 export type MultipleSelectQuestionInput = z.infer<
@@ -133,7 +133,7 @@ export type QuestionInput = z.infer<ReturnType<typeof createQuestionSchema>>;
 
 export const createQuestionRequestSchema = (t: TranslateFn) =>
   z.object({
-    testId: z.string().cuid(t("testIdRequired")),
+    testId: z.cuid(t("testIdRequired")),
   });
 
 export type CreateQuestionRequestInput = z.infer<
@@ -146,7 +146,7 @@ export type CreateQuestionRequestInput = z.infer<
 
 export const createQuestionOrderSchema = () =>
   z.object({
-    id: z.string().cuid(),
+    id: z.cuid(),
     order: z.number().int().nonnegative(),
   });
 
@@ -196,7 +196,7 @@ export type UpdateQuestionInput = z.infer<
 // ---------------------------------------------------------------------------
 
 export const getQuestionsQuerySchema = z.object({
-  testid: z.string().cuid(),
+  testid: z.cuid(),
 });
 
 export type GetQuestionsQueryInput = z.infer<typeof getQuestionsQuerySchema>;

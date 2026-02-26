@@ -27,6 +27,14 @@ export const createJoinTestSchema = (t: TranslateFn) =>
 
 export type JoinTestInput = z.infer<ReturnType<typeof createJoinTestSchema>>;
 
+/** Partial schema for PATCH — all fields optional. */
+export const updateJoinTestSchema = (t: TranslateFn) =>
+  createJoinTestSchema(t).partial();
+
+export type JoinTestUpdateInput = z.infer<
+  ReturnType<typeof updateJoinTestSchema>
+>;
+
 // ---------------------------------------------------------------------------
 // Guest join schema
 // Like JoinTestSchema but explicitly for unauthenticated participants.
@@ -45,3 +53,11 @@ export const createGuestJoinSchema = (t: TranslateFn) =>
   });
 
 export type GuestJoinInput = z.infer<ReturnType<typeof createGuestJoinSchema>>;
+
+/** Partial schema for PATCH — all fields optional. */
+export const updateGuestJoinSchema = (t: TranslateFn) =>
+  createGuestJoinSchema(t).partial();
+
+export type GuestJoinUpdateInput = z.infer<
+  ReturnType<typeof updateGuestJoinSchema>
+>;
