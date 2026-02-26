@@ -12,18 +12,27 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { QuestionType } from "@/lib/generated/prisma/enums";
 
 export type QuestionItem = {
   id: string;
-  title: string;
+  type: QuestionType;
+  questionText: string;
 };
 
 interface QuestionCardProps {
   question: QuestionItem;
   index: number;
+  onDelete: (id: string) => void;
 }
 
-export function QuestionCard({ question, index }: QuestionCardProps) {
+const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
+  [QuestionType.ESSAY]: "Essay",
+  [QuestionType.CHOICE]: "Choice",
+  [QuestionType.MULTIPLE_SELECT]: "Multiple Choice",
+};
+
+export function QuestionCard({ question, index, onDelete }: QuestionCardProps) {
   return (
     <SortableItem value={question.id}>
       <Card className="group p-6">
@@ -36,17 +45,27 @@ export function QuestionCard({ question, index }: QuestionCardProps) {
               <GripVerticalIcon className="size-full" />
             </span>
           </SortableItemHandle>
-          <Select defaultValue="essay">
+          <Select defaultValue={question.type}>
             <SelectTrigger className="flex-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="essay">Essay</SelectItem>
-              <SelectItem value="choice">Choice</SelectItem>
-              <SelectItem value="multiple-choice">Multiple Choice</SelectItem>
+              <SelectItem value={QuestionType.ESSAY}>
+                {QUESTION_TYPE_LABELS[QuestionType.ESSAY]}
+              </SelectItem>
+              <SelectItem value={QuestionType.CHOICE}>
+                {QUESTION_TYPE_LABELS[QuestionType.CHOICE]}
+              </SelectItem>
+              <SelectItem value={QuestionType.MULTIPLE_SELECT}>
+                {QUESTION_TYPE_LABELS[QuestionType.MULTIPLE_SELECT]}
+              </SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="destructive" size="icon">
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={() => onDelete(question.id)}
+          >
             <Trash2Icon />
           </Button>
         </div>

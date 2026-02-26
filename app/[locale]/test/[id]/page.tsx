@@ -72,7 +72,7 @@ export default async function TestPage({ params }: Props) {
               />
             </TabsContent>
             <TabsContent value="questions">
-              <QuestionsTab />
+              <QuestionsTab testId={test.id} />
             </TabsContent>
             <TabsContent value="participants">
               <Card className="p-6">{t("tabParticipants")}</Card>

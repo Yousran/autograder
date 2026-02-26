@@ -134,7 +134,8 @@
     "questionsTab": {
       "addQuestion": "Add Question",
       "creating": "Adding...",
-      "createFailed": "Failed to add question."
+      "createFailed": "Failed to add question.",
+      "fetchFailed": "Failed to load questions."
     },
     "createTestButton": {
       "createTest": "Create New Test"

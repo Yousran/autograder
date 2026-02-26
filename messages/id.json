@@ -134,7 +134,8 @@
     "questionsTab": {
       "addQuestion": "Tambah Pertanyaan",
       "creating": "Menambahkan...",
-      "createFailed": "Gagal menambahkan pertanyaan."
+      "createFailed": "Gagal menambahkan pertanyaan.",
+      "fetchFailed": "Gagal memuat daftar pertanyaan."
     },
     "createTestButton": {
       "createTest": "Buat Ujian Baru"
