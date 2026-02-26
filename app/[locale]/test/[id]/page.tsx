@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { TestTitleEditable } from "./components/test-title-editable";
-import { SettingsTab } from "./components/settings-tab";
+import { SettingsTab } from "./components/settings-tab/settings-tab";
 import { JoinCodeCard } from "@/components/custom/join-code-card";
 import Navbar from "@/components/custom/navbar";
 import { Card } from "@/components/ui/card";
