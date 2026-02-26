@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { type Test } from "@/lib/generated/prisma/client";
 
 /**
  * A translation function accepting a key within the "Validation" namespace.
@@ -14,7 +15,7 @@ type TranslateFn = (key: string) => string;
  * Base object — no refinements and no defaults, safe to call .partial() on.
  * Defaults are applied only in the create schema below.
  */
-export const createTestObjectSchema = (t: TranslateFn) =>
+export const TestValidationSchema = (t: TranslateFn) =>
   z.object({
     title: z.string().min(1, t("titleRequired")).min(3, t("titleTooShort")),
     description: z.string().optional(),
@@ -39,9 +40,30 @@ export const createTestObjectSchema = (t: TranslateFn) =>
     isQuestionsOrdered: z.boolean(),
   });
 
+/** Default Test Data — use as a placeholder before the real server response in optimistic. */
+export const defaultTestData: Test = {
+  id: `temp-${crypto.randomUUID()}`,
+  creatorId: "",
+  title: "Untitled Test",
+  description: null,
+  joinCode: null,
+  joinCodeExpiresAt: null,
+  testDuration: 60,
+  startTime: null,
+  endTime: null,
+  maxAttempts: 1,
+  isAcceptingResponses: true,
+  isLoggedInUserOnly: false,
+  isShowDetailedScore: true,
+  isShowCorrectAnswers: false,
+  isQuestionsOrdered: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
 /** Full schema with cross-field refinement — used for creating a test. */
 export const createTestSchema = (t: TranslateFn) =>
-  createTestObjectSchema(t)
+  TestValidationSchema(t)
     .extend({
       isAcceptingResponses: z.boolean().default(true),
       isLoggedInUserOnly: z.boolean().default(false),
@@ -63,11 +85,11 @@ export const createTestSchema = (t: TranslateFn) =>
     );
 
 /** Partial schema for PATCH — all fields optional, no refinements. */
-export const updateTestSchema = (t: TranslateFn) =>
-  createTestObjectSchema(t).partial();
+export const patchTestSchema = (t: TranslateFn) =>
+  TestValidationSchema(t).partial();
 
-export type TestInput = z.infer<ReturnType<typeof createTestSchema>>;
-export type TestUpdateInput = z.infer<ReturnType<typeof updateTestSchema>>;
+export type TestCreateInput = z.infer<ReturnType<typeof createTestSchema>>;
+export type TestPatchInput = z.infer<ReturnType<typeof patchTestSchema>>;
 
 // ---------------------------------------------------------------------------
 // API response schema — the shape returned by POST /api/tests/create.

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
-import { updateTestSchema } from "@/lib/schemas/test";
+import { patchTestSchema } from "@/lib/schemas/test";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -44,7 +44,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     );
   }
 
-  const schema = updateTestSchema((key) => tValidation(key));
+  const schema = patchTestSchema((key) => tValidation(key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {
