@@ -166,6 +166,9 @@
       "expiresIn": "Expires in {time}",
       "expired": "Code expired — regenerate to issue a new one."
     },
+    "editableTextarea": {
+      "saveFailed": "Failed to save changes"
+    },
     "test": {
       "titleLabel": "Title",
       "descriptionLabel": "Description",

@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { EditableTextarea } from "@/components/custom/editable-textarea";
 import { QUESTION_TYPES, getQuestionTypeLabel } from "@/lib/schemas/question";
 import type { QuestionSchema } from "@/lib/schemas/question";
 import { QuestionType } from "@/lib/generated/prisma/enums";
@@ -41,6 +41,18 @@ export function QuestionCard({
   onTypeChange,
 }: QuestionCardProps) {
   const t = useTranslations("Components.questionsTab");
+
+  const handleQuestionTextUpdate = async (newText: string) => {
+    await fetch(`/api/questions/${question.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        questionText: newText,
+        type: question.type,
+      }),
+    });
+  };
+
   return (
     <SortableItem value={question.id}>
       <Card className="group p-6">
@@ -81,11 +93,14 @@ export function QuestionCard({
           </TooltipProvider>
         </div>
         <div>
-          <Textarea
+          <EditableTextarea
+            initialValue={question.questionText}
+            onUpdate={handleQuestionTextUpdate}
             placeholder={t("questionTextPlaceholder")}
-            value={question.questionText}
-            readOnly
             className="min-h-24"
+            onUpdateError={(error) => {
+              console.error("Failed to update question text:", error);
+            }}
           />
         </div>
         {question.type === QuestionType.CHOICE && <QuestionChoice />}

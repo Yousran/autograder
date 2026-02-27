@@ -166,6 +166,9 @@
       "expiresIn": "Kedaluwarsa dalam {time}",
       "expired": "Kode kedaluwarsa — buat ulang untuk menerbitkan yang baru."
     },
+    "editableTextarea": {
+      "saveFailed": "Gagal menyimpan perubahan"
+    },
     "test": {
       "titleLabel": "Judul",
       "descriptionLabel": "Deskripsi",
