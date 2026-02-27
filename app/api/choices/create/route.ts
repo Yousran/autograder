@@ -67,16 +67,18 @@ export async function POST(req: NextRequest) {
     if (question.type === "CHOICE") {
       created = await prisma.choice.create({
         data: {
-          ...defaultChoiceData,
           questionId: questionid,
+          choiceText: defaultChoiceData.choiceText,
+          isCorrect: defaultChoiceData.isCorrect,
         },
       });
       return NextResponse.json({ choice: created }, { status: 201 });
     } else if (question.type === "MULTIPLE_SELECT") {
       created = await prisma.multipleSelectChoice.create({
         data: {
-          ...defaultMultipleSelectChoiceData,
           questionId: questionid,
+          choiceText: defaultMultipleSelectChoiceData.choiceText,
+          isCorrect: defaultMultipleSelectChoiceData.isCorrect,
         },
       });
       return NextResponse.json(

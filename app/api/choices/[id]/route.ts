@@ -99,6 +99,16 @@ export async function PATCH(req: NextRequest) {
         where: { id: choiceid },
         data: parsed.data,
       });
+      if (parsed.data.isCorrect) {
+        // If this choice is now correct, set all other choices to incorrect
+        await prisma.choice.updateMany({
+          where: {
+            questionId: updated.questionId,
+            id: { not: updated.id },
+          },
+          data: { isCorrect: false },
+        });
+      }
       return NextResponse.json({ choice: updated }, { status: 200 });
     } else if (question.type === "MULTIPLE_SELECT") {
       parsed = patchMultipleSelectChoiceSchema(tValidation).safeParse(body);

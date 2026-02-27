@@ -103,7 +103,9 @@ export function QuestionCard({
             }}
           />
         </div>
-        {question.type === QuestionType.CHOICE && <QuestionChoice />}
+        {question.type === QuestionType.CHOICE && (
+          <QuestionChoice questionId={question.id} />
+        )}
         {question.type === QuestionType.MULTIPLE_SELECT && (
           <QuestionMultipleChoice />
         )}
