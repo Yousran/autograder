@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Navbar from "@/components/custom/navbar";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/dal";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/card";
 import { FcGoogle } from "react-icons/fc";
 import ProfileAvatarClient from "@/components/custom/profile-avatar-client";
@@ -24,6 +25,9 @@ export default async function Page({ params }: Props) {
 
   const session = await getSession();
   const isOwner = !!session && session.user.id === user.id;
+
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "Pages.profile" });
 
   const providers = user.accounts.map((a) => a.providerId);
   const PROVIDER_LABELS: Record<string, string> = {
@@ -63,17 +67,17 @@ export default async function Page({ params }: Props) {
           <div className="grid gap-6">
             <Card>
               <div className="p-6">
-                <h2 className="text-lg font-semibold">Informasi Profil</h2>
+                <h2 className="text-lg font-semibold">
+                  {t("profileInformation")}
+                </h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {isOwner
-                    ? "Kelola informasi akun Anda."
-                    : "Informasi publik pengguna ini."}
+                  {isOwner ? t("manageInfo") : t("publicInfo")}
                 </p>
 
                 <div className="mt-4 grid gap-2">
                   <div>
                     <h3 className="text-xs font-medium text-foreground/70">
-                      Nama Lengkap
+                      {t("fullName")}
                     </h3>
                     <p className="text-sm font-medium text-foreground">
                       {user.name}
@@ -83,7 +87,7 @@ export default async function Page({ params }: Props) {
                   {isOwner && user.email && (
                     <div>
                       <h3 className="text-xs font-medium text-foreground/70">
-                        Email
+                        {t("email")}
                       </h3>
                       <p className="text-sm font-medium text-foreground">
                         {user.email}
@@ -97,9 +101,9 @@ export default async function Page({ params }: Props) {
             {isOwner && providers.length > 0 && (
               <Card>
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold">Metode Login</h3>
+                  <h3 className="text-lg font-semibold">{t("loginMethods")}</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Akun yang terhubung dengan profil Anda.
+                    {t("connectedAccounts")}
                   </p>
 
                   <div className="mt-4 flex flex-col gap-3">
@@ -115,7 +119,7 @@ export default async function Page({ params }: Props) {
                           {PROVIDER_LABELS[provider] ?? provider}
                         </span>
                         <span className="ml-auto text-xs text-primary">
-                          Terhubung
+                          {t("connected")}
                         </span>
                       </div>
                     ))}

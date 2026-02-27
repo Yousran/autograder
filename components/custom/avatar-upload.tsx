@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CircleAlertIcon, UserIcon, XIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTranslations } from "next-intl";
 
 interface AvatarUploadProps {
   maxSize?: number;
@@ -53,6 +54,8 @@ export function AvatarUpload({
   const currentFile = files[0];
   const previewUrl = currentFile?.preview || defaultAvatar;
 
+  const t = useTranslations("Components.profile.avatarUpload");
+
   const handleRemove = () => {
     if (currentFile) {
       removeFile(currentFile.id);
@@ -79,7 +82,7 @@ export function AvatarUpload({
           <input {...getInputProps()} className="sr-only" />
 
           {previewUrl ? (
-            <AvatarImage src={previewUrl} alt="Avatar Preview" />
+            <AvatarImage src={previewUrl} alt={t("avatarPreview")} />
           ) : (
             <AvatarFallback>
               <UserIcon className="text-muted-foreground size-6" />
@@ -104,10 +107,10 @@ export function AvatarUpload({
       {/* Upload Instructions */}
       <div className="space-y-0.5 text-center">
         <p className="text-sm font-medium">
-          {currentFile ? "Avatar uploaded" : "Upload avatar"}
+          {currentFile ? t("uploaded") : t("upload")}
         </p>
         <p className="text-muted-foreground text-xs">
-          PNG, JPG up to {formatBytes(maxSize)}
+          {t("formatsUpTo", { size: formatBytes(maxSize) })}
         </p>
       </div>
 
@@ -115,7 +118,7 @@ export function AvatarUpload({
       {errors.length > 0 && (
         <Alert variant="destructive" className="mt-5">
           <CircleAlertIcon />
-          <AlertTitle>File upload error(s)</AlertTitle>
+          <AlertTitle>{t("fileUploadErrorTitle")}</AlertTitle>
           <AlertDescription>
             {errors.map((error, index) => (
               <p key={index} className="last:mb-0">

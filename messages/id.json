@@ -36,8 +36,7 @@
       "notFound": "Ujian tidak ditemukan.",
       "forbidden": "Anda tidak memiliki izin untuk mengubah ujian ini.",
       "generateFailed": "Gagal membuat kode bergabung. Silakan coba lagi."
-    }
-    ,
+    },
     "profile": {
       "forbidden": "Anda tidak memiliki izin untuk memperbarui profil ini.",
       "invalidImage": "Gambar tidak valid.",
@@ -128,6 +127,16 @@
       "tabSettings": "Pengaturan",
       "tabQuestions": "Pertanyaan",
       "tabParticipants": "Peserta"
+    },
+    "profile": {
+      "profileInformation": "Informasi Profil",
+      "manageInfo": "Kelola informasi akun Anda.",
+      "publicInfo": "Informasi publik pengguna ini.",
+      "fullName": "Nama Lengkap",
+      "email": "Email",
+      "loginMethods": "Metode Login",
+      "connectedAccounts": "Akun yang terhubung dengan profil Anda.",
+      "connected": "Terhubung"
     }
   },
   "Components": {
@@ -216,6 +225,21 @@
       "isShowCorrectAnswersDesc": "Ungkapkan jawaban yang benar kepada peserta setelah selesai.",
       "isQuestionsOrderedLabel": "Urutan Soal Tetap",
       "isQuestionsOrderedDesc": "Tampilkan soal dalam urutan tetap, bukan acak."
+    }
+    ,
+    "profile": {
+      "avatar": {
+        "updateSuccess": "Foto profil berhasil diperbarui.",
+        "userFallback": "Pengguna",
+        "saving": "Menyimpan..."
+      },
+      "avatarUpload": {
+        "avatarPreview": "Pratinjau avatar",
+        "uploaded": "Avatar diunggah",
+        "upload": "Unggah avatar",
+        "formatsUpTo": "PNG, JPG hingga {size}",
+        "fileUploadErrorTitle": "Kesalahan unggahan file"
+      }
     }
   }
 }

@@ -36,8 +36,7 @@
       "notFound": "Test not found.",
       "forbidden": "You are not authorized to modify this test.",
       "generateFailed": "Failed to generate join code. Please try again."
-    }
-    ,
+    },
     "profile": {
       "forbidden": "You are not authorized to update this profile.",
       "invalidImage": "Invalid image provided.",
@@ -128,6 +127,16 @@
       "tabSettings": "Settings",
       "tabQuestions": "Questions",
       "tabParticipants": "Participants"
+    },
+    "profile": {
+      "profileInformation": "Profile Information",
+      "manageInfo": "Manage your account information.",
+      "publicInfo": "Public information of this user.",
+      "fullName": "Full Name",
+      "email": "Email",
+      "loginMethods": "Login Methods",
+      "connectedAccounts": "Accounts connected to your profile.",
+      "connected": "Connected"
     }
   },
   "Components": {
@@ -217,6 +226,20 @@
       "isShowCorrectAnswersDesc": "Reveal the correct answers to participants after they finish.",
       "isQuestionsOrderedLabel": "Ordered Questions",
       "isQuestionsOrderedDesc": "Present questions in a fixed order instead of randomizing them."
+    },
+    "profile": {
+      "avatar": {
+        "updateSuccess": "Profile photo updated successfully.",
+        "userFallback": "User",
+        "saving": "Saving..."
+      },
+      "avatarUpload": {
+        "avatarPreview": "Avatar preview",
+        "uploaded": "Avatar uploaded",
+        "upload": "Upload avatar",
+        "formatsUpTo": "PNG, JPG up to {size}",
+        "fileUploadErrorTitle": "File upload error(s)"
+      }
     }
   }
 }

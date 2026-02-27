@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CameraIcon } from "lucide-react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import { useTranslations } from "next-intl";
 // import { toast } from "sonner"; // Or whatever toast library you use
 // import { authClient } from "@/lib/auth-client"; // Adjust path to your better-auth client
 
@@ -28,6 +29,8 @@ export default function ProfileAvatarClient({
 
   // Local state to show the new image instantly before the server refresh completes
   const [currentImage, setCurrentImage] = useState<string | null>(initialImage);
+
+  const t = useTranslations("Components.profile.avatar");
 
   const handleAvatarFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -78,7 +81,7 @@ export default function ProfileAvatarClient({
       setCurrentImage(newImageUrl);
       router.refresh();
 
-      toast.success("Foto profil berhasil diperbarui.");
+      toast.success(t("updateSuccess"));
     } catch (error) {
       console.error("Error uploading avatar:", error);
     } finally {
@@ -110,7 +113,7 @@ export default function ProfileAvatarClient({
           <Avatar className="size-28 ring-4 ring-background shadow-lg transition-all duration-200 group-hover:brightness-75">
             <AvatarImage
               src={currentImage ?? undefined}
-              alt={userName ?? "User"}
+              alt={userName ?? t("userFallback")}
               className="object-cover"
             />
             <AvatarFallback className="text-2xl font-bold">
@@ -127,7 +130,7 @@ export default function ProfileAvatarClient({
           {isUploading && (
             <div className="absolute inset-0 z-10 flex items-center justify-center rounded-full bg-background/70 backdrop-blur-sm">
               <span className="text-xs font-semibold animate-pulse">
-                Menyimpan...
+                {t("saving")}
               </span>
             </div>
           )}
