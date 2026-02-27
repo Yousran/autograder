@@ -112,6 +112,7 @@ export function QuestionCard({
             questionId={question.id}
             answerText={question.essay?.answerText}
             isExactAnswer={question.essay?.isExactAnswer}
+            maxScore={question.essay?.maxScore}
           />
         )}
       </Card>
