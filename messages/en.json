@@ -136,6 +136,7 @@
     },
     "questionsTab": {
       "addQuestion": "Add Question",
+      "deleteQuestion": "Delete Question",
       "creating": "Adding...",
       "createFailed": "Failed to add question.",
       "fetchFailed": "Failed to load questions.",

@@ -20,6 +20,12 @@ import { QuestionType } from "@/lib/generated/prisma/enums";
 import { QuestionChoice } from "./question-choice";
 import { QuestionMultipleChoice } from "./question-multiple-choice";
 import { QuestionEssay } from "./question-essay";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 export type { QuestionSchema };
 
 interface QuestionCardProps {
@@ -54,13 +60,20 @@ export function QuestionCard({ question, index, onDelete }: QuestionCardProps) {
               ))}
             </SelectContent>
           </Select>
-          <Button
-            variant="destructive"
-            size="icon"
-            onClick={() => onDelete(question.id)}
-          >
-            <Trash2Icon />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => onDelete(question.id)}
+                >
+                  <Trash2Icon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("deleteQuestion")}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <div>
           <Textarea

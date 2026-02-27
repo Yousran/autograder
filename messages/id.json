@@ -136,6 +136,7 @@
     },
     "questionsTab": {
       "addQuestion": "Tambah Pertanyaan",
+      "deleteQuestion": "Hapus Pertanyaan",
       "creating": "Menambahkan...",
       "createFailed": "Gagal menambahkan pertanyaan.",
       "fetchFailed": "Gagal memuat daftar pertanyaan.",
