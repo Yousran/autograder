@@ -7,7 +7,7 @@ import {
   ChoiceboxItemHeader,
   ChoiceboxItemTitle,
 } from "@/components/ui/choicebox";
-import { Check } from "lucide-react";
+import { Check, Trash } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   ChoiceSchema,
@@ -154,6 +154,37 @@ export function QuestionChoice({ questionId }: QuestionChoiceProps) {
     }
   };
 
+  const handleDeleteChoice = async (choiceId: string) => {
+    // Prevent deleting optimistic/temp choices on server
+    if (choiceId.startsWith("temp-")) {
+      setChoices((prev) => prev.filter((c) => c.id !== choiceId));
+      return;
+    }
+
+    const previous = choices;
+
+    // Optimistically remove the choice from UI
+    setChoices((prev) => prev.filter((c) => c.id !== choiceId));
+
+    try {
+      const response = await fetch(
+        `/api/choices/${encodeURIComponent(choiceId)}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to delete choice");
+      }
+    } catch (err) {
+      console.error("Error deleting choice:", err);
+      setChoices(previous);
+      setError(err instanceof Error ? err.message : "Failed to delete choice");
+    }
+  };
+
   const handleChoiceTextUpdate = async (choiceId: string, value: string) => {
     if (!value || value.trim().length === 0) {
       throw new Error(tValidation("choiceTextRequired"));
@@ -223,6 +254,14 @@ export function QuestionChoice({ questionId }: QuestionChoiceProps) {
                   }}
                 />
               </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => handleDeleteChoice(choice.id)}
+                aria-label={t("deleteChoice")}
+              >
+                <Trash />
+              </Button>
             </ChoiceboxItemHeader>
           </ChoiceboxItem>
         ))}

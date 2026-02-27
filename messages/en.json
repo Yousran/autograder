@@ -149,6 +149,7 @@
       "loadingChoices": "Loading choices...",
       "markCorrect": "Mark as correct",
       "markedCorrect": "Marked correct",
+      "deleteChoice": "Delete Choice",
       "choiceSaved": "Choice saved",
       "essayAnswerLabel": "Expected Answer",
       "essayAnswerPlaceholder": "Expected answer will appear here...",

@@ -22,14 +22,22 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  // Fetch choice and question type
+  // Fetch choice (single-choice or multiple-select) and question
   let question;
+  let choiceRecord: { questionId: string } | null = null;
   try {
-    const choice = await prisma.choice.findUnique({
+    choiceRecord = await prisma.choice.findUnique({
       where: { id: choiceid },
       select: { questionId: true },
     });
-    if (!choice) {
+    if (!choiceRecord) {
+      choiceRecord = await prisma.multipleSelectChoice.findUnique({
+        where: { id: choiceid },
+        select: { questionId: true },
+      });
+    }
+
+    if (!choiceRecord) {
       return NextResponse.json(
         { error: tChoices("notFound") },
         { status: 404 },
@@ -37,9 +45,10 @@ export async function PATCH(req: NextRequest) {
     }
 
     question = await prisma.question.findUnique({
-      where: { id: choice.questionId },
+      where: { id: choiceRecord.questionId },
       select: { type: true, testId: true },
     });
+
     if (!question) {
       return NextResponse.json(
         { error: tChoices("notFound") },
@@ -139,6 +148,105 @@ export async function PATCH(req: NextRequest) {
     console.error("Error updating choice:", err);
     return NextResponse.json(
       { error: tChoices("updateFailed") },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const locale = await getLocale();
+  const [tChoices, tValidation] = await Promise.all([
+    getTranslations({ locale, namespace: "Api.choices" }),
+    getTranslations({ locale, namespace: "Validation" }),
+  ]);
+
+  const choiceid = req.nextUrl.pathname.split("/").pop();
+
+  if (!choiceid) {
+    return NextResponse.json(
+      { error: tValidation("choiceIdRequired") },
+      { status: 422 },
+    );
+  }
+
+  // Fetch choice (single-choice or multiple-select) and question
+  let question;
+  let choiceRecord: { questionId: string } | null = null;
+  try {
+    choiceRecord = await prisma.choice.findUnique({
+      where: { id: choiceid },
+      select: { questionId: true },
+    });
+    if (!choiceRecord) {
+      choiceRecord = await prisma.multipleSelectChoice.findUnique({
+        where: { id: choiceid },
+        select: { questionId: true },
+      });
+    }
+
+    if (!choiceRecord) {
+      return NextResponse.json(
+        { error: tChoices("notFound") },
+        { status: 404 },
+      );
+    }
+
+    question = await prisma.question.findUnique({
+      where: { id: choiceRecord.questionId },
+      select: { type: true, testId: true },
+    });
+
+    if (!question) {
+      return NextResponse.json(
+        { error: tChoices("notFound") },
+        { status: 404 },
+      );
+    }
+  } catch (err) {
+    console.error("Error fetching choice or question:", err);
+    return NextResponse.json({ error: tChoices("notFound") }, { status: 404 });
+  }
+
+  // Authorization
+  const auth = await requireTestCreator(question.testId);
+  if (!auth.ok) {
+    if (auth.reason === "unauthenticated") {
+      return NextResponse.json(
+        { error: tChoices("unauthorized") },
+        { status: 401 },
+      );
+    }
+    if (auth.reason === "not_found") {
+      return NextResponse.json(
+        { error: tChoices("notFound") },
+        { status: 404 },
+      );
+    }
+    return NextResponse.json({ error: tChoices("forbidden") }, { status: 403 });
+  }
+
+  try {
+    if (question.type === "CHOICE") {
+      const deleted = await prisma.choice.delete({ where: { id: choiceid } });
+      return NextResponse.json({ choice: deleted }, { status: 200 });
+    } else if (question.type === "MULTIPLE_SELECT") {
+      const deleted = await prisma.multipleSelectChoice.delete({
+        where: { id: choiceid },
+      });
+      return NextResponse.json(
+        { multipleSelectChoice: deleted },
+        { status: 200 },
+      );
+    } else {
+      return NextResponse.json(
+        { error: tChoices("unsupportedType") },
+        { status: 400 },
+      );
+    }
+  } catch (err) {
+    console.error("Error deleting choice:", err);
+    return NextResponse.json(
+      { error: tChoices("deleteFailed") || tChoices("updateFailed") },
       { status: 500 },
     );
   }
