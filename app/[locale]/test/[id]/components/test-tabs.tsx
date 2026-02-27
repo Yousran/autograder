@@ -7,6 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SettingsTab } from "./settings-tab/settings-tab";
 import { QuestionsTab } from "./questions-tab/questions-tab";
 import { TestSchema } from "@/lib/schemas/test";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 interface TestTabsProps {
   test: TestSchema;
@@ -14,12 +15,32 @@ interface TestTabsProps {
 
 export function TestTabs({ test }: TestTabsProps) {
   const t = useTranslations("Pages.test");
-  const [currentTab, setCurrentTab] = useState("settings");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const allowed = new Set(["settings", "questions", "participants"]);
+  const [currentTab, setCurrentTab] = useState(() => {
+    const p = searchParams?.get("tab");
+    return allowed.has(p ?? "") ? (p as string) : "settings";
+  });
+
+  const handleTabChange = (value: string) => {
+    setCurrentTab(value);
+    try {
+      const params = new URLSearchParams(
+        typeof window !== "undefined" ? window.location.search : "",
+      );
+      params.set("tab", value);
+      router.replace(`${pathname}?${params.toString()}`);
+    } catch (e) {
+      console.error("Failed to update URL search params:", e);
+    }
+  };
 
   return (
     <Tabs
       value={currentTab}
-      onValueChange={setCurrentTab}
+      onValueChange={handleTabChange}
       className="w-full gap-4"
     >
       <TabsList className="w-full border-b">
