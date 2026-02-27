@@ -104,6 +104,38 @@ export async function PATCH(req: NextRequest) {
           { status: 422 },
         );
       }
+
+      // Prevent unmarking the only persisted correct choice
+      if (parsed.data.isCorrect === false) {
+        const existing = await prisma.choice.findUnique({
+          where: { id: choiceid },
+          select: { isCorrect: true, questionId: true },
+        });
+        if (!existing) {
+          return NextResponse.json(
+            { error: tChoices("notFound") },
+            { status: 404 },
+          );
+        }
+
+        if (existing.isCorrect) {
+          const otherCorrect = await prisma.choice.count({
+            where: {
+              questionId: existing.questionId,
+              id: { not: choiceid },
+              isCorrect: true,
+            },
+          });
+
+          if (otherCorrect === 0) {
+            return NextResponse.json(
+              { error: tChoices("cannotUnmarkOnlyCorrect") },
+              { status: 400 },
+            );
+          }
+        }
+      }
+
       updated = await prisma.choice.update({
         where: { id: choiceid },
         data: parsed.data,
@@ -130,6 +162,38 @@ export async function PATCH(req: NextRequest) {
           { status: 422 },
         );
       }
+
+      // Prevent unmarking the only persisted correct multiple-select choice
+      if (parsed.data.isCorrect === false) {
+        const existing = await prisma.multipleSelectChoice.findUnique({
+          where: { id: choiceid },
+          select: { isCorrect: true, questionId: true },
+        });
+        if (!existing) {
+          return NextResponse.json(
+            { error: tChoices("notFound") },
+            { status: 404 },
+          );
+        }
+
+        if (existing.isCorrect) {
+          const otherCorrect = await prisma.multipleSelectChoice.count({
+            where: {
+              questionId: existing.questionId,
+              id: { not: choiceid },
+              isCorrect: true,
+            },
+          });
+
+          if (otherCorrect === 0) {
+            return NextResponse.json(
+              { error: tChoices("cannotUnmarkOnlyCorrect") },
+              { status: 400 },
+            );
+          }
+        }
+      }
+
       updated = await prisma.multipleSelectChoice.update({
         where: { id: choiceid },
         data: parsed.data,

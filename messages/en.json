@@ -158,6 +158,7 @@
       "deleteChoice": "Delete Choice",
       "cannotDeleteCorrect": "Cannot delete a choice marked as correct.",
       "cannotDeleteMinChoices": "At least 2 choices are required — cannot delete further.",
+      "cannotUnmarkOnlyCorrect": "At least one choice must remain correct — cannot unmark the last correct choice.",
       "choiceSaved": "Choice saved",
       "essayAnswerLabel": "Expected Answer",
       "essayAnswerPlaceholder": "Expected answer will appear here...",

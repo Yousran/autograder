@@ -157,6 +157,7 @@
       "deleteChoice": "Hapus Pilihan",
       "cannotDeleteCorrect": "Tidak dapat menghapus pilihan yang ditandai benar.",
       "cannotDeleteMinChoices": "Minimal 2 pilihan diperlukan — tidak dapat menghapus lebih lanjut.",
+      "cannotUnmarkOnlyCorrect": "Setidaknya satu pilihan harus tetap benar — tidak dapat membatalkan penandaan pilihan terakhir.",
       "choiceSaved": "Pilihan tersimpan",
       "essayAnswerLabel": "Jawaban yang Diharapkan",
       "essayAnswerPlaceholder": "Jawaban yang diharapkan akan muncul di sini...",
