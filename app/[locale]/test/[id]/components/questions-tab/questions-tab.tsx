@@ -7,13 +7,7 @@ import { Sortable } from "@/components/reui/sortable";
 import { QuestionCard } from "./question-card/question-card";
 import { QuestionsSkeleton } from "./questions-skeleton";
 import { AddDivider } from "./add-divider";
-import {
-  type QuestionSchema,
-  defaultQuestionData,
-} from "@/lib/schemas/question";
-
-/** Extends the base schema with the fractional-indexing order value. */
-type QuestionItem = QuestionSchema & { order: string };
+import { QuestionSchema, defaultQuestionData } from "@/lib/schemas/question";
 
 interface QuestionsTabProps {
   testId: string;
@@ -21,7 +15,7 @@ interface QuestionsTabProps {
 
 export function QuestionsTab({ testId }: QuestionsTabProps) {
   const t = useTranslations("Components.questionsTab");
-  const [questions, setQuestions] = useState<QuestionItem[]>([]);
+  const [questions, setQuestions] = useState<QuestionSchema[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -36,7 +30,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
           toast.error(data?.error ?? t("fetchFailed"));
           return;
         }
-        const data: QuestionItem[] = await res.json();
+        const data: QuestionSchema[] = await res.json();
         if (!cancelled) setQuestions(data);
       } catch {
         if (!cancelled) toast.error(t("fetchFailed"));
@@ -69,7 +63,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
   // afterId: string  → insert after that question
   // afterId: null    → insert at beginning
   // afterId: undefined (omitted) → append at end
-  async function handleReorder(newQuestions: QuestionItem[]): Promise<void> {
+  async function handleReorder(newQuestions: QuestionSchema[]): Promise<void> {
     // Drag-and-drop moves exactly one item at a time — find it.
     const movedItem = newQuestions.find((q, newIdx) => {
       const prevIdx = questions.findIndex((prev) => prev.id === q.id);
@@ -111,12 +105,14 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
   }
 
   async function handleCreate(afterId?: string | null): Promise<void> {
-    const tempId = `temp-${Date.now()}`;
-    const tempItem: QuestionItem = {
-      id: tempId,
+    const tempItem: QuestionSchema = {
+      id: defaultQuestionData.id,
+      testId,
       type: defaultQuestionData.type,
       questionText: defaultQuestionData.questionText,
       order: "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     // Optimistic insert
@@ -143,21 +139,24 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     }).catch(() => null);
 
     if (!res || !res.ok) {
-      setQuestions((prev) => prev.filter((q) => q.id !== tempId));
+      setQuestions((prev) => prev.filter((q) => q.id !== tempItem.id));
       const data = await res?.json().catch(() => ({}));
       toast.error(data?.error ?? t("createFailed"));
       return;
     }
 
-    const question: QuestionItem = await res.json();
+    const question: QuestionSchema = await res.json();
     setQuestions((prev) =>
       prev.map((q) =>
-        q.id === tempId
+        q.id === tempItem.id
           ? {
               id: question.id,
+              testId: question.testId,
               type: question.type,
               questionText: question.questionText,
               order: question.order,
+              createdAt: question.createdAt,
+              updatedAt: question.updatedAt,
             }
           : q,
       ),

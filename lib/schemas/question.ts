@@ -88,8 +88,23 @@ export type QuestionOrderCreateInput = z.infer<
 // Shared UI type for displaying a question in a list
 // ---------------------------------------------------------------------------
 
+/**
+ * Runtime schema for the Prisma `Question` model.
+ * Typed as `z.ZodType<Question>` so TypeScript enforces that it matches the
+ * Prisma model exactly. Use `QuestionSchema.parse()` to validate API responses.
+ */
+export const QuestionSchema: z.ZodType<Question> = z.object({
+  id: z.string(),
+  testId: z.string(),
+  type: z.enum(QuestionType),
+  order: z.string(),
+  questionText: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
 /** Minimal question shape used by the questions list UI (e.g. QuestionCard). */
-export type QuestionSchema = Pick<Question, "id" | "type" | "questionText">;
+export type QuestionSchema = z.infer<typeof QuestionSchema>;
 
 // ---------------------------------------------------------------------------
 // Shared default field values — single source of truth for optimistic UI +
@@ -102,6 +117,7 @@ export type QuestionSchema = Pick<Question, "id" | "type" | "questionText">;
  * so they stay in sync.
  */
 export const defaultQuestionData = {
+  id: `temp-${crypto.randomUUID()}`,
   type: QuestionType.CHOICE,
   questionText: "",
   isChoiceRandomized: defaultChoiceQuestionData.isChoiceRandomized,
