@@ -82,7 +82,7 @@ export function JoinCodeCard({
     <TooltipProvider>
       <div className="flex flex-col gap-2">
         {/* Main pill */}
-        <div className="relative flex items-center min-h-20 bg-foreground/10 text-foreground rounded-xl px-3 py-3">
+        <div className="relative flex items-center min-h-20 bg-muted text-foreground rounded-xl px-3 py-3">
           {/* QR Code icon - left */}
           <Tooltip>
             <TooltipTrigger asChild>

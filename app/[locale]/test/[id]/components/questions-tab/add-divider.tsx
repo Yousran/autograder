@@ -20,7 +20,7 @@ export function AddDivider({
     <div
       className={cn(
         "group/add relative transition-[padding] duration-200 py-2",
-        !alwaysVisible && "hover:py-4",
+        !alwaysVisible && "py-4 sm:py-2 sm:hover:py-4",
       )}
     >
       {/* Always-visible divider line centered in the wrapper */}
@@ -31,7 +31,7 @@ export function AddDivider({
           "grid transition-[grid-template-rows] duration-200",
           alwaysVisible
             ? "grid-rows-[1fr]"
-            : "grid-rows-[0fr] group-hover/add:grid-rows-[1fr]",
+            : "grid-rows-[1fr] sm:grid-rows-[0fr] sm:group-hover/add:grid-rows-[1fr]",
         )}
       >
         <div className="overflow-hidden flex items-center justify-center">
@@ -41,11 +41,11 @@ export function AddDivider({
             className={cn(
               "relative z-10 bg-background h-7 px-3 text-xs",
               !alwaysVisible &&
-                "opacity-0 group-hover/add:opacity-100 transition-opacity duration-200",
+                "opacity-100 sm:opacity-0 sm:group-hover/add:opacity-100 transition-opacity duration-200",
             )}
             onClick={onClick}
           >
-            <PlusIcon className="size-3" />
+            <PlusIcon />
             {t("addQuestion")}
           </Button>
         </div>

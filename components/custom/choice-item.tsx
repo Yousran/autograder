@@ -13,7 +13,7 @@ export const ChoiceItem = ({
 }: ChoiceItemProps) => (
   <div
     className={cn(
-      "flex flex-row bg-accent items-start justify-between rounded-md p-4 transition-all",
+      "flex flex-row bg-muted items-start justify-between rounded-md p-4 transition-all",
       className,
     )}
     {...props}
