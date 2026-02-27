@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -13,21 +13,13 @@ interface TestTabsProps {
 }
 
 export function TestTabs({ test }: TestTabsProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const t = useTranslations("Pages.test");
-  const currentTab = searchParams.get("tab") || "settings";
-
-  const handleTabChange = (value: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("tab", value);
-    router.push(`?${params.toString()}`);
-  };
+  const [currentTab, setCurrentTab] = useState("settings");
 
   return (
     <Tabs
       value={currentTab}
-      onValueChange={handleTabChange}
+      onValueChange={setCurrentTab}
       className="w-full gap-4"
     >
       <TabsList className="w-full border-b">
