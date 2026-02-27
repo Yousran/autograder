@@ -8,6 +8,7 @@ import { QuestionCard } from "./question-card/question-card";
 import { QuestionsSkeleton } from "./questions-skeleton";
 import { AddDivider } from "./add-divider";
 import { QuestionSchema, defaultQuestionData } from "@/lib/schemas/question";
+import { QuestionType } from "@/lib/generated/prisma/browser";
 
 interface QuestionsTabProps {
   testId: string;
@@ -163,6 +164,28 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     );
   }
 
+  async function handleTypeChange(
+    id: string,
+    type: QuestionType,
+  ): Promise<void> {
+    // Optimistic update
+    const previous = questions;
+    setQuestions((prev) => prev.map((q) => (q.id === id ? { ...q, type } : q)));
+
+    const res = await fetch(`/api/questions/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type }),
+    }).catch(() => null);
+
+    if (!res || !res.ok) {
+      setQuestions(previous);
+      const data = await res?.json().catch(() => ({}));
+      toast.error(data?.error ?? t("typeChangeFailed"));
+      return;
+    }
+  }
+
   if (isLoading) {
     return <QuestionsSkeleton />;
   }
@@ -182,6 +205,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
               question={question}
               index={index}
               onDelete={handleDelete}
+              onTypeChange={(type) => handleTypeChange(question.id, type)}
             />
             {index < questions.length - 1 && (
               <AddDivider onClick={() => handleCreate(question.id)} />

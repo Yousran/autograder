@@ -26,15 +26,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-export type { QuestionSchema };
 
 interface QuestionCardProps {
   question: QuestionSchema;
   index: number;
   onDelete: (id: string) => void;
+  onTypeChange?: (type: QuestionType) => void;
 }
 
-export function QuestionCard({ question, index, onDelete }: QuestionCardProps) {
+export function QuestionCard({
+  question,
+  index,
+  onDelete,
+  onTypeChange,
+}: QuestionCardProps) {
   const t = useTranslations("Components.questionsTab");
   return (
     <SortableItem value={question.id}>
@@ -48,7 +53,7 @@ export function QuestionCard({ question, index, onDelete }: QuestionCardProps) {
               <GripVerticalIcon className="size-full" />
             </span>
           </SortableItemHandle>
-          <Select defaultValue={question.type}>
+          <Select defaultValue={question.type} onValueChange={onTypeChange}>
             <SelectTrigger className="flex-1">
               <SelectValue />
             </SelectTrigger>
