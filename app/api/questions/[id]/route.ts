@@ -268,8 +268,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
           data.choices !== undefined
             ? data.choices
             : question.type !== QuestionType.CHOICE
-            ? defaultQuestionData.defaultChoices
-            : [];
+              ? defaultQuestionData.defaultChoices
+              : [];
 
         return tx.question.update({
           where: { id },
@@ -326,6 +326,16 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         await tx.multipleSelectChoice.deleteMany({ where: { questionId: id } });
       }
 
+      // If the client didn't provide choices and we're converting from a
+      // non-multiple-select type, seed starter choices so the question isn't
+      // left without any options.
+      const choicesToCreate =
+        data.choices !== undefined
+          ? data.choices
+          : question.type !== QuestionType.MULTIPLE_SELECT
+            ? defaultQuestionData.defaultChoices
+            : [];
+
       return tx.question.update({
         where: { id },
         data: {
@@ -343,7 +353,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
                   data.maxScore ?? defaultMultipleSelectQuestionData.maxScore,
                 multipleSelectChoices: {
                   createMany: {
-                    data: (data.choices ?? []).map((c) => ({
+                    data: (choicesToCreate ?? []).map((c) => ({
                       choiceText: c.choiceText,
                       isCorrect: c.isCorrect,
                     })),

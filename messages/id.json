@@ -2,7 +2,8 @@
   "Api": {
     "choices": {
       "cannotDeleteCorrect": "Tidak dapat menghapus pilihan yang ditandai benar.",
-      "cannotDeleteMinChoices": "Minimal 2 pilihan diperlukan — tidak dapat menghapus lebih lanjut."
+      "cannotDeleteMinChoices": "Minimal 2 pilihan diperlukan — tidak dapat menghapus lebih lanjut.",
+      "cannotUnmarkOnlyCorrect": "Setidaknya satu pilihan harus tetap benar — tidak dapat membatalkan penandaan pilihan terakhir."
     },
     "upload": {
       "invalidFile": "File tidak ditemukan atau tidak valid",

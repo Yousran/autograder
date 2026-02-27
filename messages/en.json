@@ -2,7 +2,8 @@
   "Api": {
     "choices": {
       "cannotDeleteCorrect": "Cannot delete a choice marked as correct.",
-      "cannotDeleteMinChoices": "At least 2 choices are required — cannot delete further."
+      "cannotDeleteMinChoices": "At least 2 choices are required — cannot delete further.",
+      "cannotUnmarkOnlyCorrect": "At least one choice must remain correct — cannot unmark the last correct choice."
     },
     "upload": {
       "invalidFile": "File not found or invalid",
@@ -152,6 +153,7 @@
       "addChoice": "Add Choice",
       "loadingChoices": "Loading choices...",
       "markCorrect": "Mark as correct",
+      "unmarkCorrect": "Unmark as correct",
       "markedCorrect": "Marked correct",
       "deleteChoice": "Delete Choice",
       "cannotDeleteCorrect": "Cannot delete a choice marked as correct.",

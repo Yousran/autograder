@@ -110,7 +110,7 @@ export function QuestionCard({
             <QuestionChoice questionId={question.id} />
           )}
         {question.type === QuestionType.MULTIPLE_SELECT && (
-          <QuestionMultipleChoice />
+          <QuestionMultipleChoice questionId={question.id} />
         )}
         {question.type === QuestionType.ESSAY && (
           <QuestionEssay
