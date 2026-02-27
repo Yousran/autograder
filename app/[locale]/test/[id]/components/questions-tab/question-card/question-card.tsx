@@ -32,6 +32,7 @@ interface QuestionCardProps {
   index: number;
   onDelete: (id: string) => void;
   onTypeChange?: (type: QuestionType) => void;
+  loadChoices?: boolean;
 }
 
 export function QuestionCard({
@@ -39,6 +40,7 @@ export function QuestionCard({
   index,
   onDelete,
   onTypeChange,
+  loadChoices,
 }: QuestionCardProps) {
   const t = useTranslations("Components.questionsTab");
 
@@ -103,9 +105,10 @@ export function QuestionCard({
             }}
           />
         </div>
-        {question.type === QuestionType.CHOICE && (
-          <QuestionChoice questionId={question.id} />
-        )}
+        {question.type === QuestionType.CHOICE &&
+          (typeof loadChoices === "undefined" || loadChoices) && (
+            <QuestionChoice questionId={question.id} />
+          )}
         {question.type === QuestionType.MULTIPLE_SELECT && (
           <QuestionMultipleChoice />
         )}

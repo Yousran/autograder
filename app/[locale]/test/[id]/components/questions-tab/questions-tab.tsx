@@ -18,6 +18,10 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
   const t = useTranslations("Components.questionsTab");
   const [questions, setQuestions] = useState<QuestionSchema[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  // track which questions are allowed to mount choice UI
+  const [enabledChoices, setEnabledChoices] = useState<Record<string, boolean>>(
+    {},
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -32,7 +36,11 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
           return;
         }
         const data: QuestionSchema[] = await res.json();
-        if (!cancelled) setQuestions(data);
+        if (!cancelled) {
+          setQuestions(data);
+          // fetched from server — choices are ready to mount
+          setEnabledChoices(Object.fromEntries(data.map((q) => [q.id, true])));
+        }
       } catch {
         if (!cancelled) toast.error(t("fetchFailed"));
       } finally {
@@ -162,15 +170,18 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
           : q,
       ),
     );
+    // new persisted question — allow choices to mount
+    setEnabledChoices((prev) => ({ ...prev, [question.id]: true }));
   }
 
   async function handleTypeChange(
     id: string,
     type: QuestionType,
   ): Promise<void> {
-    // Optimistic update
+    // Optimistic update: prevent child from mounting choice UI until server responds
     const previous = questions;
     setQuestions((prev) => prev.map((q) => (q.id === id ? { ...q, type } : q)));
+    setEnabledChoices((prev) => ({ ...prev, [id]: false }));
 
     const res = await fetch(`/api/questions/${id}`, {
       method: "PATCH",
@@ -180,6 +191,8 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
 
     if (!res || !res.ok) {
       setQuestions(previous);
+      // restore previous enable state
+      setEnabledChoices((prev) => ({ ...prev, [id]: true }));
       const data = await res?.json().catch(() => ({}));
       toast.error(data?.error ?? t("typeChangeFailed"));
       return;
@@ -189,10 +202,14 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     try {
       const updated = await res.json();
       setQuestions((prev) => prev.map((q) => (q.id === id ? updated : q)));
+      // server returned authoritative question — now allow mounting of related UI
+      setEnabledChoices((prev) => ({ ...prev, [id]: true }));
     } catch (err) {
       // If parsing fails, silently ignore — optimistic update already applied.
       console.error("Failed to parse updated question response:", err);
+      setEnabledChoices((prev) => ({ ...prev, [id]: true }));
     }
+    toast.success("Question type updated");
   }
 
   if (isLoading) {
@@ -215,6 +232,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
               index={index}
               onDelete={handleDelete}
               onTypeChange={(type) => handleTypeChange(question.id, type)}
+              loadChoices={!!enabledChoices[question.id]}
             />
             {index < questions.length - 1 && (
               <AddDivider onClick={() => handleCreate(question.id)} />
