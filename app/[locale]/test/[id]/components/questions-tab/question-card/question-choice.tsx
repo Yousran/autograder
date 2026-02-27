@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Choicebox,
-  ChoiceboxItem,
-  ChoiceboxItemHeader,
-  ChoiceboxItemTitle,
-} from "@/components/ui/choicebox";
+import { ChoiceItem } from "@/components/custom/choice-item";
 import ChoiceSkeleton from "./choice-skeleton";
 import { Check, Trash } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -226,72 +221,60 @@ export function QuestionChoice({ questionId }: QuestionChoiceProps) {
 
   if (error) {
     return (
-      <Choicebox disabled className="mt-4">
-        <ChoiceboxItem value="error" disabled>
-          <ChoiceboxItemHeader>
-            <ChoiceboxItemTitle className="text-red-600">
-              {error}
-            </ChoiceboxItemTitle>
-          </ChoiceboxItemHeader>
-        </ChoiceboxItem>
-      </Choicebox>
+      <div>
+        <ChoiceItem>
+          <p className="text-red-600">{error}</p>
+        </ChoiceItem>
+      </div>
     );
   }
 
   return (
-    <div className="mt-4 space-y-2">
-      <Choicebox className="mt-2">
-        {choices.map((choice) => (
-          <ChoiceboxItem key={choice.id} value={choice.id}>
-            <ChoiceboxItemHeader className="flex items-center justify-between">
-              <div className="flex flex-1 items-start gap-3">
-                <Button
-                  variant={choice.isCorrect ? "default" : "outline"}
-                  size="icon"
-                  onClick={() => handleMarkCorrect(choice.id)}
-                  aria-label={
-                    choice.isCorrect ? t("markedCorrect") : t("markCorrect")
-                  }
-                >
-                  <Check />
-                </Button>
-                <EditableTextarea
-                  initialValue={choice.choiceText || ""}
-                  onUpdate={(value) => handleChoiceTextUpdate(choice.id, value)}
-                  placeholder={t("choiceTextPlaceholder")}
-                  onUpdateError={(error) => {
-                    console.error("Failed to update choice text:", error);
-                  }}
-                />
-              </div>
-              {/* Disable delete when choice is correct or only two persisted choices remain */}
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleDeleteChoice(choice.id)}
-                aria-label={t("deleteChoice")}
-                disabled={
-                  choice.isCorrect ||
-                  choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
-                }
-                title={
-                  choice.isCorrect
-                    ? t("cannotDeleteCorrect")
-                    : choices.filter((c) => !c.id.startsWith("temp-")).length <=
-                        2
-                      ? t("cannotDeleteMinChoices")
-                      : undefined
-                }
-              >
-                <Trash />
-              </Button>
-            </ChoiceboxItemHeader>
-          </ChoiceboxItem>
-        ))}
-      </Choicebox>
-      <Button onClick={handleCreateChoice} className="mt-4">
-        {t("addChoice")}
-      </Button>
+    <div className="flex flex-col gap-4">
+      {choices.map((choice) => (
+        <ChoiceItem key={choice.id} value={choice.id}>
+          <div className="flex flex-1 items-start gap-3">
+            <Button
+              variant={choice.isCorrect ? "default" : "outline"}
+              size="icon"
+              onClick={() => handleMarkCorrect(choice.id)}
+              aria-label={
+                choice.isCorrect ? t("markedCorrect") : t("markCorrect")
+              }
+            >
+              <Check />
+            </Button>
+            <EditableTextarea
+              initialValue={choice.choiceText || ""}
+              onUpdate={(value) => handleChoiceTextUpdate(choice.id, value)}
+              placeholder={t("choiceTextPlaceholder")}
+              onUpdateError={(error) => {
+                console.error("Failed to update choice text:", error);
+              }}
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handleDeleteChoice(choice.id)}
+              aria-label={t("deleteChoice")}
+              disabled={
+                choice.isCorrect ||
+                choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
+              }
+              title={
+                choice.isCorrect
+                  ? t("cannotDeleteCorrect")
+                  : choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
+                    ? t("cannotDeleteMinChoices")
+                    : undefined
+              }
+            >
+              <Trash />
+            </Button>
+          </div>
+        </ChoiceItem>
+      ))}
+      <Button onClick={handleCreateChoice}>{t("addChoice")}</Button>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { GripVerticalIcon, Trash2Icon } from "lucide-react";
+import { GripVerticalIcon, Trash } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { SortableItem, SortableItemHandle } from "@/components/reui/sortable";
 import { Button } from "@/components/ui/button";
@@ -85,7 +85,7 @@ export function QuestionCard({
                   size="icon"
                   onClick={() => onDelete(question.id)}
                 >
-                  <Trash2Icon />
+                  <Trash />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t("deleteQuestion")}</TooltipContent>
