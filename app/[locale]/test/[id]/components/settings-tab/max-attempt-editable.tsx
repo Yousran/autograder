@@ -1,15 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import {
-  NumberField,
-  NumberFieldDecrement,
-  NumberFieldGroup,
-  NumberFieldIncrement,
-  NumberFieldInput,
-} from "@/components/reui/number-field";
+import { EditableNumberInput } from "@/components/custom/editable-number-input";
 
 interface Props {
   testId: string;
@@ -18,57 +11,32 @@ interface Props {
 
 export function MaxAttemptEditable({ testId, initialValue }: Props) {
   const tApiTests = useTranslations("Api.tests");
-  const [value, setValue] = useState<number | undefined>(
-    initialValue ?? undefined,
-  );
-  const savedValue = useRef<number | null>(initialValue);
 
-  async function save(val: number | undefined) {
-    const next = val ?? null;
-    if (next === savedValue.current) return;
-    savedValue.current = next;
-
+  async function handleUpdate(value: number | null) {
     try {
       const res = await fetch(`/api/tests/${testId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ maxAttempts: next }),
+        body: JSON.stringify({ maxAttempts: value }),
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        toast.error(
+        throw new Error(
           (data as { error?: string }).error ?? tApiTests("updateFailed"),
         );
-        return;
       }
 
       toast.success(tApiTests("updateSuccess"));
-    } catch {
-      toast.error(tApiTests("updateFailed"));
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : tApiTests("updateFailed");
+      toast.error(message);
+      throw error;
     }
   }
 
   return (
-    <div
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-          save(value);
-        }
-      }}
-    >
-      <NumberField
-        value={value}
-        onValueChange={(v) => setValue(v ?? undefined)}
-        min={1}
-        step={1}
-      >
-        <NumberFieldGroup>
-          <NumberFieldDecrement />
-          <NumberFieldInput />
-          <NumberFieldIncrement />
-        </NumberFieldGroup>
-      </NumberField>
-    </div>
+    <EditableNumberInput initialValue={initialValue} onUpdate={handleUpdate} />
   );
 }

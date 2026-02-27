@@ -1,15 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import {
-  NumberField,
-  NumberFieldDecrement,
-  NumberFieldGroup,
-  NumberFieldIncrement,
-  NumberFieldInput,
-} from "@/components/reui/number-field";
+import { EditableNumberInput } from "@/components/custom/editable-number-input";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 
 interface Props {
@@ -19,58 +12,35 @@ interface Props {
 
 export function MaxScoreEditable({ questionId, initialValue }: Props) {
   const t = useTranslations("Api.questions");
-  const [value, setValue] = useState<number | undefined>(
-    initialValue ?? undefined,
-  );
-  const savedValue = useRef<number | null>(initialValue);
 
-  async function save(val: number | undefined) {
-    const next = val ?? null;
-    if (next === savedValue.current) return;
-    savedValue.current = next;
-
+  async function handleUpdate(value: number | null) {
     try {
       const res = await fetch(`/api/questions/${questionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          maxScore: next,
+          maxScore: value,
           type: QuestionType.ESSAY,
         }),
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        toast.error((data as { error?: string }).error ?? t("updateFailed"));
-        return;
+        throw new Error(
+          (data as { error?: string }).error ?? t("updateFailed"),
+        );
       }
 
       toast.success(t("updateSuccess"));
-    } catch {
-      toast.error(t("updateFailed"));
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : t("updateFailed");
+      toast.error(message);
+      throw error;
     }
   }
 
   return (
-    <div
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-          save(value);
-        }
-      }}
-    >
-      <NumberField
-        value={value}
-        onValueChange={(v) => setValue(v ?? undefined)}
-        min={1}
-        step={1}
-      >
-        <NumberFieldGroup>
-          <NumberFieldDecrement />
-          <NumberFieldInput />
-          <NumberFieldIncrement />
-        </NumberFieldGroup>
-      </NumberField>
-    </div>
+    <EditableNumberInput initialValue={initialValue} onUpdate={handleUpdate} />
   );
 }
