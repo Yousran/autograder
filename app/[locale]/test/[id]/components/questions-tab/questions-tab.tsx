@@ -184,6 +184,15 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
       toast.error(data?.error ?? t("typeChangeFailed"));
       return;
     }
+    // Replace the local question with the server's authoritative response
+    // which includes related type-specific data (choices/essay/multipleSelect).
+    try {
+      const updated = await res.json();
+      setQuestions((prev) => prev.map((q) => (q.id === id ? updated : q)));
+    } catch (err) {
+      // If parsing fails, silently ignore — optimistic update already applied.
+      console.error("Failed to parse updated question response:", err);
+    }
   }
 
   if (isLoading) {

@@ -9,6 +9,7 @@ import {
   defaultEssayQuestionData,
   defaultChoiceQuestionData,
   defaultMultipleSelectQuestionData,
+  defaultQuestionData,
 } from "@/lib/schemas/question";
 
 function toFractionalKey(order: string): string | null {
@@ -260,6 +261,16 @@ export async function PATCH(req: NextRequest, { params }: Params) {
           await tx.choice.deleteMany({ where: { questionId: id } });
         }
 
+        // If the client didn't send choices and we're converting from a
+        // non-choice type, seed the default starter choices so the question
+        // isn't left without any options.
+        const choicesToCreate =
+          data.choices !== undefined
+            ? data.choices
+            : question.type !== QuestionType.CHOICE
+            ? defaultQuestionData.defaultChoices
+            : [];
+
         return tx.question.update({
           where: { id },
           data: {
@@ -276,7 +287,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
                   maxScore: data.maxScore ?? defaultChoiceQuestionData.maxScore,
                   choices: {
                     createMany: {
-                      data: (data.choices ?? []).map((c) => ({
+                      data: choicesToCreate.map((c) => ({
                         choiceText: c.choiceText,
                         isCorrect: c.isCorrect,
                       })),

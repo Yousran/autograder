@@ -55,9 +55,8 @@ export function QuestionChoice({ questionId }: QuestionChoiceProps) {
         setError(
           err instanceof Error ? err.message : "Failed to fetch choices",
         );
-      } finally {
-        setIsLoading(false);
       }
+      setIsLoading(false);
     };
 
     fetchChoices();
