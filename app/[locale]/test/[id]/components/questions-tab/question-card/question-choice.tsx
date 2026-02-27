@@ -162,6 +162,23 @@ export function QuestionChoice({ questionId }: QuestionChoiceProps) {
       return;
     }
 
+    // Client-side guard: prevent deleting a correct choice or when only two persisted choices remain
+    const target = choices.find((c) => c.id === choiceId);
+    const persistedCount = choices.filter(
+      (c) => !c.id.startsWith("temp-"),
+    ).length;
+    if (!target) return;
+    if (target.isCorrect) {
+      setError(t("cannotDeleteCorrect") || "Cannot delete correct choice");
+      return;
+    }
+    if (persistedCount <= 2) {
+      setError(
+        t("cannotDeleteMinChoices") || "At least two choices are required",
+      );
+      return;
+    }
+
     const previous = choices;
 
     // Optimistically remove the choice from UI
@@ -236,7 +253,7 @@ export function QuestionChoice({ questionId }: QuestionChoiceProps) {
                     choice.isCorrect ? t("markedCorrect") : t("markCorrect")
                   }
                 >
-                  <Check className="w-4 h-4" />
+                  <Check />
                 </Button>
                 <EditableTextarea
                   initialValue={choice.choiceText || ""}
@@ -247,11 +264,24 @@ export function QuestionChoice({ questionId }: QuestionChoiceProps) {
                   }}
                 />
               </div>
+              {/* Disable delete when choice is correct or only two persisted choices remain */}
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => handleDeleteChoice(choice.id)}
                 aria-label={t("deleteChoice")}
+                disabled={
+                  choice.isCorrect ||
+                  choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
+                }
+                title={
+                  choice.isCorrect
+                    ? t("cannotDeleteCorrect")
+                    : choices.filter((c) => !c.id.startsWith("temp-")).length <=
+                        2
+                      ? t("cannotDeleteMinChoices")
+                      : undefined
+                }
               >
                 <Trash />
               </Button>

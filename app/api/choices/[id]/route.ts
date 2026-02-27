@@ -227,9 +227,70 @@ export async function DELETE(req: NextRequest) {
 
   try {
     if (question.type === "CHOICE") {
+      // Prevent deleting a choice that is marked correct
+      const existing = await prisma.choice.findUnique({
+        where: { id: choiceid },
+        select: { isCorrect: true, questionId: true },
+      });
+      if (!existing) {
+        return NextResponse.json(
+          { error: tChoices("notFound") },
+          { status: 404 },
+        );
+      }
+
+      // Count number of choices for the question
+      const total = await prisma.choice.count({
+        where: { questionId: existing.questionId },
+      });
+
+      if (existing.isCorrect) {
+        return NextResponse.json(
+          { error: tChoices("cannotDeleteCorrect") },
+          { status: 400 },
+        );
+      }
+
+      if (total <= 2) {
+        return NextResponse.json(
+          { error: tChoices("cannotDeleteMinChoices") },
+          { status: 400 },
+        );
+      }
+
       const deleted = await prisma.choice.delete({ where: { id: choiceid } });
       return NextResponse.json({ choice: deleted }, { status: 200 });
     } else if (question.type === "MULTIPLE_SELECT") {
+      // Prevent deleting a multiple-select choice that's marked correct
+      const existing = await prisma.multipleSelectChoice.findUnique({
+        where: { id: choiceid },
+        select: { isCorrect: true, questionId: true },
+      });
+      if (!existing) {
+        return NextResponse.json(
+          { error: tChoices("notFound") },
+          { status: 404 },
+        );
+      }
+
+      const total = await prisma.multipleSelectChoice.count({
+        where: { questionId: existing.questionId },
+      });
+
+      if (existing.isCorrect) {
+        return NextResponse.json(
+          { error: tChoices("cannotDeleteCorrect") },
+          { status: 400 },
+        );
+      }
+
+      if (total <= 2) {
+        return NextResponse.json(
+          { error: tChoices("cannotDeleteMinChoices") },
+          { status: 400 },
+        );
+      }
+
       const deleted = await prisma.multipleSelectChoice.delete({
         where: { id: choiceid },
       });

@@ -1,5 +1,9 @@
 {
   "Api": {
+    "choices": {
+      "cannotDeleteCorrect": "Cannot delete a choice marked as correct.",
+      "cannotDeleteMinChoices": "At least 2 choices are required — cannot delete further."
+    },
     "upload": {
       "invalidFile": "File not found or invalid",
       "unsupportedFormat": "Unsupported file format. Use JPG, PNG, GIF, or WebP.",
@@ -150,6 +154,8 @@
       "markCorrect": "Mark as correct",
       "markedCorrect": "Marked correct",
       "deleteChoice": "Delete Choice",
+      "cannotDeleteCorrect": "Cannot delete a choice marked as correct.",
+      "cannotDeleteMinChoices": "At least 2 choices are required — cannot delete further.",
       "choiceSaved": "Choice saved",
       "essayAnswerLabel": "Expected Answer",
       "essayAnswerPlaceholder": "Expected answer will appear here...",
