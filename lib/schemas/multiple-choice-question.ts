@@ -58,6 +58,28 @@ export type MultipleSelectQuestionPatchInput = z.infer<
 >;
 
 // ---------------------------------------------------------------------------
+// Multiple select question details (for API responses with related data)
+// ---------------------------------------------------------------------------
+
+/** Schema for the multiple select question record returned by the API. */
+export const multipleSelectQuestionDetailSchema = z.object({
+  id: z.string(),
+  isChoiceRandomized: z.boolean(),
+  maxScore: z.number().int(),
+  multipleSelectChoices: z.array(
+    z.object({
+      id: z.string(),
+      choiceText: z.string(),
+      isCorrect: z.boolean(),
+    }),
+  ),
+});
+
+export type MultipleSelectQuestionDetail = z.infer<
+  typeof multipleSelectQuestionDetailSchema
+>;
+
+// ---------------------------------------------------------------------------
 // Default data for optimistic updates
 // ---------------------------------------------------------------------------
 

@@ -9,16 +9,19 @@ export * from "./multiple-choice-question";
 import {
   EssayQuestionValidationSchema,
   patchEssayQuestionSchema,
+  essayQuestionDetailSchema,
 } from "./essay-question";
 import {
   ChoiceQuestionValidationSchema,
   patchChoiceQuestionSchema,
   defaultChoiceQuestionData,
   defaultChoiceData,
+  choiceQuestionDetailSchema,
 } from "./choice-question";
 import {
   MultipleSelectQuestionValidationSchema,
   patchMultipleSelectQuestionSchema,
+  multipleSelectQuestionDetailSchema,
 } from "./multiple-choice-question";
 
 /**
@@ -93,7 +96,7 @@ export type QuestionOrderCreateInput = z.infer<
  * Typed as `z.ZodType<Question>` so TypeScript enforces that it matches the
  * Prisma model exactly. Use `QuestionSchema.parse()` to validate API responses.
  */
-export const QuestionSchema: z.ZodType<Question> = z.object({
+const questionSchemaObject = z.object({
   id: z.string(),
   testId: z.string(),
   type: z.enum(QuestionType),
@@ -103,8 +106,27 @@ export const QuestionSchema: z.ZodType<Question> = z.object({
   updatedAt: z.coerce.date(),
 });
 
+export const QuestionSchema: z.ZodType<Question> = questionSchemaObject;
+
 /** Minimal question shape used by the questions list UI (e.g. QuestionCard). */
 export type QuestionSchema = z.infer<typeof QuestionSchema>;
+
+// ---------------------------------------------------------------------------
+// Question with related details (for full API responses)
+// ---------------------------------------------------------------------------
+
+/**
+ * Extended question schema that includes optional related data (essay, choice, multipleSelect).
+ * This is used for API responses that include question type-specific details.
+ */
+export const QuestionWithDetailsSchema = questionSchemaObject.extend({
+  essay: essayQuestionDetailSchema.optional(),
+  choice: choiceQuestionDetailSchema.optional(),
+  multipleSelect: multipleSelectQuestionDetailSchema.optional(),
+});
+
+/** Question with optional related details (essay, choice, or multipleSelect data). */
+export type QuestionWithDetails = z.infer<typeof QuestionWithDetailsSchema>;
 
 // ---------------------------------------------------------------------------
 // Shared default field values — single source of truth for optimistic UI +

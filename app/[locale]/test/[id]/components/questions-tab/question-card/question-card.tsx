@@ -15,7 +15,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { EditableTextarea } from "@/components/custom/editable-textarea";
 import { QUESTION_TYPES, getQuestionTypeLabel } from "@/lib/schemas/question";
-import type { QuestionSchema } from "@/lib/schemas/question";
+import type { QuestionWithDetails } from "@/lib/schemas/question";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 import { QuestionChoice } from "./question-choice";
 import { QuestionMultipleChoice } from "./question-multiple-choice";
@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/tooltip";
 
 interface QuestionCardProps {
-  question: QuestionSchema;
+  question: QuestionWithDetails;
   index: number;
   onDelete: (id: string) => void;
   onTypeChange?: (type: QuestionType) => void;
@@ -107,7 +107,13 @@ export function QuestionCard({
         {question.type === QuestionType.MULTIPLE_SELECT && (
           <QuestionMultipleChoice />
         )}
-        {question.type === QuestionType.ESSAY && <QuestionEssay />}
+        {question.type === QuestionType.ESSAY && (
+          <QuestionEssay
+            questionId={question.id}
+            answerText={question.essay?.answerText}
+            isExactAnswer={question.essay?.isExactAnswer}
+          />
+        )}
       </Card>
     </SortableItem>
   );

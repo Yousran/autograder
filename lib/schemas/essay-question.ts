@@ -43,6 +43,20 @@ export type EssayQuestionPatchInput = z.infer<
 >;
 
 // ---------------------------------------------------------------------------
+// Essay question details (for API responses with related data)
+// ---------------------------------------------------------------------------
+
+/** Schema for the essay question record returned by the API. */
+export const essayQuestionDetailSchema = z.object({
+  id: z.string(),
+  answerText: z.string(),
+  isExactAnswer: z.boolean(),
+  maxScore: z.number().int(),
+});
+
+export type EssayQuestionDetail = z.infer<typeof essayQuestionDetailSchema>;
+
+// ---------------------------------------------------------------------------
 // Default data for optimistic updates
 // ---------------------------------------------------------------------------
 

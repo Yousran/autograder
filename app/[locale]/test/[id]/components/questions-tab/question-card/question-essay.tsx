@@ -1,17 +1,31 @@
 "use client";
 
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { EditableTextarea } from "@/components/custom/editable-textarea";
+import { QuestionType } from "@/lib/generated/prisma/enums";
 
 interface QuestionEssayProps {
+  questionId: string;
   answerText?: string;
   isExactAnswer?: boolean;
 }
 
 export function QuestionEssay({
+  questionId,
   answerText = "",
   isExactAnswer = false,
 }: QuestionEssayProps) {
+  const handleUpdate = async (value: string) => {
+    await fetch(`/api/questions/${questionId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        answerText: value,
+        type: QuestionType.ESSAY,
+      }),
+    });
+  };
+
   return (
     <div className="mt-4 space-y-2">
       <div className="flex items-center justify-between">
@@ -22,11 +36,11 @@ export function QuestionEssay({
           {isExactAnswer ? "Exact Match" : "Partial Match"}
         </span>
       </div>
-      <Textarea
+      <EditableTextarea
         id="answer"
         placeholder="Expected answer will appear here..."
-        value={answerText}
-        readOnly
+        initialValue={answerText}
+        onUpdate={handleUpdate}
         className="min-h-20"
       />
     </div>
