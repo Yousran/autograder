@@ -2,10 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
-import { patchTestSchema } from "@/lib/schemas/test";
+import { patchTestSchema, TestSchema } from "@/lib/schemas/test";
 
 interface Params {
   params: Promise<{ id: string }>;
+}
+
+export async function GET(req: NextRequest, { params }: Params) {
+  const { id } = await params;
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "Api.tests" });
+
+  const test = await prisma.test.findUnique({
+    where: { id },
+  });
+
+  if (!test) {
+    return NextResponse.json({ error: t("notFound") }, { status: 404 });
+  }
+  return NextResponse.json(TestSchema.parse(test));
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {

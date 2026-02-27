@@ -121,3 +121,5 @@ export const TestSchema: z.ZodType<Test> = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
+
+export type TestSchema = z.infer<typeof TestSchema>;
