@@ -37,6 +37,12 @@
       "forbidden": "You are not authorized to modify this test.",
       "generateFailed": "Failed to generate join code. Please try again."
     }
+    ,
+    "profile": {
+      "forbidden": "You are not authorized to update this profile.",
+      "invalidImage": "Invalid image provided.",
+      "serverError": "Failed to update profile. Please try again later."
+    }
   },
   "Validation": {
     "required": "This field is required",

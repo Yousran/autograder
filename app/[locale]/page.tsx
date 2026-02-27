@@ -1,3 +1,16 @@
+//TODO: file upload
+//TODO: profile page
+//TODO: rich text editor for question text and choice text
+//TODO: remove client side join code regenerate
+//TODO: server side join code regenerate when get test is called and code is expired
+//TODO: join test
+//TODO: nextstepjs tour component for onboarding
+//TODO: scroll to top button
+//TODO: fix question reordering when order to beginning
+//TODO: test prerequisites support
+//TODO: theme changer support
+//TODO: predetermined random question support
+
 "use client";
 
 import { useState } from "react";

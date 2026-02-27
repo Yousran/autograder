@@ -37,6 +37,12 @@
       "forbidden": "Anda tidak memiliki izin untuk mengubah ujian ini.",
       "generateFailed": "Gagal membuat kode bergabung. Silakan coba lagi."
     }
+    ,
+    "profile": {
+      "forbidden": "Anda tidak memiliki izin untuk memperbarui profil ini.",
+      "invalidImage": "Gambar tidak valid.",
+      "serverError": "Gagal memperbarui profil. Silakan coba lagi nanti."
+    }
   },
   "Validation": {
     "required": "Bidang ini wajib diisi",
