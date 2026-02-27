@@ -10,14 +10,24 @@ import {
   defaultChoiceData,
   type ChoiceSchema as ChoiceSchemaType,
 } from "@/lib/schemas/choice";
+import { Label } from "@/components/ui/label";
+import { IsChoiceRandomizedToggle } from "./is-choice-randomized-toggle";
+import { MaxScoreEditable } from "./max-score-editable";
+import { QuestionType } from "@/lib/generated/prisma/enums";
 import { Button } from "@/components/ui/button";
 import { EditableTextarea } from "@/components/custom/editable-textarea";
 
 interface QuestionChoiceProps {
   questionId: string;
+  isChoiceRandomized?: boolean;
+  maxScore?: number;
 }
 
-export function QuestionChoice({ questionId }: QuestionChoiceProps) {
+export function QuestionChoice({
+  questionId,
+  isChoiceRandomized = false,
+  maxScore = 1,
+}: QuestionChoiceProps) {
   const t = useTranslations("Components.questionsTab");
   const tValidation = useTranslations("Validation");
   const [choices, setChoices] = useState<ChoiceSchemaType[]>([]);
@@ -230,6 +240,36 @@ export function QuestionChoice({ questionId }: QuestionChoiceProps) {
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="mt-4 space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-0.5">
+            <Label className="text-sm font-medium">
+              {t("choiceRandomizeLabel")}
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              {t("choiceRandomizeDescription")}
+            </p>
+          </div>
+          <IsChoiceRandomizedToggle
+            questionId={questionId}
+            initialValue={isChoiceRandomized}
+            questionType={QuestionType.CHOICE}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-0.5">
+            <Label className="text-sm font-medium">{t("maxScoreLabel")}</Label>
+            <p className="text-xs text-muted-foreground">
+              {t("maxScoreDescription")}
+            </p>
+          </div>
+          <MaxScoreEditable
+            questionId={questionId}
+            initialValue={maxScore}
+            questionType={QuestionType.CHOICE}
+          />
+        </div>
+      </div>
       {choices.map((choice) => (
         <ChoiceItem key={choice.id} value={choice.id}>
           <div className="flex flex-1 items-start gap-3">

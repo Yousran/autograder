@@ -159,6 +159,8 @@
       "cannotDeleteMinChoices": "Minimal 2 pilihan diperlukan — tidak dapat menghapus lebih lanjut.",
       "cannotUnmarkOnlyCorrect": "Setidaknya satu pilihan harus tetap benar — tidak dapat membatalkan penandaan pilihan terakhir.",
       "choiceSaved": "Pilihan tersimpan",
+      "choiceRandomizeLabel": "Acak pilihan",
+      "choiceRandomizeDescription": "Tampilkan pilihan dalam urutan acak untuk setiap peserta.",
       "essayAnswerLabel": "Jawaban yang Diharapkan",
       "essayAnswerPlaceholder": "Jawaban yang diharapkan akan muncul di sini...",
       "answerMatchingLabel": "Kecocokan Jawaban",

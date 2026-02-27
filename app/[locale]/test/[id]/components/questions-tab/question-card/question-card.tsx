@@ -107,10 +107,20 @@ export function QuestionCard({
         </div>
         {question.type === QuestionType.CHOICE &&
           (typeof loadChoices === "undefined" || loadChoices) && (
-            <QuestionChoice questionId={question.id} />
+            <QuestionChoice
+              questionId={question.id}
+              isChoiceRandomized={question.choice?.isChoiceRandomized ?? false}
+              maxScore={question.choice?.maxScore ?? 1}
+            />
           )}
         {question.type === QuestionType.MULTIPLE_SELECT && (
-          <QuestionMultipleChoice questionId={question.id} />
+          <QuestionMultipleChoice
+            questionId={question.id}
+            isChoiceRandomized={
+              question.multipleSelect?.isChoiceRandomized ?? false
+            }
+            maxScore={question.multipleSelect?.maxScore ?? 1}
+          />
         )}
         {question.type === QuestionType.ESSAY && (
           <QuestionEssay
