@@ -7,6 +7,7 @@ import {
   ChoiceboxItemHeader,
   ChoiceboxItemTitle,
 } from "@/components/ui/choicebox";
+import ChoiceSkeleton from "./choice-skeleton";
 import { Check, Trash } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -203,15 +204,7 @@ export function QuestionChoice({ questionId }: QuestionChoiceProps) {
   };
 
   if (isLoading) {
-    return (
-      <Choicebox className="mt-4">
-        <ChoiceboxItem value="loading">
-          <ChoiceboxItemHeader>
-            <ChoiceboxItemTitle>{t("loadingChoices")}</ChoiceboxItemTitle>
-          </ChoiceboxItemHeader>
-        </ChoiceboxItem>
-      </Choicebox>
-    );
+    return <ChoiceSkeleton />;
   }
 
   if (error) {
