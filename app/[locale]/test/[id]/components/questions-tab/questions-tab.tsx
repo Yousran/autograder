@@ -86,16 +86,15 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     setQuestions(newQuestions);
 
     const newIdx = newQuestions.findIndex((q) => q.id === movedItem.id);
-    // Send the order of the item being displaced (now sits after the drop),
-    // or null if the question was moved to the very end.
-    const afterItem =
-      newIdx < newQuestions.length - 1 ? newQuestions[newIdx + 1] : null;
+    const beforeId = newIdx > 0 ? newQuestions[newIdx - 1].id : null;
+    const afterId =
+      newIdx < newQuestions.length - 1 ? newQuestions[newIdx + 1].id : null;
 
     const res = await fetch(`/api/questions/${movedItem.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ order: afterItem?.order ?? null }),
-    }).catch(() => null);
+      body: JSON.stringify({ beforeId, afterId }),
+    });
 
     if (!res || !res.ok) {
       setQuestions(previous);

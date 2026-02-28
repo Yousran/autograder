@@ -46,9 +46,12 @@ export const patchQuestionSchema = (t: TranslateFn) =>
       patchChoiceQuestionSchema(t),
       patchMultipleSelectQuestionSchema(t),
     ]),
-    // Reorder: send the order of the item being displaced (the one that will
-    // now sit after the moved question). null = moved to the very end.
-    z.object({ order: z.string().nullable() }).strict(),
+    z
+      .object({
+        beforeId: z.string().nullable(),
+        afterId: z.string().nullable(),
+      })
+      .strict(),
   ]);
 
 export type QuestionCreateInput = z.infer<

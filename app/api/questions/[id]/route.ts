@@ -146,45 +146,37 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const data = parsed.data;
 
   try {
-    // Handle reorder: `data.order` is the order of the displaced item (the one
-    // that will sit after the moved question), or null if moved to the end.
-    if ("order" in data) {
-      // 1. Fetch from Prisma
-      const rawSiblings = await prisma.question.findMany({
-        where: { testId: question.testId, NOT: { id } },
-        select: { order: true },
+    if ("beforeId" in data && "afterId" in data) {
+      const reorderData = data as {
+        beforeId: string | null;
+        afterId: string | null;
+      };
+
+      const neighbors = await prisma.question.findMany({
+        where: {
+          testId: question.testId,
+          id: {
+            in: [reorderData.beforeId, reorderData.afterId].filter(
+              Boolean,
+            ) as string[],
+          },
+        },
+        select: { id: true, order: true },
       });
 
-      // 2. FORCE case-sensitive ASCII sort
-      const siblings = rawSiblings.sort((a, b) =>
-        a.order < b.order ? -1 : a.order > b.order ? 1 : 0,
+      const before = neighbors.find((n) => n.id === reorderData.beforeId);
+      const after = neighbors.find((n) => n.id === reorderData.afterId);
+
+      const newOrder = generateKeyBetween(
+        before?.order ?? null,
+        after?.order ?? null,
       );
-
-      let newOrder: string;
-
-      if (data.order === null) {
-        const last = siblings[siblings.length - 1];
-        newOrder = generateKeyBetween(last ? last.order : null, null);
-      } else {
-        const displacedIdx = siblings.findIndex((s) => s.order === data.order);
-
-        let beforeKey: string | null = null;
-        const start =
-          displacedIdx === -1 ? siblings.length - 1 : displacedIdx - 1;
-        for (let i = start; i >= 0; i--) {
-          if (siblings[i].order !== data.order) {
-            beforeKey = siblings[i].order;
-            break;
-          }
-        }
-
-        newOrder = generateKeyBetween(beforeKey, data.order);
-      }
 
       const updated = await prisma.question.update({
         where: { id },
         data: { order: newOrder },
       });
+
       return NextResponse.json(updated);
     }
 

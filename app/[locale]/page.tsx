@@ -6,7 +6,6 @@
 //TODO: join test
 //TODO: nextstepjs tour component for onboarding
 //TODO: scroll to top button
-//TODO: fix question reordering when order to beginning
 //TODO: test prerequisites support
 //TODO: theme changer support
 //TODO: predetermined random question support
