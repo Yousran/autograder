@@ -152,32 +152,32 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         afterId: string | null;
       };
 
-      const neighbors = await prisma.question.findMany({
-        where: {
-          testId: question.testId,
-          id: {
-            in: [reorderData.beforeId, reorderData.afterId].filter(
-              Boolean,
-            ) as string[],
-          },
-        },
+      const siblings = await prisma.question.findMany({
+        where: { testId: question.testId, NOT: { id } },
+        orderBy: { order: "asc" },
         select: { id: true, order: true },
       });
 
-      const before = neighbors.find((n) => n.id === reorderData.beforeId);
-      const after = neighbors.find((n) => n.id === reorderData.afterId);
+      const beforeOrder =
+        siblings.find((s) => s.id === reorderData.beforeId)?.order ?? null;
+      const afterOrder =
+        siblings.find((s) => s.id === reorderData.afterId)?.order ?? null;
 
-      const newOrder = generateKeyBetween(
-        before?.order ?? null,
-        after?.order ?? null,
-      );
+      const newOrder = generateKeyBetween(beforeOrder, afterOrder);
 
-      const updated = await prisma.question.update({
+      await prisma.question.update({
         where: { id },
         data: { order: newOrder },
       });
 
-      return NextResponse.json(updated);
+      // Return ALL siblings + moved item so client can fully sync order strings
+      const allUpdated = await prisma.question.findMany({
+        where: { testId: question.testId },
+        orderBy: { order: "asc" },
+        select: { id: true, order: true },
+      });
+
+      return NextResponse.json(allUpdated);
     }
 
     // Type guard: narrowing to discriminated union after reorder check

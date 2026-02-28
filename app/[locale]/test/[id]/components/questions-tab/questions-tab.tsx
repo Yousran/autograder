@@ -69,11 +69,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     }
   }
 
-  // afterId: string  → insert after that question
-  // afterId: null    → insert at beginning
-  // afterId: undefined (omitted) → append at end
   async function handleReorder(newQuestions: QuestionSchema[]): Promise<void> {
-    // Drag-and-drop moves exactly one item at a time — find it.
     const movedItem = newQuestions.find((q, newIdx) => {
       const prevIdx = questions.findIndex((prev) => prev.id === q.id);
       return prevIdx !== newIdx;
@@ -81,8 +77,8 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
 
     if (!movedItem) return;
 
-    // Optimistic update
     const previous = questions;
+    // 1. Optimistic: update visual order immediately
     setQuestions(newQuestions);
 
     const newIdx = newQuestions.findIndex((q) => q.id === movedItem.id);
@@ -94,21 +90,22 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ beforeId, afterId }),
-    });
+    }).catch(() => null);
 
     if (!res || !res.ok) {
-      setQuestions(previous);
+      setQuestions(previous); // rollback
       const data = await res?.json().catch(() => ({}));
       toast.error(data?.error ?? t("reorderFailed"));
       return;
     }
 
-    // Update the moved item's order from the server's authoritative response.
-    const updated: { order: string } = await res.json();
-    setQuestions((prev) =>
-      prev.map((q) =>
-        q.id === movedItem.id ? { ...q, order: updated.order } : q,
-      ),
+    // 2. Sync: patch order strings from server without changing array position
+    const orderMap: { id: string; order: string }[] = await res.json();
+    setQuestions((current) =>
+      current.map((q) => {
+        const synced = orderMap.find((o) => o.id === q.id);
+        return synced ? { ...q, order: synced.order } : q;
+      }),
     );
   }
 
