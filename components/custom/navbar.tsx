@@ -84,7 +84,7 @@ export default function Navbar() {
                 </TooltipContent>
               </Tooltip>
 
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end">
                 {!user ? (
                   <>
                     <DropdownMenuItem asChild>
@@ -114,8 +114,25 @@ export default function Navbar() {
                         href={`/profile/${user.id}`}
                         className="flex items-center gap-2"
                       >
-                        <User className="size-4" />
-                        {t("profile")}
+                        <Avatar>
+                          <AvatarImage
+                            src={user.image ?? ""}
+                            alt={user.name ?? "User avatar"}
+                          />
+                          <AvatarFallback>
+                            {initials ?? <User className="size-4" />}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">
+                            {user.name}
+                          </span>
+                          {user.email && (
+                            <span className="text-[0.6rem] text-muted-foreground">
+                              {user.email}
+                            </span>
+                          )}
+                        </div>
                       </Link>
                     </DropdownMenuItem>
 
