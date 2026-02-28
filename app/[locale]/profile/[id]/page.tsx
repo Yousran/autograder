@@ -3,9 +3,10 @@ import Navbar from "@/components/custom/navbar";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/dal";
 import { getLocale, getTranslations } from "next-intl/server";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { FcGoogle } from "react-icons/fc";
 import ProfileAvatarClient from "@/components/custom/profile-avatar-client";
+import { Mail } from "lucide-react";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -38,6 +39,7 @@ export default async function Page({ params }: Props) {
 
   const PROVIDER_ICONS: Record<string, React.ReactNode> = {
     google: <FcGoogle />,
+    credential: <Mail />,
   };
 
   return (
@@ -66,7 +68,7 @@ export default async function Page({ params }: Props) {
 
           <div className="grid gap-6">
             <Card>
-              <div className="p-6">
+              <CardContent>
                 <h2 className="text-lg font-semibold">
                   {t("profileInformation")}
                 </h2>
@@ -95,12 +97,12 @@ export default async function Page({ params }: Props) {
                     </div>
                   )}
                 </div>
-              </div>
+              </CardContent>
             </Card>
 
             {isOwner && providers.length > 0 && (
               <Card>
-                <div className="p-6">
+                <CardContent>
                   <h3 className="text-lg font-semibold">{t("loginMethods")}</h3>
                   <p className="text-sm text-muted-foreground mt-1">
                     {t("connectedAccounts")}
@@ -124,7 +126,7 @@ export default async function Page({ params }: Props) {
                       </div>
                     ))}
                   </div>
-                </div>
+                </CardContent>
               </Card>
             )}
           </div>

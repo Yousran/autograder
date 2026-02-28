@@ -12,10 +12,6 @@ import {
   defaultQuestionData,
 } from "@/lib/schemas/question";
 
-function toFractionalKey(order: string): string | null {
-  return /^[a-z]/.test(order) ? order : null;
-}
-
 interface Params {
   params: Promise<{ id: string }>;
 }
@@ -153,42 +149,36 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     // Handle reorder: `data.order` is the order of the displaced item (the one
     // that will sit after the moved question), or null if moved to the end.
     if ("order" in data) {
-      // Fetch all sibling questions EXCEPT the moved one, sorted by order.
-      const siblings = await prisma.question.findMany({
+      // 1. Fetch from Prisma
+      const rawSiblings = await prisma.question.findMany({
         where: { testId: question.testId, NOT: { id } },
-        orderBy: { order: "asc" },
         select: { order: true },
       });
+
+      // 2. FORCE case-sensitive ASCII sort
+      const siblings = rawSiblings.sort((a, b) =>
+        a.order < b.order ? -1 : a.order > b.order ? 1 : 0,
+      );
 
       let newOrder: string;
 
       if (data.order === null) {
-        // Moving to the very end.
         const last = siblings[siblings.length - 1];
-        newOrder = generateKeyBetween(
-          last ? toFractionalKey(last.order) : null,
-          null,
-        );
+        newOrder = generateKeyBetween(last ? last.order : null, null);
       } else {
-        // `data.order` is the order of the displaced item (the one that will sit
-        // after the moved question). Find what comes before it to generate between.
-        const displacedKey = toFractionalKey(data.order);
         const displacedIdx = siblings.findIndex((s) => s.order === data.order);
 
-        // Find the nearest sibling before the displaced item with a different
-        // order value (guards against legacy duplicate-order rows).
         let beforeKey: string | null = null;
         const start =
           displacedIdx === -1 ? siblings.length - 1 : displacedIdx - 1;
         for (let i = start; i >= 0; i--) {
-          const key = toFractionalKey(siblings[i].order);
-          if (key !== displacedKey) {
-            beforeKey = key;
+          if (siblings[i].order !== data.order) {
+            beforeKey = siblings[i].order;
             break;
           }
         }
 
-        newOrder = generateKeyBetween(beforeKey, displacedKey);
+        newOrder = generateKeyBetween(beforeKey, data.order);
       }
 
       const updated = await prisma.question.update({
