@@ -5,8 +5,11 @@ import { getSession } from "@/lib/dal";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 import ProfileAvatarClient from "@/components/custom/profile-avatar-client";
-import { Mail } from "lucide-react";
+import { MdEmail } from "react-icons/md";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -32,14 +35,15 @@ export default async function Page({ params }: Props) {
 
   const providers = user.accounts.map((a) => a.providerId);
   const PROVIDER_LABELS: Record<string, string> = {
+    credential: "Email & Password",
     google: "Google",
     github: "GitHub",
-    credential: "Email & Password",
   };
 
   const PROVIDER_ICONS: Record<string, React.ReactNode> = {
+    credential: <MdEmail />,
     google: <FcGoogle />,
-    credential: <Mail />,
+    github: <FaGithub />,
   };
 
   return (
@@ -100,7 +104,7 @@ export default async function Page({ params }: Props) {
               </CardContent>
             </Card>
 
-            {isOwner && providers.length > 0 && (
+            {isOwner && PROVIDER_LABELS && (
               <Card>
                 <CardContent>
                   <h3 className="text-lg font-semibold">{t("loginMethods")}</h3>
@@ -109,7 +113,7 @@ export default async function Page({ params }: Props) {
                   </p>
 
                   <div className="mt-4 flex flex-col gap-3">
-                    {providers.map((provider) => (
+                    {Object.keys(PROVIDER_LABELS).map((provider) => (
                       <div
                         key={provider}
                         className="flex items-center gap-3 rounded-lg border bg-foreground/5 px-4 py-3"
@@ -117,12 +121,12 @@ export default async function Page({ params }: Props) {
                         {PROVIDER_ICONS[provider] ?? (
                           <div className="size-5 rounded-full bg-foreground/20" />
                         )}
-                        <span className="text-sm font-medium text-foreground">
-                          {PROVIDER_LABELS[provider] ?? provider}
-                        </span>
-                        <span className="ml-auto text-xs text-primary">
-                          {t("connected")}
-                        </span>
+                        <Label>{PROVIDER_LABELS[provider] ?? provider}</Label>
+                        {providers.includes(provider) && (
+                          <Badge variant="outline" className="ml-auto">
+                            {t("connected")}
+                          </Badge>
+                        )}
                       </div>
                     ))}
                   </div>
