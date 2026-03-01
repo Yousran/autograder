@@ -104,6 +104,8 @@
       "enterJoinCode": "Enter Join Code",
       "join": "Join",
       "scanQrCode": "Scan QR Code",
+      "scanQrCodeDescription": "Point your camera at a test QR code to join automatically.",
+      "invalidQrCode": "Invalid QR code. Please scan a valid test link.",
       "createTest": "Create Test",
       "or": "or",
       "createTestHeading": "Are you an educator?",

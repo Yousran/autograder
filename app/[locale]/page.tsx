@@ -33,11 +33,22 @@ import { authClient } from "@/lib/auth-client";
 import Navbar from "@/components/custom/navbar";
 import { Separator } from "@/components/ui/separator";
 import { CreateTestButton } from "@/components/custom/create-test-button";
+import { QrScannerDialog } from "@/components/custom/qr-scanner-dialog";
+import { useRouter } from "@/i18n/navigation";
 
 export default function Home() {
   const t = useTranslations("Pages.home");
   const [code, setCode] = useState("");
+  const [isQrOpen, setIsQrOpen] = useState(false);
   const { data: session } = authClient.useSession();
+  const router = useRouter();
+
+  const handleJoin = () => {
+    const trimmed = code.trim();
+    if (trimmed.length === 6) {
+      router.push(`/join/${trimmed}`);
+    }
+  };
 
   return (
     <div className="h-screen overflow-hidden flex flex-col">
@@ -65,11 +76,21 @@ export default function Home() {
                 </InputOTPGroup>
               </InputOTP>
               <div className="w-full flex items-center gap-2">
-                <Button className="flex-1">{t("join")}</Button>
+                <Button
+                  className="flex-1"
+                  onClick={handleJoin}
+                  disabled={code.trim().length !== 6}
+                >
+                  {t("join")}
+                </Button>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setIsQrOpen(true)}
+                      >
                         <ScanQrCode />
                       </Button>
                     </TooltipTrigger>
@@ -81,6 +102,8 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+
+          <QrScannerDialog open={isQrOpen} onOpenChange={setIsQrOpen} />
 
           {session?.user && (
             <>

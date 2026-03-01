@@ -104,6 +104,8 @@
       "enterJoinCode": "Masukkan Kode Ujian",
       "join": "Bergabung",
       "scanQrCode": "Pindai Kode QR",
+      "scanQrCodeDescription": "Arahkan kamera ke kode QR ujian untuk bergabung secara otomatis.",
+      "invalidQrCode": "Kode QR tidak valid. Silakan pindai tautan ujian yang benar.",
       "createTest": "Buat Ujian",
       "or": "atau",
       "createTestHeading": "Apakah Anda seorang pengajar?",
