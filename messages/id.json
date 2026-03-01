@@ -31,6 +31,13 @@
       "questionNotFound": "Pertanyaan tidak ditemukan.",
       "forbidden": "Anda tidak memiliki izin untuk mengubah ujian ini."
     },
+    "join": {
+      "notFound": "Ujian tidak ditemukan.",
+      "notAccepting": "Ujian ini saat ini tidak menerima jawaban.",
+      "loggedInOnly": "Ujian ini mengharuskan Anda untuk masuk terlebih dahulu.",
+      "joinFailed": "Gagal bergabung ke ujian. Coba lagi.",
+      "alreadyJoined": "Anda sudah bergabung ke ujian ini."
+    },
     "joinCode": {
       "unauthorized": "Anda harus masuk terlebih dahulu.",
       "notFound": "Ujian tidak ditemukan.",
@@ -122,6 +129,24 @@
       "passwordMismatch": "Kata sandi tidak cocok",
       "signingIn": "Sedang masuk...",
       "signingUp": "Sedang mendaftar..."
+    },
+    "join": {
+      "notFound": "Ujian tidak ditemukan.",
+      "notAccepting": "Ujian ini saat ini tidak menerima jawaban.",
+      "loggedInOnly": "Ujian ini mengharuskan Anda untuk masuk terlebih dahulu.",
+      "questions": "{count} soal",
+      "duration": "{minutes} menit",
+      "noDuration": "Tanpa batas waktu",
+      "participants": "{count} peserta",
+      "startButton": "Mulai Ujian",
+      "startDialogTitle": "Siap memulai?",
+      "startDialogDescription": "Anda akan bergabung ke \"{ title }\". Konfirmasi nama Anda dan mulai.",
+      "nameLabel": "Nama Anda",
+      "namePlaceholder": "Masukkan nama Anda",
+      "confirm": "Bergabung & Mulai",
+      "joining": "Bergabung...",
+      "cancel": "Batal",
+      "nameFromAccount": "Nama Anda diambil dari akun Anda."
     },
     "test": {
       "myTests": "Ujian Saya",

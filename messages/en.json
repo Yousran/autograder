@@ -31,6 +31,13 @@
       "questionNotFound": "Question not found.",
       "forbidden": "You are not authorized to modify this test."
     },
+    "join": {
+      "notFound": "Test not found.",
+      "notAccepting": "This test is not currently accepting responses.",
+      "loggedInOnly": "This test requires you to be signed in.",
+      "joinFailed": "Failed to join test. Please try again.",
+      "alreadyJoined": "You have already joined this test."
+    },
     "joinCode": {
       "unauthorized": "You must be signed in.",
       "notFound": "Test not found.",
@@ -122,6 +129,24 @@
       "passwordMismatch": "Passwords do not match",
       "signingIn": "Signing in...",
       "signingUp": "Signing up..."
+    },
+    "join": {
+      "notFound": "Test not found.",
+      "notAccepting": "This test is not currently accepting responses.",
+      "loggedInOnly": "This test requires you to be signed in.",
+      "questions": "{count, plural, =1 {# question} other {# questions}}",
+      "duration": "{minutes} min",
+      "noDuration": "No time limit",
+      "participants": "{count, plural, =1 {# participant} other {# participants}}",
+      "startButton": "Start Test",
+      "startDialogTitle": "Ready to start?",
+      "startDialogDescription": "You are about to join \"{ title }\". Confirm your name and start.",
+      "nameLabel": "Your Name",
+      "namePlaceholder": "Enter your name",
+      "confirm": "Join & Start",
+      "joining": "Joining...",
+      "cancel": "Cancel",
+      "nameFromAccount": "Your name is taken from your account."
     },
     "test": {
       "myTests": "My Tests",
