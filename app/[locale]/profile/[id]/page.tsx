@@ -10,6 +10,8 @@ import ProfileAvatarClient from "@/components/custom/profile-avatar-client";
 import { MdEmail } from "react-icons/md";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Link } from "@/i18n/navigation";
+import DeleteAccountButton from "@/components/custom/delete-account-button";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -22,7 +24,10 @@ export default async function Page({ params }: Props) {
 
   const user = await prisma.user.findUnique({
     where: { id },
-    include: { accounts: true },
+    include: {
+      accounts: true,
+      tests: { orderBy: { createdAt: "desc" } },
+    },
   });
 
   if (!user) notFound();
@@ -104,6 +109,42 @@ export default async function Page({ params }: Props) {
               </CardContent>
             </Card>
 
+            {isOwner && (
+              <Card>
+                <CardContent>
+                  <h2 className="text-lg font-semibold">{t("createdTests")}</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t("createdTestsDescription")}
+                  </p>
+
+                  <div className="mt-4 flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+                    {user.tests.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        {t("noTests")}
+                      </p>
+                    ) : (
+                      user.tests.map((test) => (
+                        <Link
+                          key={test.id}
+                          href={`/test/${test.id}`}
+                          className="flex flex-col rounded-lg border bg-foreground/5 px-4 py-3 hover:bg-foreground/10 transition-colors"
+                        >
+                          <span className="text-sm font-medium text-foreground line-clamp-1">
+                            {test.title}
+                          </span>
+                          {test.description && (
+                            <span className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                              {test.description}
+                            </span>
+                          )}
+                        </Link>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {isOwner && PROVIDER_LABELS && (
               <Card>
                 <CardContent>
@@ -123,12 +164,31 @@ export default async function Page({ params }: Props) {
                         )}
                         <Label>{PROVIDER_LABELS[provider] ?? provider}</Label>
                         {providers.includes(provider) && (
-                          <Badge variant="outline" className="ml-auto">
+                          <Badge
+                            variant="outline"
+                            className="ml-auto border-green-500 text-green-500"
+                          >
                             {t("connected")}
                           </Badge>
                         )}
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {isOwner && (
+              <Card className="border-destructive/50">
+                <CardContent>
+                  <h3 className="text-lg font-semibold text-destructive">
+                    {t("deleteAccount")}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t("deleteAccountDescription")}
+                  </p>
+                  <div className="mt-4">
+                    <DeleteAccountButton userId={user.id} />
                   </div>
                 </CardContent>
               </Card>

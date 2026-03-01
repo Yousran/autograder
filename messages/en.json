@@ -40,7 +40,9 @@
     "profile": {
       "forbidden": "You are not authorized to update this profile.",
       "invalidImage": "Invalid image provided.",
-      "serverError": "Failed to update profile. Please try again later."
+      "serverError": "Failed to update profile. Please try again later.",
+      "deleteSuccess": "Account deleted successfully.",
+      "deleteFailed": "Failed to delete account. Please try again."
     }
   },
   "Validation": {
@@ -136,7 +138,18 @@
       "email": "Email",
       "loginMethods": "Login Methods",
       "connectedAccounts": "Accounts connected to your profile.",
-      "connected": "Connected"
+      "connected": "Connected",
+      "createdTests": "Created Tests",
+      "createdTestsDescription": "Tests created by this user.",
+      "noTests": "No tests created yet.",
+      "deleteAccount": "Delete Account",
+      "deleteAccountDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
+      "deleteAccountConfirmLabel": "Type \"DELETE\" to confirm",
+      "deleteAccountConfirmButton": "Delete My Account",
+      "deleteAccountDialogTitle": "Are you absolutely sure?",
+      "deleteAccountDialogDescription": "This will permanently delete your account, all your tests, questions, and associated data. This action cannot be undone.",
+      "deleteSuccess": "Account deleted successfully.",
+      "deleteFailed": "Failed to delete account. Please try again."
     }
   },
   "Components": {

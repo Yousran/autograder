@@ -40,7 +40,9 @@
     "profile": {
       "forbidden": "Anda tidak memiliki izin untuk memperbarui profil ini.",
       "invalidImage": "Gambar tidak valid.",
-      "serverError": "Gagal memperbarui profil. Silakan coba lagi nanti."
+      "serverError": "Gagal memperbarui profil. Silakan coba lagi nanti.",
+      "deleteSuccess": "Akun berhasil dihapus.",
+      "deleteFailed": "Gagal menghapus akun. Silakan coba lagi."
     }
   },
   "Validation": {
@@ -136,7 +138,18 @@
       "email": "Email",
       "loginMethods": "Metode Login",
       "connectedAccounts": "Akun yang terhubung dengan profil Anda.",
-      "connected": "Terhubung"
+      "connected": "Terhubung",
+      "createdTests": "Tes yang Dibuat",
+      "createdTestsDescription": "Tes yang dibuat oleh pengguna ini.",
+      "noTests": "Belum ada tes yang dibuat.",
+      "deleteAccount": "Hapus Akun",
+      "deleteAccountDescription": "Hapus akun Anda beserta semua data terkait secara permanen. Tindakan ini tidak dapat dibatalkan.",
+      "deleteAccountConfirmLabel": "Ketik \"HAPUS\" untuk mengonfirmasi",
+      "deleteAccountConfirmButton": "Hapus Akun Saya",
+      "deleteAccountDialogTitle": "Apakah Anda benar-benar yakin?",
+      "deleteAccountDialogDescription": "Ini akan menghapus akun Anda, semua tes, pertanyaan, dan data terkait secara permanen. Tindakan ini tidak dapat dibatalkan.",
+      "deleteSuccess": "Akun berhasil dihapus.",
+      "deleteFailed": "Gagal menghapus akun. Silakan coba lagi."
     }
   },
   "Components": {
