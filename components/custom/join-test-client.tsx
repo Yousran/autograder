@@ -110,7 +110,7 @@ export function JoinTestClient({
         }
 
         setOpen(false);
-        router.push(`/test/${data.testId}?participantId=${data.participantId}`);
+        router.push(`/test/start/${data.participantId}`);
       } catch {
         setError(t("cancel"));
       }

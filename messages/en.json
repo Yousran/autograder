@@ -1,5 +1,11 @@
 {
   "Api": {
+    "answer": {
+      "participantNotFound": "Participant not found.",
+      "questionNotFound": "Question not found.",
+      "saveFailed": "Failed to save answer. Please try again.",
+      "invalidBody": "Invalid request body."
+    },
     "choices": {
       "cannotDeleteCorrect": "Cannot delete a choice marked as correct.",
       "cannotDeleteMinChoices": "At least 2 choices are required — cannot delete further.",
@@ -149,6 +155,25 @@
       "joining": "Joining...",
       "cancel": "Cancel",
       "nameFromAccount": "Your name is taken from your account."
+    },
+    "testStart": {
+      "questionCount": "Question {current} of {total}",
+      "essayPlaceholder": "Write your answer here...",
+      "noQuestions": "This test has no questions.",
+      "submitTest": "Submit Test",
+      "prev": "Previous",
+      "next": "Next",
+      "finish": "Finish",
+      "finishDialogTitle": "Submit your answers?",
+      "finishDialogDescription": "Once submitted, you cannot change your answers.",
+      "goBack": "Go back",
+      "confirmFinish": "Submit",
+      "unanswered": "Not answered",
+      "answered": "Answered",
+      "mark": "Mark",
+      "marked": "Marked",
+      "questionList": "Question List",
+      "current": "Current"
     },
     "test": {
       "myTests": "My Tests",

@@ -1,5 +1,11 @@
 {
   "Api": {
+    "answer": {
+      "participantNotFound": "Peserta tidak ditemukan.",
+      "questionNotFound": "Pertanyaan tidak ditemukan.",
+      "saveFailed": "Gagal menyimpan jawaban. Silakan coba lagi.",
+      "invalidBody": "Isi permintaan tidak valid."
+    },
     "choices": {
       "cannotDeleteCorrect": "Tidak dapat menghapus pilihan yang ditandai benar.",
       "cannotDeleteMinChoices": "Minimal 2 pilihan diperlukan — tidak dapat menghapus lebih lanjut.",
@@ -149,6 +155,25 @@
       "joining": "Bergabung...",
       "cancel": "Batal",
       "nameFromAccount": "Nama Anda diambil dari akun Anda."
+    },
+    "testStart": {
+      "questionCount": "Soal {current} dari {total}",
+      "essayPlaceholder": "Tulis jawaban Anda di sini...",
+      "noQuestions": "Ujian ini tidak memiliki soal.",
+      "submitTest": "Kirim Ujian",
+      "prev": "Sebelumnya",
+      "next": "Berikutnya",
+      "finish": "Selesai",
+      "finishDialogTitle": "Kumpulkan jawaban Anda?",
+      "finishDialogDescription": "Setelah dikumpulkan, Anda tidak dapat mengubah jawaban Anda.",
+      "goBack": "Kembali",
+      "confirmFinish": "Kumpulkan",
+      "unanswered": "Belum dijawab",
+      "answered": "Sudah dijawab",
+      "mark": "Tandai",
+      "marked": "Ditandai",
+      "questionList": "Daftar Soal",
+      "current": "Saat ini"
     },
     "test": {
       "myTests": "Ujian Saya",
