@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounce } from "use-debounce";
 import {
   NumberField,
@@ -52,14 +52,23 @@ export function EditableNumberInput({
     [initialValue, onUpdate, onUpdateError],
   );
 
+  // Keep a ref to the latest saveValue so the auto-save effect below does not
+  // need to list it as a dependency. This prevents the effect from re-firing
+  // just because the parent re-rendered (e.g. after a reorder), which would
+  // recreate onUpdate and therefore saveValue on every render.
+  const saveValueRef = useRef(saveValue);
+  useEffect(() => {
+    saveValueRef.current = saveValue;
+  });
+
   // Auto-save when debounced value changes (only if different from initial)
   useEffect(() => {
     const next = debouncedValue ?? null;
     const prev = initialValue ?? null;
     if (next !== prev) {
-      saveValue(debouncedValue);
+      saveValueRef.current(debouncedValue);
     }
-  }, [debouncedValue, initialValue, saveValue]);
+  }, [debouncedValue, initialValue]);
 
   const handleBlur = async () => {
     // If value hasn't changed, don't update
@@ -70,7 +79,7 @@ export function EditableNumberInput({
     }
 
     // Save immediately on blur
-    await saveValue(value);
+    await saveValueRef.current(value);
   };
 
   return (

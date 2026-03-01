@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { GripVerticalIcon, Trash } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { SortableItem, SortableItemHandle } from "@/components/reui/sortable";
@@ -44,16 +45,19 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const t = useTranslations("Components.questionsTab");
 
-  const handleQuestionTextUpdate = async (newText: string) => {
-    await fetch(`/api/questions/${question.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        questionText: newText,
-        type: question.type,
-      }),
-    });
-  };
+  const handleQuestionTextUpdate = useCallback(
+    async (newText: string) => {
+      await fetch(`/api/questions/${question.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionText: newText,
+          type: question.type,
+        }),
+      });
+    },
+    [question.id, question.type],
+  );
 
   return (
     <SortableItem value={question.id}>

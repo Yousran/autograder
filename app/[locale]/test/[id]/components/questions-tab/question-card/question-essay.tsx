@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Label } from "@/components/ui/label";
 import { EditableTextarea } from "@/components/custom/editable-textarea";
@@ -22,16 +23,19 @@ export function QuestionEssay({
 }: QuestionEssayProps) {
   const t = useTranslations("Components.questionsTab");
 
-  const handleUpdate = async (value: string) => {
-    await fetch(`/api/questions/${questionId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        answerText: value,
-        type: QuestionType.ESSAY,
-      }),
-    });
-  };
+  const handleUpdate = useCallback(
+    async (value: string) => {
+      await fetch(`/api/questions/${questionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          answerText: value,
+          type: QuestionType.ESSAY,
+        }),
+      });
+    },
+    [questionId],
+  );
 
   return (
     <div className="mt-4 space-y-4">

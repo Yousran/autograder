@@ -7,7 +7,10 @@ import { Sortable } from "@/components/reui/sortable";
 import { QuestionCard } from "./question-card/question-card";
 import { QuestionsSkeleton } from "./questions-skeleton";
 import { AddDivider } from "./add-divider";
-import { QuestionSchema, defaultQuestionData } from "@/lib/schemas/question";
+import {
+  QuestionWithDetails,
+  defaultQuestionData,
+} from "@/lib/schemas/question";
 import { QuestionType } from "@/lib/generated/prisma/browser";
 
 interface QuestionsTabProps {
@@ -16,7 +19,7 @@ interface QuestionsTabProps {
 
 export function QuestionsTab({ testId }: QuestionsTabProps) {
   const t = useTranslations("Components.questionsTab");
-  const [questions, setQuestions] = useState<QuestionSchema[]>([]);
+  const [questions, setQuestions] = useState<QuestionWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   // track which questions are allowed to mount choice UI
   const [enabledChoices, setEnabledChoices] = useState<Record<string, boolean>>(
@@ -35,7 +38,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
           toast.error(data?.error ?? t("fetchFailed"));
           return;
         }
-        const data: QuestionSchema[] = await res.json();
+        const data: QuestionWithDetails[] = await res.json();
         if (!cancelled) {
           setQuestions(data);
           // fetched from server — choices are ready to mount
@@ -69,7 +72,9 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     }
   }
 
-  async function handleReorder(newQuestions: QuestionSchema[]): Promise<void> {
+  async function handleReorder(
+    newQuestions: QuestionWithDetails[],
+  ): Promise<void> {
     const movedItem = newQuestions.find((q, newIdx) => {
       const prevIdx = questions.findIndex((prev) => prev.id === q.id);
       return prevIdx !== newIdx;
@@ -110,7 +115,7 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
   }
 
   async function handleCreate(afterId?: string | null): Promise<void> {
-    const tempItem: QuestionSchema = {
+    const tempItem: QuestionWithDetails = {
       id: defaultQuestionData.id,
       testId,
       type: defaultQuestionData.type,
@@ -150,21 +155,9 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
       return;
     }
 
-    const question: QuestionSchema = await res.json();
+    const question: QuestionWithDetails = await res.json();
     setQuestions((prev) =>
-      prev.map((q) =>
-        q.id === tempItem.id
-          ? {
-              id: question.id,
-              testId: question.testId,
-              type: question.type,
-              questionText: question.questionText,
-              order: question.order,
-              createdAt: question.createdAt,
-              updatedAt: question.updatedAt,
-            }
-          : q,
-      ),
+      prev.map((q) => (q.id === tempItem.id ? question : q)),
     );
     // new persisted question — allow choices to mount
     setEnabledChoices((prev) => ({ ...prev, [question.id]: true }));
