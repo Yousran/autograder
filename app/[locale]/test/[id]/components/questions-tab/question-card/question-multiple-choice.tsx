@@ -19,7 +19,10 @@ import { IsChoiceRandomizedToggle } from "./is-choice-randomized-toggle";
 import { MaxScoreEditable } from "./max-score-editable";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 import { Button } from "@/components/ui/button";
-import { EditableTextarea } from "@/components/custom/editable-textarea";
+import {
+  ChoiceEditor,
+  getChoiceEditorPlainText,
+} from "@/components/custom/choice-editor";
 
 interface QuestionMultipleChoiceProps {
   questionId: string;
@@ -231,7 +234,7 @@ export function QuestionMultipleChoice({
   };
 
   const handleChoiceTextUpdate = async (choiceId: string, value: string) => {
-    if (!value || value.trim().length === 0) {
+    if (!getChoiceEditorPlainText(value).trim()) {
       throw new Error(tValidation("choiceTextRequired"));
     }
 
@@ -295,57 +298,56 @@ export function QuestionMultipleChoice({
       </div>
       {choices.map((choice) => (
         <ChoiceItem key={choice.id} value={choice.id}>
-          <div className="flex flex-1 items-start gap-3">
-            <Button
-              variant={choice.isCorrect ? "default" : "outline"}
-              size="icon"
-              onClick={() => handleToggleCorrect(choice.id)}
-              aria-label={
-                choice.isCorrect ? t("unmarkCorrect") : t("markCorrect")
-              }
-              disabled={
-                choice.isCorrect &&
-                choices.filter((c) => !c.id.startsWith("temp-") && c.isCorrect)
-                  .length <= 1
-              }
-              title={
-                choice.isCorrect &&
-                choices.filter((c) => !c.id.startsWith("temp-") && c.isCorrect)
-                  .length <= 1
-                  ? t("cannotUnmarkOnlyCorrect")
+          <Button
+            variant={choice.isCorrect ? "default" : "outline"}
+            size="icon"
+            onClick={() => handleToggleCorrect(choice.id)}
+            aria-label={
+              choice.isCorrect ? t("unmarkCorrect") : t("markCorrect")
+            }
+            disabled={
+              choice.isCorrect &&
+              choices.filter((c) => !c.id.startsWith("temp-") && c.isCorrect)
+                .length <= 1
+            }
+            title={
+              choice.isCorrect &&
+              choices.filter((c) => !c.id.startsWith("temp-") && c.isCorrect)
+                .length <= 1
+                ? t("cannotUnmarkOnlyCorrect")
+                : undefined
+            }
+          >
+            <Check />
+          </Button>
+          <ChoiceEditor
+            initialValue={choice.choiceText || ""}
+            onUpdate={(value) => handleChoiceTextUpdate(choice.id, value)}
+            placeholder={t("choiceTextPlaceholder")}
+            onUpdateError={(error) => {
+              console.error("Failed to update choice text:", error);
+            }}
+            className="flex-1"
+          />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleDeleteChoice(choice.id)}
+            aria-label={t("deleteChoice")}
+            disabled={
+              choice.isCorrect ||
+              choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
+            }
+            title={
+              choice.isCorrect
+                ? t("cannotDeleteCorrect")
+                : choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
+                  ? t("cannotDeleteMinChoices")
                   : undefined
-              }
-            >
-              <Check />
-            </Button>
-            <EditableTextarea
-              initialValue={choice.choiceText || ""}
-              onUpdate={(value) => handleChoiceTextUpdate(choice.id, value)}
-              placeholder={t("choiceTextPlaceholder")}
-              onUpdateError={(error) => {
-                console.error("Failed to update choice text:", error);
-              }}
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleDeleteChoice(choice.id)}
-              aria-label={t("deleteChoice")}
-              disabled={
-                choice.isCorrect ||
-                choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
-              }
-              title={
-                choice.isCorrect
-                  ? t("cannotDeleteCorrect")
-                  : choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
-                    ? t("cannotDeleteMinChoices")
-                    : undefined
-              }
-            >
-              <Trash />
-            </Button>
-          </div>
+            }
+          >
+            <Trash />
+          </Button>
         </ChoiceItem>
       ))}
       <Button onClick={handleCreateChoice}>{t("addChoice")}</Button>

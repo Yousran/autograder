@@ -1,6 +1,5 @@
 //TODO: file upload
 //TODO: profile page
-//TODO: rich text editor for question text and choice text
 //TODO: join test
 //TODO: reordering issues where the question text and type related data goes missing when displaced in the list
 //TODO: nextstepjs tour component for onboarding

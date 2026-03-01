@@ -181,6 +181,7 @@
       "addChoice": "Tambah Pilihan",
       "loadingChoices": "Memuat pilihan...",
       "markCorrect": "Tandai benar",
+      "unmarkCorrect": "Batalkan penandaan benar",
       "markedCorrect": "Tertandai benar",
       "deleteChoice": "Hapus Pilihan",
       "cannotDeleteCorrect": "Tidak dapat menghapus pilihan yang ditandai benar.",

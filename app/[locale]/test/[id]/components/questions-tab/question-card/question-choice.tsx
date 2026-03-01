@@ -15,7 +15,10 @@ import { IsChoiceRandomizedToggle } from "./is-choice-randomized-toggle";
 import { MaxScoreEditable } from "./max-score-editable";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 import { Button } from "@/components/ui/button";
-import { EditableTextarea } from "@/components/custom/editable-textarea";
+import {
+  ChoiceEditor,
+  getChoiceEditorPlainText,
+} from "@/components/custom/choice-editor";
 
 interface QuestionChoiceProps {
   questionId: string;
@@ -115,14 +118,15 @@ export function QuestionChoice({
   };
 
   const handleMarkCorrect = async (choiceId: string) => {
-    if (choiceId.startsWith("temp-")) return;
-
     const previous = choices;
 
     // Optimistically mark selected as correct and others as false
     setChoices((prev) =>
       prev.map((c) => ({ ...c, isCorrect: c.id === choiceId })),
     );
+
+    // Temp choices aren't persisted yet — skip the server call
+    if (choiceId.startsWith("temp-")) return;
 
     try {
       const response = await fetch(
@@ -208,7 +212,7 @@ export function QuestionChoice({
   };
 
   const handleChoiceTextUpdate = async (choiceId: string, value: string) => {
-    if (!value || value.trim().length === 0) {
+    if (!getChoiceEditorPlainText(value).trim()) {
       throw new Error(tValidation("choiceTextRequired"));
     }
 
@@ -272,45 +276,43 @@ export function QuestionChoice({
       </div>
       {choices.map((choice) => (
         <ChoiceItem key={choice.id} value={choice.id}>
-          <div className="flex flex-1 items-start gap-3">
-            <Button
-              variant={choice.isCorrect ? "default" : "outline"}
-              size="icon"
-              onClick={() => handleMarkCorrect(choice.id)}
-              aria-label={
-                choice.isCorrect ? t("markedCorrect") : t("markCorrect")
-              }
-            >
-              <Check />
-            </Button>
-            <EditableTextarea
-              initialValue={choice.choiceText || ""}
-              onUpdate={(value) => handleChoiceTextUpdate(choice.id, value)}
-              placeholder={t("choiceTextPlaceholder")}
-              onUpdateError={(error) => {
-                console.error("Failed to update choice text:", error);
-              }}
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleDeleteChoice(choice.id)}
-              aria-label={t("deleteChoice")}
-              disabled={
-                choice.isCorrect ||
-                choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
-              }
-              title={
-                choice.isCorrect
-                  ? t("cannotDeleteCorrect")
-                  : choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
-                    ? t("cannotDeleteMinChoices")
-                    : undefined
-              }
-            >
-              <Trash />
-            </Button>
-          </div>
+          <Button
+            variant={choice.isCorrect ? "default" : "outline"}
+            size="icon"
+            onClick={() => handleMarkCorrect(choice.id)}
+            aria-label={
+              choice.isCorrect ? t("markedCorrect") : t("markCorrect")
+            }
+          >
+            <Check />
+          </Button>
+          <ChoiceEditor
+            initialValue={choice.choiceText || ""}
+            onUpdate={(value) => handleChoiceTextUpdate(choice.id, value)}
+            placeholder={t("choiceTextPlaceholder")}
+            onUpdateError={(error) => {
+              console.error("Failed to update choice text:", error);
+            }}
+          />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleDeleteChoice(choice.id)}
+            aria-label={t("deleteChoice")}
+            disabled={
+              choice.isCorrect ||
+              choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
+            }
+            title={
+              choice.isCorrect
+                ? t("cannotDeleteCorrect")
+                : choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
+                  ? t("cannotDeleteMinChoices")
+                  : undefined
+            }
+          >
+            <Trash />
+          </Button>
         </ChoiceItem>
       ))}
       <Button onClick={handleCreateChoice}>{t("addChoice")}</Button>
