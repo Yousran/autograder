@@ -6,6 +6,52 @@ import { TestTabs } from "./components/test-tabs";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { TestSchema } from "@/lib/schemas/test";
+import { customAlphabet } from "nanoid";
+import type { TestSchema as TestType } from "@/lib/schemas/test";
+
+/** Human-readable alphabet: no 0/O/1/I to avoid confusion. */
+const nanoid = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 6);
+const TTL_DAYS = 7;
+const MAX_RETRIES = 5;
+
+/**
+ * Returns the test with a guaranteed non-expired join code.
+ * If the current code is missing or expired, a new one is generated and
+ * persisted. Called only from the owner-guarded page so no auth check needed.
+ */
+async function ensureFreshJoinCode(test: TestType): Promise<TestType> {
+  const now = new Date();
+  const isExpired =
+    test.joinCodeExpiresAt !== null && test.joinCodeExpiresAt <= now;
+
+  if (test.joinCode !== null && !isExpired) return test;
+
+  const expiresAt = new Date(Date.now() + TTL_DAYS * 24 * 60 * 60 * 1000);
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    const code = nanoid();
+
+    const conflict = await prisma.test.findFirst({
+      where: {
+        joinCode: code,
+        id: { not: test.id },
+        OR: [{ joinCodeExpiresAt: null }, { joinCodeExpiresAt: { gt: now } }],
+      },
+      select: { id: true },
+    });
+
+    if (conflict) continue;
+
+    const updated = await prisma.test.update({
+      where: { id: test.id },
+      data: { joinCode: code, joinCodeExpiresAt: expiresAt },
+    });
+
+    return TestSchema.parse(updated);
+  }
+
+  return test;
+}
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -14,14 +60,10 @@ interface Props {
 export default async function TestPage({ params }: Props) {
   const { id } = await params;
 
-  const test = TestSchema.parse(
-    await prisma.test.findUnique({
-      where: { id },
-    }),
-  );
-  if (!test) {
-    notFound();
-  }
+  const raw = await prisma.test.findUnique({ where: { id } });
+  if (!raw) notFound();
+
+  const test = await ensureFreshJoinCode(TestSchema.parse(raw));
 
   return (
     <div className="min-h-screen h-fit overflow-hidden flex flex-col">
@@ -31,7 +73,6 @@ export default async function TestPage({ params }: Props) {
           <Card className="w-full p-6">
             <TestTitleEditable testId={test.id} initialTitle={test.title} />
             <JoinCodeCard
-              testId={test.id}
               initialCode={test.joinCode}
               initialExpiresAt={test.joinCodeExpiresAt}
             />
