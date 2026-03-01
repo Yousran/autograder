@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { EditableTextarea } from "@/components/custom/editable-textarea";
+import { QuestionEditor } from "@/components/custom/question-editor";
 import { QUESTION_TYPES, getQuestionTypeLabel } from "@/lib/schemas/question";
 import type { QuestionWithDetails } from "@/lib/schemas/question";
 import { QuestionType } from "@/lib/generated/prisma/enums";
@@ -98,17 +98,14 @@ export function QuestionCard({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div>
-          <EditableTextarea
-            initialValue={question.questionText}
-            onUpdate={handleQuestionTextUpdate}
-            placeholder={t("questionTextPlaceholder")}
-            className="min-h-24"
-            onUpdateError={(error) => {
-              console.error("Failed to update question text:", error);
-            }}
-          />
-        </div>
+        <QuestionEditor
+          initialValue={question.questionText}
+          onUpdate={handleQuestionTextUpdate}
+          placeholder={t("questionTextPlaceholder")}
+          onUpdateError={(error) => {
+            console.error("Failed to update question text:", error);
+          }}
+        />
         {question.type === QuestionType.CHOICE &&
           (typeof loadChoices === "undefined" || loadChoices) && (
             <QuestionChoice
