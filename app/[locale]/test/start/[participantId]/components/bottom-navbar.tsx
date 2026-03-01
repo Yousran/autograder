@@ -42,6 +42,12 @@ interface BottomNavbarProps {
   onToggleQuestionList: () => void;
   /** Toggle the marked state of the current question. */
   onToggleMark: () => void;
+  /**
+   * Called when the Finish button is clicked (before the dialog opens).
+   * Use this to fire-and-forget save the current answer so isPending reflects
+   * the in-flight state and gates the confirm button inside the dialog.
+   */
+  onSaveBeforeDialog: () => void;
   /** Called when the user confirms finishing the test. */
   onFinish: () => void;
 }
@@ -64,6 +70,7 @@ export function BottomNavbar({
   onNext,
   onToggleQuestionList,
   onToggleMark,
+  onSaveBeforeDialog,
   onFinish,
 }: BottomNavbarProps) {
   const t = useTranslations("Pages.testStart");
@@ -136,7 +143,11 @@ export function BottomNavbar({
           {isLast ? (
             <AlertDialog open={open} onOpenChange={setOpen}>
               <AlertDialogTrigger asChild>
-                <Button aria-label={t("finish")} className="bg-green-500">
+                <Button
+                  aria-label={t("finish")}
+                  className="bg-green-500"
+                  onClick={onSaveBeforeDialog}
+                >
                   {t("finish")}
                 </Button>
               </AlertDialogTrigger>

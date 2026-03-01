@@ -150,16 +150,85 @@ export function TestTaker({
   });
 
   // ---------------------------------------------------------------------------
-  // Finish handler — marks participant as completed then redirects
+  // Shared save helpers
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Awaited save for the question at `index`.
+   * Does not use the pending counter — only used right before finishing,
+   * where we need a guaranteed write before the redirect.
+   */
+  const awaitSaveAtIndex = useCallback(
+    async (index: number) => {
+      const question = questions[index];
+      if (!question) return;
+      const qId = question.id;
+
+      if (question.type === "ESSAY") {
+        const draft = essayDraft[qId] ?? "";
+        const previous = committedEssay.current[qId] ?? "";
+        if (draft === previous) return;
+        committedEssay.current[qId] = draft;
+        await fetch("/api/answer/essay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            participantId,
+            questionId: qId,
+            answerText: draft,
+          }),
+        }).catch(() => {
+          committedEssay.current[qId] = previous;
+        });
+      } else if (question.type === "CHOICE") {
+        const draft = choiceDraft[qId] ?? null;
+        const previous = committedChoice.current[qId] ?? null;
+        if (draft === previous) return;
+        committedChoice.current[qId] = draft;
+        await fetch("/api/answer/choice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            participantId,
+            questionId: qId,
+            selectedChoiceId: draft,
+          }),
+        }).catch(() => {
+          committedChoice.current[qId] = previous;
+        });
+      } else if (question.type === "MULTIPLE_SELECT") {
+        const draft = multiDraft[qId] ?? [];
+        const previous = committedMulti.current[qId] ?? [];
+        if (arraysEqual(draft, previous)) return;
+        committedMulti.current[qId] = [...draft];
+        await fetch("/api/answer/multiple-choice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            participantId,
+            questionId: qId,
+            selectedChoiceIds: draft,
+          }),
+        }).catch(() => {
+          committedMulti.current[qId] = previous;
+        });
+      }
+    },
+    [questions, essayDraft, choiceDraft, multiDraft, participantId],
+  );
+
+  // ---------------------------------------------------------------------------
+  // Finish handler — awaits save of current question, then marks as completed
   // ---------------------------------------------------------------------------
   const handleFinish = useCallback(async () => {
     if (isFinishingRef.current) return;
     isFinishingRef.current = true;
+    await awaitSaveAtIndex(currentIndex);
     await fetch(`/api/participants/${participantId}/finish`, {
       method: "POST",
     });
     router.replace(`/test/result/${participantId}`);
-  }, [participantId, router]);
+  }, [participantId, router, currentIndex, awaitSaveAtIndex]);
 
   // ---------------------------------------------------------------------------
   // Countdown interval — ticks every second, auto-finishes when time is up
@@ -295,8 +364,37 @@ export function TestTaker({
     [participantId],
   );
 
+  /**
+   * Fire-and-forget save for the question at `index`.
+   * Uses the pending counter so the UI can reflect in-flight state.
+   * Used by navigateTo when the user moves between questions.
+   */
+  const fireSaveAtIndex = useCallback(
+    (index: number) => {
+      const question = questions[index];
+      if (!question) return;
+      const qId = question.id;
+      if (question.type === "ESSAY") {
+        fireSaveEssay(qId, essayDraft[qId] ?? "");
+      } else if (question.type === "CHOICE") {
+        fireSaveChoice(qId, choiceDraft[qId] ?? null);
+      } else if (question.type === "MULTIPLE_SELECT") {
+        fireSaveMulti(qId, multiDraft[qId] ?? []);
+      }
+    },
+    [
+      questions,
+      essayDraft,
+      choiceDraft,
+      multiDraft,
+      fireSaveEssay,
+      fireSaveChoice,
+      fireSaveMulti,
+    ],
+  );
+
   // ---------------------------------------------------------------------------
-  // Navigation â€” optimistic: index changes immediately, save fires in background
+  // Navigation optimistic: index changes immediately, save fires in background
   // ---------------------------------------------------------------------------
 
   const toggleMark = useCallback(() => {
@@ -315,29 +413,10 @@ export function TestTaker({
 
   const navigateTo = useCallback(
     (nextIndex: number) => {
-      const question = questions[currentIndex];
-      if (question) {
-        const qId = question.id;
-        if (question.type === "ESSAY") {
-          fireSaveEssay(qId, essayDraft[qId] ?? "");
-        } else if (question.type === "CHOICE") {
-          fireSaveChoice(qId, choiceDraft[qId] ?? null);
-        } else if (question.type === "MULTIPLE_SELECT") {
-          fireSaveMulti(qId, multiDraft[qId] ?? []);
-        }
-      }
+      fireSaveAtIndex(currentIndex);
       setCurrentIndex(nextIndex);
     },
-    [
-      currentIndex,
-      questions,
-      essayDraft,
-      choiceDraft,
-      multiDraft,
-      fireSaveEssay,
-      fireSaveChoice,
-      fireSaveMulti,
-    ],
+    [currentIndex, fireSaveAtIndex],
   );
 
   // ---------------------------------------------------------------------------
@@ -484,6 +563,7 @@ export function TestTaker({
         onNext={() => navigateTo(currentIndex + 1)}
         onToggleQuestionList={() => setIsQuestionListOpen((v) => !v)}
         onToggleMark={toggleMark}
+        onSaveBeforeDialog={() => fireSaveAtIndex(currentIndex)}
         onFinish={handleFinish}
       />
     </div>
