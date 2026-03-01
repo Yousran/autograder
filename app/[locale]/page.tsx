@@ -1,9 +1,11 @@
-//TODO: file upload
-//TODO: profile page
-//TODO: join test
+//TODO: all answer grading logic and result details display
+//TODO: test result details page
+//TODO: test result editing page for educators
+//TODO: profile page display test taken
 //TODO: reordering issues where the question text and type related data goes missing when displaced in the list
 //TODO: nextstepjs tour component for onboarding
-//TODO: scroll to top button
+//TODO: scroll to top button on question editing page
+//TODO: scroll to newly created question
 //TODO: test prerequisites support
 //TODO: make sure to use next-intl for all text content and add missing translations
 //TODO: make sure to use centralized types for API routes and form validation

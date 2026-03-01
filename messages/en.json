@@ -272,10 +272,12 @@
     "joinCode": {
       "label": "Join Code",
       "qrCode": "Show QR Code",
+      "qrCodeDescription": "Scan this QR code to join with code {code}",
       "generate": "Generate Join Code",
       "regenerate": "Regenerate",
       "revoke": "Revoke",
       "copy": "Copy to clipboard",
+      "download": "Download QR Code",
       "generateSuccess": "Join code generated.",
       "generateFailed": "Failed to generate join code.",
       "revokeSuccess": "Join code revoked.",

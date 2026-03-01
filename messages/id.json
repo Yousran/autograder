@@ -272,10 +272,12 @@
     "joinCode": {
       "label": "Kode Bergabung",
       "qrCode": "Tampilkan Kode QR",
+      "qrCodeDescription": "Pindai kode QR ini untuk bergabung dengan kode {code}",
       "generate": "Buat Kode Bergabung",
       "regenerate": "Buat Ulang",
       "revoke": "Cabut",
       "copy": "Salin ke clipboard",
+      "download": "Unduh Kode QR",
       "generateSuccess": "Kode bergabung berhasil dibuat.",
       "generateFailed": "Gagal membuat kode bergabung.",
       "revokeSuccess": "Kode bergabung berhasil dicabut.",

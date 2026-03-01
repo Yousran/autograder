@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Copy, Check, QrCode } from "lucide-react";
+import { useLocale } from "next-intl";
+import { Copy, Check, QrCode, Download } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -10,6 +12,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Label } from "../ui/label";
 
@@ -37,10 +46,12 @@ export function JoinCodeCard({
   initialExpiresAt,
 }: JoinCodeCardProps) {
   const t = useTranslations("Components.joinCode");
+  const locale = useLocale();
   const code = initialCode;
   const expiresAt = initialExpiresAt;
   const [now] = useState<number>(() => Date.now());
   const [copied, setCopied] = useState(false);
+  const [showQR, setShowQR] = useState(false);
 
   const isExpired = expiresAt !== null && expiresAt.getTime() <= now;
   const hasActiveCode = code !== null && !isExpired;
@@ -52,6 +63,24 @@ export function JoinCodeCard({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const getJoinUrl = () => {
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+    return `${baseUrl}/${locale}/join?code=${code}`;
+  };
+
+  const downloadQR = () => {
+    const qrElement = document.querySelector(
+      '[data-testid="qr-code"]',
+    ) as HTMLCanvasElement;
+    if (!qrElement) return;
+
+    const url = qrElement.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `join-code-${code}.png`;
+    link.click();
+  };
+
   return (
     <TooltipProvider>
       <div className="flex flex-col gap-2">
@@ -60,7 +89,12 @@ export function JoinCodeCard({
           {/* QR Code icon - left */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowQR(true)}
+                disabled={!hasActiveCode}
+              >
                 <QrCode />
               </Button>
             </TooltipTrigger>
@@ -109,6 +143,40 @@ export function JoinCodeCard({
             </Tooltip>
           </div>
         </div>
+
+        {/* QR Code Dialog */}
+        <Dialog open={showQR} onOpenChange={setShowQR}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t("qrCode")}</DialogTitle>
+              {code && (
+                <DialogDescription>
+                  {t("qrCodeDescription", { code })}
+                </DialogDescription>
+              )}
+            </DialogHeader>
+            <div className="flex flex-col items-center gap-4 py-4">
+              <div className="bg-white p-4 rounded-lg">
+                <QRCodeCanvas
+                  value={getJoinUrl()}
+                  data-testid="qr-code"
+                  size={256}
+                  level="H"
+                  includeMargin
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={downloadQR}
+                className="w-full"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {t("download")}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   );
