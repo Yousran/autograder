@@ -173,7 +173,9 @@
       "mark": "Mark",
       "marked": "Marked",
       "questionList": "Question List",
-      "current": "Current"
+      "current": "Current",
+      "timeRemaining": "Time remaining",
+      "timeUp": "Time's up!"
     },
     "test": {
       "myTests": "My Tests",

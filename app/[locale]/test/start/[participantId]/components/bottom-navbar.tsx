@@ -42,6 +42,8 @@ interface BottomNavbarProps {
   onToggleQuestionList: () => void;
   /** Toggle the marked state of the current question. */
   onToggleMark: () => void;
+  /** Called when the user confirms finishing the test. */
+  onFinish: () => void;
 }
 
 /**
@@ -62,6 +64,7 @@ export function BottomNavbar({
   onNext,
   onToggleQuestionList,
   onToggleMark,
+  onFinish,
 }: BottomNavbarProps) {
   const t = useTranslations("Pages.testStart");
   const [open, setOpen] = useState(false);
@@ -153,7 +156,7 @@ export function BottomNavbar({
                         e.preventDefault();
                         return;
                       }
-                      // TODO: submit test
+                      void onFinish();
                     }}
                   >
                     {t("confirmFinish")}

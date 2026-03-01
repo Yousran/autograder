@@ -1,7 +1,8 @@
 ﻿"use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { NavbarTest } from "./navbar-test";
 import { QuestionList } from "./question-list";
 import { BottomNavbar } from "./bottom-navbar";
@@ -77,6 +78,10 @@ function arraysEqual(a: string[], b: string[]): boolean {
 interface TestTakerProps {
   participantId: string;
   testTitle: string;
+  /** Duration in minutes, or null if no time limit. */
+  testDuration: number | null;
+  /** ISO string of when the participant record was created. */
+  participantCreatedAt: string;
   questions: Question[];
   initialEssayAnswers: Record<string, string>;
   initialChoiceAnswers: Record<string, string | null>;
@@ -84,9 +89,21 @@ interface TestTakerProps {
   noQuestionsLabel: string;
 }
 
+/** Computes remaining seconds from participant creation time and test duration. */
+function computeRemainingSeconds(
+  participantCreatedAt: string,
+  testDurationMinutes: number,
+): number {
+  const endMs =
+    new Date(participantCreatedAt).getTime() + testDurationMinutes * 60 * 1000;
+  return Math.max(0, Math.floor((endMs - Date.now()) / 1000));
+}
+
 export function TestTaker({
   participantId,
   testTitle,
+  testDuration,
+  participantCreatedAt,
   questions,
   initialEssayAnswers,
   initialChoiceAnswers,
@@ -94,10 +111,19 @@ export function TestTaker({
   noQuestionsLabel,
 }: TestTakerProps) {
   const t = useTranslations("Pages.testStart");
+  const router = useRouter();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isQuestionListOpen, setIsQuestionListOpen] = useState(false);
   const [markedSet, setMarkedSet] = useState<Set<string>>(new Set());
+
+  // Countdown timer — derived from participant.createdAt + testDuration
+  const [secondsRemaining, setSecondsRemaining] = useState<number | null>(
+    testDuration != null
+      ? computeRemainingSeconds(participantCreatedAt, testDuration)
+      : null,
+  );
+  const isFinishingRef = useRef(false);
 
   // ---------------------------------------------------------------------------
   // Draft answers â€” what the user has typed
@@ -124,7 +150,41 @@ export function TestTaker({
   });
 
   // ---------------------------------------------------------------------------
-  // In-flight request counter â€” only used to gate the finish-confirm button
+  // Finish handler — marks participant as completed then redirects
+  // ---------------------------------------------------------------------------
+  const handleFinish = useCallback(async () => {
+    if (isFinishingRef.current) return;
+    isFinishingRef.current = true;
+    await fetch(`/api/participants/${participantId}/finish`, {
+      method: "POST",
+    });
+    router.replace(`/test/result/${participantId}`);
+  }, [participantId, router]);
+
+  // ---------------------------------------------------------------------------
+  // Countdown interval — ticks every second, auto-finishes when time is up
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if (testDuration == null) return;
+
+    const interval = setInterval(() => {
+      const remaining = computeRemainingSeconds(
+        participantCreatedAt,
+        testDuration,
+      );
+      setSecondsRemaining(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        void handleFinish();
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [testDuration, participantCreatedAt, handleFinish]);
+
+  // ---------------------------------------------------------------------------
+  // In-flight request counter — only used to gate the finish-confirm button
   // ---------------------------------------------------------------------------
   const pendingCount = useRef(0);
   const [isPending, setIsPending] = useState(false);
@@ -316,7 +376,7 @@ export function TestTaker({
   return (
     <div className="flex min-h-screen flex-col">
       {/* Top navbar */}
-      <NavbarTest testTitle={testTitle} />
+      <NavbarTest testTitle={testTitle} secondsRemaining={secondsRemaining} />
 
       {/* Main content */}
       <div className="flex flex-1 gap-4 p-4 pb-24 md:p-6 md:pb-28">
@@ -424,6 +484,7 @@ export function TestTaker({
         onNext={() => navigateTo(currentIndex + 1)}
         onToggleQuestionList={() => setIsQuestionListOpen((v) => !v)}
         onToggleMark={toggleMark}
+        onFinish={handleFinish}
       />
     </div>
   );

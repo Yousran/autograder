@@ -17,9 +17,11 @@ export default async function StartTestPage({
       id: true,
       name: true,
       isCompleted: true,
+      createdAt: true,
       test: {
         select: {
           title: true,
+          testDuration: true,
           isQuestionsOrdered: true,
           questions: {
             orderBy: { order: "asc" },
@@ -85,6 +87,8 @@ export default async function StartTestPage({
     <TestTaker
       participantId={participant.id}
       testTitle={participant.test.title}
+      testDuration={participant.test.testDuration}
+      participantCreatedAt={participant.createdAt.toISOString()}
       questions={participant.test.questions}
       initialEssayAnswers={initialEssayAnswers}
       initialChoiceAnswers={initialChoiceAnswers}

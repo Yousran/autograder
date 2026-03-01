@@ -173,7 +173,9 @@
       "mark": "Tandai",
       "marked": "Ditandai",
       "questionList": "Daftar Soal",
-      "current": "Saat ini"
+      "current": "Saat ini",
+      "timeRemaining": "Waktu tersisa",
+      "timeUp": "Waktu habis!"
     },
     "test": {
       "myTests": "Ujian Saya",
