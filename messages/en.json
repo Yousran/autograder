@@ -184,6 +184,15 @@
       "tabQuestions": "Questions",
       "tabParticipants": "Participants"
     },
+    "testResult": {
+      "title": "Test Result",
+      "participant": "Participant",
+      "scoreObtained": "Score Obtained",
+      "maxScore": "Max Score",
+      "percentage": "Percentage",
+      "seeDetails": "See Details",
+      "backToHome": "Back to Home"
+    },
     "profile": {
       "profileInformation": "Profile Information",
       "manageInfo": "Manage your account information.",

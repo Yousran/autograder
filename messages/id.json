@@ -184,6 +184,15 @@
       "tabQuestions": "Pertanyaan",
       "tabParticipants": "Peserta"
     },
+    "testResult": {
+      "title": "Hasil Ujian",
+      "participant": "Peserta",
+      "scoreObtained": "Skor Diperoleh",
+      "maxScore": "Skor Maksimal",
+      "percentage": "Persentase",
+      "seeDetails": "Lihat Detail",
+      "backToHome": "Kembali ke Beranda"
+    },
     "profile": {
       "profileInformation": "Informasi Profil",
       "manageInfo": "Kelola informasi akun Anda.",
