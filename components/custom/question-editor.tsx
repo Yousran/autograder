@@ -213,6 +213,7 @@ export function QuestionEditor({
   className,
 }: QuestionEditorProps) {
   const t = useTranslations("Components.editableTextarea");
+  const tEditor = useTranslations("Components.editor");
 
   const editor = usePlateEditor({
     plugins: editorPlugins,
@@ -295,21 +296,18 @@ export function QuestionEditor({
 
             {/* Marks */}
             <ToolbarGroup>
-              <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
+              <MarkToolbarButton nodeType={KEYS.bold} tooltip={tEditor("bold")}>
                 <BoldIcon />
               </MarkToolbarButton>
-              <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
+              <MarkToolbarButton nodeType={KEYS.italic} tooltip={tEditor("italic")}>
                 <ItalicIcon />
               </MarkToolbarButton>
-              <MarkToolbarButton
-                nodeType={KEYS.underline}
-                tooltip="Underline (⌘+U)"
-              >
+              <MarkToolbarButton nodeType={KEYS.underline} tooltip={tEditor("underline")}>
                 <UnderlineIcon />
               </MarkToolbarButton>
               <MarkToolbarButton
                 nodeType={KEYS.strikethrough}
-                tooltip="Strikethrough (⌘+⇧+M)"
+                tooltip={tEditor("strikethrough")}
               >
                 <StrikethroughIcon />
               </MarkToolbarButton>
@@ -317,12 +315,12 @@ export function QuestionEditor({
 
             {/* Text color + background color */}
             <ToolbarGroup>
-              <ColorToolbarButton nodeType="color" tooltip="Text color">
+              <ColorToolbarButton nodeType="color" tooltip={tEditor("textColor")}>
                 <Type />
               </ColorToolbarButton>
               <ColorToolbarButton
                 nodeType="backgroundColor"
-                tooltip="Background color"
+                tooltip={tEditor("backgroundColor")}
               >
                 <Highlighter />
               </ColorToolbarButton>
@@ -343,13 +341,13 @@ export function QuestionEditor({
             <ToolbarGroup>
               <MarkToolbarButton
                 nodeType={SubscriptPlugin.key}
-                tooltip="Subscript (⌘+,)"
+                tooltip={tEditor("subscript")}
               >
                 <SubscriptIcon />
               </MarkToolbarButton>
               <MarkToolbarButton
                 nodeType={SuperscriptPlugin.key}
-                tooltip="Superscript (⌘+.)"
+                tooltip={tEditor("superscript")}
               >
                 <SuperscriptIcon />
               </MarkToolbarButton>
@@ -357,10 +355,7 @@ export function QuestionEditor({
 
             {/* Inline code + Equation */}
             <ToolbarGroup>
-              <MarkToolbarButton
-                nodeType={KEYS.code}
-                tooltip="Inline code (⌘+E)"
-              >
+              <MarkToolbarButton nodeType={KEYS.code} tooltip={tEditor("inlineCode")}>
                 <CodeIcon />
               </MarkToolbarButton>
               <InlineEquationToolbarButton />
@@ -370,7 +365,7 @@ export function QuestionEditor({
             <ToolbarGroup>
               <ToolbarButton
                 onClick={() => toggleCodeBlock(editor)}
-                tooltip="Code block"
+                tooltip={tEditor("codeBlock")}
               >
                 <BracketsIcon />
               </ToolbarButton>
@@ -391,22 +386,22 @@ export function QuestionEditor({
 
           {/* Floating toolbar on text selection */}
           <FloatingToolbar>
-            <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold">
+            <MarkToolbarButton nodeType={KEYS.bold} tooltip={tEditor("bold")}>
               <BoldIcon />
             </MarkToolbarButton>
-            <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic">
+            <MarkToolbarButton nodeType={KEYS.italic} tooltip={tEditor("italic")}>
               <ItalicIcon />
             </MarkToolbarButton>
-            <MarkToolbarButton nodeType={KEYS.underline} tooltip="Underline">
+            <MarkToolbarButton nodeType={KEYS.underline} tooltip={tEditor("underline")}>
               <UnderlineIcon />
             </MarkToolbarButton>
             <MarkToolbarButton
               nodeType={KEYS.strikethrough}
-              tooltip="Strikethrough"
+              tooltip={tEditor("strikethrough")}
             >
               <StrikethroughIcon />
             </MarkToolbarButton>
-            <MarkToolbarButton nodeType={KEYS.code} tooltip="Inline code">
+            <MarkToolbarButton nodeType={KEYS.code} tooltip={tEditor("inlineCode")}>
               <CodeIcon />
             </MarkToolbarButton>
             <ToolbarSeparator />

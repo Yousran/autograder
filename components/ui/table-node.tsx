@@ -28,6 +28,7 @@ import {
   Trash2Icon,
   XIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   type TTableCellElement,
   type TTableElement,
@@ -115,6 +116,7 @@ function TableFloatingToolbar({
   children,
   ...props
 }: React.ComponentProps<typeof PopoverContent>) {
+  const t = useTranslations("Components.editor");
   const { tf } = useEditorPlugin(TablePlugin);
   const selected = useSelected();
   const element = useElement<TTableElement>();
@@ -144,14 +146,14 @@ function TableFloatingToolbar({
           contentEditable={false}
         >
           <ToolbarGroup>
-            <ColorDropdownMenu tooltip="Background color">
+            <ColorDropdownMenu tooltip={t("backgroundColor")}>
               <PaintBucketIcon />
             </ColorDropdownMenu>
             {canMerge && (
               <ToolbarButton
                 onClick={() => tf.table.merge()}
                 onMouseDown={(e) => e.preventDefault()}
-                tooltip="Merge cells"
+                tooltip={t("mergeCells")}
               >
                 <CombineIcon />
               </ToolbarButton>
@@ -160,7 +162,7 @@ function TableFloatingToolbar({
               <ToolbarButton
                 onClick={() => tf.table.split()}
                 onMouseDown={(e) => e.preventDefault()}
-                tooltip="Split cell"
+                tooltip={t("splitCell")}
               >
                 <SquareSplitHorizontalIcon />
               </ToolbarButton>
@@ -168,7 +170,7 @@ function TableFloatingToolbar({
 
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
-                <ToolbarButton tooltip="Cell borders">
+                <ToolbarButton tooltip={t("cellBorders")}>
                   <Grid2X2Icon />
                 </ToolbarButton>
               </DropdownMenuTrigger>
@@ -180,7 +182,7 @@ function TableFloatingToolbar({
 
             {collapsedInside && (
               <ToolbarGroup>
-                <ToolbarButton tooltip="Delete table" {...buttonProps}>
+                <ToolbarButton tooltip={t("deleteTable")} {...buttonProps}>
                   <Trash2Icon />
                 </ToolbarButton>
               </ToolbarGroup>
@@ -194,7 +196,7 @@ function TableFloatingToolbar({
                   tf.insert.tableRow({ before: true });
                 }}
                 onMouseDown={(e) => e.preventDefault()}
-                tooltip="Insert row before"
+                tooltip={t("insertRowBefore")}
               >
                 <ArrowUp />
               </ToolbarButton>
@@ -203,7 +205,7 @@ function TableFloatingToolbar({
                   tf.insert.tableRow();
                 }}
                 onMouseDown={(e) => e.preventDefault()}
-                tooltip="Insert row after"
+                tooltip={t("insertRowAfter")}
               >
                 <ArrowDown />
               </ToolbarButton>
@@ -212,7 +214,7 @@ function TableFloatingToolbar({
                   tf.remove.tableRow();
                 }}
                 onMouseDown={(e) => e.preventDefault()}
-                tooltip="Delete row"
+                tooltip={t("deleteRow")}
               >
                 <XIcon />
               </ToolbarButton>
@@ -226,7 +228,7 @@ function TableFloatingToolbar({
                   tf.insert.tableColumn({ before: true });
                 }}
                 onMouseDown={(e) => e.preventDefault()}
-                tooltip="Insert column before"
+                tooltip={t("insertColumnBefore")}
               >
                 <ArrowLeft />
               </ToolbarButton>
@@ -235,7 +237,7 @@ function TableFloatingToolbar({
                   tf.insert.tableColumn();
                 }}
                 onMouseDown={(e) => e.preventDefault()}
-                tooltip="Insert column after"
+                tooltip={t("insertColumnAfter")}
               >
                 <ArrowRight />
               </ToolbarButton>
@@ -244,7 +246,7 @@ function TableFloatingToolbar({
                   tf.remove.tableColumn();
                 }}
                 onMouseDown={(e) => e.preventDefault()}
-                tooltip="Delete column"
+                tooltip={t("deleteColumn")}
               >
                 <XIcon />
               </ToolbarButton>
@@ -259,6 +261,7 @@ function TableFloatingToolbar({
 function TableBordersDropdownMenuContent(
   props: React.ComponentProps<typeof DropdownMenuPrimitive.Content>,
 ) {
+  const t = useTranslations("Components.editor");
   const editor = useEditorRef();
   const {
     getOnSelectTableBorder,
@@ -288,28 +291,28 @@ function TableBordersDropdownMenuContent(
           onCheckedChange={getOnSelectTableBorder("top")}
         >
           <BorderTopIcon />
-          <div>Top Border</div>
+          <div>{t("topBorder")}</div>
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           checked={hasRightBorder}
           onCheckedChange={getOnSelectTableBorder("right")}
         >
           <BorderRightIcon />
-          <div>Right Border</div>
+          <div>{t("rightBorder")}</div>
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           checked={hasBottomBorder}
           onCheckedChange={getOnSelectTableBorder("bottom")}
         >
           <BorderBottomIcon />
-          <div>Bottom Border</div>
+          <div>{t("bottomBorder")}</div>
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           checked={hasLeftBorder}
           onCheckedChange={getOnSelectTableBorder("left")}
         >
           <BorderLeftIcon />
-          <div>Left Border</div>
+          <div>{t("leftBorder")}</div>
         </DropdownMenuCheckboxItem>
       </DropdownMenuGroup>
 
@@ -319,14 +322,14 @@ function TableBordersDropdownMenuContent(
           onCheckedChange={getOnSelectTableBorder("none")}
         >
           <BorderNoneIcon />
-          <div>No Border</div>
+          <div>{t("noBorder")}</div>
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           checked={hasOuterBorders}
           onCheckedChange={getOnSelectTableBorder("outer")}
         >
           <BorderAllIcon />
-          <div>Outside Borders</div>
+          <div>{t("outsideBorders")}</div>
         </DropdownMenuCheckboxItem>
       </DropdownMenuGroup>
     </DropdownMenuContent>

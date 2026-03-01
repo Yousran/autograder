@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { FontSizePlugin } from "@platejs/basic-styles/react";
+import { useTranslations } from "next-intl";
 import { useEditorRef, useEditorSelector } from "platejs/react";
 import {
   DropdownMenu,
@@ -40,6 +41,7 @@ interface FontSizeToolbarButtonProps {
 export function FontSizeToolbarButton({
   className,
 }: FontSizeToolbarButtonProps) {
+  const t = useTranslations("Components.editor");
   const editor = useEditorRef();
 
   const currentSize = useEditorSelector((e) => {
@@ -88,7 +90,7 @@ export function FontSizeToolbarButton({
             </button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
-        <TooltipContent>Font size</TooltipContent>
+        <TooltipContent>{t("fontSize")}</TooltipContent>
         <DropdownMenuContent align="start" className="min-w-16">
           {FONT_SIZES.map((size) => (
             <DropdownMenuItem

@@ -8,6 +8,7 @@ import { PlaceholderPlugin } from "@platejs/media/react";
 import { AudioLinesIcon, FilmIcon, ImageIcon, LinkIcon } from "lucide-react";
 import { isUrl, KEYS } from "platejs";
 import { useEditorRef } from "platejs/react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useFilePicker } from "use-file-picker";
 
@@ -42,8 +43,8 @@ const MEDIA_CONFIG: Record<
   {
     accept: string[];
     icon: React.ReactNode;
-    title: string;
-    tooltip: string;
+    titleKey: string;
+    tooltipKey: string;
     /** When true, skip file upload entirely and open the URL dialog directly */
     urlOnly?: boolean;
   }
@@ -51,20 +52,20 @@ const MEDIA_CONFIG: Record<
   [KEYS.audio]: {
     accept: ["audio/*"],
     icon: <AudioLinesIcon className="size-4" />,
-    title: "Insert Audio",
-    tooltip: "Audio",
+    titleKey: "insertAudio",
+    tooltipKey: "audio",
   },
   [KEYS.img]: {
     accept: ["image/*"],
     icon: <ImageIcon className="size-4" />,
-    title: "Insert Image",
-    tooltip: "Image",
+    titleKey: "insertImage",
+    tooltipKey: "image",
   },
   [KEYS.video]: {
     accept: [],
     icon: <FilmIcon className="size-4" />,
-    title: "Insert Video",
-    tooltip: "Insert video via URL",
+    titleKey: "insertVideo",
+    tooltipKey: "insertVideoUrl",
     urlOnly: true,
   },
 };
@@ -73,6 +74,7 @@ export function MediaToolbarButton({
   nodeType,
   ...props
 }: DropdownMenuProps & { nodeType: string }) {
+  const t = useTranslations("Components.editor");
   const currentConfig = MEDIA_CONFIG[nodeType];
 
   const editor = useEditorRef();
@@ -93,7 +95,7 @@ export function MediaToolbarButton({
       <>
         <ToolbarButton
           onClick={() => setDialogOpen(true)}
-          tooltip={currentConfig.tooltip}
+          tooltip={t(currentConfig.tooltipKey)}
         >
           {currentConfig.icon}
         </ToolbarButton>
@@ -127,7 +129,7 @@ export function MediaToolbarButton({
           }
         }}
         pressed={open}
-        tooltip={currentConfig.tooltip}
+        tooltip={t(currentConfig.tooltipKey)}
       >
         <ToolbarSplitButtonPrimary>
           {currentConfig.icon}
@@ -151,11 +153,11 @@ export function MediaToolbarButton({
             <DropdownMenuGroup>
               <DropdownMenuItem onSelect={() => openFilePicker()}>
                 {currentConfig.icon}
-                Upload from computer
+                {t("uploadFromComputer")}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setDialogOpen(true)}>
                 <LinkIcon />
-                Insert via URL
+                {t("insertViaUrl")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
@@ -189,11 +191,12 @@ function MediaUrlDialogContent({
   nodeType: string;
   setOpen: (value: boolean) => void;
 }) {
+  const t = useTranslations("Components.editor");
   const editor = useEditorRef();
   const [url, setUrl] = React.useState("");
 
   const embedMedia = React.useCallback(() => {
-    if (!isUrl(url)) return toast.error("Invalid URL");
+    if (!isUrl(url)) return toast.error(t("invalidUrl"));
 
     setOpen(false);
     editor.tf.insertNodes({
@@ -201,12 +204,12 @@ function MediaUrlDialogContent({
       type: nodeType,
       url,
     });
-  }, [url, editor, nodeType, setOpen]);
+  }, [url, editor, nodeType, setOpen, t]);
 
   return (
     <>
       <AlertDialogHeader>
-        <AlertDialogTitle>{currentConfig.title}</AlertDialogTitle>
+        <AlertDialogTitle>{t(currentConfig.titleKey)}</AlertDialogTitle>
       </AlertDialogHeader>
 
       <AlertDialogDescription className="group relative w-full">
@@ -231,14 +234,14 @@ function MediaUrlDialogContent({
       </AlertDialogDescription>
 
       <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
         <AlertDialogAction
           onClick={(e) => {
             e.preventDefault();
             embedMedia();
           }}
         >
-          Accept
+          {t("accept")}
         </AlertDialogAction>
       </AlertDialogFooter>
     </>
