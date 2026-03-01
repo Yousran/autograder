@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
+import { getInitials } from "@/lib/initials";
 import { SettingsMenu } from "@/components/custom/settings-menu";
 
 export default function Navbar() {
@@ -26,16 +27,7 @@ export default function Navbar() {
   const { data: session } = authClient.useSession();
 
   const user = session?.user;
-
-  /** Derive initials from the user's name, e.g. "John Doe" → "JD" */
-  const initials = user?.name
-    ? user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    : undefined;
+  const initials = getInitials(session?.user?.name);
 
   async function handleSignOut() {
     await authClient.signOut();
@@ -66,15 +58,13 @@ export default function Navbar() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
-                    <button className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    <button className="rounded-full p-0 focus-visible:ring-2">
                       <Avatar>
                         <AvatarImage
-                          src={user?.image ?? ""}
-                          alt={user?.name ?? "User avatar"}
+                          src={session?.user?.image ?? undefined}
+                          alt={session?.user?.name ?? "User avatar"}
                         />
-                        <AvatarFallback>
-                          {initials ?? <User className="size-4" />}
-                        </AvatarFallback>
+                        <AvatarFallback>{initials ?? <User />}</AvatarFallback>
                       </Avatar>
                     </button>
                   </DropdownMenuTrigger>
@@ -116,11 +106,11 @@ export default function Navbar() {
                       >
                         <Avatar>
                           <AvatarImage
-                            src={user.image ?? ""}
-                            alt={user.name ?? "User avatar"}
+                            src={session?.user?.image ?? undefined}
+                            alt={session?.user?.name ?? "User avatar"}
                           />
                           <AvatarFallback>
-                            {initials ?? <User className="size-4" />}
+                            {initials ?? <User />}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">

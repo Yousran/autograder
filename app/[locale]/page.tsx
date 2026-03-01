@@ -7,6 +7,8 @@
 //TODO: nextstepjs tour component for onboarding
 //TODO: scroll to top button
 //TODO: test prerequisites support
+//TODO: make sure to use next-intl for all text content and add missing translations
+//TODO: make sure to use centralized types for API routes and form validation
 //TODO: theme changer support
 //TODO: predetermined random question support
 

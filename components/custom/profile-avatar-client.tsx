@@ -3,9 +3,10 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CameraIcon } from "lucide-react";
+import { CameraIcon, User } from "lucide-react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import { getInitials } from "@/lib/initials";
 import { useTranslations } from "next-intl";
 // import { toast } from "sonner"; // Or whatever toast library you use
 // import { authClient } from "@/lib/auth-client"; // Adjust path to your better-auth client
@@ -117,7 +118,7 @@ export default function ProfileAvatarClient({
               className="object-cover"
             />
             <AvatarFallback className="text-2xl font-bold">
-              {userName?.[0] ?? "U"}
+              {getInitials(userName) ?? <User />}
             </AvatarFallback>
           </Avatar>
 
@@ -144,7 +145,7 @@ export default function ProfileAvatarClient({
             className="object-cover"
           />
           <AvatarFallback className="text-2xl font-bold">
-            {userName?.[0] ?? "U"}
+            {getInitials(userName) ?? <User />}
           </AvatarFallback>
         </Avatar>
       )}

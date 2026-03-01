@@ -224,5 +224,6 @@ Before UI and validation work, find and read the relevant doc in `https://next-i
 
 ## 4. Coding Style
 - **Clean Code:** Use functional components, arrow functions, and descriptive variable names.
+- **Clean Types:** Never use any, unknown, and undefine type, always use type that created from **Zod**.
 - **Structured Responses:** Use NextResponse for all api responses with appropriate status codes.
 - **UI/UX:** prioritize accessibility (aria-labels) and responsive design using shadcn and tailwindcss.
