@@ -4,6 +4,7 @@ import { useState, useEffect, Fragment } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Sortable } from "@/components/reui/sortable";
+import { arrayMove } from "@dnd-kit/sortable";
 import { QuestionCard } from "./question-card/question-card";
 import { QuestionsSkeleton } from "./questions-skeleton";
 import { AddDivider } from "./add-divider";
@@ -73,25 +74,27 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
   }
 
   async function handleReorder(
-    newQuestions: QuestionWithDetails[],
+    activeIndex: number,
+    overIndex: number,
   ): Promise<void> {
-    const movedItem = newQuestions.find((q, newIdx) => {
-      const prevIdx = questions.findIndex((prev) => prev.id === q.id);
-      return prevIdx !== newIdx;
-    });
+    if (activeIndex === overIndex) return;
 
-    if (!movedItem) return;
+    // The item the user actually dragged — identified directly from dnd-kit indices.
+    const draggedItem = questions[activeIndex];
+    if (!draggedItem) return;
 
+    const newQuestions = arrayMove(questions, activeIndex, overIndex);
     const previous = questions;
+
     // 1. Optimistic: update visual order immediately
     setQuestions(newQuestions);
 
-    const newIdx = newQuestions.findIndex((q) => q.id === movedItem.id);
+    const newIdx = overIndex;
     const beforeId = newIdx > 0 ? newQuestions[newIdx - 1].id : null;
     const afterId =
       newIdx < newQuestions.length - 1 ? newQuestions[newIdx + 1].id : null;
 
-    const res = await fetch(`/api/questions/${movedItem.id}`, {
+    const res = await fetch(`/api/questions/${draggedItem.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ beforeId, afterId }),
@@ -115,8 +118,10 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
   }
 
   async function handleCreate(afterId?: string | null): Promise<void> {
+    // Generate a unique temp ID per call so concurrent creates don't collide.
+    const tempId = `temp-${crypto.randomUUID()}`;
     const tempItem: QuestionWithDetails = {
-      id: defaultQuestionData.id,
+      id: tempId,
       testId,
       type: defaultQuestionData.type,
       questionText: defaultQuestionData.questionText,
@@ -149,16 +154,14 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     }).catch(() => null);
 
     if (!res || !res.ok) {
-      setQuestions((prev) => prev.filter((q) => q.id !== tempItem.id));
+      setQuestions((prev) => prev.filter((q) => q.id !== tempId));
       const data = await res?.json().catch(() => ({}));
       toast.error(data?.error ?? t("createFailed"));
       return;
     }
 
     const question: QuestionWithDetails = await res.json();
-    setQuestions((prev) =>
-      prev.map((q) => (q.id === tempItem.id ? question : q)),
-    );
+    setQuestions((prev) => prev.map((q) => (q.id === tempId ? question : q)));
     // new persisted question — allow choices to mount
     setEnabledChoices((prev) => ({ ...prev, [question.id]: true }));
   }
@@ -209,7 +212,10 @@ export function QuestionsTab({ testId }: QuestionsTabProps) {
     <div className="flex flex-col gap-4">
       <Sortable
         value={questions}
-        onValueChange={handleReorder}
+        onValueChange={() => {}}
+        onMove={({ activeIndex, overIndex }) =>
+          handleReorder(activeIndex, overIndex)
+        }
         getItemValue={(item) => item.id}
         strategy="vertical"
         className="flex flex-col"
