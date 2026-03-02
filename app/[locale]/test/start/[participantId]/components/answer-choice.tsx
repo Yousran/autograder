@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { extractPlateText } from "./test-taker";
 import type { Choice } from "./test-taker";
+import { PlateReadOnlyViewer } from "@/components/custom/plate-readonly-viewer";
 
 interface AnswerChoiceProps {
   questionId: string;
@@ -43,7 +44,11 @@ export function AnswerChoice({ choices, value, onChange }: AnswerChoiceProps) {
               aria-label={extractPlateText(choice.choiceText)}
             />
             <span className="text-sm leading-relaxed">
-              {extractPlateText(choice.choiceText)}
+              <PlateReadOnlyViewer
+                key={choice.id}
+                value={choice.choiceText}
+                className="text-sm leading-relaxed"
+              />
             </span>
           </label>
         );

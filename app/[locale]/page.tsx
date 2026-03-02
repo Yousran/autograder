@@ -2,13 +2,21 @@
 //TODO: test result details page
 //TODO: test result editing page for educators
 //TODO: profile page display test taken
+//TODO: test prerequisites support
+//TODO: dont load the choices separately for each question, but load them in bulk with the questions to avoid multiple requests and reordering issues
 //TODO: reordering issues where the question text and type related data goes missing when displaced in the list
 //TODO: nextstepjs tour component for onboarding
+//TODO: use package or utility function for formatting dates and times
+//TODO: use package or utility function for formatting text
 //TODO: scroll to top button on question editing page
 //TODO: scroll to newly created question
-//TODO: test prerequisites support
+//TODO: preview branch deployment for testing before merging to main
+//TODO: database migration and seeding strategy for production
+//TODO: e2e tests using playwright
 //TODO: make sure to use next-intl for all text content and add missing translations
+//TODO: add comments to all functions and components
 //TODO: make sure to use centralized types for API routes and form validation
+//TODO: on field error display instead of just showing a toast
 //TODO: theme changer support
 //TODO: permit io for ReBAC support
 //TODO: predetermined random question support

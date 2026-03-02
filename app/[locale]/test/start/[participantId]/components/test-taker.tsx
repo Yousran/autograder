@@ -9,6 +9,7 @@ import { BottomNavbar } from "./bottom-navbar";
 import { AnswerEssay } from "./answer-essay";
 import { AnswerChoice } from "./answer-choice";
 import { AnswerMultipleChoice } from "./answer-multiple-choice";
+import { PlateReadOnlyViewer } from "@/components/custom/plate-readonly-viewer";
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -470,9 +471,11 @@ export function TestTaker({
               })}
             </p>
             <div className="prose prose-sm max-w-none dark:prose-invert">
-              <p className="whitespace-pre-wrap text-base leading-relaxed">
-                {extractPlateText(currentQuestion.questionText)}
-              </p>
+              <PlateReadOnlyViewer
+                key={currentQuestion.id}
+                value={currentQuestion.questionText}
+                className="text-base leading-relaxed"
+              />
             </div>
           </div>
 
