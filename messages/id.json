@@ -3,8 +3,14 @@
     "answer": {
       "participantNotFound": "Peserta tidak ditemukan.",
       "questionNotFound": "Pertanyaan tidak ditemukan.",
+      "answerNotFound": "Jawaban tidak ditemukan.",
+      "scoreTooHigh": "Skor tidak boleh melebihi skor maksimum.",
+      "forbidden": "Anda tidak memiliki izin untuk menilai jawaban ini.",
+      "unauthorized": "Anda harus masuk untuk menilai jawaban.",
       "saveFailed": "Gagal menyimpan jawaban. Silakan coba lagi.",
-      "invalidBody": "Isi permintaan tidak valid."
+      "invalidBody": "Isi permintaan tidak valid.",
+      "exactMatch": "Jawaban tepat",
+      "noMatch": "Jawaban tidak sesuai dengan jawaban yang diharapkan"
     },
     "choices": {
       "cannotDeleteCorrect": "Tidak dapat menghapus pilihan yang ditandai benar.",
@@ -193,6 +199,38 @@
       "seeDetails": "Lihat Detail",
       "backToHome": "Kembali ke Beranda"
     },
+    "participantDetails": {
+      "title": "Detail Skor",
+      "backToResult": "Kembali ke Hasil",
+      "notAvailable": "Detail skor tidak tersedia untuk ujian ini.",
+      "totalScore": "Total Skor",
+      "yourAnswer": "Jawaban Anda",
+      "correctAnswer": "Jawaban Benar",
+      "notAnswered": "Tidak dijawab",
+      "score": "Skor",
+      "scoreExplanation": "Penjelasan",
+      "essay": "Esai",
+      "choice": "Pilihan Tunggal",
+      "multipleSelect": "Pilihan Ganda",
+      "correct": "Benar",
+      "incorrect": "Salah"
+    },
+    "creatorDetails": {
+      "title": "Ubah Skor",
+      "backToParticipants": "Kembali ke Peserta",
+      "totalScore": "Total Skor",
+      "autoUpdates": "Skor diperbarui otomatis",
+      "participantAnswer": "Jawaban Peserta",
+      "correctAnswer": "Jawaban Benar",
+      "notAnswered": "Tidak dijawab",
+      "score": "Skor",
+      "scoreExplanation": "Penjelasan Skor",
+      "essay": "Esai",
+      "choice": "Pilihan Tunggal",
+      "multipleSelect": "Pilihan Ganda",
+      "correct": "Benar",
+      "incorrect": "Salah"
+    },
     "profile": {
       "profileInformation": "Informasi Profil",
       "manageInfo": "Kelola informasi akun Anda.",
@@ -287,6 +325,16 @@
     },
     "editableTextarea": {
       "saveFailed": "Gagal menyimpan perubahan"
+    },
+    "scoreSliderInput": {
+      "score": "Skor",
+      "updateFailed": "Gagal memperbarui skor. Silakan coba lagi."
+    },
+    "essayGradingControl": {
+      "score": "Skor",
+      "explanation": "Penjelasan Skor",
+      "explanationPlaceholder": "Tambahkan penjelasan untuk skor...",
+      "updateFailed": "Gagal memperbarui. Silakan coba lagi."
     },
     "test": {
       "titleLabel": "Judul",

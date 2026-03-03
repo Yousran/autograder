@@ -97,14 +97,16 @@ export default async function ResultPage({ params }: ResultPageProps) {
         <Label className="text-center justify-center text-xl font-semibold">
           {participant.name || t("participant") || "Participant"}
         </Label>
-        <Link
-          href={`/${locale}/test/${participant.testId}/results`}
-          className="w-full"
-        >
-          <Button variant="outline" className="w-full">
-            {t("seeDetails") || "See Details"}
-          </Button>
-        </Link>
+        {participant.test.isShowDetailedScore && (
+          <Link
+            href={`/${locale}/test/result/${participantId}/details`}
+            className="w-full"
+          >
+            <Button variant="outline" className="w-full">
+              {t("seeDetails") || "See Details"}
+            </Button>
+          </Link>
+        )}
 
         <Link href={`/${locale}`} className="w-full">
           <Button className="w-full">

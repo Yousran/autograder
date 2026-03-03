@@ -1,0 +1,121 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/dal";
+import { createGradeEssayAnswerSchema } from "@/lib/schemas/answer";
+
+async function getT() {
+  const locale = await getLocale();
+  return Promise.all([
+    getTranslations({ locale, namespace: "Api.answer" }),
+    getTranslations({ locale, namespace: "Validation" }),
+  ]);
+}
+
+async function recalculateParticipantScore(participantId: string) {
+  const [essayTotal, choiceTotal, msTotal] = await Promise.all([
+    prisma.essayAnswer.aggregate({
+      where: { participantId },
+      _sum: { score: true },
+    }),
+    prisma.choiceAnswer.aggregate({
+      where: { participantId },
+      _sum: { score: true },
+    }),
+    prisma.multipleSelectAnswer.aggregate({
+      where: { participantId },
+      _sum: { score: true },
+    }),
+  ]);
+  const totalScore =
+    (essayTotal._sum.score ?? 0) +
+    (choiceTotal._sum.score ?? 0) +
+    (msTotal._sum.score ?? 0);
+  await prisma.participant.update({
+    where: { id: participantId },
+    data: { score: totalScore },
+  });
+}
+
+/**
+ * PATCH /api/answer/essay/[answerId]
+ * Manually grade an essay answer (test creator only).
+ * Body: { score: number, scoreExplanation?: string }
+ */
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ answerId: string }> },
+) {
+  const { answerId } = await params;
+  const [tAnswer, tValidation] = await getT();
+
+  const auth = await requireAuth();
+  if (!auth.ok) {
+    return NextResponse.json(
+      { error: tAnswer("unauthorized") },
+      { status: 401 },
+    );
+  }
+
+  const answer = await prisma.essayAnswer.findUnique({
+    where: { id: answerId },
+    include: {
+      participant: {
+        include: { test: { select: { creatorId: true } } },
+      },
+      question: { select: { maxScore: true } },
+    },
+  });
+
+  if (!answer) {
+    return NextResponse.json(
+      { error: tAnswer("answerNotFound") },
+      { status: 404 },
+    );
+  }
+
+  if (answer.participant.test.creatorId !== auth.session.user.id) {
+    return NextResponse.json({ error: tAnswer("forbidden") }, { status: 403 });
+  }
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: tAnswer("invalidBody") },
+      { status: 400 },
+    );
+  }
+
+  const schema = createGradeEssayAnswerSchema((key) => tValidation(key));
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? tAnswer("invalidBody") },
+      { status: 422 },
+    );
+  }
+
+  const { score, scoreExplanation } = parsed.data;
+
+  if (score > answer.question.maxScore) {
+    return NextResponse.json(
+      { error: tAnswer("scoreTooHigh") },
+      { status: 422 },
+    );
+  }
+
+  const updated = await prisma.essayAnswer.update({
+    where: { id: answerId },
+    data: {
+      ...(score !== undefined && { score }),
+      ...(scoreExplanation !== undefined && { scoreExplanation }),
+    },
+    select: { id: true, score: true, scoreExplanation: true },
+  });
+
+  await recalculateParticipantScore(answer.participantId);
+
+  return NextResponse.json(updated, { status: 200 });
+}

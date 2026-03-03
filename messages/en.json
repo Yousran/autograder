@@ -3,8 +3,14 @@
     "answer": {
       "participantNotFound": "Participant not found.",
       "questionNotFound": "Question not found.",
+      "answerNotFound": "Answer not found.",
+      "scoreTooHigh": "Score cannot exceed the maximum score.",
+      "forbidden": "You are not authorized to grade this answer.",
+      "unauthorized": "You must be signed in to grade answers.",
       "saveFailed": "Failed to save answer. Please try again.",
-      "invalidBody": "Invalid request body."
+      "invalidBody": "Invalid request body.",
+      "exactMatch": "Exact match",
+      "noMatch": "Answer does not match the expected answer"
     },
     "choices": {
       "cannotDeleteCorrect": "Cannot delete a choice marked as correct.",
@@ -193,6 +199,38 @@
       "seeDetails": "See Details",
       "backToHome": "Back to Home"
     },
+    "participantDetails": {
+      "title": "Score Details",
+      "backToResult": "Back to Result",
+      "notAvailable": "Detailed scores are not available for this test.",
+      "totalScore": "Total Score",
+      "yourAnswer": "Your Answer",
+      "correctAnswer": "Correct Answer",
+      "notAnswered": "Not answered",
+      "score": "Score",
+      "scoreExplanation": "Explanation",
+      "essay": "Essay",
+      "choice": "Single Choice",
+      "multipleSelect": "Multiple Select",
+      "correct": "Correct",
+      "incorrect": "Incorrect"
+    },
+    "creatorDetails": {
+      "title": "Edit Scores",
+      "backToParticipants": "Back to Participants",
+      "totalScore": "Total Score",
+      "autoUpdates": "Scores update automatically",
+      "participantAnswer": "Participant Answer",
+      "correctAnswer": "Correct Answer",
+      "notAnswered": "Not answered",
+      "score": "Score",
+      "scoreExplanation": "Score Explanation",
+      "essay": "Essay",
+      "choice": "Single Choice",
+      "multipleSelect": "Multiple Select",
+      "correct": "Correct",
+      "incorrect": "Incorrect"
+    },
     "profile": {
       "profileInformation": "Profile Information",
       "manageInfo": "Manage your account information.",
@@ -287,6 +325,16 @@
     },
     "editableTextarea": {
       "saveFailed": "Failed to save changes"
+    },
+    "scoreSliderInput": {
+      "score": "Score",
+      "updateFailed": "Failed to update score. Please try again."
+    },
+    "essayGradingControl": {
+      "score": "Score",
+      "explanation": "Score Explanation",
+      "explanationPlaceholder": "Add an explanation for the score...",
+      "updateFailed": "Failed to update. Please try again."
     },
     "test": {
       "titleLabel": "Title",

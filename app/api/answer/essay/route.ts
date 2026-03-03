@@ -9,6 +9,8 @@ type EssayQuestionGradeContext = {
   maxScore: number;
 };
 
+type GradeMessages = { exactMatch: string; noMatch: string };
+
 /**
  * Grades an essay answer.
  * - If `isExactAnswer` is true, performs a case-insensitive trimmed comparison.
@@ -18,6 +20,7 @@ type EssayQuestionGradeContext = {
 function gradeEssayAnswer(
   question: EssayQuestionGradeContext,
   participantAnswer: string,
+  messages: GradeMessages,
 ): { score: number; scoreExplanation: string | null } {
   if (!question.isExactAnswer) {
     return { score: 0, scoreExplanation: null };
@@ -29,9 +32,7 @@ function gradeEssayAnswer(
 
   return {
     score: isMatch ? question.maxScore : 0,
-    scoreExplanation: isMatch
-      ? "Exact match"
-      : "Answer does not match the expected answer",
+    scoreExplanation: isMatch ? messages.exactMatch : messages.noMatch,
   };
 }
 
@@ -93,7 +94,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { score, scoreExplanation } = gradeEssayAnswer(essay, answerText);
+  const { score, scoreExplanation } = gradeEssayAnswer(essay, answerText, {
+    exactMatch: tAnswer("exactMatch"),
+    noMatch: tAnswer("noMatch"),
+  });
 
   const existing = await prisma.essayAnswer.findFirst({
     where: { participantId, questionId },
@@ -161,7 +165,10 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  const { score, scoreExplanation } = gradeEssayAnswer(essay, answerText);
+  const { score, scoreExplanation } = gradeEssayAnswer(essay, answerText, {
+    exactMatch: tAnswer("exactMatch"),
+    noMatch: tAnswer("noMatch"),
+  });
 
   const existing = await prisma.essayAnswer.findFirst({
     where: { participantId, questionId },
