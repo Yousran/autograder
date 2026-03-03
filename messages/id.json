@@ -62,6 +62,11 @@
       "serverError": "Gagal memperbarui profil. Silakan coba lagi nanti.",
       "deleteSuccess": "Akun berhasil dihapus.",
       "deleteFailed": "Gagal menghapus akun. Silakan coba lagi."
+    },
+    "participants": {
+      "unauthorized": "Anda harus masuk terlebih dahulu.",
+      "notFound": "Ujian tidak ditemukan.",
+      "forbidden": "Anda tidak memiliki izin untuk melihat ujian ini."
     }
   },
   "Validation": {
@@ -188,7 +193,10 @@
       "noTests": "Anda belum membuat ujian apapun.",
       "tabSettings": "Pengaturan",
       "tabQuestions": "Pertanyaan",
-      "tabParticipants": "Peserta"
+      "tabParticipants": "Peserta",
+      "noParticipants": "Belum ada peserta.",
+      "participantCompleted": "Selesai",
+      "participantInProgress": "Sedang Berlangsung"
     },
     "testResult": {
       "title": "Hasil Ujian",
@@ -303,6 +311,12 @@
         "choice": "Pilihan",
         "multipleSelect": "Pilihan Ganda"
       }
+    },
+    "participantsTab": {
+      "fetchFailed": "Gagal memuat daftar peserta.",
+      "noParticipants": "Belum ada peserta yang bergabung.",
+      "completed": "Selesai",
+      "inProgress": "Sedang Berlangsung"
     },
     "createTestButton": {
       "createTest": "Buat Ujian Baru"

@@ -122,7 +122,7 @@ export default async function CreatorEditDetailsPage({
     <div className="container max-w-3xl mx-auto px-4 py-8 flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Link href={`/${locale}/test/${test.id}/results`}>
+        <Link href={`/${locale}/test/${test.id}?tab=participants`}>
           <Button variant="ghost" size="sm">
             <ChevronLeft className="size-4" />
             {t("backToParticipants")}

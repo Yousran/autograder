@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SettingsTab } from "./settings-tab/settings-tab";
 import { QuestionsTab } from "./questions-tab/questions-tab";
 import { TestSchema } from "@/lib/schemas/test";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { ParticipantsTab } from "./participants-tab/participants-tab";
 
 interface TestTabsProps {
   test: TestSchema;
@@ -65,7 +65,7 @@ export function TestTabs({ test }: TestTabsProps) {
         <QuestionsTab testId={test.id} />
       </TabsContent>
       <TabsContent value="participants">
-        <Card className="p-6">{t("tabParticipants")}</Card>
+        <ParticipantsTab testId={test.id} />
       </TabsContent>
     </Tabs>
   );

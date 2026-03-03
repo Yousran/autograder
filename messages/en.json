@@ -62,6 +62,11 @@
       "serverError": "Failed to update profile. Please try again later.",
       "deleteSuccess": "Account deleted successfully.",
       "deleteFailed": "Failed to delete account. Please try again."
+    },
+    "participants": {
+      "unauthorized": "You must be signed in.",
+      "notFound": "Test not found.",
+      "forbidden": "You are not authorized to view this test."
     }
   },
   "Validation": {
@@ -188,7 +193,10 @@
       "noTests": "You haven't created any tests yet.",
       "tabSettings": "Settings",
       "tabQuestions": "Questions",
-      "tabParticipants": "Participants"
+      "tabParticipants": "Participants",
+      "noParticipants": "No participants yet.",
+      "participantCompleted": "Completed",
+      "participantInProgress": "In Progress"
     },
     "testResult": {
       "title": "Test Result",
@@ -303,6 +311,12 @@
         "choice": "Choice",
         "multipleSelect": "Multiple Choice"
       }
+    },
+    "participantsTab": {
+      "fetchFailed": "Failed to load participants.",
+      "noParticipants": "No participants have joined yet.",
+      "completed": "Completed",
+      "inProgress": "In Progress"
     },
     "createTestButton": {
       "createTest": "Create New Test"

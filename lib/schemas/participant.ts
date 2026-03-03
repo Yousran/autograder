@@ -1,5 +1,31 @@
 import { z } from "zod";
 
+// ---------------------------------------------------------------------------
+// Participant summary — returned by GET /api/participants
+// ---------------------------------------------------------------------------
+
+export const participantSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  score: z.number(),
+  isCompleted: z.boolean(),
+});
+
+export type ParticipantSummary = z.infer<typeof participantSummarySchema>;
+
+export const getParticipantsResponseSchema = z.object({
+  participants: z.array(participantSummarySchema),
+  maxScore: z.number(),
+});
+
+export type GetParticipantsResponse = z.infer<
+  typeof getParticipantsResponseSchema
+>;
+
+export const getParticipantsQuerySchema = z.object({
+  testid: z.string().min(1),
+});
+
 /**
  * A translation function accepting a key within the "Validation" namespace.
  * Pass the `t` from `useTranslations("Validation")` or `getTranslations("Validation")`.
