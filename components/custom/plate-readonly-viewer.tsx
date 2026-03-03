@@ -36,6 +36,7 @@ import {
 import { CaptionPlugin } from "@platejs/caption/react";
 import { KEYS } from "platejs";
 
+import { cn } from "@/lib/utils";
 import { BasicNodesKit } from "@/components/basic-nodes-kit";
 import {
   BulletedListElement,
@@ -141,8 +142,12 @@ export function PlateReadOnlyViewer({
 
   return (
     <Plate editor={editor}>
-      <EditorContainer className="h-fit overflow-visible">
-        <Editor readOnly variant="none" className={className} />
+      <EditorContainer className="h-fit w-full min-w-0 overflow-x-hidden">
+        <Editor
+          readOnly
+          variant="none"
+          className={cn("wrap-break-word", className)}
+        />
       </EditorContainer>
     </Plate>
   );

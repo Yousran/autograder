@@ -1,5 +1,3 @@
-//TODO: test result details page
-//TODO: test result editing page for educators
 //TODO: profile page display test taken
 //TODO: test prerequisites support
 //TODO: dont load the choices separately for each question, but load them in bulk with the questions to avoid multiple requests and reordering issues

@@ -109,7 +109,7 @@ function ChoiceList({
   labels: QuestionDetailCardProps["labels"];
 }) {
   return (
-    <ul className="flex flex-col gap-1.5">
+    <ul className="flex min-w-0 w-full flex-col gap-1.5">
       {choices.map((choice) => {
         const showCorrectness = choice.isCorrect !== null;
         const isCorrect = choice.isCorrect === true;
@@ -148,8 +148,11 @@ function ChoiceList({
                 <MinusCircle className="size-4 text-muted-foreground" />
               )}
             </span>
-            <span className="flex-1">
-              <PlateReadOnlyViewer value={choice.text} />
+            <span className="min-w-0 flex-1 overflow-hidden">
+              <PlateReadOnlyViewer
+                value={choice.text}
+                className="wrap-break-word"
+              />
             </span>
             {showCorrectness && isCorrect && (
               <span className="text-xs text-green-600 font-medium shrink-0 mt-0.5">
@@ -202,7 +205,7 @@ export function QuestionDetailCard({
           )}
         </div>
         {/* Question text */}
-        <div className="pt-1">
+        <div className="pt-1 min-w-0 w-full overflow-hidden">
           <PlateReadOnlyViewer value={questionText} />
         </div>
       </CardHeader>
@@ -216,7 +219,7 @@ export function QuestionDetailCard({
                 {labels.yourAnswer}
               </p>
               {essay.answerText.trim() ? (
-                <div className="rounded-md border bg-muted/30 px-3 py-2 text-sm">
+                <div className="min-w-0 overflow-hidden rounded-md border bg-muted/30 px-3 py-2 text-sm">
                   <PlateReadOnlyViewer value={essay.answerText} />
                 </div>
               ) : (
@@ -231,7 +234,7 @@ export function QuestionDetailCard({
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   {labels.correctAnswer}
                 </p>
-                <div className="rounded-md border border-green-500/30 bg-green-500/5 px-3 py-2 text-sm">
+                <div className="min-w-0 overflow-hidden rounded-md border border-green-500/30 bg-green-500/5 px-3 py-2 text-sm">
                   <PlateReadOnlyViewer value={essay.correctAnswer} />
                 </div>
               </div>

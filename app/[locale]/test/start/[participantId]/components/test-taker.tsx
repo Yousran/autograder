@@ -461,7 +461,7 @@ export function TestTaker({
       {/* Main content */}
       <div className="flex flex-1 gap-4 p-4 pb-24 md:p-6 md:pb-28">
         {/* Question area */}
-        <main className="flex flex-1 flex-col gap-6">
+        <main className="flex flex-1 min-w-0 flex-col gap-6">
           {/* Question text */}
           <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
             <p className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -470,11 +470,11 @@ export function TestTaker({
                 total: questions.length,
               })}
             </p>
-            <div className="prose prose-sm max-w-none dark:prose-invert">
+            <div className="prose prose-sm max-w-none dark:prose-invert overflow-hidden">
               <PlateReadOnlyViewer
                 key={currentQuestion.id}
                 value={currentQuestion.questionText}
-                className="text-base leading-relaxed"
+                className="text-base leading-relaxed wrap-break-word"
               />
             </div>
           </div>

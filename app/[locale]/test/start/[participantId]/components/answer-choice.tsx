@@ -43,11 +43,11 @@ export function AnswerChoice({ choices, value, onChange }: AnswerChoiceProps) {
               className="mt-0.5 size-4 accent-primary"
               aria-label={extractPlateText(choice.choiceText)}
             />
-            <span className="text-sm leading-relaxed">
+            <span className="min-w-0 overflow-hidden text-sm leading-relaxed">
               <PlateReadOnlyViewer
                 key={choice.id}
                 value={choice.choiceText}
-                className="text-sm leading-relaxed"
+                className="wrap-break-word text-sm leading-relaxed"
               />
             </span>
           </label>
