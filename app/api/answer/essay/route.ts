@@ -3,6 +3,38 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { createEssayAnswerSchema } from "@/lib/schemas/answer";
 
+type EssayQuestionGradeContext = {
+  answerText: string;
+  isExactAnswer: boolean;
+  maxScore: number;
+};
+
+/**
+ * Grades an essay answer.
+ * - If `isExactAnswer` is true, performs a case-insensitive trimmed comparison.
+ *   Full score on match, 0 on mismatch.
+ * - If `isExactAnswer` is false, score stays 0 (AI grading to be implemented later).
+ */
+function gradeEssayAnswer(
+  question: EssayQuestionGradeContext,
+  participantAnswer: string,
+): { score: number; scoreExplanation: string | null } {
+  if (!question.isExactAnswer) {
+    return { score: 0, scoreExplanation: null };
+  }
+
+  const normalize = (s: string) => s.trim().toLowerCase();
+  const isMatch =
+    normalize(participantAnswer) === normalize(question.answerText);
+
+  return {
+    score: isMatch ? question.maxScore : 0,
+    scoreExplanation: isMatch
+      ? "Exact match"
+      : "Answer does not match the expected answer",
+  };
+}
+
 async function getT() {
   const locale = await getLocale();
   return Promise.all([
@@ -52,7 +84,7 @@ export async function POST(req: NextRequest) {
 
   const essay = await prisma.essayQuestion.findUnique({
     where: { id: questionId },
-    select: { id: true },
+    select: { id: true, answerText: true, isExactAnswer: true, maxScore: true },
   });
   if (!essay) {
     return NextResponse.json(
@@ -60,6 +92,8 @@ export async function POST(req: NextRequest) {
       { status: 404 },
     );
   }
+
+  const { score, scoreExplanation } = gradeEssayAnswer(essay, answerText);
 
   const existing = await prisma.essayAnswer.findFirst({
     where: { participantId, questionId },
@@ -70,15 +104,20 @@ export async function POST(req: NextRequest) {
     // Upsert — update instead of duplicate
     const updated = await prisma.essayAnswer.update({
       where: { id: existing.id },
-      data: { answerText },
-      select: { id: true, answerText: true },
+      data: { answerText, score, scoreExplanation },
+      select: {
+        id: true,
+        answerText: true,
+        score: true,
+        scoreExplanation: true,
+      },
     });
     return NextResponse.json(updated, { status: 200 });
   }
 
   const created = await prisma.essayAnswer.create({
-    data: { participantId, questionId, answerText },
-    select: { id: true, answerText: true },
+    data: { participantId, questionId, answerText, score, scoreExplanation },
+    select: { id: true, answerText: true, score: true, scoreExplanation: true },
   });
   return NextResponse.json(created, { status: 201 });
 }
@@ -111,6 +150,19 @@ export async function PATCH(req: NextRequest) {
 
   const { participantId, questionId, answerText } = parsed.data;
 
+  const essay = await prisma.essayQuestion.findUnique({
+    where: { id: questionId },
+    select: { id: true, answerText: true, isExactAnswer: true, maxScore: true },
+  });
+  if (!essay) {
+    return NextResponse.json(
+      { error: tAnswer("questionNotFound") },
+      { status: 404 },
+    );
+  }
+
+  const { score, scoreExplanation } = gradeEssayAnswer(essay, answerText);
+
   const existing = await prisma.essayAnswer.findFirst({
     where: { participantId, questionId },
     select: { id: true },
@@ -118,15 +170,15 @@ export async function PATCH(req: NextRequest) {
 
   if (!existing) {
     return NextResponse.json(
-      { error: tAnswer("questionNotFound") },
+      { error: tAnswer("answerNotFound") },
       { status: 404 },
     );
   }
 
   const updated = await prisma.essayAnswer.update({
     where: { id: existing.id },
-    data: { answerText },
-    select: { id: true, answerText: true },
+    data: { answerText, score, scoreExplanation },
+    select: { id: true, answerText: true, score: true, scoreExplanation: true },
   });
 
   return NextResponse.json(updated, { status: 200 });

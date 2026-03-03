@@ -3,6 +3,19 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { createChoiceAnswerSchema } from "@/lib/schemas/answer";
 
+/**
+ * Grades a single-choice answer.
+ * Returns `maxScore` when the selected choice is correct, otherwise 0.
+ * A null selectedChoiceId (skipped) always scores 0.
+ */
+function gradeChoiceAnswer(
+  maxScore: number,
+  selectedChoice: { isCorrect: boolean } | null,
+): number {
+  if (!selectedChoice) return 0;
+  return selectedChoice.isCorrect ? maxScore : 0;
+}
+
 async function getT() {
   const locale = await getLocale();
   return Promise.all([
@@ -52,7 +65,7 @@ export async function POST(req: NextRequest) {
 
   const choiceQuestion = await prisma.choiceQuestion.findUnique({
     where: { id: questionId },
-    select: { id: true },
+    select: { id: true, maxScore: true },
   });
   if (!choiceQuestion) {
     return NextResponse.json(
@@ -60,6 +73,15 @@ export async function POST(req: NextRequest) {
       { status: 404 },
     );
   }
+
+  const selectedChoice = selectedChoiceId
+    ? await prisma.choice.findUnique({
+        where: { id: selectedChoiceId },
+        select: { isCorrect: true },
+      })
+    : null;
+
+  const score = gradeChoiceAnswer(choiceQuestion.maxScore, selectedChoice);
 
   const existing = await prisma.choiceAnswer.findFirst({
     where: { participantId, questionId },
@@ -69,8 +91,8 @@ export async function POST(req: NextRequest) {
   if (existing) {
     const updated = await prisma.choiceAnswer.update({
       where: { id: existing.id },
-      data: { selectedChoiceId: selectedChoiceId ?? null },
-      select: { id: true, selectedChoiceId: true },
+      data: { selectedChoiceId: selectedChoiceId ?? null, score },
+      select: { id: true, selectedChoiceId: true, score: true },
     });
     return NextResponse.json(updated, { status: 200 });
   }
@@ -80,8 +102,9 @@ export async function POST(req: NextRequest) {
       participantId,
       questionId,
       selectedChoiceId: selectedChoiceId ?? null,
+      score,
     },
-    select: { id: true, selectedChoiceId: true },
+    select: { id: true, selectedChoiceId: true, score: true },
   });
   return NextResponse.json(created, { status: 201 });
 }
@@ -114,6 +137,26 @@ export async function PATCH(req: NextRequest) {
 
   const { participantId, questionId, selectedChoiceId } = parsed.data;
 
+  const choiceQuestion = await prisma.choiceQuestion.findUnique({
+    where: { id: questionId },
+    select: { id: true, maxScore: true },
+  });
+  if (!choiceQuestion) {
+    return NextResponse.json(
+      { error: tAnswer("questionNotFound") },
+      { status: 404 },
+    );
+  }
+
+  const selectedChoice = selectedChoiceId
+    ? await prisma.choice.findUnique({
+        where: { id: selectedChoiceId },
+        select: { isCorrect: true },
+      })
+    : null;
+
+  const score = gradeChoiceAnswer(choiceQuestion.maxScore, selectedChoice);
+
   const existing = await prisma.choiceAnswer.findFirst({
     where: { participantId, questionId },
     select: { id: true },
@@ -126,16 +169,17 @@ export async function PATCH(req: NextRequest) {
         participantId,
         questionId,
         selectedChoiceId: selectedChoiceId ?? null,
+        score,
       },
-      select: { id: true, selectedChoiceId: true },
+      select: { id: true, selectedChoiceId: true, score: true },
     });
     return NextResponse.json(created, { status: 201 });
   }
 
   const updated = await prisma.choiceAnswer.update({
     where: { id: existing.id },
-    data: { selectedChoiceId: selectedChoiceId ?? null },
-    select: { id: true, selectedChoiceId: true },
+    data: { selectedChoiceId: selectedChoiceId ?? null, score },
+    select: { id: true, selectedChoiceId: true, score: true },
   });
 
   return NextResponse.json(updated, { status: 200 });

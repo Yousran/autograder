@@ -1,4 +1,3 @@
-//TODO: all answer grading logic and result details display
 //TODO: test result details page
 //TODO: test result editing page for educators
 //TODO: profile page display test taken
