@@ -250,6 +250,8 @@
       "connected": "Terhubung",
       "createdTests": "Tes yang Dibuat",
       "createdTestsDescription": "Tes yang dibuat oleh pengguna ini.",
+      "testsTaken": "Tes yang Diikuti",
+      "testsTakenDescription": "Tes yang Anda ikuti.",
       "noTests": "Belum ada tes yang dibuat.",
       "deleteAccount": "Hapus Akun",
       "deleteAccountDescription": "Hapus akun Anda beserta semua data terkait secara permanen. Tindakan ini tidak dapat dibatalkan.",

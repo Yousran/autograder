@@ -82,6 +82,15 @@ export default async function ResultPage({ params }: ResultPageProps) {
       ? Math.round((totalObtainedScore / totalMaxScore) * 10000) / 100
       : 0;
 
+  // Save the calculated score to the database
+  await prisma.participant.update({
+    where: { id: participantId },
+    data: {
+      score: percentage,
+      isCompleted: true,
+    },
+  });
+
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md p-8 flex flex-col gap-4">

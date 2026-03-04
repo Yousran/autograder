@@ -250,6 +250,8 @@
       "connected": "Connected",
       "createdTests": "Created Tests",
       "createdTestsDescription": "Tests created by this user.",
+      "testsTaken": "Tests Taken",
+      "testsTakenDescription": "Tests you have participated in.",
       "noTests": "No tests created yet.",
       "deleteAccount": "Delete Account",
       "deleteAccountDescription": "Permanently delete your account and all associated data. This action cannot be undone.",

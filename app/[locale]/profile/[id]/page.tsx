@@ -12,6 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Link } from "@/i18n/navigation";
 import DeleteAccountButton from "@/components/custom/delete-account-button";
+import { GaugeCombined } from "@/components/ui/gauge";
+import type { Participant, Test } from "@/lib/generated/prisma/client";
+
+type ParticipantWithTest = Participant & { test: Test };
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -34,6 +38,16 @@ export default async function Page({ params }: Props) {
 
   const session = await getSession();
   const isOwner = !!session && session.user.id === user.id;
+
+  // Fetch tests taken by user if viewing own profile
+  let takenTests: ParticipantWithTest[] = [];
+  if (isOwner && session) {
+    takenTests = await prisma.participant.findMany({
+      where: { userId: session.user.id },
+      include: { test: true },
+      orderBy: { createdAt: "desc" },
+    });
+  }
 
   const locale = await getLocale();
   const t = await getTranslations({ locale, namespace: "Pages.profile" });
@@ -140,6 +154,50 @@ export default async function Page({ params }: Props) {
                         </Link>
                       ))
                     )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {isOwner && takenTests.length > 0 && (
+              <Card>
+                <CardContent>
+                  <h2 className="text-lg font-semibold">{t("testsTaken")}</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t("testsTakenDescription")}
+                  </p>
+
+                  <div className="mt-4 flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+                    {takenTests.map((participant) => (
+                      <Link
+                        key={participant.id}
+                        href={`/test/result/${participant.id}`}
+                        className="flex items-center gap-4 rounded-lg border bg-foreground/5 px-4 py-3 hover:bg-foreground/10 transition-colors"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm font-medium text-foreground line-clamp-1 block">
+                            {participant.test.title}
+                          </span>
+                          {participant.test.description && (
+                            <span className="text-xs text-muted-foreground mt-0.5 line-clamp-1 block">
+                              {participant.test.description}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-center gap-1 shrink-0">
+                          <GaugeCombined
+                            value={participant.score}
+                            max={100}
+                            min={0}
+                            size={50}
+                            thickness={6}
+                          />
+                          <span className="text-sm font-semibold text-foreground">
+                            {participant.score}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
