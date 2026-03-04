@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { TestTaker } from "./components/test-taker";
@@ -8,7 +8,7 @@ export default async function StartTestPage({
 }: {
   params: Promise<{ participantId: string; locale: string }>;
 }) {
-  const { participantId } = await params;
+  const { participantId, locale } = await params;
   const t = await getTranslations("Pages.testStart");
 
   const participant = await prisma.participant.findUnique({
@@ -65,6 +65,10 @@ export default async function StartTestPage({
   });
 
   if (!participant) notFound();
+
+  if (participant.isCompleted) {
+    redirect(`/${locale}/test/result/${participantId}`);
+  }
 
   const initialEssayAnswers: Record<string, string> = Object.fromEntries(
     participant.essayAnswers.map((a) => [a.questionId, a.answerText]),
