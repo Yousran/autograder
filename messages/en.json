@@ -67,6 +67,18 @@
       "unauthorized": "You must be signed in.",
       "notFound": "Test not found.",
       "forbidden": "You are not authorized to view this test."
+    },
+    "prerequisites": {
+      "unauthorized": "You must be signed in.",
+      "forbidden": "You are not authorized to modify this test.",
+      "notFound": "Test not found.",
+      "prereqNotFound": "Prerequisite not found.",
+      "prereqTestNotFound": "The selected test does not exist.",
+      "alreadyAdded": "This test is already a prerequisite.",
+      "selfPrerequisite": "A test cannot be its own prerequisite.",
+      "createFailed": "Failed to add prerequisite. Please try again.",
+      "updateFailed": "Failed to update prerequisite. Please try again.",
+      "deleteFailed": "Failed to remove prerequisite. Please try again."
     }
   },
   "Validation": {
@@ -352,6 +364,32 @@
       "explanationPlaceholder": "Add an explanation for the score...",
       "updateFailed": "Failed to update. Please try again."
     },
+    "prerequisite": {
+      "loading": "Loading prerequisites...",
+      "noPrerequisites": "No prerequisites added yet.",
+      "noTestsAvailable": "No other tests available to add as prerequisite.",
+      "addButton": "Add Prerequisite",
+      "dialogTitle": "Add Test Prerequisite",
+      "selectTestLabel": "Prerequisite Test",
+      "selectTestPlaceholder": "Select a test...",
+      "minScoreLabel": "Minimum Score Required",
+      "minScoreUnit": "% (0 – 100)",
+      "minScoreHint": "Participants must score at least this percentage to unlock this test.",
+      "minScoreAriaLabel": "Minimum score for {title}",
+      "removeAriaLabel": "Remove prerequisite {title}",
+      "addConfirm": "Add",
+      "adding": "Adding...",
+      "cancel": "Cancel",
+      "addSuccess": "Prerequisite added.",
+      "deleteSuccess": "Prerequisite removed.",
+      "updateSuccess": "Minimum score updated.",
+      "fetchFailed": "Failed to load prerequisites.",
+      "createFailed": "Failed to add prerequisite.",
+      "deleteFailed": "Failed to remove prerequisite.",
+      "updateFailed": "Failed to update minimum score.",
+      "selectTestRequired": "Please select a test.",
+      "invalidMinScore": "Minimum score must be between 0 and 100."
+    },
     "test": {
       "titleLabel": "Title",
       "descriptionLabel": "Description",
@@ -367,7 +405,9 @@
       "isShowCorrectAnswersLabel": "Show Correct Answers",
       "isShowCorrectAnswersDesc": "Reveal the correct answers to participants after they finish.",
       "isQuestionsOrderedLabel": "Ordered Questions",
-      "isQuestionsOrderedDesc": "Present questions in a fixed order instead of randomizing them."
+      "isQuestionsOrderedDesc": "Present questions in a fixed order instead of randomizing them.",
+      "prerequisiteLabel": "Test Prerequisites",
+      "prerequisiteDesc": "Participants must pass these tests before they can access this one."
     },
     "profile": {
       "avatar": {

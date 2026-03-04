@@ -67,6 +67,18 @@
       "unauthorized": "Anda harus masuk terlebih dahulu.",
       "notFound": "Ujian tidak ditemukan.",
       "forbidden": "Anda tidak memiliki izin untuk melihat ujian ini."
+    },
+    "prerequisites": {
+      "unauthorized": "Anda harus masuk terlebih dahulu.",
+      "forbidden": "Anda tidak memiliki izin untuk mengubah ujian ini.",
+      "notFound": "Ujian tidak ditemukan.",
+      "prereqNotFound": "Prasyarat tidak ditemukan.",
+      "prereqTestNotFound": "Ujian yang dipilih tidak ada.",
+      "alreadyAdded": "Ujian ini sudah menjadi prasyarat.",
+      "selfPrerequisite": "Ujian tidak dapat menjadi prasyarat untuk dirinya sendiri.",
+      "createFailed": "Gagal menambahkan prasyarat. Silakan coba lagi.",
+      "updateFailed": "Gagal memperbarui prasyarat. Silakan coba lagi.",
+      "deleteFailed": "Gagal menghapus prasyarat. Silakan coba lagi."
     }
   },
   "Validation": {
@@ -352,6 +364,32 @@
       "explanationPlaceholder": "Tambahkan penjelasan untuk skor...",
       "updateFailed": "Gagal memperbarui. Silakan coba lagi."
     },
+    "prerequisite": {
+      "loading": "Memuat prasyarat...",
+      "noPrerequisites": "Belum ada prasyarat yang ditambahkan.",
+      "noTestsAvailable": "Tidak ada ujian lain yang tersedia untuk dijadikan prasyarat.",
+      "addButton": "Tambah Prasyarat",
+      "dialogTitle": "Tambah Prasyarat Ujian",
+      "selectTestLabel": "Ujian Prasyarat",
+      "selectTestPlaceholder": "Pilih ujian...",
+      "minScoreLabel": "Skor Minimum yang Diperlukan",
+      "minScoreUnit": "% (0 – 100)",
+      "minScoreHint": "Peserta harus mendapatkan setidaknya persentase ini untuk membuka kunci ujian ini.",
+      "minScoreAriaLabel": "Skor minimum untuk {title}",
+      "removeAriaLabel": "Hapus prasyarat {title}",
+      "addConfirm": "Tambah",
+      "adding": "Menambahkan...",
+      "cancel": "Batal",
+      "addSuccess": "Prasyarat berhasil ditambahkan.",
+      "deleteSuccess": "Prasyarat berhasil dihapus.",
+      "updateSuccess": "Skor minimum berhasil diperbarui.",
+      "fetchFailed": "Gagal memuat daftar prasyarat.",
+      "createFailed": "Gagal menambahkan prasyarat.",
+      "deleteFailed": "Gagal menghapus prasyarat.",
+      "updateFailed": "Gagal memperbarui skor minimum.",
+      "selectTestRequired": "Silakan pilih ujian.",
+      "invalidMinScore": "Skor minimum harus antara 0 dan 100."
+    },
     "test": {
       "titleLabel": "Judul",
       "descriptionLabel": "Deskripsi",
@@ -367,9 +405,10 @@
       "isShowCorrectAnswersLabel": "Tampilkan Jawaban Benar",
       "isShowCorrectAnswersDesc": "Ungkapkan jawaban yang benar kepada peserta setelah selesai.",
       "isQuestionsOrderedLabel": "Urutan Soal Tetap",
-      "isQuestionsOrderedDesc": "Tampilkan soal dalam urutan tetap, bukan acak."
-    }
-    ,
+      "isQuestionsOrderedDesc": "Tampilkan soal dalam urutan tetap, bukan acak.",
+      "prerequisiteLabel": "Prasyarat Ujian",
+      "prerequisiteDesc": "Peserta harus lulus ujian-ujian ini sebelum dapat mengakses ujian ini."
+    },
     "profile": {
       "avatar": {
         "updateSuccess": "Foto profil berhasil diperbarui.",

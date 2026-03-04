@@ -11,6 +11,7 @@ import { LoggedInUserOnlyToggle } from "./logged-in-user-only-toggle";
 import { ShowDetailedScoreToggle } from "./show-detailed-score-toggle";
 import { ShowCorrectAnswersToggle } from "./show-correct-answers-toggle";
 import { QuestionsOrderedToggle } from "./questions-ordered-toggle";
+import { TestPrerequisiteCard } from "./test-prerequisite-card";
 
 interface Props {
   testId: string;
@@ -49,7 +50,7 @@ export function SettingsTab({
             initialDescription={initialDescription}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
             <Label className="text-md font-bold">
               {tComponentTest("durationLabel")}
@@ -67,7 +68,7 @@ export function SettingsTab({
           </div>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-0.5 min-w-0">
             <Label className="text-md font-bold">
               {tComponentTest("isAcceptingResponsesLabel")}
             </Label>
@@ -81,7 +82,7 @@ export function SettingsTab({
           />
         </div>
         <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-0.5 min-w-0">
             <Label className="text-md font-bold">
               {tComponentTest("isLoggedInUserOnlyLabel")}
             </Label>
@@ -95,7 +96,7 @@ export function SettingsTab({
           />
         </div>
         <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-0.5 min-w-0">
             <Label className="text-md font-bold">
               {tComponentTest("isShowDetailedScoreLabel")}
             </Label>
@@ -109,7 +110,7 @@ export function SettingsTab({
           />
         </div>
         <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-0.5 min-w-0">
             <Label className="text-md font-bold">
               {tComponentTest("isShowCorrectAnswersLabel")}
             </Label>
@@ -123,7 +124,7 @@ export function SettingsTab({
           />
         </div>
         <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-0.5 min-w-0">
             <Label className="text-md font-bold">
               {tComponentTest("isQuestionsOrderedLabel")}
             </Label>
@@ -138,7 +139,15 @@ export function SettingsTab({
         </div>
       </Card>
       <Card className="p-6 flex flex-col gap-4">
-        <Label className="text-md font-bold">Test Prerequisite</Label>
+        <div className="flex flex-col gap-1">
+          <Label className="text-md font-bold">
+            {tComponentTest("prerequisiteLabel")}
+          </Label>
+          <p className="text-sm text-muted-foreground">
+            {tComponentTest("prerequisiteDesc")}
+          </p>
+        </div>
+        <TestPrerequisiteCard testId={testId} />
       </Card>
     </div>
   );

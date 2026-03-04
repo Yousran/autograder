@@ -15,6 +15,8 @@ interface EditableNumberInputProps {
   onUpdate: (value: number | null) => Promise<void> | void;
   onUpdateError?: (error: Error) => void;
   debounceDelay?: number;
+  min?: number;
+  max?: number;
 }
 
 export function EditableNumberInput({
@@ -22,6 +24,8 @@ export function EditableNumberInput({
   onUpdate,
   onUpdateError,
   debounceDelay = 500,
+  min = 1,
+  max,
 }: EditableNumberInputProps) {
   const [value, setValue] = useState<number | undefined>(
     initialValue ?? undefined,
@@ -87,7 +91,8 @@ export function EditableNumberInput({
       <NumberField
         value={value}
         onValueChange={(v) => setValue(v ?? undefined)}
-        min={1}
+        min={min}
+        max={max}
         step={1}
       >
         <NumberFieldGroup>
