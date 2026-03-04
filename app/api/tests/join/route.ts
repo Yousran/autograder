@@ -71,6 +71,13 @@ export async function POST(req: NextRequest) {
       isAcceptingResponses: true,
       isLoggedInUserOnly: true,
       joinCodeExpiresAt: true,
+      maxAttempts: true,
+      prerequisites: {
+        select: {
+          prerequisiteTestId: true,
+          minScoreRequired: true,
+        },
+      },
     },
   });
 
@@ -88,8 +95,56 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: tJoin("loggedInOnly") }, { status: 401 });
   }
 
+  // Check prerequisites: logged-in users are matched by userId,
+  // guests are matched by the name they are submitting.
+  if (test.prerequisites.length > 0) {
+    const prereqTestIds = test.prerequisites.map((p) => p.prerequisiteTestId);
+
+    const prereqChecks = await prisma.participant.findMany({
+      where: {
+        testId: { in: prereqTestIds },
+        isCompleted: true,
+        ...(session ? { userId: session.user.id } : { name }),
+      },
+      select: { testId: true, score: true },
+    });
+
+    const meetsAll = test.prerequisites.every((prereq) => {
+      const best = prereqChecks
+        .filter((p) => p.testId === prereq.prerequisiteTestId)
+        .reduce<
+          number | null
+        >((max, p) => (max === null || p.score > max ? p.score : max), null);
+      return best !== null && best >= prereq.minScoreRequired;
+    });
+
+    if (!meetsAll) {
+      return NextResponse.json(
+        { error: tJoin("prerequisiteNotMet") },
+        { status: 403 },
+      );
+    }
+  }
+
   if (test.joinCodeExpiresAt && test.joinCodeExpiresAt < new Date()) {
     return NextResponse.json({ error: tJoin("notFound") }, { status: 404 });
+  }
+
+  // Check max attempts: count existing participant records for this identity.
+  if (test.maxAttempts !== null) {
+    const attemptCount = await prisma.participant.count({
+      where: {
+        testId: test.id,
+        ...(session ? { userId: session.user.id } : { name }),
+      },
+    });
+
+    if (attemptCount >= test.maxAttempts) {
+      return NextResponse.json(
+        { error: tJoin("maxAttemptsReached") },
+        { status: 403 },
+      );
+    }
   }
 
   const participant = await prisma.participant.create({

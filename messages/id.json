@@ -47,6 +47,8 @@
       "notFound": "Ujian tidak ditemukan.",
       "notAccepting": "Ujian ini saat ini tidak menerima jawaban.",
       "loggedInOnly": "Ujian ini mengharuskan Anda untuk masuk terlebih dahulu.",
+      "prerequisiteNotMet": "Anda belum menyelesaikan ujian prasyarat yang diperlukan dengan skor minimum.",
+      "maxAttemptsReached": "Anda telah mencapai batas maksimum percobaan untuk ujian ini.",
       "joinFailed": "Gagal bergabung ke ujian. Coba lagi.",
       "alreadyJoined": "Anda sudah bergabung ke ujian ini."
     },
