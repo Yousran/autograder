@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { TestSchema } from "@/lib/schemas/test";
 import { customAlphabet } from "nanoid";
 import type { TestSchema as TestType } from "@/lib/schemas/test";
+import { addDays, isPast } from "date-fns";
 
 /** Human-readable alphabet: no 0/O/1/I to avoid confusion. */
 const nanoid = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 6);
@@ -22,11 +23,11 @@ const MAX_RETRIES = 5;
 async function ensureFreshJoinCode(test: TestType): Promise<TestType> {
   const now = new Date();
   const isExpired =
-    test.joinCodeExpiresAt !== null && test.joinCodeExpiresAt <= now;
+    test.joinCodeExpiresAt !== null && isPast(test.joinCodeExpiresAt);
 
   if (test.joinCode !== null && !isExpired) return test;
 
-  const expiresAt = new Date(Date.now() + TTL_DAYS * 24 * 60 * 60 * 1000);
+  const expiresAt = addDays(new Date(), TTL_DAYS);
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     const code = nanoid();

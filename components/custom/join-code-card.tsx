@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { useLocale } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDistanceToNow, isPast } from "date-fns";
+import { enUS, id as idLocale } from "date-fns/locale";
 import { Copy, Check, QrCode, Download } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { Button } from "@/components/ui/button";
@@ -27,33 +28,19 @@ interface JoinCodeCardProps {
   initialExpiresAt: Date | null;
 }
 
-function formatExpiry(expiresAt: Date | null, now: number): string {
-  if (!expiresAt) return "";
-  const diffMs = expiresAt.getTime() - now;
-  if (diffMs <= 0) return "expired";
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffHours = Math.floor(
-    (diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-  );
-  if (diffDays > 0) return `${diffDays}d ${diffHours}h`;
-  const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  if (diffHours > 0) return `${diffHours}h ${diffMins}m`;
-  return `${diffMins}m`;
-}
-
 export function JoinCodeCard({
   initialCode,
   initialExpiresAt,
 }: JoinCodeCardProps) {
   const t = useTranslations("Components.joinCode");
   const locale = useLocale();
+  const dateFnsLocale = locale === "id" ? idLocale : enUS;
   const code = initialCode;
   const expiresAt = initialExpiresAt;
-  const [now] = useState<number>(() => Date.now());
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
-  const isExpired = expiresAt !== null && expiresAt.getTime() <= now;
+  const isExpired = expiresAt !== null && isPast(expiresAt);
   const hasActiveCode = code !== null && !isExpired;
 
   const copy = async () => {
@@ -111,7 +98,11 @@ export function JoinCodeCard({
                   </Label>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {t("expiresIn", { time: formatExpiry(expiresAt, now) })}
+                  {t("expiresIn", {
+                    time: formatDistanceToNow(expiresAt!, {
+                      locale: dateFnsLocale,
+                    }),
+                  })}
                 </TooltipContent>
               </Tooltip>
             ) : (

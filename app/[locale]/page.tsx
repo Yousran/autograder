@@ -1,8 +1,6 @@
 //TODO: dont load the choices separately for each question, but load them in bulk with the questions to avoid multiple requests and reordering issues
 //TODO: reordering issues where the question text and type related data goes missing when displaced in the list
 //TODO: nextstepjs tour component for onboarding
-//TODO: use package or utility function for formatting dates and times
-//TODO: use package or utility function for formatting text
 //TODO: scroll to top button on question editing page
 //TODO: scroll to newly created question
 //TODO: preview branch deployment for testing before merging to main

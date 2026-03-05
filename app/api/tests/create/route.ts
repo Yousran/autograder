@@ -4,6 +4,7 @@ import { defaultTestData, TestSchema } from "@/lib/schemas/test";
 import { getLocale, getTranslations } from "next-intl/server";
 import { NextResponse } from "next/server";
 import { customAlphabet } from "nanoid";
+import { addDays } from "date-fns";
 
 const nanoid = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 6);
 const TTL_DAYS = 7;
@@ -16,7 +17,7 @@ export async function POST() {
   const locale = await getLocale();
   const t = await getTranslations({ locale, namespace: "Api.tests" });
 
-  const expiresAt = new Date(Date.now() + TTL_DAYS * 24 * 60 * 60 * 1000);
+  const expiresAt = addDays(new Date(), TTL_DAYS);
   const now = new Date();
 
   // Generate a unique join code, retrying on collision
