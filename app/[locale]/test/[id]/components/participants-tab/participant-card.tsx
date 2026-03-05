@@ -41,7 +41,7 @@ export function ParticipantCard({
 
         <div className="flex flex-col items-center gap-1 shrink-0">
           <GaugeCombined
-            value={participant.score}
+            value={Math.min(Math.max(participant.score, 0), effectiveMax)}
             max={effectiveMax}
             size={64}
             startAngle={-135}
