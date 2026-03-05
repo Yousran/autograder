@@ -83,11 +83,11 @@ CREATE TABLE "Test" (
     "testDuration" INTEGER,
     "startTime" TIMESTAMP(3),
     "endTime" TIMESTAMP(3),
-    "maxAttempts" INTEGER,
     "isAcceptingResponses" BOOLEAN NOT NULL DEFAULT true,
-    "isLoggedInUserOnly" BOOLEAN NOT NULL DEFAULT false,
-    "isShowDetailedScore" BOOLEAN NOT NULL DEFAULT true,
-    "isShowCorrectAnswers" BOOLEAN NOT NULL DEFAULT false,
+    "loggedInUserOnly" BOOLEAN NOT NULL DEFAULT false,
+    "maxAttempts" INTEGER,
+    "showDetailedScore" BOOLEAN NOT NULL DEFAULT true,
+    "showCorrectAnswers" BOOLEAN NOT NULL DEFAULT false,
     "isQuestionsOrdered" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE "EssayQuestion" (
     "id" TEXT NOT NULL,
     "answerText" TEXT NOT NULL,
     "isExactAnswer" BOOLEAN NOT NULL,
-    "maxScore" INTEGER NOT NULL DEFAULT 1,
+    "maxScore" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -148,7 +148,7 @@ CREATE TABLE "EssayAnswer" (
 CREATE TABLE "ChoiceQuestion" (
     "id" TEXT NOT NULL,
     "isChoiceRandomized" BOOLEAN NOT NULL,
-    "maxScore" INTEGER NOT NULL DEFAULT 1,
+    "maxScore" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -184,7 +184,7 @@ CREATE TABLE "ChoiceAnswer" (
 CREATE TABLE "MultipleSelectQuestion" (
     "id" TEXT NOT NULL,
     "isChoiceRandomized" BOOLEAN NOT NULL,
-    "maxScore" INTEGER NOT NULL DEFAULT 1,
+    "maxScore" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
