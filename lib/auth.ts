@@ -9,6 +9,9 @@ const adapter = new PrismaPg({
 
 const prisma = new PrismaClient({ adapter });
 export const auth = betterAuth({
+  baseURL: process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000",
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
