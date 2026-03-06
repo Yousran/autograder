@@ -3,8 +3,6 @@
 //TODO: nextstepjs tour component for onboarding
 //TODO: scroll to top button on question editing page
 //TODO: scroll to newly created question
-//TODO: preview branch deployment for testing before merging to main
-//TODO: database migration and seeding strategy for production
 //TODO: e2e tests using playwright
 //TODO: make sure to use next-intl for all text content and add missing translations
 //TODO: add comments to all functions and components
