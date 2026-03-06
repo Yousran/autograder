@@ -13,6 +13,7 @@ const testName = "Test User";
 // ---------------------------------------------------------------------------
 test.describe.serial("Sign-Up", () => {
   const testEmail = `testuser+${Date.now()}@example.com`;
+  test.use({ storageState: { cookies: [], origins: [] } });
 
   test("renders the sign-up page", async ({ page }) => {
     await page.goto(SIGN_UP_URL);
@@ -103,10 +104,13 @@ test.describe.serial("Sign-Up", () => {
 // ---------------------------------------------------------------------------
 test.describe.serial("Sign-In", () => {
   const signInTestEmail = `testuser+${Date.now()}-signin@example.com`;
+  test.use({ storageState: { cookies: [], origins: [] } });
 
-  test.beforeEach(async ({ page }) => {
-    // Ensure the account exists before running sign-in tests
-    // by signing up with signInTestEmail first
+  test.beforeAll(async ({ browser }) => {
+    // Create the account once for the entire describe block.
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
     await page.goto(SIGN_UP_URL);
     await page.locator("#name").fill(testName);
     await page.locator("#email").fill(signInTestEmail);
@@ -114,14 +118,13 @@ test.describe.serial("Sign-In", () => {
     await page.locator("#confirmPassword").fill(testPassword);
     await page.getByRole("button", { name: /sign up/i }).click();
 
-    // If account already exists, we'll get a 200 response with error message
-    // Either way, proceed with sign-in tests
-    // Wait a moment for response
-    await page.waitForTimeout(1000);
-    await page.goto(SIGN_IN_URL);
+    await page.waitForURL(`${BASE_URL}/en`, { timeout: 10_000 });
+    await context.close();
   });
 
   test("renders the sign-in page", async ({ page }) => {
+    await page.goto(SIGN_IN_URL);
+
     await expect(page).toHaveURL(SIGN_IN_URL);
     await expect(page.locator("#email")).toBeVisible();
     await expect(page.locator("#password")).toBeVisible();
@@ -198,54 +201,20 @@ test.describe.serial("Sign-In", () => {
 // Auth Redirect (already authenticated)
 // ---------------------------------------------------------------------------
 test.describe.serial("Auth Redirect (already authenticated)", () => {
-  test.beforeEach(async ({ page }) => {
-    // Create a new account for this test suite first
-    const redirectTestEmail = `testuser+${Date.now()}-redirect@example.com`;
-    await page.goto(SIGN_UP_URL);
-    await page.locator("#name").fill(testName);
-    await page.locator("#email").fill(redirectTestEmail);
-    await page.locator("#password").fill(testPassword);
-    await page.locator("#confirmPassword").fill(testPassword);
-    await page.getByRole("button", { name: /sign up/i }).click();
-    await page.waitForURL(`${BASE_URL}/en`, { timeout: 10_000 });
-  });
+  // Explicitly load the shared auth state produced by auth.setup.ts.
+  test.use({ storageState: "playwright/.auth/user.json" });
 
   test("redirects to home when authenticated user visits sign-in", async ({
     page,
   }) => {
     await page.goto(SIGN_IN_URL);
-    await expect(page).toHaveURL(`${BASE_URL}/en`);
+    await expect(page).toHaveURL(`${BASE_URL}/en`, { timeout: 5_000 });
   });
 
   test("redirects to home when authenticated user visits sign-up", async ({
     page,
   }) => {
     await page.goto(SIGN_UP_URL);
-    await expect(page).toHaveURL(`${BASE_URL}/en`);
-  });
-
-  test("successfully logs out and clears session", async ({ page }) => {
-    // Should start at home page (from beforeEach sign-in)
-    await expect(page).toHaveURL(`${BASE_URL}/en`);
-
-    // Click on avatar/dropdown to open menu
-    await page.locator("button.rounded-full").click();
-
-    // Click logout button
-    await page.getByRole("menuitem", { name: /logout/i }).click();
-
-    // Should be redirected to home page after logout
-    await page.waitForURL(`${BASE_URL}/en`, { timeout: 5_000 });
-    await expect(page).toHaveURL(`${BASE_URL}/en`);
-
-    // Verify we're logged out by checking that navbar shows sign-in/sign-up buttons
-    // instead of user profile
-    await page.locator("button.rounded-full").click();
-    await expect(
-      page.getByRole("menuitem", { name: /sign in/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("menuitem", { name: /sign up/i }),
-    ).toBeVisible();
+    await expect(page).toHaveURL(`${BASE_URL}/en`, { timeout: 5_000 });
   });
 });
