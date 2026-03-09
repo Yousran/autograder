@@ -1,3 +1,6 @@
+//TODO: ai grading and feedback generation using openrouter as default but with model provider selection support
+//TODO: question creation and editing e2e tests using playwright
+//TODO: question reordering e2e tests using playwright
 //TODO: dont load the choices separately for each question, but load them in bulk with the questions to avoid multiple requests and reordering issues
 //TODO: reordering issues where the question text and type related data goes missing when displaced in the list
 //TODO: nextstepjs tour component for onboarding
