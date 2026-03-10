@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import type { Value } from "platejs";
 import { Plate, usePlateEditor } from "platejs/react";
 import {
@@ -129,6 +130,7 @@ interface PlateReadOnlyViewerProps {
 
 /**
  * Renders Plate-serialised rich-text content in read-only mode.
+ * Automatically converts legacy HTML content to Plate format.
  * Use this wherever questionText or choiceText needs to be displayed.
  */
 export function PlateReadOnlyViewer({
@@ -139,6 +141,27 @@ export function PlateReadOnlyViewer({
     plugins: viewerPlugins,
     value: parseValue(value),
   });
+
+  // Handle HTML content conversion on initial mount
+  useEffect(() => {
+    // Detect if it looks like HTML content
+    const isHtml = /^<\s*\/?\s*([a-z][a-z0-9]*)[^>]*>/i.test(value);
+
+    if (isHtml) {
+      try {
+        // Use Plate's HTML deserializer to convert HTML to Plate format
+        const plateValue = editor.api.html.deserialize({ element: value });
+        if (Array.isArray(plateValue) && plateValue.length > 0) {
+          editor.tf.setValue(plateValue as Value);
+        }
+      } catch (error) {
+        console.warn(
+          "Failed to deserialize HTML, keeping as plain text",
+          error,
+        );
+      }
+    }
+  }, [value, editor.api.html, editor.tf]);
 
   return (
     <Plate editor={editor}>

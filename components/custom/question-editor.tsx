@@ -227,6 +227,32 @@ export function QuestionEditor({
     initialValueRef.current = initialValue;
   }, [initialValue]);
 
+  // Handle HTML content conversion on initial mount
+  useEffect(() => {
+    // Detect if it looks like HTML content
+    const isHtml = /^<\s*\/?\s*([a-z][a-z0-9]*)[^>]*>/i.test(initialValue);
+
+    if (isHtml) {
+      try {
+        // Use Plate's HTML deserializer to convert HTML to Plate format
+        const plateValue = editor.api.html.deserialize({
+          element: initialValue,
+        });
+        if (Array.isArray(plateValue) && plateValue.length > 0) {
+          editor.tf.setValue(plateValue as Value);
+          // Save the converted Plate format back
+          const serialized = serializeValue(plateValue as Value);
+          void onUpdate(serialized);
+        }
+      } catch (error) {
+        console.warn(
+          "Failed to deserialize HTML, keeping as plain text",
+          error,
+        );
+      }
+    }
+  }, [editor.api.html, editor.tf, initialValue, onUpdate]);
+
   const prevInitialRef = useRef(initialValue);
   useEffect(() => {
     if (prevInitialRef.current === initialValue) return;
@@ -299,10 +325,16 @@ export function QuestionEditor({
               <MarkToolbarButton nodeType={KEYS.bold} tooltip={tEditor("bold")}>
                 <BoldIcon />
               </MarkToolbarButton>
-              <MarkToolbarButton nodeType={KEYS.italic} tooltip={tEditor("italic")}>
+              <MarkToolbarButton
+                nodeType={KEYS.italic}
+                tooltip={tEditor("italic")}
+              >
                 <ItalicIcon />
               </MarkToolbarButton>
-              <MarkToolbarButton nodeType={KEYS.underline} tooltip={tEditor("underline")}>
+              <MarkToolbarButton
+                nodeType={KEYS.underline}
+                tooltip={tEditor("underline")}
+              >
                 <UnderlineIcon />
               </MarkToolbarButton>
               <MarkToolbarButton
@@ -315,7 +347,10 @@ export function QuestionEditor({
 
             {/* Text color + background color */}
             <ToolbarGroup>
-              <ColorToolbarButton nodeType="color" tooltip={tEditor("textColor")}>
+              <ColorToolbarButton
+                nodeType="color"
+                tooltip={tEditor("textColor")}
+              >
                 <Type />
               </ColorToolbarButton>
               <ColorToolbarButton
@@ -355,7 +390,10 @@ export function QuestionEditor({
 
             {/* Inline code + Equation */}
             <ToolbarGroup>
-              <MarkToolbarButton nodeType={KEYS.code} tooltip={tEditor("inlineCode")}>
+              <MarkToolbarButton
+                nodeType={KEYS.code}
+                tooltip={tEditor("inlineCode")}
+              >
                 <CodeIcon />
               </MarkToolbarButton>
               <InlineEquationToolbarButton />
@@ -389,10 +427,16 @@ export function QuestionEditor({
             <MarkToolbarButton nodeType={KEYS.bold} tooltip={tEditor("bold")}>
               <BoldIcon />
             </MarkToolbarButton>
-            <MarkToolbarButton nodeType={KEYS.italic} tooltip={tEditor("italic")}>
+            <MarkToolbarButton
+              nodeType={KEYS.italic}
+              tooltip={tEditor("italic")}
+            >
               <ItalicIcon />
             </MarkToolbarButton>
-            <MarkToolbarButton nodeType={KEYS.underline} tooltip={tEditor("underline")}>
+            <MarkToolbarButton
+              nodeType={KEYS.underline}
+              tooltip={tEditor("underline")}
+            >
               <UnderlineIcon />
             </MarkToolbarButton>
             <MarkToolbarButton
@@ -401,7 +445,10 @@ export function QuestionEditor({
             >
               <StrikethroughIcon />
             </MarkToolbarButton>
-            <MarkToolbarButton nodeType={KEYS.code} tooltip={tEditor("inlineCode")}>
+            <MarkToolbarButton
+              nodeType={KEYS.code}
+              tooltip={tEditor("inlineCode")}
+            >
               <CodeIcon />
             </MarkToolbarButton>
             <ToolbarSeparator />
