@@ -24,9 +24,7 @@ test.describe.serial("Profile Page - Owner Profile", () => {
     await profileMenuItem.click();
 
     // Wait for navigation to profile page
-    await page.waitForURL((url) => url.href.includes("/profile/"), {
-      timeout: 5000,
-    });
+    await page.waitForURL((url) => url.href.includes("/profile/"));
     const pageUrl = page.url();
     expect(pageUrl).toContain("/profile/");
 
@@ -46,9 +44,7 @@ test.describe.serial("Profile Page - Owner Profile", () => {
     await profileMenuItem.click();
 
     // Wait for navigation to profile page
-    await page.waitForURL((url) => url.href.includes("/profile/"), {
-      timeout: 5000,
-    });
+    await page.waitForURL((url) => url.href.includes("/profile/"));
 
     // Check that email is displayed (use .first() to avoid strict mode violation)
     await expect(
@@ -78,9 +74,7 @@ test.describe.serial("Profile Page - Owner Profile", () => {
     await profileMenuItem.click();
 
     // Wait for navigation to profile page
-    await page.waitForURL((url) => url.href.includes("/profile/"), {
-      timeout: 5000,
-    });
+    await page.waitForURL((url) => url.href.includes("/profile/"));
 
     // Check for profile information section
     await expect(
@@ -100,9 +94,7 @@ test.describe.serial("Profile Page - Owner Profile", () => {
     await profileMenuItem.click();
 
     // Wait for navigation to profile page
-    await page.waitForURL((url) => url.href.includes("/profile/"), {
-      timeout: 5000,
-    });
+    await page.waitForURL((url) => url.href.includes("/profile/"));
 
     // Check for delete account section
     await expect(
@@ -136,7 +128,7 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     await page.getByRole("button", { name: /sign up/i }).click();
 
     // Wait for redirect to home
-    await page.waitForURL(`${BASE_URL}/en`, { timeout: 10_000 });
+    await page.waitForURL(`${BASE_URL}/en`);
 
     // Extract profile URL from navbar - click the avatar button (last button in header)
     const userMenuButton = page.locator("header button").last();
@@ -144,7 +136,7 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
 
     // Wait for profile link to be visible in dropdown
     const profileLink = page.locator("a[href*='/profile/']");
-    await profileLink.waitFor({ state: "visible", timeout: 5000 });
+    await profileLink.waitFor({ state: "visible" });
     const profileUrl = await profileLink.getAttribute("href");
 
     // Sign out
@@ -154,9 +146,7 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     // Visit profile as unauthenticated user
     if (profileUrl) {
       await page.goto(`${BASE_URL}${profileUrl}`);
-      await page.waitForURL((url) => url.href.includes("/profile/"), {
-        timeout: 5000,
-      });
+      await page.waitForURL((url) => url.href.includes("/profile/"));
 
       // Should be able to view public profile
       await expect(page.locator("h1")).toContainText(publicProfileName);
@@ -175,7 +165,7 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     await page.locator("#confirmPassword").fill(testPassword);
     await page.getByRole("button", { name: /sign up/i }).click();
 
-    await page.waitForURL(`${BASE_URL}/en`, { timeout: 10_000 });
+    await page.waitForURL(`${BASE_URL}/en`);
 
     // Get profile URL - click the avatar button (last button in header)
     const userMenuButton = page.locator("header button").last();
@@ -183,7 +173,7 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
 
     // Wait for profile link to be visible in dropdown
     const profileLink = page.locator("a[href*='/profile/']");
-    await profileLink.waitFor({ state: "visible", timeout: 5000 });
+    await profileLink.waitFor({ state: "visible" });
     const profileUrl = await profileLink.getAttribute("href");
 
     // Sign out
@@ -193,9 +183,7 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     // View profile as unauthenticated user
     if (profileUrl) {
       await page.goto(`${BASE_URL}${profileUrl}`);
-      await page.waitForURL((url) => url.href.includes("/profile/"), {
-        timeout: 5000,
-      });
+      await page.waitForURL((url) => url.href.includes("/profile/"));
 
       // Public info should be visible
       await expect(page.locator("h1")).toContainText(creatorName);

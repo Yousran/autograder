@@ -42,11 +42,11 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Click the "Create New Test" button
     const createButton = page.getByRole("button", { name: "Create New Test" });
-    await createButton.waitFor({ state: "visible", timeout: 8_000 });
+    await createButton.waitFor({ state: "visible" });
     await createButton.click();
 
     // Wait for navigation to the test edit page
-    await page.waitForURL(/\/en\/test\/[a-z0-9]+/i, { timeout: 15_000 });
+    await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
 
     // Extract test ID from URL for later use
     const url = page.url();
@@ -65,7 +65,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Wait for the Settings tab to be visible
     const settingsTab = page.getByRole("tab", { name: "Settings" });
-    await expect(settingsTab).toBeVisible({ timeout: 8_000 });
+    await expect(settingsTab).toBeVisible();
 
     // Verify other tabs are also visible
     await expect(page.getByRole("tab", { name: "Questions" })).toBeVisible();
@@ -84,23 +84,28 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Use specific selector for the title input (data-slot attribute)
     const titleInput = page.locator('input[data-slot="editable-input"]');
-    await titleInput.waitFor({ state: "visible", timeout: 5_000 });
+    await titleInput.waitFor({ state: "visible" });
     await titleInput.fill(newTitle);
 
     // Submit the change
     const submitButton = page.getByRole("button", { name: /save/i }).first();
     await submitButton.click();
 
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/tests/${testId}`) &&
+        response.request().method() === "PATCH" &&
+        response.status() === 200,
+    );
+
     // Verify the title changed in the UI (indicates successful update)
-    await expect(page.getByRole("button", { name: newTitle })).toBeVisible({
-      timeout: 5_000,
-    });
+    await expect(page.getByRole("button", { name: newTitle })).toBeVisible();
+
+    await responsePromise;
 
     // Reload and verify the title was persisted to the database
     await page.reload();
-    await expect(page.getByRole("button", { name: newTitle })).toBeVisible({
-      timeout: 8_000,
-    });
+    await expect(page.getByRole("button", { name: newTitle })).toBeVisible();
   });
 
   test("displays all settings controls in settings tab", async ({ page }) => {
@@ -108,7 +113,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Click Settings tab to ensure we're on it
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500); // Wait for tab animation
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" }); // Wait for tab animation
 
     // Verify all settings sections are visible by their labels
     await expect(
@@ -149,7 +154,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     // Find the duration input field (it should be under the Duration label)
     const durationLabel = page
@@ -161,15 +166,22 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await durationInput.click();
     await durationInput.clear();
     await durationInput.fill("120");
+
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/tests/${testId}`) &&
+        response.request().method() === "PATCH" &&
+        response.status() === 200,
+    );
+
     await durationInput.press("Enter");
 
-    // Wait for success notification
-    await page.waitForTimeout(1_000);
+    await responsePromise;
 
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     const durationLabelAfterReload = page
       .locator("label")
@@ -186,7 +198,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     // Find and update max attempts
     const maxAttemptLabel = page
@@ -200,15 +212,22 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await maxAttemptInput.click();
     await maxAttemptInput.clear();
     await maxAttemptInput.fill("3");
+
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/tests/${testId}`) &&
+        response.request().method() === "PATCH" &&
+        response.status() === 200,
+    );
+
     await maxAttemptInput.press("Enter");
 
-    // Wait for update
-    await page.waitForTimeout(1_000);
+    await responsePromise;
 
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     const maxAttemptLabelAfterReload = page
       .locator("label")
@@ -225,7 +244,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     // Find the description input/textarea
     const descriptionLabel = page
@@ -241,10 +260,17 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     const descriptionInput = descriptionContainer
       .locator("textarea, input")
       .first();
-    await descriptionInput.waitFor({ state: "visible", timeout: 5_000 });
+    await descriptionInput.waitFor({ state: "visible" });
 
     const testDescription = `This is a test description created at ${Date.now()}`;
     await descriptionInput.fill(testDescription);
+
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/tests/${testId}`) &&
+        response.request().method() === "PATCH" &&
+        response.status() === 200,
+    );
 
     // Submit
     const submitButton = descriptionContainer
@@ -258,17 +284,14 @@ test.describe.serial("Edit Test - Settings Tab", () => {
       await descriptionInput.press("Enter");
     }
 
-    // Wait for update
-    await page.waitForTimeout(1_000);
+    await responsePromise;
 
     // Reload and verify
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
-    await expect(page.locator("text=" + testDescription)).toBeVisible({
-      timeout: 5_000,
-    });
+    await expect(page.locator("text=" + testDescription)).toBeVisible();
   });
 
   test("toggles accepting responses", async ({ page }) => {
@@ -276,7 +299,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     // Find switch by navigating from the label text to the parent container
     const toggle = page
@@ -287,9 +310,17 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     const initialState = await toggle.getAttribute("aria-checked");
 
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/tests/${testId}`) &&
+        response.request().method() === "PATCH" &&
+        response.status() === 200,
+    );
+
     // Click to toggle
     await toggle.click();
-    await page.waitForTimeout(1_000);
+
+    await responsePromise;
 
     // Verify state changed
     const newState = await toggle.getAttribute("aria-checked");
@@ -298,7 +329,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     const toggleAfterReload = page
       .getByText("Accepting Responses", { exact: false })
@@ -315,7 +346,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     // Find switch by navigating from the label text to the parent container
     const toggle = page
@@ -326,9 +357,17 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     const initialState = await toggle.getAttribute("aria-checked");
 
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/tests/${testId}`) &&
+        response.request().method() === "PATCH" &&
+        response.status() === 200,
+    );
+
     // Click to toggle
     await toggle.click();
-    await page.waitForTimeout(1_000);
+
+    await responsePromise;
 
     // Verify state changed
     const newState = await toggle.getAttribute("aria-checked");
@@ -337,7 +376,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     const toggleAfterReload = page
       .getByText("Logged-in Users Only", { exact: false })
@@ -354,7 +393,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     // Find switch by navigating from the label text to the parent container
     const toggle = page
@@ -365,9 +404,17 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     const initialState = await toggle.getAttribute("aria-checked");
 
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/tests/${testId}`) &&
+        response.request().method() === "PATCH" &&
+        response.status() === 200,
+    );
+
     // Click to toggle
     await toggle.click();
-    await page.waitForTimeout(1_000);
+
+    await responsePromise;
 
     // Verify state changed
     const newState = await toggle.getAttribute("aria-checked");
@@ -376,7 +423,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     const toggleAfterReload = page
       .getByText("Show Detailed Score", { exact: false })
@@ -393,7 +440,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     // Find switch by navigating from the label text to the parent container
     const toggle = page
@@ -404,9 +451,17 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     const initialState = await toggle.getAttribute("aria-checked");
 
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/tests/${testId}`) &&
+        response.request().method() === "PATCH" &&
+        response.status() === 200,
+    );
+
     // Click to toggle
     await toggle.click();
-    await page.waitForTimeout(1_000);
+
+    await responsePromise;
 
     // Verify state changed
     const newState = await toggle.getAttribute("aria-checked");
@@ -415,7 +470,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     const toggleAfterReload = page
       .getByText("Show Correct Answers", { exact: false })
@@ -432,7 +487,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     // Find switch by navigating from the label text to the parent container
     const toggle = page
@@ -443,9 +498,17 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     const initialState = await toggle.getAttribute("aria-checked");
 
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/tests/${testId}`) &&
+        response.request().method() === "PATCH" &&
+        response.status() === 200,
+    );
+
     // Click to toggle
     await toggle.click();
-    await page.waitForTimeout(1_000);
+
+    await responsePromise;
 
     // Verify state changed
     const newState = await toggle.getAttribute("aria-checked");
@@ -454,7 +517,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
-    await page.waitForTimeout(500);
+    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
     const toggleAfterReload = page
       .getByText("Ordered Questions", { exact: false })
