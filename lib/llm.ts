@@ -36,7 +36,7 @@ export async function llm({
 
     try {
       const res = await openai.chat.completions.create({
-        model: "deepseek/deepseek-r1-0528:free",
+        model: "nvidia/nemotron-nano-12b-v2-vl:free",
         messages: [
           {
             role: "system",
