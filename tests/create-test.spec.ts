@@ -25,7 +25,7 @@ test.describe("Create Test", () => {
     // The button is conditionally rendered only for signed-in users.
     await expect(
       page.getByRole("button", { name: "Create New Test" }),
-    ).toBeVisible({ timeout: 8_000 });
+    ).toBeVisible();
   });
 
   test("clicking Create New Test navigates to the test editor", async ({
@@ -37,9 +37,7 @@ test.describe("Create Test", () => {
 
     // The API call creates a test and the router redirects to /test/{id}.
     // Wait for the URL to match the test editor pattern.
-    await expect(page).toHaveURL(/\/en\/test\/[a-z0-9]+/i, {
-      timeout: 15_000,
-    });
+    await expect(page).toHaveURL(/\/en\/test\/[a-z0-9]+/i);
   });
 
   test("test editor page shows the default Untitled Test title", async ({
@@ -48,13 +46,11 @@ test.describe("Create Test", () => {
     await page.goto("/en");
 
     await page.getByRole("button", { name: "Create New Test" }).click();
-    await page.waitForURL(/\/en\/test\/[a-z0-9]+/i, { timeout: 15_000 });
+    await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
 
     // The TestTitleEditable component renders the editable preview with the
     // default title "Untitled Test".
-    await expect(page.getByText("Untitled Test")).toBeVisible({
-      timeout: 8_000,
-    });
+    await expect(page.getByText("Untitled Test")).toBeVisible();
   });
 
   test("test editor page has Settings, Questions and Participants tabs", async ({
@@ -63,7 +59,7 @@ test.describe("Create Test", () => {
     await page.goto("/en");
 
     await page.getByRole("button", { name: "Create New Test" }).click();
-    await page.waitForURL(/\/en\/test\/[a-z0-9]+/i, { timeout: 15_000 });
+    await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
 
     // Verify the key tabs that educators use to manage their test.
     await expect(page.getByRole("tab", { name: "Settings" })).toBeVisible();

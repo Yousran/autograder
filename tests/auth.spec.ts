@@ -53,7 +53,7 @@ test.describe.serial("Sign-Up", () => {
     await page.getByRole("button", { name: /sign up/i }).click();
 
     // After a successful sign-up the app redirects to the home page
-    await page.waitForURL(`${BASE_URL}/en`, { timeout: 10_000 });
+    await page.waitForURL(`${BASE_URL}/en`);
     await expect(page).toHaveURL(`${BASE_URL}/en`);
   });
 
@@ -83,7 +83,7 @@ test.describe.serial("Sign-Up", () => {
 
     // Click and wait for navigation away from the sign-up page
     await Promise.all([
-      page.waitForURL((url) => url.href !== SIGN_UP_URL, { timeout: 10_000 }),
+      page.waitForURL((url) => url.href !== SIGN_UP_URL),
       googleButton.click(),
     ]);
 
@@ -118,7 +118,7 @@ test.describe.serial("Sign-In", () => {
     await page.locator("#confirmPassword").fill(testPassword);
     await page.getByRole("button", { name: /sign up/i }).click();
 
-    await page.waitForURL(`${BASE_URL}/en`, { timeout: 10_000 });
+    await page.waitForURL(`${BASE_URL}/en`);
     await context.close();
   });
 
@@ -154,7 +154,7 @@ test.describe.serial("Sign-In", () => {
     await page.getByRole("button", { name: /sign in/i }).click();
 
     // After successful sign-in the app redirects to the home page
-    await page.waitForURL(`${BASE_URL}/en`, { timeout: 10_000 });
+    await page.waitForURL(`${BASE_URL}/en`);
     await expect(page).toHaveURL(`${BASE_URL}/en`);
   });
 
@@ -183,7 +183,7 @@ test.describe.serial("Sign-In", () => {
     await expect(googleButton).toBeVisible();
 
     await Promise.all([
-      page.waitForURL((url) => url.href !== SIGN_IN_URL, { timeout: 10_000 }),
+      page.waitForURL((url) => url.href !== SIGN_IN_URL),
       googleButton.click(),
     ]);
 
@@ -208,13 +208,13 @@ test.describe.serial("Auth Redirect (already authenticated)", () => {
     page,
   }) => {
     await page.goto(SIGN_IN_URL);
-    await expect(page).toHaveURL(`${BASE_URL}/en`, { timeout: 5_000 });
+    await expect(page).toHaveURL(`${BASE_URL}/en`);
   });
 
   test("redirects to home when authenticated user visits sign-up", async ({
     page,
   }) => {
     await page.goto(SIGN_UP_URL);
-    await expect(page).toHaveURL(`${BASE_URL}/en`, { timeout: 5_000 });
+    await expect(page).toHaveURL(`${BASE_URL}/en`);
   });
 });
