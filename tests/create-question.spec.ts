@@ -16,7 +16,11 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { waitForLoaderToDisappear } from "./helpers";
+import {
+  createNewTest,
+  navigateToQuestionsTab,
+  waitForLoaderToDisappear,
+} from "./helpers";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Create First Question - Two Test Scenarios
@@ -28,31 +32,7 @@ test.describe.serial("Create First Question - At End", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    await expect(async () => {
-      // Create a new test for adding the first question
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      await page.goto(`/en`);
-
-      const createButton = page.getByRole("button", {
-        name: "Create New Test",
-      });
-      await createButton.waitFor({ state: "visible" });
-      await createButton.click();
-
-      await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
-
-      const url = page.url();
-      const match = url.match(/test\/([a-z0-9]+)/i);
-      if (match) {
-        testId = match[1];
-      }
-
-      await context.close();
-    }).toPass();
+    testId = await createNewTest(browser);
   });
 
   test("creates the first question at the end of the Questions tab", async ({
@@ -61,13 +41,7 @@ test.describe.serial("Create First Question - At End", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      const questionsTab = page.getByRole("tab", { name: "Questions" });
-      await questionsTab.waitFor({ state: "visible" });
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-      await questionsTab.click();
-
-      // Wait for the tabpanel content to be visible (confirms tab switch)
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+      await navigateToQuestionsTab(page);
 
       // Initially there should be no questions, so only one "Add Question" button at bottom
       const addQuestionButtons = page.getByRole("button", {
@@ -101,31 +75,7 @@ test.describe.serial("Create Question", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    await expect(async () => {
-      // Create a new test
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      await page.goto(`/en`);
-
-      const createButton = page.getByRole("button", {
-        name: "Create New Test",
-      });
-      await createButton.waitFor({ state: "visible" });
-      await createButton.click();
-
-      await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
-
-      const url = page.url();
-      const match = url.match(/test\/([a-z0-9]+)/i);
-      if (match) {
-        testId = match[1];
-      }
-
-      await context.close();
-    }).toPass();
+    testId = await createNewTest(browser);
   });
 
   test("shows the add button when first opening the questions tab", async ({
@@ -134,13 +84,7 @@ test.describe.serial("Create Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      const questionsTab = page.getByRole("tab", { name: "Questions" });
-      await questionsTab.waitFor({ state: "visible" });
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-      await questionsTab.click();
-
-      // Wait for the tabpanel content to be visible
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+      await navigateToQuestionsTab(page);
 
       // The add button should be visible and always show (alwaysVisible=true)
       const addButton = page.getByRole("button", { name: /add question/i });
@@ -164,13 +108,7 @@ test.describe.serial("Create Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      const questionsTab = page.getByRole("tab", { name: "Questions" });
-      await questionsTab.waitFor({ state: "visible" });
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-      await questionsTab.click();
-
-      // Wait for the tabpanel content to be visible
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+      await navigateToQuestionsTab(page);
 
       // Verify there are 1 questions
       const questionCards = page.locator('[class*="shadow"]').filter({
@@ -207,13 +145,7 @@ test.describe.serial("Create Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      const questionsTab = page.getByRole("tab", { name: "Questions" });
-      await questionsTab.waitFor({ state: "visible" });
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-      await questionsTab.click();
-
-      // Wait for the tabpanel content to be visible
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+      await navigateToQuestionsTab(page);
 
       // FIX: Wait for the question cards to appear to ensure the tab has actually switched
       const questionCards = page.locator('[class*="shadow"]').filter({
@@ -255,43 +187,14 @@ test.describe.serial("Create Essay Question", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      await page.goto(`/en`);
-
-      const createButton = page.getByRole("button", {
-        name: "Create New Test",
-      });
-      await createButton.waitFor({ state: "visible" });
-      await createButton.click();
-
-      await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
-
-      const url = page.url();
-      const match = url.match(/test\/([a-z0-9]+)/i);
-      if (match) {
-        testId = match[1];
-      }
-
-      await context.close();
-    }).toPass();
+    testId = await createNewTest(browser);
   });
 
   test("creates and configures an essay question", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      const questionsTab = page.getByRole("tab", { name: "Questions" });
-      await questionsTab.waitFor({ state: "visible" });
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-      await questionsTab.click();
-
-      // Wait for the tabpanel content to be visible
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+      await navigateToQuestionsTab(page);
 
       // The add button should be visible and always show (alwaysVisible=true)
       const addButton = page.getByRole("button", { name: /add question/i });
@@ -328,13 +231,7 @@ test.describe.serial("Create Essay Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      const questionsTab = page.getByRole("tab", { name: "Questions" });
-      await questionsTab.waitFor({ state: "visible" });
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-      await questionsTab.click();
-
-      // Wait for the tabpanel content to be visible
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+      await navigateToQuestionsTab(page);
 
       const questionCards = page.locator('[class*="shadow"]').filter({
         has: page.getByText(/question text/i),
@@ -386,43 +283,14 @@ test.describe.serial("Create Choice Question", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      await page.goto(`/en`);
-
-      const createButton = page.getByRole("button", {
-        name: "Create New Test",
-      });
-      await createButton.waitFor({ state: "visible" });
-      await createButton.click();
-
-      await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
-
-      const url = page.url();
-      const match = url.match(/test\/([a-z0-9]+)/i);
-      if (match) {
-        testId = match[1];
-      }
-
-      await context.close();
-    }).toPass();
+    testId = await createNewTest(browser);
   });
 
   test("creates a choice question with default type", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      const questionsTab = page.getByRole("tab", { name: "Questions" });
-      await questionsTab.waitFor({ state: "visible" });
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-      await questionsTab.click();
-
-      // Wait for the tabpanel content to be visible
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+      await navigateToQuestionsTab(page);
 
       // The add button should be visible and always show (alwaysVisible=true)
       const addButton = page.getByRole("button", { name: /add question/i });
@@ -447,13 +315,7 @@ test.describe.serial("Create Choice Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      const questionsTab = page.getByRole("tab", { name: "Questions" });
-      await questionsTab.waitFor({ state: "visible" });
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-      await questionsTab.click();
-
-      // Wait for the tabpanel content to be visible
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+      await navigateToQuestionsTab(page);
 
       // Verify question is created
       const questionCard = page.locator('[class*="shadow"]').filter({
@@ -500,30 +362,7 @@ test.describe.serial("Create Multiple Choice Question", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      await page.goto(`/en`);
-
-      const createButton = page.getByRole("button", {
-        name: "Create New Test",
-      });
-      await createButton.waitFor({ state: "visible" });
-      await createButton.click();
-
-      await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
-
-      const url = page.url();
-      const match = url.match(/test\/([a-z0-9]+)/i);
-      if (match) {
-        testId = match[1];
-      }
-
-      await context.close();
-    }).toPass();
+    testId = await createNewTest(browser);
   });
 
   test("creates and changes question to multiple choice type", async ({
@@ -532,13 +371,7 @@ test.describe.serial("Create Multiple Choice Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      const questionsTab = page.getByRole("tab", { name: "Questions" });
-      await questionsTab.waitFor({ state: "visible" });
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-      await questionsTab.click();
-
-      // Wait for the tabpanel content to be visible
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+      await navigateToQuestionsTab(page);
 
       // The add button should be visible and always show (alwaysVisible=true)
       const addButton = page.getByRole("button", { name: /add question/i });
@@ -576,13 +409,7 @@ test.describe.serial("Create Multiple Choice Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      const questionsTab = page.getByRole("tab", { name: "Questions" });
-      await questionsTab.waitFor({ state: "visible" });
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-      await questionsTab.click();
-
-      // Wait for the tabpanel content to be visible
-      await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+      await navigateToQuestionsTab(page);
 
       // Verify question is created
       const questionCard = page.locator('[class*="shadow"]').filter({

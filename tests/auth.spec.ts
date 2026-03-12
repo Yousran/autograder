@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { waitForLoaderToDisappear } from "./helpers";
+import { fillSignUpForm, waitForLoaderToDisappear } from "./helpers";
 
 const SIGN_UP_URL = "/en/auth/sign-up";
 const SIGN_IN_URL = "/en/auth/sign-in";
@@ -53,12 +53,7 @@ test.describe.serial("Sign-Up", () => {
   test("successfully signs up a new user", async ({ page }) => {
     await page.goto(SIGN_UP_URL);
 
-    await page.locator("#name").fill(testName);
-    await page.locator("#email").fill(testEmail);
-    await page.locator("#password").fill(testPassword);
-    await page.locator("#confirmPassword").fill(testPassword);
-
-    await page.getByRole("button", { name: /sign up/i }).click();
+    await fillSignUpForm(page, testName, testEmail, testPassword);
 
     // Wait for any loading overlay to disappear
     await waitForLoaderToDisappear(page);
@@ -75,12 +70,7 @@ test.describe.serial("Sign-Up", () => {
 
     await page.goto(SIGN_UP_URL);
 
-    await page.locator("#name").fill(testName);
-    await page.locator("#email").fill(testEmail);
-    await page.locator("#password").fill(testPassword);
-    await page.locator("#confirmPassword").fill(testPassword);
-
-    await page.getByRole("button", { name: /sign up/i }).click();
+    await fillSignUpForm(page, testName, testEmail, testPassword);
 
     // Wait for any loading overlay to disappear
     await waitForLoaderToDisappear(page);
@@ -133,11 +123,7 @@ test.describe.serial("Sign-In", () => {
       const page = await context.newPage();
 
       await page.goto(SIGN_UP_URL);
-      await page.locator("#name").fill(testName);
-      await page.locator("#email").fill(signInTestEmail);
-      await page.locator("#password").fill(testPassword);
-      await page.locator("#confirmPassword").fill(testPassword);
-      await page.getByRole("button", { name: /sign up/i }).click();
+      await fillSignUpForm(page, testName, signInTestEmail, testPassword);
 
       await page.waitForURL("/en");
       await context.close();

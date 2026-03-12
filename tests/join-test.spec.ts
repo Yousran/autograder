@@ -15,197 +15,17 @@
  */
 // TODO: Test Prerequisite check
 
-import { test, expect, Page } from "@playwright/test";
-import { waitForLoaderToDisappear } from "./helpers";
+import { test, expect } from "@playwright/test";
+import {
+  completeTest,
+  createTestWithQuestion,
+  submitJoinCode,
+  waitForLoaderToDisappear,
+} from "./helpers";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Utility: Create a test with a question and customize settings
 // ─────────────────────────────────────────────────────────────────────────
-
-async function createTestWithQuestion(
-  page: Page,
-  {
-    title = "Test to Join",
-    acceptingResponses = true,
-    maxAttempts = null,
-    loggedInOnly = false,
-    description = "A test for joining",
-  }: {
-    title?: string;
-    acceptingResponses?: boolean;
-    maxAttempts?: number | null;
-    loggedInOnly?: boolean;
-    description?: string;
-  } = {},
-): Promise<string> {
-  // Navigate to home and create test
-  await page.goto(`/en`);
-
-  const createButton = page.getByRole("button", { name: "Create New Test" });
-  await createButton.waitFor({ state: "visible" });
-  await createButton.click();
-
-  // Wait for the test editor to load
-  await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
-
-  const url = page.url();
-  const testIdMatch = url.match(/test\/([a-z0-9]+)/i);
-  const testId = testIdMatch ? testIdMatch[1] : null;
-
-  // Update test title
-  const titleElement = page.locator("text=/Untitled Test/");
-  await titleElement.first().hover();
-  await titleElement.first().click();
-
-  const titleInput = page.locator('input[data-slot="editable-input"]');
-  await titleInput.waitFor({ state: "visible" });
-  await titleInput.fill(title);
-  await titleInput.press("Enter");
-
-  // Wait for update to complete
-  await page.waitForResponse(
-    (response) =>
-      response.url().includes(`/api/tests/${testId}`) &&
-      response.request().method() === "PATCH" &&
-      response.status() === 200,
-  );
-
-  // Go to Settings tab and update configuration
-  const settingsTab = page.getByRole("tab", { name: "Settings" });
-  await settingsTab.waitFor({ state: "visible" });
-  await settingsTab.click();
-  await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-
-  // Find the description input/textarea
-  const descriptionLabel = page
-    .locator("label")
-    .filter({ hasText: /description/i });
-  const descriptionContainer = descriptionLabel.locator("..");
-  // Click to enter edit mode
-  const descriptionText = descriptionContainer.locator("p, div").first();
-  await descriptionText.click();
-  // Wait for textarea or input to appear
-  const descriptionInput = descriptionContainer
-    .locator("textarea, input")
-    .first();
-  await descriptionInput.waitFor({ state: "visible" });
-
-  await descriptionInput.fill(description);
-  await descriptionInput.press("Enter");
-
-  // Update accepting responses toggle
-  if (!acceptingResponses) {
-    const toggle = page
-      .getByText("Accepting Responses", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
-
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes(`/api/tests/${testId}`) &&
-        response.request().method() === "PATCH" &&
-        response.status() === 200,
-    );
-
-    // Click to toggle
-    await toggle.click();
-
-    await responsePromise;
-  }
-
-  // Update logged in user only toggle
-  if (loggedInOnly) {
-    // Find switch by navigating from the label text to the parent container
-    const toggle = page
-      .getByText("Logged-in Users Only", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
-
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes(`/api/tests/${testId}`) &&
-        response.request().method() === "PATCH" &&
-        response.status() === 200,
-    );
-
-    // Click to toggle
-    await toggle.click();
-
-    await responsePromise;
-  }
-
-  // Update max attempts if specified
-  if (maxAttempts !== null) {
-    const maxAttemptLabel = page
-      .locator("label")
-      .filter({ hasText: /max.*attempt/i });
-    const maxAttemptInput = maxAttemptLabel
-      .locator("..")
-      .locator("input")
-      .first();
-
-    await maxAttemptInput.click();
-    await maxAttemptInput.clear();
-    await maxAttemptInput.fill(maxAttempts.toString());
-    await maxAttemptInput.press("Enter");
-  }
-
-  // Create a question
-  const questionsTab = page.getByRole("tab", { name: "Questions" });
-  await questionsTab.waitFor({ state: "visible" });
-  await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-  await questionsTab.click();
-
-  // Wait for the tabpanel content to be visible (confirms tab switch)
-  await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-
-  // Initially there should be no questions, so only one "Add Question" button at bottom
-  const addQuestionButtons = page.getByRole("button", {
-    name: /add question/i,
-  });
-  await expect(async () => {
-    await expect(addQuestionButtons).toHaveCount(1);
-  }).toPass();
-
-  // Click the "Add Question" button (visible at the end when no questions exist)
-  await addQuestionButtons.nth(0).click();
-
-  // The question should be optimistically added
-
-  // Verify question card appears with default props
-  const questionCard = page.locator('[class*="shadow"]').filter({
-    has: page.getByText(/question text/i),
-  });
-  await expect(async () => {
-    await expect(questionCard).toBeVisible();
-  }).toPass();
-
-  const joinCodeElement = page
-    .locator("label")
-    .filter({ hasText: /[A-Z0-9]{6}/ })
-    .first();
-  await expect(async () => {
-    await expect(joinCodeElement).toBeVisible();
-  }).toPass();
-  const joinCode = await joinCodeElement.textContent();
-
-  return joinCode || "";
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// Utility: Complete a test by finding and clicking finish button
-// ─────────────────────────────────────────────────────────────────────────
-
-async function completeTest(page: Page) {
-  // Wait for test page to load and find finish button
-  const finishButton = page.getByRole("button", { name: "Finish" });
-  await expect(async () => {
-    await expect(finishButton).toBeVisible();
-  }).toPass();
-  await finishButton.click();
-}
 
 // ─────────────────────────────────────────────────────────────────────────
 // Join as Authenticated User
@@ -255,11 +75,7 @@ test.describe.serial("Join Test - Authenticated User", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    const joinCodeInput = page.getByRole("textbox");
-    const joinButton = page.getByRole("button", { name: /join/i });
-    await joinCodeInput.fill(joinCode);
-    await expect(joinButton).toBeEnabled();
-    await joinButton.click();
+    await submitJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -327,11 +143,7 @@ test.describe.serial("Join Test - Guest User", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    const joinCodeInput = page.getByRole("textbox");
-    const joinButton = page.getByRole("button", { name: /join/i });
-    await joinCodeInput.fill(joinCode);
-    await expect(joinButton).toBeEnabled();
-    await joinButton.click();
+    await submitJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -393,11 +205,7 @@ test.describe.serial("Join Test - Not Accepting Responses", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    const joinCodeInput = page.getByRole("textbox");
-    const joinButton = page.getByRole("button", { name: /join/i });
-    await joinCodeInput.fill(joinCode);
-    await expect(joinButton).toBeEnabled();
-    await joinButton.click();
+    await submitJoinCode(page, joinCode);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -449,13 +257,7 @@ test.describe.serial("Join Test - Max Attempts Exceeded", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    const joinCodeInput = page.getByRole("textbox");
-    const joinButton = page.getByRole("button", { name: /join/i });
-
-    // First attempt - should succeed
-    await joinCodeInput.fill(joinCode);
-    await expect(joinButton).toBeEnabled();
-    await joinButton.click();
+    await submitJoinCode(page, joinCode);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -487,17 +289,12 @@ test.describe.serial("Join Test - Max Attempts Exceeded", () => {
 
     // Second attempt - should fail with max attempts message
     await page.goto(`/en`);
-    const joinCodeInput2 = page.getByRole("textbox");
     await expect(async () => {
-      await expect(joinCodeInput2).toBeVisible();
+      await expect(page.getByRole("textbox")).toBeVisible();
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    const joinButton2 = page.getByRole("button", { name: /join/i });
-
-    await joinCodeInput2.fill(joinCode);
-    await expect(joinButton2).toBeEnabled();
-    await joinButton2.click();
+    await submitJoinCode(page, joinCode);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -568,10 +365,7 @@ test.describe.serial("Join Test - Logged In Users Only", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    const joinCodeInput = page.getByRole("textbox");
-    const joinButton = page.getByRole("button", { name: /join/i });
-    await joinCodeInput.fill(joinCode);
-    await joinButton.click();
+    await submitJoinCode(page, joinCode);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -602,10 +396,7 @@ test.describe.serial("Join Test - Logged In Users Only", () => {
       ).toBeVisible();
     }).toPass();
 
-    const joinCodeInput = creatorPage.getByRole("textbox");
-    const joinButton = creatorPage.getByRole("button", { name: /join/i });
-    await joinCodeInput.fill(joinCode);
-    await joinButton.click();
+    await submitJoinCode(creatorPage, joinCode);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(creatorPage);

@@ -1,5 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { waitForLoaderToDisappear } from "./helpers";
+import {
+  fillSignUpForm,
+  navigateToProfilePage,
+  waitForLoaderToDisappear,
+} from "./helpers";
 
 const SIGN_UP_URL = "/en/auth/sign-up";
 
@@ -14,23 +18,7 @@ test.describe.serial("Profile Page - Owner Profile", () => {
   test("renders the profile page with user info", async ({ page }) => {
     await page.goto("/en");
 
-    // Click on the user avatar button in navbar (last button, not settings)
-    const userMenuButton = page.locator("header button").last();
-    await userMenuButton.click();
-
-    // Wait for loader to disappear
-    await waitForLoaderToDisappear(page);
-
-    // Wait for profile link to be visible
-    const profileMenuItem = page.locator("a[href*='/profile/']").first();
-    await profileMenuItem.waitFor({ state: "visible" });
-    await profileMenuItem.click();
-
-    // Wait for loader to disappear
-    await waitForLoaderToDisappear(page);
-
-    // Wait for navigation to profile page
-    await page.waitForURL((url) => url.href.includes("/profile/"));
+    await navigateToProfilePage(page);
     const pageUrl = page.url();
     await expect(async () => {
       expect(pageUrl).toContain("/profile/");
@@ -45,22 +33,7 @@ test.describe.serial("Profile Page - Owner Profile", () => {
   test("displays user email in profile page", async ({ page }) => {
     await page.goto("/en");
 
-    // Navigate to profile via navbar (click avatar button, not settings)
-    const userMenuButton = page.locator("header button").last();
-    await userMenuButton.click();
-
-    // Wait for loader to disappear
-    await waitForLoaderToDisappear(page);
-
-    const profileMenuItem = page.locator("a[href*='/profile/']").first();
-    await profileMenuItem.waitFor({ state: "visible" });
-    await profileMenuItem.click();
-
-    // Wait for loader to disappear
-    await waitForLoaderToDisappear(page);
-
-    // Wait for navigation to profile page
-    await page.waitForURL((url) => url.href.includes("/profile/"));
+    await navigateToProfilePage(page);
 
     // Check that email is displayed (use .first() to avoid strict mode violation)
     await expect(async () => {
@@ -85,22 +58,7 @@ test.describe.serial("Profile Page - Owner Profile", () => {
   test("displays profile sections for owner", async ({ page }) => {
     await page.goto("/en");
 
-    // Navigate to profile (click avatar button, not settings)
-    const userMenuButton = page.locator("header button").last();
-    await userMenuButton.click();
-
-    // Wait for loader to disappear
-    await waitForLoaderToDisappear(page);
-
-    const profileMenuItem = page.locator("a[href*='/profile/']").first();
-    await profileMenuItem.waitFor({ state: "visible" });
-    await profileMenuItem.click();
-
-    // Wait for loader to disappear
-    await waitForLoaderToDisappear(page);
-
-    // Wait for navigation to profile page
-    await page.waitForURL((url) => url.href.includes("/profile/"));
+    await navigateToProfilePage(page);
 
     // Check for profile information section
     await expect(async () => {
@@ -113,22 +71,7 @@ test.describe.serial("Profile Page - Owner Profile", () => {
   test("displays delete account button for owner", async ({ page }) => {
     await page.goto("/en");
 
-    // Navigate to profile (click avatar button, not settings)
-    const userMenuButton = page.locator("header button").last();
-    await userMenuButton.click();
-
-    // Wait for loader to disappear
-    await waitForLoaderToDisappear(page);
-
-    const profileMenuItem = page.locator("a[href*='/profile/']").first();
-    await profileMenuItem.waitFor({ state: "visible" });
-    await profileMenuItem.click();
-
-    // Wait for loader to disappear
-    await waitForLoaderToDisappear(page);
-
-    // Wait for navigation to profile page
-    await page.waitForURL((url) => url.href.includes("/profile/"));
+    await navigateToProfilePage(page);
 
     // Check for delete account section
     await expect(async () => {
@@ -159,11 +102,12 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     const publicProfileName = "Public Test User";
 
     await page.goto(SIGN_UP_URL);
-    await page.locator("#name").fill(publicProfileName);
-    await page.locator("#email").fill(publicProfileEmail);
-    await page.locator("#password").fill(testPassword);
-    await page.locator("#confirmPassword").fill(testPassword);
-    await page.getByRole("button", { name: /sign up/i }).click();
+    await fillSignUpForm(
+      page,
+      publicProfileName,
+      publicProfileEmail,
+      testPassword,
+    );
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -205,11 +149,7 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     const creatorName = "Profile Creator";
 
     await page.goto(SIGN_UP_URL);
-    await page.locator("#name").fill(creatorName);
-    await page.locator("#email").fill(creatorEmail);
-    await page.locator("#password").fill(testPassword);
-    await page.locator("#confirmPassword").fill(testPassword);
-    await page.getByRole("button", { name: /sign up/i }).click();
+    await fillSignUpForm(page, creatorName, creatorEmail, testPassword);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);

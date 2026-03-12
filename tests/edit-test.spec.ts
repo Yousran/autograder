@@ -19,7 +19,11 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { waitForLoaderToDisappear } from "./helpers";
+import {
+  createNewTest,
+  navigateToSettingsTab,
+  waitForLoaderToDisappear,
+} from "./helpers";
 
 // ---------------------------------------------------------------------------
 // Edit Test - Settings Tab
@@ -31,34 +35,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    await expect(async () => {
-      // Create a new test for editing
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      await page.goto(`/en`);
-
-      // Click the "Create New Test" button
-      const createButton = page.getByRole("button", {
-        name: "Create New Test",
-      });
-      await createButton.waitFor({ state: "visible" });
-      await createButton.click();
-
-      // Wait for navigation to the test edit page
-      await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
-
-      // Extract test ID from URL for later use
-      const url = page.url();
-      const match = url.match(/test\/([a-z0-9]+)/i);
-      if (match) {
-        testId = match[1];
-      }
-
-      await context.close();
-    }).toPass();
+    testId = await createNewTest(browser);
   });
 
   test("navigates to test edit page and settings tab is visible", async ({
@@ -125,9 +102,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   test("displays all settings controls in settings tab", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
-    // Click Settings tab to ensure we're on it
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" }); // Wait for tab animation
+    await navigateToSettingsTab(page);
 
     // Verify all settings sections are visible by their labels
     await expect(async () => {
@@ -182,9 +157,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   test("updates test duration", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
-    // Click Settings tab
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     // Find the duration input field (it should be under the Duration label)
     const durationLabel = page
@@ -214,8 +187,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Reload and verify persistence
     await page.reload();
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     const durationLabelAfterReload = page
       .locator("label")
@@ -233,9 +205,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   test("updates maximum attempts", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
-    // Click Settings tab
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     // Find and update max attempts
     const maxAttemptLabel = page
@@ -267,8 +237,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Reload and verify persistence
     await page.reload();
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     const maxAttemptLabelAfterReload = page
       .locator("label")
@@ -286,9 +255,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   test("updates test description", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
-    // Click Settings tab
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     // Find the description input/textarea
     const descriptionLabel = page
@@ -336,8 +303,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Reload and verify
     await page.reload();
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     await expect(async () => {
       await expect(page.locator("text=" + testDescription)).toBeVisible();
@@ -347,9 +313,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   test("toggles accepting responses", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
-    // Click Settings tab
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     // Find switch by navigating from the label text to the parent container
     const toggle = page
@@ -384,8 +348,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Reload and verify persistence
     await page.reload();
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     const toggleAfterReload = page
       .getByText("Accepting Responses", { exact: false })
@@ -403,9 +366,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   test("toggles logged in user only", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
-    // Click Settings tab
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     // Find switch by navigating from the label text to the parent container
     const toggle = page
@@ -440,8 +401,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Reload and verify persistence
     await page.reload();
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     const toggleAfterReload2 = page
       .getByText("Logged-in Users Only", { exact: false })
@@ -459,9 +419,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   test("toggles show detailed score", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
-    // Click Settings tab
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     // Find switch by navigating from the label text to the parent container
     const toggle = page
@@ -496,8 +454,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Reload and verify persistence
     await page.reload();
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     const toggleAfterReload3 = page
       .getByText("Show Detailed Score", { exact: false })
@@ -515,9 +472,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   test("toggles show correct answers", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
-    // Click Settings tab
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     // Find switch by navigating from the label text to the parent container
     const toggle = page
@@ -552,8 +507,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Reload and verify persistence
     await page.reload();
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     const toggleAfterReload4 = page
       .getByText("Show Correct Answers", { exact: false })
@@ -571,9 +525,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   test("toggles questions ordered", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
-    // Click Settings tab
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     // Find switch by navigating from the label text to the parent container
     const toggle = page
@@ -608,8 +560,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Reload and verify persistence
     await page.reload();
-    await page.getByRole("tab", { name: "Settings" }).click();
-    await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+    await navigateToSettingsTab(page);
 
     const toggleAfterReload5 = page
       .getByText("Ordered Questions", { exact: false })
