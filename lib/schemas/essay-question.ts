@@ -62,7 +62,7 @@ export type EssayQuestionDetail = z.infer<typeof essayQuestionDetailSchema>;
 
 /** Default Question data — use as a placeholder before the real server response in optimistic updates. */
 export const defaultQuestionData: Question = {
-  id: `temp-${crypto.randomUUID()}`,
+  id: "", // will be generated at creation time
   testId: "",
   questionText: "",
   type: QuestionType.ESSAY,
@@ -73,7 +73,7 @@ export const defaultQuestionData: Question = {
 
 /** Default EssayQuestion data — use as a placeholder before the real server response in optimistic updates. */
 export const defaultEssayQuestionData: EssayQuestion = {
-  id: defaultQuestionData.id,
+  id: "", // will be generated at creation time
   answerText: "",
   isExactAnswer: false,
   maxScore: 1,

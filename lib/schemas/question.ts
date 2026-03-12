@@ -142,7 +142,7 @@ export type QuestionWithDetails = z.infer<typeof QuestionWithDetailsSchema>;
  * so they stay in sync.
  */
 export const defaultQuestionData = {
-  id: `temp-${crypto.randomUUID()}`,
+  id: "", // will be generated at creation time
   type: QuestionType.CHOICE,
   questionText: "",
   isChoiceRandomized: defaultChoiceQuestionData.isChoiceRandomized,

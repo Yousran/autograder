@@ -43,7 +43,7 @@ export type ChoiceAnswerPatchInput = z.infer<
 
 /** Default ChoiceAnswer data — use as a placeholder before the real server response in optimistic updates. */
 export const defaultChoiceAnswerData: ChoiceAnswer = {
-  id: `temp-${crypto.randomUUID()}`,
+  id: "",
   questionId: "",
   participantId: "",
   selectedChoiceId: null,

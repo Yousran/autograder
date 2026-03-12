@@ -68,7 +68,7 @@ export type MultipleSelectChoiceSchema = z.infer<
 
 /** Default MultipleSelectChoice data — use as a placeholder before the real server response in optimistic updates. */
 export const defaultMultipleSelectChoiceData: MultipleSelectChoice = {
-  id: `temp-${crypto.randomUUID()}`,
+  id: "", // will be generated at creation time
   questionId: "",
   choiceText: "",
   isCorrect: false,

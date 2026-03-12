@@ -42,7 +42,7 @@ export const TestValidationSchema = (t: TranslateFn) =>
 
 /** Default Test Data — use as a placeholder before the real server response in optimistic. */
 export const defaultTestData: Test = {
-  id: `temp-${crypto.randomUUID()}`,
+  id: "", // will be generated at creation time
   creatorId: "",
   title: "Untitled Test",
   description: null,

@@ -85,7 +85,7 @@ export type MultipleSelectQuestionDetail = z.infer<
 
 /** Default MultipleSelectQuestion data — use as a placeholder before the real server response in optimistic updates. */
 export const defaultMultipleSelectQuestionData: MultipleSelectQuestion = {
-  id: defaultMultipleSelectChoiceData.id,
+  id: "", // will be generated at creation time
   isChoiceRandomized: false,
   maxScore: 1,
   createdAt: new Date(),

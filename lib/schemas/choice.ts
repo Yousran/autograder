@@ -70,7 +70,7 @@ export type ChoiceSchema = z.infer<typeof ChoiceSchema>;
 
 /** Default Choice data — use as a placeholder before the real server response in optimistic updates. */
 export const defaultChoiceData: Choice = {
-  id: `temp-${crypto.randomUUID()}`,
+  id: "", // will be generated at creation time
   questionId: "",
   choiceText: "",
   isCorrect: false,
