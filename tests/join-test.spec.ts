@@ -16,6 +16,7 @@
 // TODO: Test Prerequisite check
 
 import { test, expect, Page } from "@playwright/test";
+import { waitForLoaderToDisappear } from "./helpers";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -166,7 +167,9 @@ async function createTestWithQuestion(
   const addQuestionButtons = page.getByRole("button", {
     name: /add question/i,
   });
-  await expect(addQuestionButtons).toHaveCount(1);
+  await expect(async () => {
+    await expect(addQuestionButtons).toHaveCount(1);
+  }).toPass();
 
   // Click the "Add Question" button (visible at the end when no questions exist)
   await addQuestionButtons.nth(0).click();
@@ -177,13 +180,17 @@ async function createTestWithQuestion(
   const questionCard = page.locator('[class*="shadow"]').filter({
     has: page.getByText(/question text/i),
   });
-  await expect(questionCard).toBeVisible();
+  await expect(async () => {
+    await expect(questionCard).toBeVisible();
+  }).toPass();
 
   const joinCodeElement = page
     .locator("label")
     .filter({ hasText: /[A-Z0-9]{6}/ })
     .first();
-  await expect(joinCodeElement).toBeVisible();
+  await expect(async () => {
+    await expect(joinCodeElement).toBeVisible();
+  }).toPass();
   const joinCode = await joinCodeElement.textContent();
 
   return joinCode || "";
@@ -196,7 +203,9 @@ async function createTestWithQuestion(
 async function completeTest(page: Page) {
   // Wait for test page to load and find finish button
   const finishButton = page.getByRole("button", { name: "Finish" });
-  await expect(finishButton).toBeVisible();
+  await expect(async () => {
+    await expect(finishButton).toBeVisible();
+  }).toPass();
   await finishButton.click();
 }
 
@@ -209,18 +218,20 @@ test.describe.serial("Join Test - Authenticated User", () => {
   let joinCode: string;
 
   test.beforeAll(async ({ browser }) => {
-    // Create test as authenticated user
-    const context = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const page = await context.newPage();
+    await expect(async () => {
+      // Create test as authenticated user
+      const context = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const page = await context.newPage();
 
-    const newJoinCode = await createTestWithQuestion(page, {
-      title: "Test to Join as User",
-    });
-    joinCode = newJoinCode;
+      const newJoinCode = await createTestWithQuestion(page, {
+        title: "Test to Join as User",
+      });
+      joinCode = newJoinCode;
 
-    await context.close();
+      await context.close();
+    }).toPass();
   });
 
   test("home page shows join code input field when unauthenticated context present", async ({
@@ -228,12 +239,11 @@ test.describe.serial("Join Test - Authenticated User", () => {
   }) => {
     await page.goto(`${BASE_URL}/en`);
 
-    // Verify join code input is visible
-    const joinCodeInput = page.getByRole("textbox");
-    await expect(joinCodeInput).toBeVisible();
-
-    const joinButton = page.getByRole("button", { name: /join/i });
-    await expect(joinButton).toBeVisible();
+    // Verify join code input and button are visible
+    await expect(async () => {
+      await expect(page.getByRole("textbox")).toBeVisible();
+      await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
+    }).toPass();
   });
 
   test("successfully joins test with valid join code as authenticated user", async ({
@@ -241,14 +251,16 @@ test.describe.serial("Join Test - Authenticated User", () => {
   }) => {
     await page.goto(`${BASE_URL}/en`);
 
-    // Verify join code input is visible
+    // Verify join code input and button are visible
+    await expect(async () => {
+      await expect(page.getByRole("textbox")).toBeVisible();
+      await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
+    }).toPass();
+
     const joinCodeInput = page.getByRole("textbox");
-    await expect(joinCodeInput).toBeVisible();
-
     const joinButton = page.getByRole("button", { name: /join/i });
-    await expect(joinButton).toBeVisible();
-
     await joinCodeInput.fill(joinCode);
+    await expect(joinButton).toBeEnabled();
     await joinButton.click();
     await page.waitForURL(`${BASE_URL}/en/join/${joinCode}`);
 
@@ -265,7 +277,7 @@ test.describe.serial("Join Test - Authenticated User", () => {
     await confirmButton.click();
     await page.waitForURL(`${BASE_URL}/en/test/start/*`);
 
-    completeTest(page);
+    await completeTest(page);
   });
 });
 
@@ -280,44 +292,47 @@ test.describe.serial("Join Test - Guest User", () => {
   let joinCode: string;
 
   test.beforeAll(async ({ browser }) => {
-    // Create test as authenticated user
-    const context = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const page = await context.newPage();
+    await expect(async () => {
+      // Create test as authenticated user
+      const context = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const page = await context.newPage();
 
-    const newJoinCode = await createTestWithQuestion(page, {
-      title: "Test to Join as Guest",
-    });
-    joinCode = newJoinCode;
+      const newJoinCode = await createTestWithQuestion(page, {
+        title: "Test to Join as Guest",
+      });
+      joinCode = newJoinCode;
 
-    await context.close();
+      await context.close();
+    }).toPass();
   });
 
   test("shows home page with join code input for guest users", async ({
     page,
   }) => {
     await page.goto(`${BASE_URL}/en`);
-    // Verify join code input is visible
-    const joinCodeInput = page.getByRole("textbox");
-    await expect(joinCodeInput).toBeVisible();
-
-    const joinButton = page.getByRole("button", { name: /join/i });
-    await expect(joinButton).toBeVisible();
+    // Verify join code input and button are visible
+    await expect(async () => {
+      await expect(page.getByRole("textbox")).toBeVisible();
+      await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
+    }).toPass();
   });
 
   test("guest joins test with valid join code and provides name", async ({
     page,
   }) => {
     await page.goto(`${BASE_URL}/en`);
-    // Verify join code input is visible
+    // Verify join code input and button are visible
+    await expect(async () => {
+      await expect(page.getByRole("textbox")).toBeVisible();
+      await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
+    }).toPass();
+
     const joinCodeInput = page.getByRole("textbox");
-    await expect(joinCodeInput).toBeVisible();
-
     const joinButton = page.getByRole("button", { name: /join/i });
-    await expect(joinButton).toBeVisible();
-
     await joinCodeInput.fill(joinCode);
+    await expect(joinButton).toBeEnabled();
     await joinButton.click();
     await page.waitForURL(`${BASE_URL}/en/join/${joinCode}`);
 
@@ -327,15 +342,21 @@ test.describe.serial("Join Test - Guest User", () => {
     await startButton.click();
 
     const guestConfirm = page.getByRole("textbox", { name: "Your Name" });
-    await expect(guestConfirm).toBeVisible();
+    await expect(async () => {
+      await expect(guestConfirm).toBeVisible();
+    }).toPass();
     const confirmButton = page.getByRole("button", { name: "Join & Start" });
     await expect(confirmButton).toBeVisible();
 
     await guestConfirm.fill("Guest Participant");
     await confirmButton.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await page.waitForURL(`${BASE_URL}/en/test/start/*`);
 
-    completeTest(page);
+    await completeTest(page);
   });
 });
 
@@ -348,39 +369,49 @@ test.describe.serial("Join Test - Not Accepting Responses", () => {
   let joinCode: string;
 
   test.beforeAll(async ({ browser }) => {
-    // Create test that does NOT accept responses
-    const creatorContext = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const creatorPage = await creatorContext.newPage();
+    await expect(async () => {
+      // Create test that does NOT accept responses
+      const creatorContext = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const creatorPage = await creatorContext.newPage();
 
-    const newJoinCode = await createTestWithQuestion(creatorPage, {
-      title: "Closed Test",
-      acceptingResponses: false,
-    });
-    joinCode = newJoinCode;
+      const newJoinCode = await createTestWithQuestion(creatorPage, {
+        title: "Closed Test",
+        acceptingResponses: false,
+      });
+      joinCode = newJoinCode;
 
-    await creatorContext.close();
+      await creatorContext.close();
+    }).toPass();
   });
 
   test("join fails when test is not accepting responses", async ({ page }) => {
     await page.goto(`${BASE_URL}/en`);
 
-    // Verify join code input is visible
+    // Verify join code input and button are visible
+    await expect(async () => {
+      await expect(page.getByRole("textbox")).toBeVisible();
+      await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
+    }).toPass();
+
     const joinCodeInput = page.getByRole("textbox");
-    await expect(joinCodeInput).toBeVisible();
-
     const joinButton = page.getByRole("button", { name: /join/i });
-    await expect(joinButton).toBeVisible();
-
     await joinCodeInput.fill(joinCode);
+    await expect(joinButton).toBeEnabled();
     await joinButton.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await page.waitForURL(`${BASE_URL}/en/join/${joinCode}`);
 
     const notAcceptingMessage = page.getByText(
       "This test is not currently accepting responses",
     );
-    await expect(notAcceptingMessage).toBeVisible();
+    await expect(async () => {
+      await expect(notAcceptingMessage).toBeVisible();
+    }).toPass();
   });
 });
 
@@ -393,35 +424,44 @@ test.describe.serial("Join Test - Max Attempts Exceeded", () => {
   let joinCode: string;
 
   test.beforeAll(async ({ browser }) => {
-    // Create test with max 1 attempt
-    const creatorContext = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const creatorPage = await creatorContext.newPage();
+    await expect(async () => {
+      // Create test with max 1 attempt
+      const creatorContext = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const creatorPage = await creatorContext.newPage();
 
-    const newJoinCode = await createTestWithQuestion(creatorPage, {
-      title: "Max Attempts Test",
-      maxAttempts: 1,
-    });
-    joinCode = newJoinCode;
+      const newJoinCode = await createTestWithQuestion(creatorPage, {
+        title: "Max Attempts Test",
+        maxAttempts: 1,
+      });
+      joinCode = newJoinCode;
 
-    await creatorContext.close();
+      await creatorContext.close();
+    }).toPass();
   });
 
   test("join fails when participant has reached max attempts", async ({
     page,
   }) => {
     await page.goto(`${BASE_URL}/en`);
-    // Verify join code input is visible
-    const joinCodeInput = page.getByRole("textbox");
-    await expect(joinCodeInput).toBeVisible();
+    // Verify join code input and button are visible
+    await expect(async () => {
+      await expect(page.getByRole("textbox")).toBeVisible();
+      await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
+    }).toPass();
 
+    const joinCodeInput = page.getByRole("textbox");
     const joinButton = page.getByRole("button", { name: /join/i });
-    await expect(joinButton).toBeVisible();
 
     // First attempt - should succeed
     await joinCodeInput.fill(joinCode);
+    await expect(joinButton).toBeEnabled();
     await joinButton.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await page.waitForURL(`${BASE_URL}/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -429,12 +469,19 @@ test.describe.serial("Join Test - Max Attempts Exceeded", () => {
 
     await startButton.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     const userConfirm = page.getByText("Your name is taken from your");
     await expect(userConfirm).toBeVisible();
     const confirmButton = page.getByRole("button", { name: "Join & Start" });
     await expect(confirmButton).toBeVisible();
 
     await confirmButton.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await page.waitForURL(`${BASE_URL}/en/test/start/*`);
 
     // Complete the test (first attempt)
@@ -443,19 +490,29 @@ test.describe.serial("Join Test - Max Attempts Exceeded", () => {
     // Second attempt - should fail with max attempts message
     await page.goto(`${BASE_URL}/en`);
     const joinCodeInput2 = page.getByRole("textbox");
-    await expect(joinCodeInput2).toBeVisible();
+    await expect(async () => {
+      await expect(joinCodeInput2).toBeVisible();
+      await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
+    }).toPass();
 
     const joinButton2 = page.getByRole("button", { name: /join/i });
-    await expect(joinButton2).toBeVisible();
 
     await joinCodeInput2.fill(joinCode);
+    await expect(joinButton2).toBeEnabled();
     await joinButton2.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await page.waitForURL(`${BASE_URL}/en/join/${joinCode}`);
 
     const startButton2 = page.getByRole("button", { name: "Start Test" });
     await expect(startButton2).toBeVisible();
 
     await startButton2.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
 
     // Wait for the dialog to open and find the confirm button
     const confirmButton2 = page.getByRole("button", { name: "Join & Start" });
@@ -464,11 +521,16 @@ test.describe.serial("Join Test - Max Attempts Exceeded", () => {
     // Click to submit the join request - this should fail with max attempts error
     await confirmButton2.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     // Should see the max attempts error message in the dialog
     const maxAttemptsMessage = page.getByText(
       "You have reached the maximum number of attempts for this test",
     );
-    await expect(maxAttemptsMessage).toBeVisible();
+    await expect(async () => {
+      await expect(maxAttemptsMessage).toBeVisible();
+    }).toPass();
   });
 });
 
@@ -481,40 +543,49 @@ test.describe.serial("Join Test - Logged In Users Only", () => {
   let joinCode: string;
 
   test.beforeAll(async ({ browser }) => {
-    // Create test that does NOT accept responses
-    const creatorContext = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const creatorPage = await creatorContext.newPage();
+    await expect(async () => {
+      // Create test that does NOT accept responses
+      const creatorContext = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const creatorPage = await creatorContext.newPage();
 
-    const newJoinCode = await createTestWithQuestion(creatorPage, {
-      title: "Closed Test",
-      loggedInOnly: true,
-    });
-    joinCode = newJoinCode;
+      const newJoinCode = await createTestWithQuestion(creatorPage, {
+        title: "Closed Test",
+        loggedInOnly: true,
+      });
+      joinCode = newJoinCode;
 
-    await creatorContext.close();
+      await creatorContext.close();
+    }).toPass();
   });
 
   test("guest cannot join test that requires logged in users", async ({
     page,
   }) => {
     await page.goto(`${BASE_URL}/en`);
-    // Verify join code input is visible
+    // Verify join code input and button are visible
+    await expect(async () => {
+      await expect(page.getByRole("textbox")).toBeVisible();
+      await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
+    }).toPass();
+
     const joinCodeInput = page.getByRole("textbox");
-    await expect(joinCodeInput).toBeVisible();
-
     const joinButton = page.getByRole("button", { name: /join/i });
-    await expect(joinButton).toBeVisible();
-
     await joinCodeInput.fill(joinCode);
     await joinButton.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await page.waitForURL(`${BASE_URL}/en/join/${joinCode}`);
 
     const loggedInOnlyMessage = page.getByText(
       "This test requires you to be signed in",
     );
-    await expect(loggedInOnlyMessage).toBeVisible();
+    await expect(async () => {
+      await expect(loggedInOnlyMessage).toBeVisible();
+    }).toPass();
   });
 
   test("authenticated user can join test that requires logged in users", async ({
@@ -525,19 +596,28 @@ test.describe.serial("Join Test - Logged In Users Only", () => {
     });
     const creatorPage = await creatorContext.newPage();
     await creatorPage.goto(`${BASE_URL}/en`);
-    // Verify join code input is visible
+    // Verify join code input and button are visible
+    await expect(async () => {
+      await expect(creatorPage.getByRole("textbox")).toBeVisible();
+      await expect(
+        creatorPage.getByRole("button", { name: /join/i }),
+      ).toBeVisible();
+    }).toPass();
+
     const joinCodeInput = creatorPage.getByRole("textbox");
-    await expect(joinCodeInput).toBeVisible();
-
     const joinButton = creatorPage.getByRole("button", { name: /join/i });
-    await expect(joinButton).toBeVisible();
-
     await joinCodeInput.fill(joinCode);
     await joinButton.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(creatorPage);
+
     await creatorPage.waitForURL(`${BASE_URL}/en/join/${joinCode}`);
 
     const startButton = creatorPage.getByRole("button", { name: "Start Test" });
-    await expect(startButton).toBeVisible();
+    await expect(async () => {
+      await expect(startButton).toBeVisible();
+    }).toPass();
     await creatorContext.close();
   });
 });
@@ -552,25 +632,27 @@ test.describe.serial("Join Test - API Guards (Unauthenticated)", () => {
   let loggedInRequiredJoinCode: string;
 
   test.beforeAll(async ({ browser }) => {
-    // Create tests for API guard testing as authenticated creator
-    const creatorContext = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const creatorPage = await creatorContext.newPage();
+    await expect(async () => {
+      // Create tests for API guard testing as authenticated creator
+      const creatorContext = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const creatorPage = await creatorContext.newPage();
 
-    const guestCode = await createTestWithQuestion(creatorPage, {
-      title: "API Join Test - Guests Allowed",
-      loggedInOnly: false,
-    });
-    guestAllowedJoinCode = guestCode;
+      const guestCode = await createTestWithQuestion(creatorPage, {
+        title: "API Join Test - Guests Allowed",
+        loggedInOnly: false,
+      });
+      guestAllowedJoinCode = guestCode;
 
-    const loggedInCode = await createTestWithQuestion(creatorPage, {
-      title: "Logged In Required Test API",
-      loggedInOnly: true,
-    });
-    loggedInRequiredJoinCode = loggedInCode;
+      const loggedInCode = await createTestWithQuestion(creatorPage, {
+        title: "Logged In Required Test API",
+        loggedInOnly: true,
+      });
+      loggedInRequiredJoinCode = loggedInCode;
 
-    await creatorContext.close();
+      await creatorContext.close();
+    }).toPass();
   });
 
   test("unauthenticated user can join via API if test allows guests", async ({
@@ -634,25 +716,27 @@ test.describe.serial("Join Test - API Guards (Authenticated)", () => {
   let loggedInRequiredJoinCode: string;
 
   test.beforeAll(async ({ browser }) => {
-    // Create tests for API guard testing as authenticated creator
-    const creatorContext = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const creatorPage = await creatorContext.newPage();
+    await expect(async () => {
+      // Create tests for API guard testing as authenticated creator
+      const creatorContext = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const creatorPage = await creatorContext.newPage();
 
-    const guestCode = await createTestWithQuestion(creatorPage, {
-      title: "API Join Test - Auth Guest Allowed",
-      loggedInOnly: false,
-    });
-    guestAllowedJoinCode = guestCode;
+      const guestCode = await createTestWithQuestion(creatorPage, {
+        title: "API Join Test - Auth Guest Allowed",
+        loggedInOnly: false,
+      });
+      guestAllowedJoinCode = guestCode;
 
-    const loggedInCode = await createTestWithQuestion(creatorPage, {
-      title: "Logged In Required Test - Auth User",
-      loggedInOnly: true,
-    });
-    loggedInRequiredJoinCode = loggedInCode;
+      const loggedInCode = await createTestWithQuestion(creatorPage, {
+        title: "Logged In Required Test - Auth User",
+        loggedInOnly: true,
+      });
+      loggedInRequiredJoinCode = loggedInCode;
 
-    await creatorContext.close();
+      await creatorContext.close();
+    }).toPass();
   });
 
   test("authenticated user can join test allowing guests", async ({

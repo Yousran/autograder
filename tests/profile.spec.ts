@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { waitForLoaderToDisappear } from "./helpers";
 
 const BASE_URL = "http://localhost:3000";
 const SIGN_UP_URL = `${BASE_URL}/en/auth/sign-up`;
@@ -18,18 +19,28 @@ test.describe.serial("Profile Page - Owner Profile", () => {
     const userMenuButton = page.locator("header button").last();
     await userMenuButton.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     // Wait for profile link to be visible
     const profileMenuItem = page.locator("a[href*='/profile/']").first();
     await profileMenuItem.waitFor({ state: "visible" });
     await profileMenuItem.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     // Wait for navigation to profile page
     await page.waitForURL((url) => url.href.includes("/profile/"));
     const pageUrl = page.url();
-    expect(pageUrl).toContain("/profile/");
+    await expect(async () => {
+      expect(pageUrl).toContain("/profile/");
+    }).toPass();
 
     // Check for user info display
-    await expect(page.locator("h1")).toBeVisible();
+    await expect(async () => {
+      await expect(page.locator("h1")).toBeVisible();
+    }).toPass();
   });
 
   test("displays user email in profile page", async ({ page }) => {
@@ -39,17 +50,25 @@ test.describe.serial("Profile Page - Owner Profile", () => {
     const userMenuButton = page.locator("header button").last();
     await userMenuButton.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     const profileMenuItem = page.locator("a[href*='/profile/']").first();
     await profileMenuItem.waitFor({ state: "visible" });
     await profileMenuItem.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
 
     // Wait for navigation to profile page
     await page.waitForURL((url) => url.href.includes("/profile/"));
 
     // Check that email is displayed (use .first() to avoid strict mode violation)
-    await expect(
-      page.locator("p").filter({ hasText: /@/ }).first(),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("p").filter({ hasText: /@/ }).first(),
+      ).toBeVisible();
+    }).toPass();
   });
 
   test("displays user info in navbar when on profile page", async ({
@@ -59,7 +78,9 @@ test.describe.serial("Profile Page - Owner Profile", () => {
 
     // Check that user info (avatar button) is visible in navbar
     const navbarAvatar = page.locator("header button").last();
-    await expect(navbarAvatar).toBeVisible();
+    await expect(async () => {
+      await expect(navbarAvatar).toBeVisible();
+    }).toPass();
   });
 
   test("displays profile sections for owner", async ({ page }) => {
@@ -69,17 +90,25 @@ test.describe.serial("Profile Page - Owner Profile", () => {
     const userMenuButton = page.locator("header button").last();
     await userMenuButton.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     const profileMenuItem = page.locator("a[href*='/profile/']").first();
     await profileMenuItem.waitFor({ state: "visible" });
     await profileMenuItem.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
 
     // Wait for navigation to profile page
     await page.waitForURL((url) => url.href.includes("/profile/"));
 
     // Check for profile information section
-    await expect(
-      page.locator("h2").filter({ hasText: /profile.*information/i }),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("h2").filter({ hasText: /profile.*information/i }),
+      ).toBeVisible();
+    }).toPass();
   });
 
   test("displays delete account button for owner", async ({ page }) => {
@@ -89,21 +118,31 @@ test.describe.serial("Profile Page - Owner Profile", () => {
     const userMenuButton = page.locator("header button").last();
     await userMenuButton.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     const profileMenuItem = page.locator("a[href*='/profile/']").first();
     await profileMenuItem.waitFor({ state: "visible" });
     await profileMenuItem.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
 
     // Wait for navigation to profile page
     await page.waitForURL((url) => url.href.includes("/profile/"));
 
     // Check for delete account section
-    await expect(
-      page.locator("h3").filter({ hasText: /delete.*account/i }),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("h3").filter({ hasText: /delete.*account/i }),
+      ).toBeVisible();
+    }).toPass();
 
     // Delete account button should be visible
     const deleteButton = page.getByRole("button", { name: /delete.*account/i });
-    await expect(deleteButton).toBeVisible();
+    await expect(async () => {
+      await expect(deleteButton).toBeVisible();
+    }).toPass();
   });
 });
 
@@ -127,12 +166,18 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     await page.locator("#confirmPassword").fill(testPassword);
     await page.getByRole("button", { name: /sign up/i }).click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     // Wait for redirect to home
     await page.waitForURL(`${BASE_URL}/en`);
 
     // Extract profile URL from navbar - click the avatar button (last button in header)
     const userMenuButton = page.locator("header button").last();
     await userMenuButton.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
 
     // Wait for profile link to be visible in dropdown
     const profileLink = page.locator("a[href*='/profile/']");
@@ -149,7 +194,9 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
       await page.waitForURL((url) => url.href.includes("/profile/"));
 
       // Should be able to view public profile
-      await expect(page.locator("h1")).toContainText(publicProfileName);
+      await expect(async () => {
+        await expect(page.locator("h1")).toContainText(publicProfileName);
+      }).toPass();
     }
   });
 
@@ -165,11 +212,17 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     await page.locator("#confirmPassword").fill(testPassword);
     await page.getByRole("button", { name: /sign up/i }).click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await page.waitForURL(`${BASE_URL}/en`);
 
     // Get profile URL - click the avatar button (last button in header)
     const userMenuButton = page.locator("header button").last();
     await userMenuButton.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
 
     // Wait for profile link to be visible in dropdown
     const profileLink = page.locator("a[href*='/profile/']");
@@ -186,18 +239,24 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
       await page.waitForURL((url) => url.href.includes("/profile/"));
 
       // Public info should be visible
-      await expect(page.locator("h1")).toContainText(creatorName);
+      await expect(async () => {
+        await expect(page.locator("h1")).toContainText(creatorName);
+      }).toPass();
 
       // Owner-only sections should not be visible
       const deleteAccountButton = page.getByRole("button", {
         name: /delete.*account/i,
       });
-      await expect(deleteAccountButton).not.toBeVisible();
+      await expect(async () => {
+        await expect(deleteAccountButton).not.toBeVisible();
+      }).toPass();
 
       const createdTestsSection = page
         .locator("h2")
         .filter({ hasText: /created tests/i });
-      await expect(createdTestsSection).not.toBeVisible();
+      await expect(async () => {
+        await expect(createdTestsSection).not.toBeVisible();
+      }).toPass();
     }
   });
 });

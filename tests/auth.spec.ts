@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { waitForLoaderToDisappear } from "./helpers";
 
 const BASE_URL = "http://localhost:3000";
 const SIGN_UP_URL = `${BASE_URL}/en/auth/sign-up`;
@@ -18,12 +19,16 @@ test.describe.serial("Sign-Up", () => {
   test("renders the sign-up page", async ({ page }) => {
     await page.goto(SIGN_UP_URL);
 
-    await expect(page).toHaveURL(SIGN_UP_URL);
-    await expect(page.locator("#name")).toBeVisible();
-    await expect(page.locator("#email")).toBeVisible();
-    await expect(page.locator("#password")).toBeVisible();
-    await expect(page.locator("#confirmPassword")).toBeVisible();
-    await expect(page.getByRole("button", { name: /sign up/i })).toBeVisible();
+    await expect(async () => {
+      await expect(page).toHaveURL(SIGN_UP_URL);
+      await expect(page.locator("#name")).toBeVisible();
+      await expect(page.locator("#email")).toBeVisible();
+      await expect(page.locator("#password")).toBeVisible();
+      await expect(page.locator("#confirmPassword")).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: /sign up/i }),
+      ).toBeVisible();
+    }).toPass();
   });
 
   test("shows error when passwords do not match", async ({ page }) => {
@@ -36,10 +41,14 @@ test.describe.serial("Sign-Up", () => {
 
     await page.getByRole("button", { name: /sign up/i }).click();
 
+    // Wait for any loading overlay to disappear
+    await waitForLoaderToDisappear(page);
+
     // The page should stay on sign-up and show a validation error
-    await expect(page).toHaveURL(SIGN_UP_URL);
-    // Error paragraph rendered by the component
-    await expect(page.locator("p.text-destructive")).toBeVisible();
+    await expect(async () => {
+      await expect(page).toHaveURL(SIGN_UP_URL);
+      await expect(page.locator("p.text-destructive")).toBeVisible();
+    }).toPass();
   });
 
   test("successfully signs up a new user", async ({ page }) => {
@@ -52,9 +61,14 @@ test.describe.serial("Sign-Up", () => {
 
     await page.getByRole("button", { name: /sign up/i }).click();
 
+    // Wait for any loading overlay to disappear
+    await waitForLoaderToDisappear(page);
+
     // After a successful sign-up the app redirects to the home page
-    await page.waitForURL(`${BASE_URL}/en`);
-    await expect(page).toHaveURL(`${BASE_URL}/en`);
+    await expect(async () => {
+      await page.waitForURL(`${BASE_URL}/en`);
+      await expect(page).toHaveURL(`${BASE_URL}/en`);
+    }).toPass();
   });
 
   test("shows an error when email is already registered", async ({ page }) => {
@@ -69,8 +83,13 @@ test.describe.serial("Sign-Up", () => {
 
     await page.getByRole("button", { name: /sign up/i }).click();
 
-    await expect(page).toHaveURL(SIGN_UP_URL);
-    await expect(page.locator("p.text-destructive")).toBeVisible();
+    // Wait for any loading overlay to disappear
+    await waitForLoaderToDisappear(page);
+
+    await expect(async () => {
+      await expect(page).toHaveURL(SIGN_UP_URL);
+      await expect(page.locator("p.text-destructive")).toBeVisible();
+    }).toPass();
   });
 
   test("Google sign-up button redirects to Google OAuth", async ({ page }) => {
@@ -79,7 +98,9 @@ test.describe.serial("Sign-Up", () => {
     const googleButton = page.getByRole("button", {
       name: /continue with google/i,
     });
-    await expect(googleButton).toBeVisible();
+    await expect(async () => {
+      await expect(googleButton).toBeVisible();
+    }).toPass();
 
     // Click and wait for navigation away from the sign-up page
     await Promise.all([
@@ -107,28 +128,35 @@ test.describe.serial("Sign-In", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
   test.beforeAll(async ({ browser }) => {
-    // Create the account once for the entire describe block.
-    const context = await browser.newContext();
-    const page = await context.newPage();
+    await expect(async () => {
+      // Create the account once for the entire describe block.
+      const context = await browser.newContext();
+      const page = await context.newPage();
 
-    await page.goto(SIGN_UP_URL);
-    await page.locator("#name").fill(testName);
-    await page.locator("#email").fill(signInTestEmail);
-    await page.locator("#password").fill(testPassword);
-    await page.locator("#confirmPassword").fill(testPassword);
-    await page.getByRole("button", { name: /sign up/i }).click();
+      await page.goto(SIGN_UP_URL);
+      await page.locator("#name").fill(testName);
+      await page.locator("#email").fill(signInTestEmail);
+      await page.locator("#password").fill(testPassword);
+      await page.locator("#confirmPassword").fill(testPassword);
+      await page.getByRole("button", { name: /sign up/i }).click();
 
-    await page.waitForURL(`${BASE_URL}/en`);
-    await context.close();
+      await page.waitForURL(`${BASE_URL}/en`);
+      await context.close();
+    }).toPass();
   });
 
   test("renders the sign-in page", async ({ page }) => {
     await page.goto(SIGN_IN_URL);
 
-    await expect(page).toHaveURL(SIGN_IN_URL);
-    await expect(page.locator("#email")).toBeVisible();
-    await expect(page.locator("#password")).toBeVisible();
-    await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
+    await expect(async () => {
+      await expect(page).toHaveURL(SIGN_IN_URL);
+      await expect(page.locator("#email")).toBeVisible();
+      await expect(page.locator("#password")).toBeVisible();
+      await waitForLoaderToDisappear(page);
+      await expect(
+        page.getByRole("button", { name: /sign in/i }),
+      ).toBeVisible();
+    }).toPass();
   });
 
   test("shows an error with invalid credentials", async ({ page }) => {
@@ -140,9 +168,14 @@ test.describe.serial("Sign-In", () => {
 
     await page.getByRole("button", { name: /sign in/i }).click();
 
+    // Wait for any loading overlay to disappear
+    await waitForLoaderToDisappear(page);
+
     // Should remain on sign-in page and display an error
-    await expect(page).toHaveURL(SIGN_IN_URL);
-    await expect(page.locator("p.text-destructive")).toBeVisible();
+    await expect(async () => {
+      await expect(page).toHaveURL(SIGN_IN_URL);
+      await expect(page.locator("p.text-destructive")).toBeVisible();
+    }).toPass();
   });
 
   test("successfully signs in with valid credentials", async ({ page }) => {
@@ -153,9 +186,14 @@ test.describe.serial("Sign-In", () => {
 
     await page.getByRole("button", { name: /sign in/i }).click();
 
+    // Wait for any loading overlay to disappear
+    await waitForLoaderToDisappear(page);
+
     // After successful sign-in the app redirects to the home page
-    await page.waitForURL(`${BASE_URL}/en`);
-    await expect(page).toHaveURL(`${BASE_URL}/en`);
+    await expect(async () => {
+      await page.waitForURL(`${BASE_URL}/en`);
+      await expect(page).toHaveURL(`${BASE_URL}/en`);
+    }).toPass();
   });
 
   test("navigates to sign-up page from the sign-in link", async ({ page }) => {
@@ -163,7 +201,10 @@ test.describe.serial("Sign-In", () => {
 
     await page.getByRole("link", { name: /sign up/i }).click();
 
-    await expect(page).toHaveURL(SIGN_UP_URL);
+    await expect(async () => {
+      await page.waitForURL(SIGN_UP_URL);
+      await expect(page).toHaveURL(SIGN_UP_URL);
+    }).toPass();
   });
 
   // test("navigates to forgot-password page", async ({ page }) => {
@@ -180,20 +221,26 @@ test.describe.serial("Sign-In", () => {
     const googleButton = page.getByRole("button", {
       name: /continue with google/i,
     });
-    await expect(googleButton).toBeVisible();
+    await expect(async () => {
+      await expect(googleButton).toBeVisible();
+    }).toPass();
 
+    // Click and wait for navigation
     await Promise.all([
       page.waitForURL((url) => url.href !== SIGN_IN_URL),
       googleButton.click(),
     ]);
 
-    const redirectedUrl = page.url();
-    const isGoogleOrOAuth =
-      redirectedUrl.includes("accounts.google.com") ||
-      redirectedUrl.includes("/api/auth/") ||
-      redirectedUrl !== SIGN_IN_URL;
+    // Verify OAuth redirect with retry
+    await expect(async () => {
+      const redirectedUrl = page.url();
+      const isGoogleOrOAuth =
+        redirectedUrl.includes("accounts.google.com") ||
+        redirectedUrl.includes("/api/auth/") ||
+        redirectedUrl !== SIGN_IN_URL;
 
-    expect(isGoogleOrOAuth).toBe(true);
+      expect(isGoogleOrOAuth).toBe(true);
+    }).toPass();
   });
 });
 
@@ -207,14 +254,18 @@ test.describe.serial("Auth Redirect (already authenticated)", () => {
   test("redirects to home when authenticated user visits sign-in", async ({
     page,
   }) => {
-    await page.goto(SIGN_IN_URL);
-    await expect(page).toHaveURL(`${BASE_URL}/en`);
+    await expect(async () => {
+      await page.goto(SIGN_IN_URL);
+      await expect(page).toHaveURL(`${BASE_URL}/en`);
+    }).toPass();
   });
 
   test("redirects to home when authenticated user visits sign-up", async ({
     page,
   }) => {
-    await page.goto(SIGN_UP_URL);
-    await expect(page).toHaveURL(`${BASE_URL}/en`);
+    await expect(async () => {
+      await page.goto(SIGN_UP_URL);
+      await expect(page).toHaveURL(`${BASE_URL}/en`);
+    }).toPass();
   });
 });

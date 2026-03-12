@@ -19,6 +19,7 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { waitForLoaderToDisappear } from "./helpers";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -32,30 +33,34 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    // Create a new test for editing
-    const context = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const page = await context.newPage();
+    await expect(async () => {
+      // Create a new test for editing
+      const context = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const page = await context.newPage();
 
-    await page.goto(`${BASE_URL}/en`);
+      await page.goto(`${BASE_URL}/en`);
 
-    // Click the "Create New Test" button
-    const createButton = page.getByRole("button", { name: "Create New Test" });
-    await createButton.waitFor({ state: "visible" });
-    await createButton.click();
+      // Click the "Create New Test" button
+      const createButton = page.getByRole("button", {
+        name: "Create New Test",
+      });
+      await createButton.waitFor({ state: "visible" });
+      await createButton.click();
 
-    // Wait for navigation to the test edit page
-    await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
+      // Wait for navigation to the test edit page
+      await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
 
-    // Extract test ID from URL for later use
-    const url = page.url();
-    const match = url.match(/test\/([a-z0-9]+)/i);
-    if (match) {
-      testId = match[1];
-    }
+      // Extract test ID from URL for later use
+      const url = page.url();
+      const match = url.match(/test\/([a-z0-9]+)/i);
+      if (match) {
+        testId = match[1];
+      }
 
-    await context.close();
+      await context.close();
+    }).toPass();
   });
 
   test("navigates to test edit page and settings tab is visible", async ({
@@ -63,13 +68,14 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   }) => {
     await page.goto(`${BASE_URL}/en/test/${testId}`);
 
-    // Wait for the Settings tab to be visible
-    const settingsTab = page.getByRole("tab", { name: "Settings" });
-    await expect(settingsTab).toBeVisible();
-
-    // Verify other tabs are also visible
-    await expect(page.getByRole("tab", { name: "Questions" })).toBeVisible();
-    await expect(page.getByRole("tab", { name: "Participants" })).toBeVisible();
+    // Wait for all tabs to be visible
+    await expect(async () => {
+      await expect(page.getByRole("tab", { name: "Settings" })).toBeVisible();
+      await expect(page.getByRole("tab", { name: "Questions" })).toBeVisible();
+      await expect(
+        page.getByRole("tab", { name: "Participants" }),
+      ).toBeVisible();
+    }).toPass();
   });
 
   test("changes test title successfully", async ({ page }) => {
@@ -89,8 +95,8 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Submit the change
     const submitButton = page.getByRole("button", { name: /save/i }).first();
-    await submitButton.click();
 
+    // Set up response listener BEFORE clicking
     const responsePromise = page.waitForResponse(
       (response) =>
         response.url().includes(`/api/tests/${testId}`) &&
@@ -98,14 +104,24 @@ test.describe.serial("Edit Test - Settings Tab", () => {
         response.status() === 200,
     );
 
+    await submitButton.click();
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     // Verify the title changed in the UI (indicates successful update)
-    await expect(page.getByRole("button", { name: newTitle })).toBeVisible();
+    await expect(async () => {
+      await expect(page.getByRole("button", { name: newTitle })).toBeVisible();
+    }).toPass();
 
     await responsePromise;
 
     // Reload and verify the title was persisted to the database
     await page.reload();
-    await expect(page.getByRole("button", { name: newTitle })).toBeVisible();
+
+    await expect(async () => {
+      await expect(page.getByRole("button", { name: newTitle })).toBeVisible();
+    }).toPass();
   });
 
   test("displays all settings controls in settings tab", async ({ page }) => {
@@ -116,37 +132,53 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.getByRole("tabpanel").first().waitFor({ state: "visible" }); // Wait for tab animation
 
     // Verify all settings sections are visible by their labels
-    await expect(
-      page.locator("label").filter({ hasText: /description/i }),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("label").filter({ hasText: /description/i }),
+      ).toBeVisible();
+    }).toPass();
 
-    await expect(
-      page.locator("label").filter({ hasText: /duration/i }),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("label").filter({ hasText: /duration/i }),
+      ).toBeVisible();
+    }).toPass();
 
-    await expect(
-      page.locator("label").filter({ hasText: /max.*attempt/i }),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("label").filter({ hasText: /max.*attempt/i }),
+      ).toBeVisible();
+    }).toPass();
 
-    await expect(
-      page.locator("label").filter({ hasText: /accepting.*response/i }),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("label").filter({ hasText: /accepting.*response/i }),
+      ).toBeVisible();
+    }).toPass();
 
-    await expect(
-      page.locator("label").filter({ hasText: /logged.*in.*user/i }),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("label").filter({ hasText: /logged.*in.*user/i }),
+      ).toBeVisible();
+    }).toPass();
 
-    await expect(
-      page.locator("label").filter({ hasText: /detailed.*score/i }),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("label").filter({ hasText: /detailed.*score/i }),
+      ).toBeVisible();
+    }).toPass();
 
-    await expect(
-      page.locator("label").filter({ hasText: /correct.*answer/i }),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("label").filter({ hasText: /correct.*answer/i }),
+      ).toBeVisible();
+    }).toPass();
 
-    await expect(
-      page.locator("label").filter({ hasText: /order.*question/i }),
-    ).toBeVisible();
+    await expect(async () => {
+      await expect(
+        page.locator("label").filter({ hasText: /order.*question/i }),
+      ).toBeVisible();
+    }).toPass();
   });
 
   test("updates test duration", async ({ page }) => {
@@ -167,6 +199,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await durationInput.clear();
     await durationInput.fill("120");
 
+    // Set up response listener BEFORE pressing Enter
     const responsePromise = page.waitForResponse(
       (response) =>
         response.url().includes(`/api/tests/${testId}`) &&
@@ -175,6 +208,9 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     );
 
     await durationInput.press("Enter");
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
 
     await responsePromise;
 
@@ -190,7 +226,10 @@ test.describe.serial("Edit Test - Settings Tab", () => {
       .locator("..")
       .locator("input")
       .first();
-    await expect(durationInputAfterReload).toHaveValue("120");
+
+    await expect(async () => {
+      await expect(durationInputAfterReload).toHaveValue("120");
+    }).toPass();
   });
 
   test("updates maximum attempts", async ({ page }) => {
@@ -213,6 +252,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await maxAttemptInput.clear();
     await maxAttemptInput.fill("3");
 
+    // Set up response listener BEFORE pressing Enter
     const responsePromise = page.waitForResponse(
       (response) =>
         response.url().includes(`/api/tests/${testId}`) &&
@@ -221,6 +261,9 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     );
 
     await maxAttemptInput.press("Enter");
+
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
 
     await responsePromise;
 
@@ -236,7 +279,10 @@ test.describe.serial("Edit Test - Settings Tab", () => {
       .locator("..")
       .locator("input")
       .first();
-    await expect(maxAttemptInputAfterReload).toHaveValue("3");
+
+    await expect(async () => {
+      await expect(maxAttemptInputAfterReload).toHaveValue("3");
+    }).toPass();
   });
 
   test("updates test description", async ({ page }) => {
@@ -265,6 +311,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     const testDescription = `This is a test description created at ${Date.now()}`;
     await descriptionInput.fill(testDescription);
 
+    // Set up response listener BEFORE submitting
     const responsePromise = page.waitForResponse(
       (response) =>
         response.url().includes(`/api/tests/${testId}`) &&
@@ -284,6 +331,9 @@ test.describe.serial("Edit Test - Settings Tab", () => {
       await descriptionInput.press("Enter");
     }
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await responsePromise;
 
     // Reload and verify
@@ -291,7 +341,9 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.getByRole("tab", { name: "Settings" }).click();
     await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
-    await expect(page.locator("text=" + testDescription)).toBeVisible();
+    await expect(async () => {
+      await expect(page.locator("text=" + testDescription)).toBeVisible();
+    }).toPass();
   });
 
   test("toggles accepting responses", async ({ page }) => {
@@ -320,11 +372,17 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     // Click to toggle
     await toggle.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await responsePromise;
 
     // Verify state changed
     const newState = await toggle.getAttribute("aria-checked");
-    expect(newState !== initialState).toBe(true);
+
+    await expect(async () => {
+      expect(newState !== initialState).toBe(true);
+    }).toPass();
 
     // Reload and verify persistence
     await page.reload();
@@ -338,7 +396,10 @@ test.describe.serial("Edit Test - Settings Tab", () => {
       .getByRole("switch");
     const stateAfterReload =
       await toggleAfterReload.getAttribute("aria-checked");
-    expect(stateAfterReload).toBe(newState);
+
+    await expect(async () => {
+      expect(stateAfterReload).toBe(newState);
+    }).toPass();
   });
 
   test("toggles logged in user only", async ({ page }) => {
@@ -367,25 +428,34 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     // Click to toggle
     await toggle.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await responsePromise;
 
     // Verify state changed
-    const newState = await toggle.getAttribute("aria-checked");
-    expect(newState !== initialState).toBe(true);
+    const newState2 = await toggle.getAttribute("aria-checked");
+
+    await expect(async () => {
+      expect(newState2 !== initialState).toBe(true);
+    }).toPass();
 
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
     await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
-    const toggleAfterReload = page
+    const toggleAfterReload2 = page
       .getByText("Logged-in Users Only", { exact: false })
       .locator("..")
       .locator("..")
       .getByRole("switch");
-    const stateAfterReload =
-      await toggleAfterReload.getAttribute("aria-checked");
-    expect(stateAfterReload).toBe(newState);
+    const stateAfterReload2 =
+      await toggleAfterReload2.getAttribute("aria-checked");
+
+    await expect(async () => {
+      expect(stateAfterReload2).toBe(newState2);
+    }).toPass();
   });
 
   test("toggles show detailed score", async ({ page }) => {
@@ -414,25 +484,34 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     // Click to toggle
     await toggle.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await responsePromise;
 
     // Verify state changed
-    const newState = await toggle.getAttribute("aria-checked");
-    expect(newState !== initialState).toBe(true);
+    const newState3 = await toggle.getAttribute("aria-checked");
+
+    await expect(async () => {
+      expect(newState3 !== initialState).toBe(true);
+    }).toPass();
 
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
     await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
-    const toggleAfterReload = page
+    const toggleAfterReload3 = page
       .getByText("Show Detailed Score", { exact: false })
       .locator("..")
       .locator("..")
       .getByRole("switch");
-    const stateAfterReload =
-      await toggleAfterReload.getAttribute("aria-checked");
-    expect(stateAfterReload).toBe(newState);
+    const stateAfterReload3 =
+      await toggleAfterReload3.getAttribute("aria-checked");
+
+    await expect(async () => {
+      expect(stateAfterReload3).toBe(newState3);
+    }).toPass();
   });
 
   test("toggles show correct answers", async ({ page }) => {
@@ -461,25 +540,34 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     // Click to toggle
     await toggle.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await responsePromise;
 
     // Verify state changed
-    const newState = await toggle.getAttribute("aria-checked");
-    expect(newState !== initialState).toBe(true);
+    const newState4 = await toggle.getAttribute("aria-checked");
+
+    await expect(async () => {
+      expect(newState4 !== initialState).toBe(true);
+    }).toPass();
 
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
     await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
-    const toggleAfterReload = page
+    const toggleAfterReload4 = page
       .getByText("Show Correct Answers", { exact: false })
       .locator("..")
       .locator("..")
       .getByRole("switch");
-    const stateAfterReload =
-      await toggleAfterReload.getAttribute("aria-checked");
-    expect(stateAfterReload).toBe(newState);
+    const stateAfterReload4 =
+      await toggleAfterReload4.getAttribute("aria-checked");
+
+    await expect(async () => {
+      expect(stateAfterReload4).toBe(newState4);
+    }).toPass();
   });
 
   test("toggles questions ordered", async ({ page }) => {
@@ -508,25 +596,34 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     // Click to toggle
     await toggle.click();
 
+    // Wait for loader to disappear
+    await waitForLoaderToDisappear(page);
+
     await responsePromise;
 
     // Verify state changed
-    const newState = await toggle.getAttribute("aria-checked");
-    expect(newState !== initialState).toBe(true);
+    const newState5 = await toggle.getAttribute("aria-checked");
+
+    await expect(async () => {
+      expect(newState5 !== initialState).toBe(true);
+    }).toPass();
 
     // Reload and verify persistence
     await page.reload();
     await page.getByRole("tab", { name: "Settings" }).click();
     await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 
-    const toggleAfterReload = page
+    const toggleAfterReload5 = page
       .getByText("Ordered Questions", { exact: false })
       .locator("..")
       .locator("..")
       .getByRole("switch");
-    const stateAfterReload =
-      await toggleAfterReload.getAttribute("aria-checked");
-    expect(stateAfterReload).toBe(newState);
+    const stateAfterReload5 =
+      await toggleAfterReload5.getAttribute("aria-checked");
+
+    await expect(async () => {
+      expect(stateAfterReload5).toBe(newState5);
+    }).toPass();
   });
 });
 
