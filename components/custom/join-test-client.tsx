@@ -173,48 +173,50 @@ export function JoinTestClient({
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
-              <div className="flex flex-col gap-2 py-1">
-                <Label htmlFor="participant-name">{t("nameLabel")}</Label>
-                <Input
-                  id="participant-name"
-                  placeholder={t("namePlaceholder")}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  disabled={isLoggedIn}
-                  autoFocus={!isLoggedIn}
-                />
-                {isLoggedIn && (
-                  <p className="text-xs text-muted-foreground">
-                    {t("nameFromAccount")}
-                  </p>
-                )}
-                {error && (
-                  <Alert variant="destructive" className="mt-1">
-                    <AlertCircle className="size-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-              </div>
-              {isAcceptingResponses ? (
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isPending}>
-                    {t("cancel")}
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleStart();
-                    }}
-                    disabled={isPending || !name.trim()}
-                  >
-                    {isPending ? <Spinner /> : t("confirm")}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              ) : (
+              {!isAcceptingResponses ? (
                 <Alert variant="destructive">
-                  <AlertCircle />
+                  <AlertCircle className="size-4" />
                   <AlertDescription>{t("notAccepting")}</AlertDescription>
                 </Alert>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-2 py-1">
+                    <Label htmlFor="participant-name">{t("nameLabel")}</Label>
+                    <Input
+                      id="participant-name"
+                      placeholder={t("namePlaceholder")}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      disabled={isLoggedIn}
+                      autoFocus={!isLoggedIn}
+                    />
+                    {isLoggedIn && (
+                      <p className="text-xs text-muted-foreground">
+                        {t("nameFromAccount")}
+                      </p>
+                    )}
+                    {error && (
+                      <Alert variant="destructive" className="mt-1">
+                        <AlertCircle className="size-4" />
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isPending}>
+                      {t("cancel")}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleStart();
+                      }}
+                      disabled={isPending || !name.trim()}
+                    >
+                      {isPending ? <Spinner /> : t("confirm")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </>
               )}
             </AlertDialogContent>
           </AlertDialog>
