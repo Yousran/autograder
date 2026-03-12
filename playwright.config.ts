@@ -1,4 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -17,7 +21,7 @@ export default defineConfig({
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
   },
@@ -62,7 +66,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: "npm run dev",
-    url: "http://localhost:3000",
+    url: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
   },
 });

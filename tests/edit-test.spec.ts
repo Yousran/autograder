@@ -21,8 +21,6 @@
 import { test, expect } from "@playwright/test";
 import { waitForLoaderToDisappear } from "./helpers";
 
-const BASE_URL = "http://localhost:3000";
-
 // ---------------------------------------------------------------------------
 // Edit Test - Settings Tab
 // ---------------------------------------------------------------------------
@@ -40,7 +38,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
       });
       const page = await context.newPage();
 
-      await page.goto(`${BASE_URL}/en`);
+      await page.goto(`/en`);
 
       // Click the "Create New Test" button
       const createButton = page.getByRole("button", {
@@ -66,7 +64,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   test("navigates to test edit page and settings tab is visible", async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     // Wait for all tabs to be visible
     await expect(async () => {
@@ -79,7 +77,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   });
 
   test("changes test title successfully", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     const newTitle = `Updated Test Title ${Date.now()}`;
 
@@ -125,7 +123,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   });
 
   test("displays all settings controls in settings tab", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     // Click Settings tab to ensure we're on it
     await page.getByRole("tab", { name: "Settings" }).click();
@@ -182,7 +180,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   });
 
   test("updates test duration", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
@@ -233,7 +231,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   });
 
   test("updates maximum attempts", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
@@ -286,7 +284,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   });
 
   test("updates test description", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
@@ -347,7 +345,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   });
 
   test("toggles accepting responses", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
@@ -403,7 +401,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   });
 
   test("toggles logged in user only", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
@@ -459,7 +457,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   });
 
   test("toggles show detailed score", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
@@ -515,7 +513,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   });
 
   test("toggles show correct answers", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();
@@ -571,7 +569,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
   });
 
   test("toggles questions ordered", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     // Click Settings tab
     await page.getByRole("tab", { name: "Settings" }).click();

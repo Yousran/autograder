@@ -1,9 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { waitForLoaderToDisappear } from "./helpers";
 
-const BASE_URL = "http://localhost:3000";
-const SIGN_UP_URL = `${BASE_URL}/en/auth/sign-up`;
-const SIGN_IN_URL = `${BASE_URL}/en/auth/sign-in`;
+const SIGN_UP_URL = "/en/auth/sign-up";
+const SIGN_IN_URL = "/en/auth/sign-in";
 
 /** Unique email per test run to avoid duplicate-account errors */
 const testPassword = "123456789";
@@ -66,8 +65,8 @@ test.describe.serial("Sign-Up", () => {
 
     // After a successful sign-up the app redirects to the home page
     await expect(async () => {
-      await page.waitForURL(`${BASE_URL}/en`);
-      await expect(page).toHaveURL(`${BASE_URL}/en`);
+      await page.waitForURL("/en");
+      await expect(page).toHaveURL("/en");
     }).toPass();
   });
 
@@ -140,7 +139,7 @@ test.describe.serial("Sign-In", () => {
       await page.locator("#confirmPassword").fill(testPassword);
       await page.getByRole("button", { name: /sign up/i }).click();
 
-      await page.waitForURL(`${BASE_URL}/en`);
+      await page.waitForURL("/en");
       await context.close();
     }).toPass();
   });
@@ -191,8 +190,8 @@ test.describe.serial("Sign-In", () => {
 
     // After successful sign-in the app redirects to the home page
     await expect(async () => {
-      await page.waitForURL(`${BASE_URL}/en`);
-      await expect(page).toHaveURL(`${BASE_URL}/en`);
+      await page.waitForURL("/en");
+      await expect(page).toHaveURL("/en");
     }).toPass();
   });
 
@@ -212,7 +211,7 @@ test.describe.serial("Sign-In", () => {
 
   //   await page.getByRole("link", { name: /forgot password/i }).click();
 
-  //   await expect(page).toHaveURL(`${BASE_URL}/en/auth/forgot-password`);
+  //   await expect(page).toHaveURL("/en/auth/forgot-password");
   // });
 
   test("Google sign-in button redirects to Google OAuth", async ({ page }) => {
@@ -256,7 +255,7 @@ test.describe.serial("Auth Redirect (already authenticated)", () => {
   }) => {
     await expect(async () => {
       await page.goto(SIGN_IN_URL);
-      await expect(page).toHaveURL(`${BASE_URL}/en`);
+      await expect(page).toHaveURL("/en");
     }).toPass();
   });
 
@@ -265,7 +264,7 @@ test.describe.serial("Auth Redirect (already authenticated)", () => {
   }) => {
     await expect(async () => {
       await page.goto(SIGN_UP_URL);
-      await expect(page).toHaveURL(`${BASE_URL}/en`);
+      await expect(page).toHaveURL("/en");
     }).toPass();
   });
 });

@@ -18,8 +18,6 @@
 import { test, expect } from "@playwright/test";
 import { waitForLoaderToDisappear } from "./helpers";
 
-const BASE_URL = "http://localhost:3000";
-
 // ─────────────────────────────────────────────────────────────────────────
 // Create First Question - Two Test Scenarios
 // ─────────────────────────────────────────────────────────────────────────
@@ -37,7 +35,7 @@ test.describe.serial("Create First Question - At End", () => {
       });
       const page = await context.newPage();
 
-      await page.goto(`${BASE_URL}/en`);
+      await page.goto(`/en`);
 
       const createButton = page.getByRole("button", {
         name: "Create New Test",
@@ -60,7 +58,7 @@ test.describe.serial("Create First Question - At End", () => {
   test("creates the first question at the end of the Questions tab", async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
       const questionsTab = page.getByRole("tab", { name: "Questions" });
@@ -110,7 +108,7 @@ test.describe.serial("Create Question", () => {
       });
       const page = await context.newPage();
 
-      await page.goto(`${BASE_URL}/en`);
+      await page.goto(`/en`);
 
       const createButton = page.getByRole("button", {
         name: "Create New Test",
@@ -133,7 +131,7 @@ test.describe.serial("Create Question", () => {
   test("shows the add button when first opening the questions tab", async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
       const questionsTab = page.getByRole("tab", { name: "Questions" });
@@ -163,7 +161,7 @@ test.describe.serial("Create Question", () => {
   });
 
   test("creates a new question at the end of the list", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
       const questionsTab = page.getByRole("tab", { name: "Questions" });
@@ -206,7 +204,7 @@ test.describe.serial("Create Question", () => {
   test("inserts a new question between two existing questions", async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
       const questionsTab = page.getByRole("tab", { name: "Questions" });
@@ -263,7 +261,7 @@ test.describe.serial("Create Essay Question", () => {
       });
       const page = await context.newPage();
 
-      await page.goto(`${BASE_URL}/en`);
+      await page.goto(`/en`);
 
       const createButton = page.getByRole("button", {
         name: "Create New Test",
@@ -284,7 +282,7 @@ test.describe.serial("Create Essay Question", () => {
   });
 
   test("creates and configures an essay question", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
       const questionsTab = page.getByRole("tab", { name: "Questions" });
@@ -327,7 +325,7 @@ test.describe.serial("Create Essay Question", () => {
   });
 
   test("updates essay question answer text", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
       const questionsTab = page.getByRole("tab", { name: "Questions" });
@@ -394,7 +392,7 @@ test.describe.serial("Create Choice Question", () => {
       });
       const page = await context.newPage();
 
-      await page.goto(`${BASE_URL}/en`);
+      await page.goto(`/en`);
 
       const createButton = page.getByRole("button", {
         name: "Create New Test",
@@ -415,7 +413,7 @@ test.describe.serial("Create Choice Question", () => {
   });
 
   test("creates a choice question with default type", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
       const questionsTab = page.getByRole("tab", { name: "Questions" });
@@ -446,7 +444,7 @@ test.describe.serial("Create Choice Question", () => {
   });
 
   test("adds choice options to a single-select question", async ({ page }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
       const questionsTab = page.getByRole("tab", { name: "Questions" });
@@ -508,7 +506,7 @@ test.describe.serial("Create Multiple Choice Question", () => {
       });
       const page = await context.newPage();
 
-      await page.goto(`${BASE_URL}/en`);
+      await page.goto(`/en`);
 
       const createButton = page.getByRole("button", {
         name: "Create New Test",
@@ -531,7 +529,7 @@ test.describe.serial("Create Multiple Choice Question", () => {
   test("creates and changes question to multiple choice type", async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
       const questionsTab = page.getByRole("tab", { name: "Questions" });
@@ -575,7 +573,7 @@ test.describe.serial("Create Multiple Choice Question", () => {
   test("adds multiple correct options to a multiple choice question", async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/en/test/${testId}`);
+    await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
       const questionsTab = page.getByRole("tab", { name: "Questions" });
