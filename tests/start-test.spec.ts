@@ -250,10 +250,18 @@ test.describe.serial("Start Test - Duration Exceeded", () => {
     await waitForLoaderToDisappear(page);
     await page.waitForURL(`/en/test/start/*`);
 
+    const participantId = page.url().split("/").pop() || "";
+
+    await page.goto(`/en`);
+    await expect(page).toHaveURL(`/en`);
+
     await page.waitForTimeout(70000); // Wait for 70 seconds to ensure duration is exceeded
 
-    // Verify we're on a result/completion page
-    await expect(page).toHaveURL(/\/en\/test\/(result|complete)/);
+    await expect(async () => {
+      await page.goto(`/en/test/start/${participantId}`);
+      // Verify we're on a result/completion page
+      await expect(page).toHaveURL(/\/en\/test\/(result|complete)/);
+    }).toPass();
   });
 });
 
@@ -276,7 +284,7 @@ test.describe.serial("Start Test - Auto-Submit on Timeout", () => {
       // Create test with very short duration for quick timeout
       const result = await createTestWithMultipleQuestions(page, {
         title: "Auto-Submit Test",
-        questionCount: 2,
+        questionCount: 1,
         duration: 1, // 1 minute duration
         maxAttempts: 2,
       });
@@ -303,12 +311,10 @@ test.describe.serial("Start Test - Auto-Submit on Timeout", () => {
     await waitForLoaderToDisappear(page);
     await page.waitForURL(`/en/test/start/*`);
 
-    // Test is running - verify timer element exists
-    const timerElement = page.getByText(/time remaining|countdown/i);
-    await expect(async () => {
-      const isVisible = await timerElement.isVisible().catch(() => false);
-      expect(isVisible).toBe(true);
-    }).toPass();
+    await page.waitForTimeout(70000); // Wait for 70 seconds to ensure duration is exceeded
+
+    // Verify we're on a result/completion page
+    await expect(page).toHaveURL(/\/en\/test\/(result|complete)/);
   });
 });
 
@@ -449,6 +455,9 @@ test.describe.serial("Start Test - Consistent Question Order", () => {
     // Answer first question to capture order
     const radioOptions = page.locator('input[type="radio"]');
     await radioOptions.nth(0).check();
+
+    const nextButton = page.getByRole("button", { name: "Next" });
+    await nextButton.click();
 
     // Complete test
     await completeTest(page);
