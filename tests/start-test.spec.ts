@@ -222,7 +222,7 @@ test.describe.serial("Start Test - Duration Exceeded", () => {
       const result = await createTestWithMultipleQuestions(page, {
         title: "Duration Exceeded Test",
         questionCount: 1,
-        duration: 0.1, // 6 seconds duration for quick test
+        duration: 1,
         maxAttempts: 2,
       });
       joinCode = result.joinCode;
@@ -250,10 +250,7 @@ test.describe.serial("Start Test - Duration Exceeded", () => {
     await waitForLoaderToDisappear(page);
     await page.waitForURL(`/en/test/start/*`);
 
-    // Wait for time to exceed (wait longer than duration)
-    // In a real scenario, we'd mock the time or set duration to seconds
-    // For now, complete the test normally
-    await completeTest(page);
+    await page.waitForTimeout(70000); // Wait for 70 seconds to ensure duration is exceeded
 
     // Verify we're on a result/completion page
     await expect(page).toHaveURL(/\/en\/test\/(result|complete)/);
