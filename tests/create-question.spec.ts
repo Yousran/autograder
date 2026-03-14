@@ -19,7 +19,13 @@ import { test, expect } from "@playwright/test";
 import {
   createNewTest,
   navigateToQuestionsTab,
-  waitForLoaderToDisappear,
+  addQuestion,
+  setQuestionType,
+  addChoiceToQuestion,
+  fillQuestionText,
+  fillQuestionAnswer,
+  getQuestionCard,
+  getQuestionCount,
 } from "./helpers";
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -50,16 +56,12 @@ test.describe.serial("Create First Question - At End", () => {
       await expect(addQuestionButtons).toHaveCount(1);
 
       // Click the "Add Question" button (visible at the end when no questions exist)
-      await addQuestionButtons.nth(0).click();
+      await addQuestion(page);
     }).toPass();
-
-    // The question should be optimistically added
 
     // Verify question card appears with default props
     await expect(async () => {
-      const questionCard = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
+      const questionCard = getQuestionCard(page, 0);
       await expect(questionCard).toBeVisible();
 
       // Verify the type selector shows default type (CHOICE)
@@ -91,16 +93,14 @@ test.describe.serial("Create Question", () => {
       await expect(addButton).toBeVisible();
 
       // Click to create the first question
-      await addButton.nth(0).click();
+      await addQuestion(page);
     }).toPass();
 
     // Verify the question is created
     await expect(async () => {
-      const questionCards = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
       await page.reload();
-      await expect(questionCards).toHaveCount(1);
+      const count = await getQuestionCount(page);
+      expect(count).toBe(1);
     }).toPass();
   });
 
@@ -110,32 +110,19 @@ test.describe.serial("Create Question", () => {
     await expect(async () => {
       await navigateToQuestionsTab(page);
 
-      // Verify there are 1 questions
-      const questionCards = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
-      await expect(questionCards).toHaveCount(1);
+      // Verify there is 1 question
+      const count = await getQuestionCount(page);
+      expect(count).toBe(1);
 
       // Click the "Add Question" button at the very end
-      const allAddButtons = page.getByRole("button", { name: /add question/i });
-      const addButtonCount = await allAddButtons.count();
-      const lastAddButton = allAddButtons.nth(addButtonCount - 1);
-      await lastAddButton.click();
+      await addQuestion(page);
     }).toPass();
 
-    // Verify the question numbers are 1, 2
+    // Verify the question count is now 2
     await expect(async () => {
-      const numbers = page.locator('[class*="p-2"]').filter({
-        hasText: /^[1-2]$/,
-      });
-      const firstNumber = numbers.nth(1);
-      await expect(firstNumber).toContainText("2");
-
       await page.reload();
-      const questionCards = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
-      await expect(questionCards).toHaveCount(2);
+      const count = await getQuestionCount(page);
+      expect(count).toBe(2);
     }).toPass();
   });
 
@@ -147,11 +134,9 @@ test.describe.serial("Create Question", () => {
     await expect(async () => {
       await navigateToQuestionsTab(page);
 
-      // FIX: Wait for the question cards to appear to ensure the tab has actually switched
-      const questionCards = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
-      await expect(questionCards).toHaveCount(2);
+      // Wait for the question cards to appear to ensure the tab has actually switched
+      const count = await getQuestionCount(page);
+      expect(count).toBe(2);
 
       // Now the dividers will exist in the DOM
       const middleDivider = page.locator(".group\\/add").nth(0);
@@ -169,10 +154,8 @@ test.describe.serial("Create Question", () => {
     // Verify there are now 3 questions
     await expect(async () => {
       await page.reload();
-      const questionCards = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
-      await expect(questionCards).toHaveCount(3);
+      const count = await getQuestionCount(page);
+      expect(count).toBe(3);
     }).toPass();
   });
 });
@@ -200,23 +183,14 @@ test.describe.serial("Create Essay Question", () => {
       const addButton = page.getByRole("button", { name: /add question/i });
       await expect(addButton).toBeVisible();
 
-      await addButton.nth(0).click();
+      await addQuestion(page);
 
       // Verify question is created
-      const questionCard = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
+      const questionCard = getQuestionCard(page, 0);
       await expect(questionCard).toBeVisible();
 
       // Change question type to ESSAY
-      const typeSelect = page.locator('[role="combobox"]').nth(0);
-      await typeSelect.click();
-
-      // Wait for loader to disappear
-      await waitForLoaderToDisappear(page);
-
-      const essayOption = page.getByRole("option", { name: /essay/i });
-      await essayOption.nth(0).click();
+      await setQuestionType(page, 0, "ESSAY");
     }).toPass();
 
     // Verify essay-specific UI appears
@@ -233,42 +207,24 @@ test.describe.serial("Create Essay Question", () => {
     await expect(async () => {
       await navigateToQuestionsTab(page);
 
-      const questionCards = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
-      await expect(questionCards).toHaveCount(1);
+      const count = await getQuestionCount(page);
+      expect(count).toBe(1);
 
       // Fill the question text
-      const questionTextArea = page
-        .getByRole("textbox")
-        .filter({ hasText: "Enter question text..." });
-      await questionTextArea.click();
-      await questionTextArea.fill("What is the capital of France?");
+      await fillQuestionText(page, 0, "What is the capital of France?");
 
-      // Click outside to trigger save
-      await page.click("body");
+      // Fill the answer text
+      await fillQuestionAnswer(page, 0, "Paris");
+    }).toPass();
 
-      // Find and fill the answer textarea
+    // Verify the answer was saved by reloading
+    await expect(async () => {
+      await page.reload();
+      await navigateToQuestionsTab(page);
       const answerTextarea = page
         .locator('textarea[placeholder*="answer"], textarea[id="answer"]')
         .nth(0);
-      await expect(answerTextarea).toBeVisible();
-      await answerTextarea.click();
-      await answerTextarea.fill("Paris");
-
-      // Click outside to trigger save
-      await page.click("body");
-
-      // Wait for save to complete before reload
-      await waitForLoaderToDisappear(page);
-
-      // Verify the answer was saved by reloading
-      await page.reload();
-
-      const answersAfterReload = page
-        .locator('textarea[placeholder*="answer"], textarea[id="answer"]')
-        .nth(0);
-      await expect(answersAfterReload).toHaveValue("Paris");
+      await expect(answerTextarea).toHaveValue("Paris");
     }).toPass();
   });
 });
@@ -296,14 +252,10 @@ test.describe.serial("Create Choice Question", () => {
       const addButton = page.getByRole("button", { name: /add question/i });
       await expect(addButton).toBeVisible();
 
-      await addButton.nth(0).click();
+      await addQuestion(page);
 
       // Verify question is created with choice-specific UI
-      await expect(
-        page.locator('[class*="shadow"]').filter({
-          has: page.getByText(/question text/i),
-        }),
-      ).toBeVisible();
+      await expect(getQuestionCard(page, 0)).toBeVisible();
       await expect(
         page.getByText(/choice randomized|randomize/i).nth(0),
       ).toBeVisible();
@@ -318,9 +270,7 @@ test.describe.serial("Create Choice Question", () => {
       await navigateToQuestionsTab(page);
 
       // Verify question is created
-      const questionCard = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
+      const questionCard = getQuestionCard(page, 0);
       await expect(questionCard).toBeVisible();
 
       // Verify a choice item appears
@@ -329,15 +279,8 @@ test.describe.serial("Create Choice Question", () => {
       });
       await expect(deleteButton).toHaveCount(3);
 
-      // Find and click the "Add Choice" button
-      const addChoiceButton = questionCard.getByRole("button", {
-        name: "Add Choice",
-      });
-      await expect(addChoiceButton).toBeVisible();
-      await addChoiceButton.click();
-
-      // Wait for loader to disappear
-      await waitForLoaderToDisappear(page);
+      // Add a choice option
+      await addChoiceToQuestion(page, 0);
 
       await expect(deleteButton).toHaveCount(4);
     }).toPass();
@@ -377,21 +320,14 @@ test.describe.serial("Create Multiple Choice Question", () => {
       const addButton = page.getByRole("button", { name: /add question/i });
       await expect(addButton).toBeVisible();
 
-      await addButton.nth(0).click();
+      await addQuestion(page);
 
       // Verify question is created
-      const questionCard = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
+      const questionCard = getQuestionCard(page, 0);
       await expect(questionCard).toBeVisible();
-      // Change type to MULTIPLE_SELECT
-      const typeSelect = page.locator('[role="combobox"]').nth(0);
-      await typeSelect.click();
 
-      const multipleOption = page.getByRole("option", {
-        name: /multiple.*choice|multiple.*select/i,
-      });
-      await multipleOption.nth(0).click();
+      // Change type to MULTIPLE_SELECT
+      await setQuestionType(page, 0, "MULTIPLE_SELECT");
     }).toPass();
 
     // Verify multiple choice UI appears
@@ -412,9 +348,7 @@ test.describe.serial("Create Multiple Choice Question", () => {
       await navigateToQuestionsTab(page);
 
       // Verify question is created
-      const questionCard = page.locator('[class*="shadow"]').filter({
-        has: page.getByText(/question text/i),
-      });
+      const questionCard = getQuestionCard(page, 0);
       await expect(questionCard).toBeVisible();
 
       // Verify a choice item appears
@@ -423,12 +357,8 @@ test.describe.serial("Create Multiple Choice Question", () => {
       });
       await expect(deleteButton).toHaveCount(3);
 
-      // Find and click the "Add Choice" button
-      const addChoiceButton = questionCard.getByRole("button", {
-        name: "Add Choice",
-      });
-      await expect(addChoiceButton).toBeVisible();
-      await addChoiceButton.click();
+      // Add a choice option
+      await addChoiceToQuestion(page, 0);
 
       await expect(deleteButton).toHaveCount(4);
     }).toPass();

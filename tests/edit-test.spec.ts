@@ -23,6 +23,11 @@ import {
   createNewTest,
   navigateToSettingsTab,
   waitForLoaderToDisappear,
+  toggleAcceptingResponses,
+  toggleLoggedInOnly,
+  toggleShowDetailedScore,
+  toggleShowCorrectAnswers,
+  toggleOrderedQuestions,
 } from "./helpers";
 
 // ---------------------------------------------------------------------------
@@ -315,7 +320,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     await navigateToSettingsTab(page);
 
-    // Find switch by navigating from the label text to the parent container
+    // Find switch to get initial state
     const toggle = page
       .getByText("Accepting Responses", { exact: false })
       .locator("..")
@@ -324,20 +329,9 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     const initialState = await toggle.getAttribute("aria-checked");
 
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes(`/api/tests/${testId}`) &&
-        response.request().method() === "PATCH" &&
-        response.status() === 200,
-    );
-
-    // Click to toggle
-    await toggle.click();
-
-    // Wait for loader to disappear
+    // Toggle using helper
+    await toggleAcceptingResponses(page, testId);
     await waitForLoaderToDisappear(page);
-
-    await responsePromise;
 
     // Verify state changed
     const newState = await toggle.getAttribute("aria-checked");
@@ -368,7 +362,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     await navigateToSettingsTab(page);
 
-    // Find switch by navigating from the label text to the parent container
+    // Find switch to get initial state
     const toggle = page
       .getByText("Logged-in Users Only", { exact: false })
       .locator("..")
@@ -377,42 +371,31 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     const initialState = await toggle.getAttribute("aria-checked");
 
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes(`/api/tests/${testId}`) &&
-        response.request().method() === "PATCH" &&
-        response.status() === 200,
-    );
-
-    // Click to toggle
-    await toggle.click();
-
-    // Wait for loader to disappear
+    // Toggle using helper
+    await toggleLoggedInOnly(page, testId);
     await waitForLoaderToDisappear(page);
 
-    await responsePromise;
-
     // Verify state changed
-    const newState2 = await toggle.getAttribute("aria-checked");
+    const newState = await toggle.getAttribute("aria-checked");
 
     await expect(async () => {
-      expect(newState2 !== initialState).toBe(true);
+      expect(newState !== initialState).toBe(true);
     }).toPass();
 
     // Reload and verify persistence
     await page.reload();
     await navigateToSettingsTab(page);
 
-    const toggleAfterReload2 = page
+    const toggleAfterReload = page
       .getByText("Logged-in Users Only", { exact: false })
       .locator("..")
       .locator("..")
       .getByRole("switch");
-    const stateAfterReload2 =
-      await toggleAfterReload2.getAttribute("aria-checked");
+    const stateAfterReload =
+      await toggleAfterReload.getAttribute("aria-checked");
 
     await expect(async () => {
-      expect(stateAfterReload2).toBe(newState2);
+      expect(stateAfterReload).toBe(newState);
     }).toPass();
   });
 
@@ -421,7 +404,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     await navigateToSettingsTab(page);
 
-    // Find switch by navigating from the label text to the parent container
+    // Find switch to get initial state
     const toggle = page
       .getByText("Show Detailed Score", { exact: false })
       .locator("..")
@@ -430,42 +413,31 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     const initialState = await toggle.getAttribute("aria-checked");
 
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes(`/api/tests/${testId}`) &&
-        response.request().method() === "PATCH" &&
-        response.status() === 200,
-    );
-
-    // Click to toggle
-    await toggle.click();
-
-    // Wait for loader to disappear
+    // Toggle using helper
+    await toggleShowDetailedScore(page, testId);
     await waitForLoaderToDisappear(page);
 
-    await responsePromise;
-
     // Verify state changed
-    const newState3 = await toggle.getAttribute("aria-checked");
+    const newState = await toggle.getAttribute("aria-checked");
 
     await expect(async () => {
-      expect(newState3 !== initialState).toBe(true);
+      expect(newState !== initialState).toBe(true);
     }).toPass();
 
     // Reload and verify persistence
     await page.reload();
     await navigateToSettingsTab(page);
 
-    const toggleAfterReload3 = page
+    const toggleAfterReload = page
       .getByText("Show Detailed Score", { exact: false })
       .locator("..")
       .locator("..")
       .getByRole("switch");
-    const stateAfterReload3 =
-      await toggleAfterReload3.getAttribute("aria-checked");
+    const stateAfterReload =
+      await toggleAfterReload.getAttribute("aria-checked");
 
     await expect(async () => {
-      expect(stateAfterReload3).toBe(newState3);
+      expect(stateAfterReload).toBe(newState);
     }).toPass();
   });
 
@@ -474,7 +446,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     await navigateToSettingsTab(page);
 
-    // Find switch by navigating from the label text to the parent container
+    // Find switch to get initial state
     const toggle = page
       .getByText("Show Correct Answers", { exact: false })
       .locator("..")
@@ -483,42 +455,31 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     const initialState = await toggle.getAttribute("aria-checked");
 
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes(`/api/tests/${testId}`) &&
-        response.request().method() === "PATCH" &&
-        response.status() === 200,
-    );
-
-    // Click to toggle
-    await toggle.click();
-
-    // Wait for loader to disappear
+    // Toggle using helper
+    await toggleShowCorrectAnswers(page, testId);
     await waitForLoaderToDisappear(page);
 
-    await responsePromise;
-
     // Verify state changed
-    const newState4 = await toggle.getAttribute("aria-checked");
+    const newState = await toggle.getAttribute("aria-checked");
 
     await expect(async () => {
-      expect(newState4 !== initialState).toBe(true);
+      expect(newState !== initialState).toBe(true);
     }).toPass();
 
     // Reload and verify persistence
     await page.reload();
     await navigateToSettingsTab(page);
 
-    const toggleAfterReload4 = page
+    const toggleAfterReload = page
       .getByText("Show Correct Answers", { exact: false })
       .locator("..")
       .locator("..")
       .getByRole("switch");
-    const stateAfterReload4 =
-      await toggleAfterReload4.getAttribute("aria-checked");
+    const stateAfterReload =
+      await toggleAfterReload.getAttribute("aria-checked");
 
     await expect(async () => {
-      expect(stateAfterReload4).toBe(newState4);
+      expect(stateAfterReload).toBe(newState);
     }).toPass();
   });
 
@@ -527,7 +488,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     await navigateToSettingsTab(page);
 
-    // Find switch by navigating from the label text to the parent container
+    // Find switch to get initial state
     const toggle = page
       .getByText("Ordered Questions", { exact: false })
       .locator("..")
@@ -536,42 +497,31 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     const initialState = await toggle.getAttribute("aria-checked");
 
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes(`/api/tests/${testId}`) &&
-        response.request().method() === "PATCH" &&
-        response.status() === 200,
-    );
-
-    // Click to toggle
-    await toggle.click();
-
-    // Wait for loader to disappear
+    // Toggle using helper
+    await toggleOrderedQuestions(page, testId);
     await waitForLoaderToDisappear(page);
 
-    await responsePromise;
-
     // Verify state changed
-    const newState5 = await toggle.getAttribute("aria-checked");
+    const newState = await toggle.getAttribute("aria-checked");
 
     await expect(async () => {
-      expect(newState5 !== initialState).toBe(true);
+      expect(newState !== initialState).toBe(true);
     }).toPass();
 
     // Reload and verify persistence
     await page.reload();
     await navigateToSettingsTab(page);
 
-    const toggleAfterReload5 = page
+    const toggleAfterReload = page
       .getByText("Ordered Questions", { exact: false })
       .locator("..")
       .locator("..")
       .getByRole("switch");
-    const stateAfterReload5 =
-      await toggleAfterReload5.getAttribute("aria-checked");
+    const stateAfterReload =
+      await toggleAfterReload.getAttribute("aria-checked");
 
     await expect(async () => {
-      expect(stateAfterReload5).toBe(newState5);
+      expect(stateAfterReload).toBe(newState);
     }).toPass();
   });
 });

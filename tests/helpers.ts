@@ -66,6 +66,7 @@ export async function navigateToQuestionsTab(page: Page): Promise<void> {
 export async function navigateToSettingsTab(page: Page): Promise<void> {
   const settingsTab = page.getByRole("tab", { name: "Settings" });
   await settingsTab.waitFor({ state: "visible" });
+  await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
   await settingsTab.click();
   await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
 }
@@ -116,6 +117,21 @@ export async function submitJoinCode(
 }
 
 /**
+ * Helper: Get the join code from the test page.
+ */
+export async function getJoinCode(page: Page): Promise<string> {
+  const joinCodeElement = page
+    .locator("label")
+    .filter({ hasText: /[A-Z0-9]{6}/ })
+    .first();
+  await expect(async () => {
+    await expect(joinCodeElement).toBeVisible();
+  }).toPass();
+  const joinCode = await joinCodeElement.textContent();
+  return joinCode || "";
+}
+
+/**
  * Helper: Complete an active test session by clicking the Finish button.
  */
 export async function completeTest(page: Page): Promise<void> {
@@ -128,6 +144,225 @@ export async function completeTest(page: Page): Promise<void> {
     await expect(confirmButton).toBeEnabled();
     await confirmButton.click();
   }).toPass();
+}
+
+/**
+ * Helper: Update the test title.
+ */
+export async function updateTestTitle(
+  page: Page,
+  testId: string,
+  title: string,
+): Promise<void> {
+  const titleElement = page.locator("text=/Untitled Test/");
+  await titleElement.first().hover();
+  await titleElement.first().click();
+
+  const titleInput = page.locator('input[data-slot="editable-input"]');
+  await titleInput.waitFor({ state: "visible" });
+  await titleInput.fill(title);
+  await titleInput.press("Enter");
+
+  await page.waitForResponse(
+    (response) =>
+      response.url().includes(`/api/tests/${testId}`) &&
+      response.request().method() === "PATCH" &&
+      response.status() === 200,
+  );
+}
+
+/**
+ * Helper: Update the test description.
+ */
+export async function updateTestDescription(
+  page: Page,
+  description: string,
+): Promise<void> {
+  const descriptionLabel = page
+    .locator("label")
+    .filter({ hasText: /description/i });
+  const descriptionContainer = descriptionLabel.locator("..");
+  const descriptionText = descriptionContainer.locator("p, div").first();
+  await descriptionText.click();
+  const descriptionInput = descriptionContainer
+    .locator("textarea, input")
+    .first();
+  await descriptionInput.waitFor({ state: "visible" });
+  await descriptionInput.fill(description);
+  await descriptionInput.press("Enter");
+}
+
+/**
+ * Helper: Toggle the "Accepting Responses" setting.
+ */
+export async function toggleAcceptingResponses(
+  page: Page,
+  testId: string,
+): Promise<void> {
+  const toggle = page
+    .getByText("Accepting Responses", { exact: false })
+    .locator("..")
+    .locator("..")
+    .getByRole("switch");
+
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes(`/api/tests/${testId}`) &&
+      response.request().method() === "PATCH" &&
+      response.status() === 200,
+  );
+  await toggle.click();
+  await responsePromise;
+}
+
+/**
+ * Helper: Toggle the "Logged-in Users Only" setting.
+ */
+export async function toggleLoggedInOnly(
+  page: Page,
+  testId: string,
+): Promise<void> {
+  const toggle = page
+    .getByText("Logged-in Users Only", { exact: false })
+    .locator("..")
+    .locator("..")
+    .getByRole("switch");
+
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes(`/api/tests/${testId}`) &&
+      response.request().method() === "PATCH" &&
+      response.status() === 200,
+  );
+  await toggle.click();
+  await responsePromise;
+}
+
+/**
+ * Helper: Set the maximum number of attempts.
+ */
+export async function setMaxAttempts(
+  page: Page,
+  maxAttempts: number,
+): Promise<void> {
+  const maxAttemptLabel = page
+    .locator("label")
+    .filter({ hasText: /max.*attempt/i });
+  const maxAttemptInput = maxAttemptLabel
+    .locator("..")
+    .locator("input")
+    .first();
+  await maxAttemptInput.click();
+  await maxAttemptInput.clear();
+  await maxAttemptInput.fill(maxAttempts.toString());
+  await maxAttemptInput.press("Enter");
+}
+
+/**
+ * Helper: Set the test duration.
+ */
+export async function setDuration(page: Page, duration: number): Promise<void> {
+  const durationLabel = page
+    .locator("label")
+    .filter({ hasText: /duration|time limit/i });
+  const durationContainer = durationLabel.locator("..");
+  const durationInput = durationContainer.locator("input").first();
+  await durationInput.click();
+  await durationInput.clear();
+  await durationInput.fill(duration.toString());
+  await durationInput.press("Enter");
+}
+
+/**
+ * Helper: Toggle the "Randomize Questions" setting.
+ */
+export async function toggleRandomizeQuestions(
+  page: Page,
+  testId: string,
+): Promise<void> {
+  const randomizeToggle = page
+    .getByText("Randomize", { exact: false })
+    .locator("..")
+    .locator("..")
+    .getByRole("switch");
+
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes(`/api/tests/${testId}`) &&
+      response.request().method() === "PATCH" &&
+      response.status() === 200,
+  );
+  await randomizeToggle.click();
+  await responsePromise;
+}
+
+/**
+ * Helper: Toggle the "Show Detailed Score" setting.
+ */
+export async function toggleShowDetailedScore(
+  page: Page,
+  testId: string,
+): Promise<void> {
+  const toggle = page
+    .getByText("Show Detailed Score", { exact: false })
+    .locator("..")
+    .locator("..")
+    .getByRole("switch");
+
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes(`/api/tests/${testId}`) &&
+      response.request().method() === "PATCH" &&
+      response.status() === 200,
+  );
+  await toggle.click();
+  await responsePromise;
+}
+
+/**
+ * Helper: Toggle the "Show Correct Answers" setting.
+ */
+export async function toggleShowCorrectAnswers(
+  page: Page,
+  testId: string,
+): Promise<void> {
+  const toggle = page
+    .getByText("Show Correct Answers", { exact: false })
+    .locator("..")
+    .locator("..")
+    .getByRole("switch");
+
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes(`/api/tests/${testId}`) &&
+      response.request().method() === "PATCH" &&
+      response.status() === 200,
+  );
+  await toggle.click();
+  await responsePromise;
+}
+
+/**
+ * Helper: Toggle the "Ordered Questions" setting.
+ */
+export async function toggleOrderedQuestions(
+  page: Page,
+  testId: string,
+): Promise<void> {
+  const toggle = page
+    .getByText("Ordered Questions", { exact: false })
+    .locator("..")
+    .locator("..")
+    .getByRole("switch");
+
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes(`/api/tests/${testId}`) &&
+      response.request().method() === "PATCH" &&
+      response.status() === 200,
+  );
+  await toggle.click();
+  await responsePromise;
 }
 
 /**
@@ -159,118 +394,37 @@ export async function createTestWithQuestion(
 
   const url = page.url();
   const testIdMatch = url.match(/test\/([a-z0-9]+)/i);
-  const testId = testIdMatch ? testIdMatch[1] : null;
+  const testId = testIdMatch ? testIdMatch[1] : "";
 
   // Update test title
-  const titleElement = page.locator("text=/Untitled Test/");
-  await titleElement.first().hover();
-  await titleElement.first().click();
-
-  const titleInput = page.locator('input[data-slot="editable-input"]');
-  await titleInput.waitFor({ state: "visible" });
-  await titleInput.fill(title);
-  await titleInput.press("Enter");
-
-  await page.waitForResponse(
-    (response) =>
-      response.url().includes(`/api/tests/${testId}`) &&
-      response.request().method() === "PATCH" &&
-      response.status() === 200,
-  );
+  await updateTestTitle(page, testId, title);
 
   // Go to Settings tab and update configuration
   await navigateToSettingsTab(page);
 
-  // Find the description input/textarea
-  const descriptionLabel = page
-    .locator("label")
-    .filter({ hasText: /description/i });
-  const descriptionContainer = descriptionLabel.locator("..");
-  const descriptionText = descriptionContainer.locator("p, div").first();
-  await descriptionText.click();
-  const descriptionInput = descriptionContainer
-    .locator("textarea, input")
-    .first();
-  await descriptionInput.waitFor({ state: "visible" });
-  await descriptionInput.fill(description);
-  await descriptionInput.press("Enter");
+  // Update test description
+  await updateTestDescription(page, description);
 
   if (!acceptingResponses) {
-    const toggle = page
-      .getByText("Accepting Responses", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
-
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes(`/api/tests/${testId}`) &&
-        response.request().method() === "PATCH" &&
-        response.status() === 200,
-    );
-    await toggle.click();
-    await responsePromise;
+    await toggleAcceptingResponses(page, testId);
   }
 
   if (loggedInOnly) {
-    const toggle = page
-      .getByText("Logged-in Users Only", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
-
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes(`/api/tests/${testId}`) &&
-        response.request().method() === "PATCH" &&
-        response.status() === 200,
-    );
-    await toggle.click();
-    await responsePromise;
+    await toggleLoggedInOnly(page, testId);
   }
 
   if (maxAttempts !== null) {
-    const maxAttemptLabel = page
-      .locator("label")
-      .filter({ hasText: /max.*attempt/i });
-    const maxAttemptInput = maxAttemptLabel
-      .locator("..")
-      .locator("input")
-      .first();
-    await maxAttemptInput.click();
-    await maxAttemptInput.clear();
-    await maxAttemptInput.fill(maxAttempts.toString());
-    await maxAttemptInput.press("Enter");
+    await setMaxAttempts(page, maxAttempts);
   }
 
   // Create a question
   await navigateToQuestionsTab(page);
 
-  const addQuestionButtons = page.getByRole("button", {
-    name: /add question/i,
-  });
-  await expect(async () => {
-    await expect(addQuestionButtons).toHaveCount(1);
-  }).toPass();
-  await addQuestionButtons.nth(0).click();
+  await addQuestion(page);
 
-  const questionCard = page.locator('[class*="shadow"]').filter({
-    has: page.getByText(/question text/i),
-  });
-  await expect(async () => {
-    await expect(questionCard).toBeVisible();
-  }).toPass();
+  const joinCode = await getJoinCode(page);
 
-  const joinCodeElement = page
-    .locator("label")
-    .filter({ hasText: /[A-Z0-9]{6}/ })
-    .first();
-  await expect(async () => {
-    await expect(joinCodeElement).toBeVisible();
-  }).toPass();
-  const joinCode = await joinCodeElement.textContent();
-
-  return joinCode || "";
+  return joinCode;
 }
 
 /**
@@ -307,113 +461,39 @@ export async function createTestWithMultipleQuestions(
   const testId = testIdMatch ? testIdMatch[1] : "";
 
   // Update test title
-  const titleElement = page.locator("text=/Untitled Test/");
-  await titleElement.first().hover();
-  await titleElement.first().click();
-
-  const titleInput = page.locator('input[data-slot="editable-input"]');
-  await titleInput.waitFor({ state: "visible" });
-  await titleInput.fill(title);
-  await titleInput.press("Enter");
-
-  await page.waitForResponse(
-    (response) =>
-      response.url().includes(`/api/tests/${testId}`) &&
-      response.request().method() === "PATCH" &&
-      response.status() === 200,
-  );
+  await updateTestTitle(page, testId, title);
 
   // Go to Settings tab and update configuration
   await navigateToSettingsTab(page);
 
-  // Find the description input/textarea
-  const descriptionLabel = page
-    .locator("label")
-    .filter({ hasText: /description/i });
-  const descriptionContainer = descriptionLabel.locator("..");
-  const descriptionText = descriptionContainer.locator("p, div").first();
-  await descriptionText.click();
-  const descriptionInput = descriptionContainer
-    .locator("textarea, input")
-    .first();
-  await descriptionInput.waitFor({ state: "visible" });
-  await descriptionInput.fill(description);
-  await descriptionInput.press("Enter");
+  // Update test description
+  await updateTestDescription(page, description);
 
   // Set duration if provided
   if (duration !== null) {
-    const durationLabel = page
-      .locator("label")
-      .filter({ hasText: /duration|time limit/i });
-    const durationContainer = durationLabel.locator("..");
-    const durationInput = durationContainer.locator("input").first();
-    await durationInput.click();
-    await durationInput.clear();
-    await durationInput.fill(duration.toString());
-    await durationInput.press("Enter");
+    await setDuration(page, duration);
   }
 
   // Set randomize questions if requested
   if (randomizeQuestions) {
-    const randomizeToggle = page
-      .getByText("Randomize", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
-
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes(`/api/tests/${testId}`) &&
-        response.request().method() === "PATCH" &&
-        response.status() === 200,
-    );
-    await randomizeToggle.click();
-    await responsePromise;
+    await toggleRandomizeQuestions(page, testId);
   }
 
   // Set max attempts if provided
   if (maxAttempts !== null) {
-    const maxAttemptLabel = page
-      .locator("label")
-      .filter({ hasText: /max.*attempt/i });
-    const maxAttemptInput = maxAttemptLabel
-      .locator("..")
-      .locator("input")
-      .first();
-    await maxAttemptInput.click();
-    await maxAttemptInput.clear();
-    await maxAttemptInput.fill(maxAttempts.toString());
-    await maxAttemptInput.press("Enter");
+    await setMaxAttempts(page, maxAttempts);
   }
 
   // Create multiple questions
   await navigateToQuestionsTab(page);
 
   for (let i = 0; i < questionCount; i++) {
-    const addQuestionButtons = page.getByRole("button", {
-      name: /add question/i,
-    });
-    await addQuestionButtons.last().click();
-
-    const questionCard = page.locator('[class*="shadow"]').filter({
-      has: page.getByText(/question text/i),
-    });
-    await expect(async () => {
-      const count = await questionCard.count();
-      expect(count).toBe(i + 1);
-    }).toPass();
+    await addQuestion(page);
   }
 
-  const joinCodeElement = page
-    .locator("label")
-    .filter({ hasText: /[A-Z0-9]{6}/ })
-    .first();
-  await expect(async () => {
-    await expect(joinCodeElement).toBeVisible();
-  }).toPass();
-  const joinCode = await joinCodeElement.textContent();
+  const joinCode = await getJoinCode(page);
 
-  return { joinCode: joinCode || "", testId };
+  return { joinCode, testId };
 }
 
 /**
@@ -443,4 +523,132 @@ export async function answerAllQuestions(
       }
     }
   }
+}
+
+/**
+ * Helper: Add a new question to the test.
+ * Returns the 0-based index of the newly created question.
+ */
+export async function addQuestion(page: Page): Promise<number> {
+  const existingCount = await getQuestionCount(page);
+
+  const addButtons = page.getByRole("button", { name: /add question/i });
+  await expect(async () => {
+    await expect(addButtons.last()).toBeVisible();
+    await addButtons.last().click();
+  }).toPass();
+
+  // Wait for new question to appear
+  await expect(async () => {
+    const newCount = await getQuestionCount(page);
+    expect(newCount).toBe(existingCount + 1);
+  }).toPass();
+
+  return existingCount;
+}
+
+/**
+ * Helper: Get the number of questions in the current test.
+ */
+export async function getQuestionCount(page: Page): Promise<number> {
+  return page
+    .locator('[class*="shadow"]')
+    .filter({ has: page.getByText(/question text/i) })
+    .count();
+}
+
+/**
+ * Helper: Get a specific question card by index (0-based).
+ */
+export function getQuestionCard(page: Page, questionIndex: number) {
+  return page
+    .locator('[class*="shadow"]')
+    .filter({ has: page.getByText(/question text/i) })
+    .nth(questionIndex);
+}
+
+/**
+ * Helper: Set the type of a specific question.
+ * Types: "ESSAY", "CHOICE", "MULTIPLE_SELECT"
+ */
+export async function setQuestionType(
+  page: Page,
+  questionIndex: number,
+  type: "ESSAY" | "CHOICE" | "MULTIPLE_SELECT",
+): Promise<void> {
+  const typeSelect = page.locator('[role="combobox"]').nth(questionIndex);
+
+  await expect(async () => {
+    await typeSelect.click();
+    await waitForLoaderToDisappear(page);
+
+    const typeMap: Record<string, RegExp> = {
+      ESSAY: /^essay$/i,
+      CHOICE: /^choice|single/i,
+      MULTIPLE_SELECT: /^multiple|select/i,
+    };
+
+    const option = page.getByRole("option", { name: typeMap[type] });
+    await option.first().click();
+  }).toPass();
+}
+
+/**
+ * Helper: Add a choice option to a specific question.
+ */
+export async function addChoiceToQuestion(
+  page: Page,
+  questionIndex: number,
+): Promise<void> {
+  const questionCard = getQuestionCard(page, questionIndex);
+  const addChoiceButton = questionCard.getByRole("button", {
+    name: /add choice/i,
+  });
+
+  await expect(async () => {
+    await expect(addChoiceButton).toBeVisible();
+    await addChoiceButton.click();
+    await waitForLoaderToDisappear(page);
+  }).toPass();
+}
+
+/**
+ * Helper: Fill the question text for a specific question.
+ */
+export async function fillQuestionText(
+  page: Page,
+  questionIndex: number,
+  text: string,
+): Promise<void> {
+  const questionTextarea = page
+    .getByRole("textbox")
+    .filter({ hasText: /question text|enter question/i })
+    .nth(questionIndex);
+
+  await expect(async () => {
+    await questionTextarea.click();
+    await questionTextarea.fill(text);
+    await page.click("body");
+  }).toPass();
+}
+
+/**
+ * Helper: Fill the answer text for a specific question (essay type).
+ */
+export async function fillQuestionAnswer(
+  page: Page,
+  questionIndex: number,
+  answer: string,
+): Promise<void> {
+  const answerTextarea = page
+    .locator('textarea[placeholder*="answer"], textarea[id="answer"]')
+    .nth(questionIndex);
+
+  await expect(async () => {
+    await expect(answerTextarea).toBeVisible();
+    await answerTextarea.click();
+    await answerTextarea.fill(answer);
+    await page.click("body");
+    await waitForLoaderToDisappear(page);
+  }).toPass();
 }
