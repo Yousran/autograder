@@ -878,16 +878,7 @@ export async function answerQuestionWithChoiceIndex(
   choiceIndex: number,
 ): Promise<void> {
   await expect(async () => {
-    // First, find the currently visible question container
-    // Look for the first visible element that contains the question content
-    const visibleQuestionContainer = page
-      .locator('[class*="shadow"], [role="group"]')
-      .filter({
-        hasNot: page.locator('[aria-disabled="true"]'),
-      })
-      .first();
-
-    // Find all choice labels within the current question container that have radio/checkbox inputs
+    // Find all choice labels that have radio/checkbox inputs
     // These are labels paired with input elements (radio or checkbox)
     const choiceLabels = page.locator("label").filter({
       has: page.locator('input[type="radio"], input[type="checkbox"]'),

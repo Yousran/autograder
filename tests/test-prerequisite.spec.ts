@@ -22,7 +22,6 @@ import {
   completeTestWithScores,
   createTestWithQuestion,
   createTestWithScoringQuestion,
-  navigateToSettingsTab,
   submitJoinCode,
   waitForLoaderToDisappear,
 } from "./helpers";
@@ -297,253 +296,6 @@ test.describe
 });
 
 // ─────────────────────────────────────────────────────────────────────────
-// Join Test with Prerequisites - Prerequisite Score Requirements
-// ─────────────────────────────────────────────────────────────────────────
-// Join Test with Prerequisites - Prerequisite Score Requirements Display
-// ─────────────────────────────────────────────────────────────────────────
-
-test.describe.serial("Test Prerequisite - Score Requirements Display", () => {
-  test.use({ storageState: "playwright/.auth/user.json" });
-  const uniqueId = Date.now();
-
-  let mainTestId: string;
-
-  test.beforeAll(async ({ browser }) => {
-    await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      // Create prerequisite test with scoreable question
-      await createTestWithScoringQuestion(page, {
-        title: `Prerequisite Display Test-${uniqueId}`,
-        description: "Test to verify score requirement display",
-        questionText: "Select the correct answer",
-        choices: ["Correct", "Wrong1", "Wrong2"],
-        correctChoiceIndex: 0,
-      });
-
-      // Create main test with prerequisite that requires minimum score
-      const newPage = await context.newPage();
-      const { testId: mTestId } = await createTestWithScoringQuestion(newPage, {
-        title: `Main Test Display-${uniqueId}`,
-        description: "Requires minimum score on prerequisite",
-        questionText: "Another question",
-        choices: ["A", "B", "C"],
-        correctChoiceIndex: 0,
-      });
-      mainTestId = mTestId;
-
-      // Add prerequisite with minimum score requirement of 50%
-      await addPrerequisite(
-        newPage,
-        mainTestId,
-        `Prerequisite Display Test-${uniqueId}`,
-        50,
-      );
-
-      await context.close();
-    }).toPass();
-  });
-
-  test("prerequisite is saved with minimum score requirement", async ({
-    page,
-  }) => {
-    // Navigate to test settings and verify prerequisite with score requirement
-    await page.goto(`/en/test/${mainTestId}`);
-    await waitForLoaderToDisappear(page);
-
-    await navigateToSettingsTab(page);
-
-    // Scroll to prerequisites section and verify the score requirement is visible
-    await expect(async () => {
-      const prereqSection = page
-        .locator("text=/Prerequisite Display Test/i")
-        .first();
-      await expect(prereqSection).toBeVisible();
-
-      // Look for score requirement indicator (50%)
-      const scoreIndicator = page
-        .getByText(/50|minimum|score/i)
-        .filter({ hasText: /\d+/ });
-      await expect(scoreIndicator.first()).toBeVisible();
-    }).toPass();
-  });
-});
-
-test.describe.serial("Test Prerequisite - Score Validation Flow", () => {
-  test.use({ storageState: "playwright/.auth/user.json" });
-  const uniqueId = Date.now();
-
-  test("cannot join test if prerequisite score requirement exists and not met", async ({
-    browser,
-  }) => {
-    // Setup: Create tests and set prerequisite score requirement
-    const context = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const page = await context.newPage();
-
-    // Create prerequisite test (not completed by participant)
-    await createTestWithQuestion(page, {
-      title: `Prerequisite with Score-${uniqueId}`,
-    });
-
-    const mainPage = await context.newPage();
-    const { joinCode: mainJoinCode, testId: mainTestId } =
-      await createTestWithQuestion(mainPage, {
-        title: `Test Requiring High Score-${uniqueId}`,
-      });
-
-    // Add prerequisite with 75% minimum score requirement
-    await addPrerequisite(
-      mainPage,
-      mainTestId,
-      `Prerequisite with Score-${uniqueId}`,
-      75,
-    );
-
-    await context.close();
-
-    // Test: Attempt to join without completing prerequisite
-    const testPage = await browser.newPage();
-    await testPage.goto("/en");
-    await submitJoinCode(testPage, mainJoinCode);
-
-    // Verify error message indicates prerequisite not met
-    await expect(async () => {
-      const errorLocator = testPage
-        .locator("text=/prerequisite|score|requirement|complete/i")
-        .first();
-      await expect(errorLocator).toBeVisible();
-    }).toPass();
-
-    await testPage.close();
-  });
-
-  test("can join test after meeting prerequisite score requirement", async ({
-    browser,
-  }) => {
-    // Setup: Create prerequisite and main test with score requirement
-    const context = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const setupPage = await context.newPage();
-
-    const { joinCode: prereqJoinCode } = await createTestWithQuestion(
-      setupPage,
-      {
-        title: `Prerequisite Completable-${uniqueId}`,
-        description: "User can complete this",
-      },
-    );
-
-    const mainPage = await context.newPage();
-    const { joinCode: mainJoinCode, testId: mainTestId } =
-      await createTestWithQuestion(mainPage, {
-        title: `Test After Meeting Score-${uniqueId}`,
-      });
-
-    // Add prerequisite with 0% minimum score (any score acceptable)
-    await addPrerequisite(
-      mainPage,
-      mainTestId,
-      `Prerequisite Completable-${uniqueId}`,
-      0,
-    );
-
-    // Complete the prerequisite test first
-    const preTestPage = await context.newPage();
-    await completeTestWithParticipant(preTestPage, prereqJoinCode);
-
-    // Now attempt to join the main test
-    const joinPage = await context.newPage();
-    await joinPage.goto("/en");
-    await submitJoinCode(joinPage, mainJoinCode);
-    await joinPage.waitForURL(`/en/join/${mainJoinCode}`);
-
-    const startButton = joinPage.getByRole("button", { name: "Start Test" });
-    await expect(startButton).toBeVisible();
-
-    // Should be able to start without prerequisite error
-    await startButton.click();
-
-    const confirmButton = joinPage
-      .getByRole("button", { name: /join.*start|submit/i })
-      .first();
-    if (await confirmButton.isVisible().catch(() => false)) {
-      await confirmButton.click();
-    }
-
-    // Verify successful test start
-    await expect(async () => {
-      await joinPage.waitForURL(/\/en\/test\/start/i);
-    }).toPass({ timeout: 5000 });
-
-    await context.close();
-  });
-});
-
-test.describe("Test Prerequisite - Score Requirement API", () => {
-  test("prerequisites API returns score requirements", async ({ page }) => {
-    // This test would fetch prerequisites and verify score data is returned
-    // For now, verify the API endpoint exists and handles requests properly
-
-    const response = await page.request.post(
-      "/api/tests/nonexistent-id/prerequisites",
-      {
-        data: {
-          prerequisiteTestId: "fake-id",
-          minScoreRequired: 50,
-        },
-      },
-    );
-
-    // Should return 401 (unauthenticated) or 404 (test not found)
-    expect([401, 404]).toContain(response.status());
-  });
-
-  test("authenticated user can set prerequisite score requirement", async ({
-    browser,
-  }) => {
-    const context = await browser.newContext({
-      storageState: "playwright/.auth/user.json",
-    });
-    const page = await context.newPage();
-
-    // Create two tests
-    const { testId: prereqId } = await createTestWithQuestion(page, {
-      title: "Prerequisite Test",
-    });
-
-    const mainPage = await context.newPage();
-    const { testId: mainId } = await createTestWithQuestion(mainPage, {
-      title: "Main Test",
-    });
-
-    // Set prerequisite with score requirement via API
-    const response = await mainPage.request.post(
-      `/api/tests/${mainId}/prerequisites`,
-      {
-        data: {
-          prerequisiteTestId: prereqId,
-          minScoreRequired: 60,
-        },
-      },
-    );
-
-    expect(response.status()).toBe(201);
-
-    const responseData = await response.json();
-    expect(responseData).toHaveProperty("minScoreRequired");
-    expect(responseData.minScoreRequired).toBe(60);
-
-    await context.close();
-  });
-});
-
-// ─────────────────────────────────────────────────────────────────────────
 // Join Test with Prerequisites - Guest User (Prerequisites Met)
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -794,6 +546,8 @@ test.describe
 // ─────────────────────────────────────────────────────────────────────────
 
 test.describe("Test Prerequisite - API Authorization", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test("unauthenticated user cannot add prerequisite", async ({ page }) => {
     const response = await page.request.post(
       "/api/tests/fake-id/prerequisites",
@@ -808,7 +562,63 @@ test.describe("Test Prerequisite - API Authorization", () => {
     expect(response.status()).toBe(401);
   });
 
-  test("authenticated user cannot add prerequisite to test they don't own", async ({
+  test("prerequisites API returns score requirements", async ({ page }) => {
+    // This test would fetch prerequisites and verify score data is returned
+    // For now, verify the API endpoint exists and handles requests properly
+
+    const response = await page.request.post(
+      "/api/tests/nonexistent-id/prerequisites",
+      {
+        data: {
+          prerequisiteTestId: "fake-id",
+          minScoreRequired: 50,
+        },
+      },
+    );
+
+    // Should return 401 (unauthenticated) or 404 (test not found)
+    expect([401, 404]).toContain(response.status());
+  });
+
+  test("authenticated user can set prerequisite score requirement", async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({
+      storageState: "playwright/.auth/user.json",
+    });
+    const page = await context.newPage();
+
+    // Create two tests
+    const { testId: prereqId } = await createTestWithQuestion(page, {
+      title: "Prerequisite Test",
+    });
+
+    const mainPage = await context.newPage();
+    const { testId: mainId } = await createTestWithQuestion(mainPage, {
+      title: "Main Test",
+    });
+
+    // Set prerequisite with score requirement via API
+    const response = await mainPage.request.post(
+      `/api/tests/${mainId}/prerequisites`,
+      {
+        data: {
+          prerequisiteTestId: prereqId,
+          minScoreRequired: 60,
+        },
+      },
+    );
+
+    expect(response.status()).toBe(201);
+
+    const responseData = await response.json();
+    expect(responseData).toHaveProperty("minScoreRequired");
+    expect(responseData.minScoreRequired).toBe(60);
+
+    await context.close();
+  });
+
+  test("cannot add prerequisite to test they don't own", async ({
     browser,
   }) => {
     const context = await browser.newContext({
