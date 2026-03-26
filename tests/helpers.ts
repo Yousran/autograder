@@ -559,22 +559,18 @@ export async function addQuestion(page: Page): Promise<number> {
 
 /**
  * Helper: Get the number of questions in the current test.
+ * Counts elements with data-testid matching "question-card-*" pattern.
  */
 export async function getQuestionCount(page: Page): Promise<number> {
-  return page
-    .locator('[class*="shadow"]')
-    .filter({ has: page.getByText(/max score/i) })
-    .count();
+  return page.locator('[data-testid^="question-card-"]').count();
 }
 
 /**
  * Helper: Get a specific question card by index (0-based).
+ * Selects elements with data-testid matching "question-card-*" pattern.
  */
 export function getQuestionCard(page: Page, questionIndex: number) {
-  return page
-    .locator('[class*="shadow"]')
-    .filter({ has: page.getByText(/max score/i) })
-    .nth(questionIndex);
+  return page.locator('[data-testid^="question-card-"]').nth(questionIndex);
 }
 
 /**

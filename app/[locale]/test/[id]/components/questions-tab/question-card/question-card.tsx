@@ -61,7 +61,7 @@ export function QuestionCard({
 
   return (
     <SortableItem value={question.id}>
-      <Card className="group p-6">
+      <Card className="group p-6" data-testid={`question-card-${question.id}`}>
         <div className="flex items-center gap-4">
           <SortableItemHandle className="text-muted-foreground hover:text-foreground relative shrink-0">
             <Label className="text-lg p-2 transition-opacity group-hover:opacity-0">

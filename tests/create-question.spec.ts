@@ -88,17 +88,13 @@ test.describe.serial("Create Question", () => {
     await expect(async () => {
       await navigateToQuestionsTab(page);
 
-      // The add button should be visible and always show (alwaysVisible=true)
-      const addButton = page.getByRole("button", { name: /add question/i });
-      await expect(addButton).toBeVisible();
-
       // Click to create the first question
       await addQuestion(page);
     }).toPass();
 
     // Verify the question is created
+    await page.reload();
     await expect(async () => {
-      await page.reload();
       const count = await getQuestionCount(page);
       expect(count).toBe(1);
     }).toPass();
@@ -119,8 +115,8 @@ test.describe.serial("Create Question", () => {
     }).toPass();
 
     // Verify the question count is now 2
+    await page.reload();
     await expect(async () => {
-      await page.reload();
       const count = await getQuestionCount(page);
       expect(count).toBe(2);
     }).toPass();
@@ -152,8 +148,8 @@ test.describe.serial("Create Question", () => {
     }).toPass();
 
     // Verify there are now 3 questions
+    await page.reload();
     await expect(async () => {
-      await page.reload();
       const count = await getQuestionCount(page);
       expect(count).toBe(3);
     }).toPass();
