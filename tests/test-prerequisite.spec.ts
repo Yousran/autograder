@@ -185,6 +185,7 @@ test.describe
     // Should be able to start without prerequisite error
     await startButton.click();
 
+    await expect(page.getByText("Your name is taken from your")).toBeVisible();
     const confirmButton = page
       .getByRole("button", { name: /join.*start|submit/i })
       .first();
@@ -192,8 +193,8 @@ test.describe
       await confirmButton.click();
     }
 
-    await page.waitForURL(/\/en\/test\/start/);
-    await expect(page.getByText("Your name is taken from your")).toBeVisible();
+    await page.waitForURL(/\/en\/test\/start\/.+/i);
+    await waitForLoaderToDisappear(page);
   });
 });
 

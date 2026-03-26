@@ -745,13 +745,22 @@ export async function completeTestWithParticipant(
     await confirmButton.click();
   }
 
-  // Wait for test to start and get participant data from URL
-  await page.waitForURL(
-    /\/en\/test\/start\/[a-z0-9]+\?participantId=[a-z0-9]+/i,
-  );
+  // Wait for test to start - use flexible pattern that works for both authenticated and guest users
+  await page.waitForURL(/\/en\/test\/start\/.+/i);
+  await waitForLoaderToDisappear(page);
+
+  // Get participant ID from URL
   const url = page.url();
+  // Try to extract from query parameter first (guest users), then from path (authenticated users)
+  let participantId = "";
   const participantMatch = url.match(/participantId=([a-z0-9]+)/i);
-  const participantId = participantMatch ? participantMatch[1] : "";
+  if (participantMatch) {
+    participantId = participantMatch[1];
+  } else {
+    // For authenticated users, extract from path
+    const pathMatch = url.match(/\/en\/test\/start\/([a-z0-9]+)/i);
+    participantId = pathMatch ? pathMatch[1] : "";
+  }
 
   // Answer all questions and complete test
   await completeTest(page);
