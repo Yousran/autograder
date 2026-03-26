@@ -97,7 +97,7 @@ test.describe.serial("Start Test - Already Started Within Duration", () => {
 
     const guestConfirm = page.getByRole("textbox", { name: "Your Name" });
     await expect(guestConfirm).toBeVisible();
-    await guestConfirm.fill("Test Participant");
+    await guestConfirm.fill("Test Participant UI");
 
     const confirmButton = page.getByRole("button", { name: "Join & Start" });
     await confirmButton.click();
@@ -124,7 +124,7 @@ test.describe.serial("Start Test - Already Started Within Duration", () => {
     }).toPass();
 
     // Confirm and verify we're back in the test
-    await nameInput.fill("Test Participant");
+    await nameInput.fill("Test Participant UI");
     const joinConfirmButton = page.getByRole("button", {
       name: "Join & Start",
     });

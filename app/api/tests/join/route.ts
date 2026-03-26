@@ -72,6 +72,7 @@ export async function POST(req: NextRequest) {
       isLoggedInUserOnly: true,
       joinCodeExpiresAt: true,
       maxAttempts: true,
+      testDuration: true,
       prerequisites: {
         select: {
           prerequisiteTestId: true,
@@ -128,6 +129,39 @@ export async function POST(req: NextRequest) {
 
   if (test.joinCodeExpiresAt && test.joinCodeExpiresAt < new Date()) {
     return NextResponse.json({ error: tJoin("notFound") }, { status: 404 });
+  }
+
+  // Check if participant already has an ongoing session (incomplete) within duration
+  const existingParticipant = await prisma.participant.findFirst({
+    where: {
+      testId: test.id,
+      isCompleted: false,
+      ...(session ? { userId: session.user.id } : { name }),
+    },
+    select: { id: true, createdAt: true },
+  });
+
+  if (existingParticipant) {
+    // Check if still within test duration
+    if (test.testDuration) {
+      const durationMs = test.testDuration * 60 * 1000; // Convert minutes to ms
+      const elapsedMs =
+        new Date().getTime() - existingParticipant.createdAt.getTime();
+
+      // If still within duration, return existing participant
+      if (elapsedMs < durationMs) {
+        return NextResponse.json(
+          { participantId: existingParticipant.id, testId: test.id },
+          { status: 200 },
+        );
+      }
+    } else {
+      // No duration limit, always return existing participant
+      return NextResponse.json(
+        { participantId: existingParticipant.id, testId: test.id },
+        { status: 200 },
+      );
+    }
   }
 
   // Check max attempts: count existing participant records for this identity.
