@@ -43,10 +43,10 @@ test.describe.serial("Join Test - Authenticated User", () => {
       });
       const page = await context.newPage();
 
-      const newJoinCode = await createTestWithQuestion(page, {
+      const result = await createTestWithQuestion(page, {
         title: "Test to Join as User",
       });
-      joinCode = newJoinCode;
+      joinCode = result.joinCode;
 
       await context.close();
     }).toPass();
@@ -113,10 +113,10 @@ test.describe.serial("Join Test - Guest User", () => {
       });
       const page = await context.newPage();
 
-      const newJoinCode = await createTestWithQuestion(page, {
+      const result = await createTestWithQuestion(page, {
         title: "Test to Join as Guest",
       });
-      joinCode = newJoinCode;
+      joinCode = result.joinCode;
 
       await context.close();
     }).toPass();
@@ -186,11 +186,11 @@ test.describe.serial("Join Test - Not Accepting Responses", () => {
       });
       const creatorPage = await creatorContext.newPage();
 
-      const newJoinCode = await createTestWithQuestion(creatorPage, {
+      const result = await createTestWithQuestion(creatorPage, {
         title: "Closed Test",
         acceptingResponses: false,
       });
-      joinCode = newJoinCode;
+      joinCode = result.joinCode;
 
       await creatorContext.close();
     }).toPass();
@@ -237,11 +237,11 @@ test.describe.serial("Join Test - Max Attempts Exceeded", () => {
       });
       const creatorPage = await creatorContext.newPage();
 
-      const newJoinCode = await createTestWithQuestion(creatorPage, {
+      const result = await createTestWithQuestion(creatorPage, {
         title: "Max Attempts Test",
         maxAttempts: 1,
       });
-      joinCode = newJoinCode;
+      joinCode = result.joinCode;
 
       await creatorContext.close();
     }).toPass();
@@ -345,11 +345,11 @@ test.describe.serial("Join Test - Logged In Users Only", () => {
       });
       const creatorPage = await creatorContext.newPage();
 
-      const newJoinCode = await createTestWithQuestion(creatorPage, {
+      const result = await createTestWithQuestion(creatorPage, {
         title: "Closed Test",
         loggedInOnly: true,
       });
-      joinCode = newJoinCode;
+      joinCode = result.joinCode;
 
       await creatorContext.close();
     }).toPass();
@@ -428,17 +428,17 @@ test.describe.serial("Join Test - API Guards (Unauthenticated)", () => {
       });
       const creatorPage = await creatorContext.newPage();
 
-      const guestCode = await createTestWithQuestion(creatorPage, {
+      const guestResult = await createTestWithQuestion(creatorPage, {
         title: "API Join Test - Guests Allowed",
         loggedInOnly: false,
       });
-      guestAllowedJoinCode = guestCode;
+      guestAllowedJoinCode = guestResult.joinCode;
 
-      const loggedInCode = await createTestWithQuestion(creatorPage, {
+      const loggedInResult = await createTestWithQuestion(creatorPage, {
         title: "Logged In Required Test API",
         loggedInOnly: true,
       });
-      loggedInRequiredJoinCode = loggedInCode;
+      loggedInRequiredJoinCode = loggedInResult.joinCode;
 
       await creatorContext.close();
     }).toPass();
@@ -512,17 +512,17 @@ test.describe.serial("Join Test - API Guards (Authenticated)", () => {
       });
       const creatorPage = await creatorContext.newPage();
 
-      const guestCode = await createTestWithQuestion(creatorPage, {
+      const guestResult = await createTestWithQuestion(creatorPage, {
         title: "API Join Test - Auth Guest Allowed",
         loggedInOnly: false,
       });
-      guestAllowedJoinCode = guestCode;
+      guestAllowedJoinCode = guestResult.joinCode;
 
-      const loggedInCode = await createTestWithQuestion(creatorPage, {
+      const loggedInResult = await createTestWithQuestion(creatorPage, {
         title: "Logged In Required Test - Auth User",
         loggedInOnly: true,
       });
-      loggedInRequiredJoinCode = loggedInCode;
+      loggedInRequiredJoinCode = loggedInResult.joinCode;
 
       await creatorContext.close();
     }).toPass();

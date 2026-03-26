@@ -366,7 +366,7 @@ export async function toggleOrderedQuestions(
 }
 
 /**
- * Helper: Create a test with a question from the home page and return its join code.
+ * Helper: Create a test with a question from the home page and return its join code and test ID.
  */
 export async function createTestWithQuestion(
   page: Page,
@@ -383,7 +383,7 @@ export async function createTestWithQuestion(
     loggedInOnly?: boolean;
     description?: string;
   } = {},
-): Promise<string> {
+): Promise<{ joinCode: string; testId: string }> {
   await page.goto("/en");
 
   const createButton = page.getByRole("button", { name: "Create New Test" });
@@ -424,7 +424,7 @@ export async function createTestWithQuestion(
 
   const joinCode = await getJoinCode(page);
 
-  return joinCode;
+  return { joinCode, testId };
 }
 
 /**
@@ -651,4 +651,110 @@ export async function fillQuestionAnswer(
     await page.click("body");
     await waitForLoaderToDisappear(page);
   }).toPass();
+}
+
+/**
+ * Helper: Add a prerequisite to a test via UI.
+ * Navigates to settings tab, clicks Add Prerequisite button, selects test by title, and confirms.
+ */
+export async function addPrerequisite(
+  page: Page,
+  testId: string,
+  prerequisiteTestTitle: string,
+  minScore: number = 0,
+): Promise<void> {
+  // Navigate to test settings
+  await page.goto(`/en/test/${testId}`);
+  await waitForLoaderToDisappear(page);
+
+  // Click Settings tab
+  await navigateToSettingsTab(page);
+
+  // Scroll to prerequisites section
+  await page.locator("text=/prerequisite/i").first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+
+  // Click Add Prerequisite button
+  const addButton = page.getByRole("button", { name: /add/i }).last();
+  await expect(async () => {
+    await expect(addButton).toBeVisible();
+    await expect(addButton).toBeEnabled();
+  }).toPass();
+  await addButton.click();
+
+  // Wait for dialog to appear
+  await page.getByText(/select.*test/i).waitFor({ state: "visible" });
+
+  // Select the prerequisite test from dropdown
+  const selectTrigger = page.getByRole("combobox", {
+    name: "Prerequisite Test",
+  });
+  await selectTrigger.click();
+
+  // Click the option with the prerequisite test title
+  const testOption = page.getByRole("option", { name: prerequisiteTestTitle });
+  await expect(testOption).toBeVisible();
+  await testOption.click();
+
+  // Set minimum score if not 0
+  if (minScore > 0) {
+    const scoreInput = page
+      .locator("label")
+      .filter({ hasText: /min.*score/i })
+      .locator("..")
+      .locator("input")
+      .first();
+    await scoreInput.click();
+    await scoreInput.clear();
+    await scoreInput.fill(minScore.toString());
+  }
+
+  // Click confirm/submit button in dialog
+  const confirmButton = page
+    .getByRole("button", { name: /confirm|submit|add/i })
+    .last();
+  await expect(confirmButton).toBeVisible();
+  await confirmButton.click();
+
+  // Wait for success and dialog to close
+  await waitForLoaderToDisappear(page);
+  await page.waitForTimeout(200);
+}
+
+/**
+ * Helper: Complete a test and ensure a specific score is recorded.
+ * For now, this answers all questions with the first choice.
+ * Returns the participant ID.
+ */
+export async function completeTestWithParticipant(
+  page: Page,
+  joinCode: string,
+): Promise<string> {
+  await submitJoinCode(page, joinCode);
+  await page.waitForURL(`/en/join/${joinCode}`);
+
+  const startButton = page.getByRole("button", { name: "Start Test" });
+  await expect(startButton).toBeVisible();
+  await startButton.click();
+
+  // Handle confirmation dialog
+  const confirmButton = page
+    .getByRole("button", { name: /join.*start|submit/i })
+    .first();
+  if (await confirmButton.isVisible().catch(() => false)) {
+    await confirmButton.click();
+  }
+
+  // Wait for test to start and get participant data from URL
+  await page.waitForURL(
+    /\/en\/test\/start\/[a-z0-9]+\?participantId=[a-z0-9]+/i,
+  );
+  const url = page.url();
+  const participantMatch = url.match(/participantId=([a-z0-9]+)/i);
+  const participantId = participantMatch ? participantMatch[1] : "";
+
+  // Answer all questions and complete test
+  await completeTest(page);
+
+  return participantId;
 }
