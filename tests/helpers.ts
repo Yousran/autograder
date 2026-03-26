@@ -135,14 +135,24 @@ export async function getJoinCode(page: Page): Promise<string> {
  * Helper: Complete an active test session by clicking the Finish button.
  */
 export async function completeTest(page: Page): Promise<void> {
-  await expect(async () => {
-    const finishButton = page.getByRole("button", { name: "Finish" });
-    await expect(finishButton).toBeVisible();
-    await finishButton.click();
+  // Wait for finish button to appear (with extended timeout)
+  const finishButton = page.getByRole("button", {
+    name: /finish|submit|complete/i,
+  });
 
-    const confirmButton = page.getByRole("button", { name: "Submit" });
-    await expect(confirmButton).toBeEnabled();
-    await confirmButton.click();
+  await expect(async () => {
+    await expect(finishButton.first()).toBeVisible();
+  }).toPass();
+
+  await finishButton.first().click();
+  await page.waitForTimeout(300);
+
+  // Wait for confirmation button and click
+  const confirmButton = page.getByRole("button", { name: /submit|confirm/i });
+
+  await expect(async () => {
+    await expect(confirmButton.first()).toBeEnabled();
+    await confirmButton.first().click();
   }).toPass();
 }
 
@@ -553,7 +563,7 @@ export async function addQuestion(page: Page): Promise<number> {
 export async function getQuestionCount(page: Page): Promise<number> {
   return page
     .locator('[class*="shadow"]')
-    .filter({ has: page.getByText(/question text/i) })
+    .filter({ has: page.getByText(/max score/i) })
     .count();
 }
 
@@ -563,7 +573,7 @@ export async function getQuestionCount(page: Page): Promise<number> {
 export function getQuestionCard(page: Page, questionIndex: number) {
   return page
     .locator('[class*="shadow"]')
-    .filter({ has: page.getByText(/question text/i) })
+    .filter({ has: page.getByText(/max score/i) })
     .nth(questionIndex);
 }
 
@@ -763,6 +773,297 @@ export async function completeTestWithParticipant(
   }
 
   // Answer all questions and complete test
+  await completeTest(page);
+
+  return participantId;
+}
+
+/**
+ * Helper: Fill choice text for a specific choice in a question.
+ * choiceIndex: 0-based index of the choice within the question
+ * Scopes search to the specific question card to handle multiple questions correctly.
+ */
+export async function fillChoiceText(
+  page: Page,
+  questionIndex: number,
+  choiceIndex: number,
+  text: string,
+): Promise<void> {
+  // Wait for any loading to complete
+  await waitForLoaderToDisappear(page);
+
+  // Get the specific question card to scope search
+  const questionCard = getQuestionCard(page, questionIndex);
+
+  // Find the choice row within this specific question
+  const choiceRow = questionCard.locator(
+    `[data-testid="choice-row-${choiceIndex}"]`,
+  );
+
+  await expect(async () => {
+    await choiceRow.isVisible();
+
+    const choiceEditor = choiceRow
+      .getByRole("textbox")
+      .filter({ hasText: /choice text/i });
+
+    await choiceEditor.waitFor({ state: "visible" });
+
+    await choiceEditor.click();
+
+    // Clear existing content and fill with new text
+    await choiceEditor.fill(text);
+
+    await page.click("body");
+
+    await waitForLoaderToDisappear(page);
+  }).toPass();
+}
+
+/**
+ * Helper: Mark a choice as correct for a specific question.
+ * Scopes to the specific question and choice row using data-testid.
+ */
+export async function markChoiceAsCorrect(
+  page: Page,
+  questionIndex: number,
+  choiceIndex: number,
+): Promise<void> {
+  const questionCard = getQuestionCard(page, questionIndex);
+
+  // Find the specific choice row by testid within this question
+  const choiceRow = questionCard.locator(
+    `[data-testid="choice-row-${choiceIndex}"]`,
+  );
+
+  // Find the toggle/mark correct button (first button in the choice row)
+  const correctButton = choiceRow.locator("button").first();
+
+  await expect(async () => {
+    await expect(correctButton).toBeVisible();
+    await correctButton.click();
+    await waitForLoaderToDisappear(page);
+  }).toPass();
+}
+
+/**
+ * Helper: Answer a question on the test page with a specific choice text.
+ * Finds and clicks the choice that matches the given text.
+ */
+export async function answerQuestionWithChoice(
+  page: Page,
+  choiceText: string,
+): Promise<void> {
+  // Find labels with radio/checkbox inputs that contain the matching text
+  const choiceLabel = page
+    .locator("label")
+    .filter({
+      has: page.locator('input[type="radio"], input[type="checkbox"]'),
+    })
+    .filter({ hasText: choiceText });
+
+  await expect(async () => {
+    await expect(choiceLabel).toBeVisible();
+    await choiceLabel.first().click();
+    await waitForLoaderToDisappear(page);
+  }).toPass();
+}
+
+/**
+ * Helper: Answer a question on the test page with a choice by index.
+ * choiceIndex: 0-based index of the choice to select
+ */
+export async function answerQuestionWithChoiceIndex(
+  page: Page,
+  choiceIndex: number,
+): Promise<void> {
+  await expect(async () => {
+    // First, find the currently visible question container
+    // Look for the first visible element that contains the question content
+    const visibleQuestionContainer = page
+      .locator('[class*="shadow"], [role="group"]')
+      .filter({
+        hasNot: page.locator('[aria-disabled="true"]'),
+      })
+      .first();
+
+    // Find all choice labels within the current question container that have radio/checkbox inputs
+    // These are labels paired with input elements (radio or checkbox)
+    const choiceLabels = page.locator("label").filter({
+      has: page.locator('input[type="radio"], input[type="checkbox"]'),
+    });
+
+    // Get the count and validate index is valid
+    const count = await choiceLabels.count();
+    expect(count).toBeGreaterThan(choiceIndex);
+
+    // Select the target choice by index
+    const targetChoice = choiceLabels.nth(choiceIndex);
+    await expect(targetChoice).toBeVisible();
+
+    // Scroll into view before clicking
+    await targetChoice.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(100);
+
+    // Click the label to select the radio/checkbox
+    await targetChoice.click();
+    await waitForLoaderToDisappear(page);
+  }).toPass();
+}
+
+/**
+ * Helper: Create a multiple choice question with specified choices and mark one as correct.
+ * Assumes the question card is already visible.
+ * Note: Choice questions have 2 default empty choices by default.
+ */
+export async function createChoiceQuestion(
+  page: Page,
+  questionIndex: number,
+  options: {
+    questionText: string;
+    choices: string[];
+    correctChoiceIndex: number;
+  },
+): Promise<void> {
+  // Set question type to CHOICE
+  await setQuestionType(page, questionIndex, "CHOICE");
+
+  // Fill question text
+  await fillQuestionText(page, questionIndex, options.questionText);
+
+  // Add choices
+  for (let i = 0; i < options.choices.length; i++) {
+    // Add choice if needed (first 2 choices exist by default)
+    if (i >= 2) {
+      await addChoiceToQuestion(page, questionIndex);
+    }
+
+    // Fill choice text
+    await fillChoiceText(page, questionIndex, i, options.choices[i]);
+  }
+
+  // Mark the correct choice
+  await markChoiceAsCorrect(page, questionIndex, options.correctChoiceIndex);
+}
+
+/**
+ * Helper: Create a test with a choice question and mark a correct answer.
+ * Returns { joinCode, testId }
+ */
+export async function createTestWithScoringQuestion(
+  page: Page,
+  {
+    title = "Test with Scoring",
+    questionText = "Select the correct answer",
+    choices = ["Correct Answer", "Wrong Answer 1", "Wrong Answer 2"],
+    correctChoiceIndex = 0,
+    description = "A test with a scoreable question",
+  }: {
+    title?: string;
+    questionText?: string;
+    choices?: string[];
+    correctChoiceIndex?: number;
+    description?: string;
+  } = {},
+): Promise<{ joinCode: string; testId: string }> {
+  await page.goto("/en");
+
+  const createButton = page.getByRole("button", { name: "Create New Test" });
+  await createButton.waitFor({ state: "visible" });
+  await createButton.click();
+
+  await page.waitForURL(/\/en\/test\/[a-z0-9]+/i);
+
+  const url = page.url();
+  const testIdMatch = url.match(/test\/([a-z0-9]+)/i);
+  const testId = testIdMatch ? testIdMatch[1] : "";
+
+  // Update test title
+  await updateTestTitle(page, testId, title);
+
+  // Go to Settings tab
+  await navigateToSettingsTab(page);
+
+  // Update test description
+  await updateTestDescription(page, description);
+
+  // Navigate to Questions tab
+  await navigateToQuestionsTab(page);
+
+  // Add a question
+  const qIndex = await addQuestion(page);
+
+  // Create the multiple choice question
+  await createChoiceQuestion(page, qIndex, {
+    questionText,
+    choices,
+    correctChoiceIndex,
+  });
+
+  const joinCode = await getJoinCode(page);
+
+  return { joinCode, testId };
+}
+
+/**
+ * Helper: Complete a test by answering questions with specific choice indices.
+ * Takes an array of choice indices (0-based) for each question.
+ */
+export async function completeTestWithScores(
+  page: Page,
+  joinCode: string,
+  choiceIndices: number[],
+): Promise<string> {
+  await submitJoinCode(page, joinCode);
+  await page.waitForURL(`/en/join/${joinCode}`);
+
+  const startButton = page.getByRole("button", { name: "Start Test" });
+  await expect(startButton).toBeVisible();
+  await startButton.click();
+
+  // Handle confirmation dialog
+  const confirmButton = page
+    .getByRole("button", { name: /join.*start|submit/i })
+    .first();
+  if (await confirmButton.isVisible().catch(() => false)) {
+    await confirmButton.click();
+  }
+
+  // Wait for test to start
+  await page.waitForURL(/\/en\/test\/start\/.+/i);
+  await waitForLoaderToDisappear(page);
+
+  // Get participant ID from URL
+  const url = page.url();
+  let participantId = "";
+  const participantMatch = url.match(/participantId=([a-z0-9]+)/i);
+  if (participantMatch) {
+    participantId = participantMatch[1];
+  } else {
+    const pathMatch = url.match(/\/en\/test\/start\/([a-z0-9]+)/i);
+    participantId = pathMatch ? pathMatch[1] : "";
+  }
+
+  // Answer each question with the specified choice
+  for (let i = 0; i < choiceIndices.length; i++) {
+    // Wait to ensure question is visible before answering
+    await page.waitForTimeout(200);
+
+    await answerQuestionWithChoiceIndex(page, choiceIndices[i]);
+    await page.waitForTimeout(300);
+
+    // Click Next if not the last question
+    if (i < choiceIndices.length - 1) {
+      const nextButton = page.getByRole("button", { name: /next/i }).first();
+      if (await nextButton.isVisible().catch(() => false)) {
+        await nextButton.click();
+        await page.waitForTimeout(500); // Give question time to load
+      }
+    }
+  }
+
+  // Complete the test
+  await page.waitForTimeout(300);
   await completeTest(page);
 
   return participantId;
