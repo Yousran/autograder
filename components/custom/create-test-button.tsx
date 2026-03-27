@@ -33,7 +33,12 @@ export function CreateTestButton({ className }: { className?: string }) {
   };
 
   return (
-    <Button className={className} onClick={handleCreate} disabled={loading}>
+    <Button
+      className={className}
+      onClick={handleCreate}
+      disabled={loading}
+      data-testid="btn-create-test"
+    >
       {loading ? <Spinner /> : t("createTest")}
     </Button>
   );

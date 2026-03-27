@@ -161,7 +161,7 @@ export function JoinTestClient({
         {isAcceptingResponses ? (
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
-              <Button size="lg" className="w-full">
+              <Button size="lg" className="w-full" data-testid="btn-start-test">
                 {t("startButton")}
               </Button>
             </AlertDialogTrigger>
@@ -184,6 +184,7 @@ export function JoinTestClient({
                     <Label htmlFor="participant-name">{t("nameLabel")}</Label>
                     <Input
                       id="participant-name"
+                      data-testid="input-participant-name"
                       placeholder={t("namePlaceholder")}
                       value={name}
                       onChange={(e) => setName(e.target.value)}

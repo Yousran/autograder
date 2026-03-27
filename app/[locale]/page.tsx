@@ -1,5 +1,4 @@
-//TODO: add more permission in permissions folder and use them in the API routes and UI components to hide or show features based on the user permissions
-//TODO: question creation and editing e2e tests using playwright
+//TODO: testId support for all components for easier e2e testing
 //TODO: question reordering e2e tests using playwright
 //TODO: ai grading and feedback generation using openrouter as default but with model provider selection support
 //TODO: dont load the choices separately for each question, but load them in bulk with the questions to avoid multiple requests and reordering issues
@@ -68,7 +67,12 @@ export default function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-6">
-              <InputOTP maxLength={6} value={code} onChange={setCode}>
+              <InputOTP
+                maxLength={6}
+                value={code}
+                onChange={setCode}
+                data-testid="input-join-code"
+              >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
                   <InputOTPSlot index={1} />
@@ -86,6 +90,7 @@ export default function Home() {
                   className="flex-1"
                   onClick={handleJoin}
                   disabled={code.trim().length !== 6}
+                  data-testid="btn-join-home"
                 >
                   {t("join")}
                 </Button>

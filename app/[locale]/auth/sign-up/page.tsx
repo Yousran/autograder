@@ -149,7 +149,14 @@ export default function SignUpPage() {
               />
             </div>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && (
+              <p
+                className="text-sm text-destructive"
+                data-testid="error-message"
+              >
+                {error}
+              </p>
+            )}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? <Spinner /> : t("signUp")}
