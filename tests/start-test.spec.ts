@@ -21,8 +21,10 @@ import {
   submitJoinCode,
   completeTest,
   getCurrentQuestionNumber,
+  getCurrentQuestionText,
   navigateToPreviousQuestion,
   navigateToNextQuestion,
+  fillQuestionText,
 } from "./helpers";
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -421,6 +423,11 @@ test.describe.serial("Start Test - Consistent Question Order", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
   let joinCode: string;
+  const expectedQuestionOrder = [
+    "Question One",
+    "Question Two",
+    "Question Three",
+  ];
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
@@ -432,16 +439,22 @@ test.describe.serial("Start Test - Consistent Question Order", () => {
       const result = await createTestWithMultipleQuestions(page, {
         title: "Non-Randomized Questions",
         questionCount: 3,
-        randomizeQuestions: false,
+        shouldRandomize: false,
         maxAttempts: 2,
       });
+
+      // Fill in distinct question text for each question
+      for (let i = 0; i < expectedQuestionOrder.length; i++) {
+        await fillQuestionText(page, i, expectedQuestionOrder[i]);
+      }
+
       joinCode = result.joinCode;
 
       await context.close();
     }).toPass();
   });
 
-  test("question order is consistent for non-randomized tests across participants", async ({
+  test("question order is consistent and matches original order for non-randomized tests", async ({
     page,
   }) => {
     // First participant
@@ -461,13 +474,42 @@ test.describe.serial("Start Test - Consistent Question Order", () => {
     await waitForLoaderToDisappear(page);
     await page.waitForURL(`/en/test/start/*`);
 
-    // Answer first question to capture order
-    const radioOptions = page.locator('input[type="radio"]');
-    await radioOptions.nth(0).check();
-    await expect(radioOptions.nth(0)).toBeChecked();
+    // Capture the order of questions as they appear in the test
+    const displayedQuestionOrder: string[] = [];
 
-    // Navigate to next question
-    await navigateToNextQuestion(page);
+    // Get first question
+    let currentText = await getCurrentQuestionText(page);
+    displayedQuestionOrder.push(currentText);
+
+    // Navigate through remaining questions and capture their text
+    const nextButton = page.getByTestId("btn-next");
+    for (let i = 1; i < expectedQuestionOrder.length; i++) {
+      if (await nextButton.isEnabled().catch(() => false)) {
+        await navigateToNextQuestion(page);
+        currentText = await getCurrentQuestionText(page);
+        displayedQuestionOrder.push(currentText);
+      }
+    }
+
+    // Verify we captured all questions
+    expect(displayedQuestionOrder.length).toBe(expectedQuestionOrder.length);
+
+    // Verify that the displayed order matches the expected order exactly
+    expect(displayedQuestionOrder).toEqual(expectedQuestionOrder);
+
+    // Navigate back to first question before second verification
+    for (let i = expectedQuestionOrder.length - 1; i > 0; i--) {
+      await navigateToPreviousQuestion(page);
+    }
+
+    // Navigate through questions again to verify consistency
+    for (let i = 0; i < expectedQuestionOrder.length; i++) {
+      currentText = await getCurrentQuestionText(page);
+      expect(currentText).toBe(expectedQuestionOrder[i]);
+      if (i < expectedQuestionOrder.length - 1) {
+        await navigateToNextQuestion(page);
+      }
+    }
 
     // Complete test
     await completeTest(page);
@@ -482,6 +524,11 @@ test.describe.serial("Start Test - Randomized Question Order", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
   let joinCode: string;
+  const originalQuestionOrder = [
+    "Question One",
+    "Question Two",
+    "Question Three",
+  ];
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
@@ -490,22 +537,29 @@ test.describe.serial("Start Test - Randomized Question Order", () => {
       });
       const page = await context.newPage();
 
+      // Create test with multiple questions with distinct text
       const result = await createTestWithMultipleQuestions(page, {
-        title: "Randomized Questions",
+        title: "Randomized Questions with Text",
         questionCount: 3,
-        randomizeQuestions: true,
+        shouldRandomize: true,
         maxAttempts: 2,
       });
+
+      // Fill in distinct question text for each question
+      for (let i = 0; i < originalQuestionOrder.length; i++) {
+        await fillQuestionText(page, i, originalQuestionOrder[i]);
+      }
+
       joinCode = result.joinCode;
 
       await context.close();
     }).toPass();
   });
 
-  test("question order is randomized for different participants", async ({
+  test("questions appear in randomized order when taking the test", async ({
     page,
   }) => {
-    // Test that we can join and questions are randomized
+    // Participant joins and starts the test
     await page.goto("/en");
     await submitJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
@@ -514,7 +568,7 @@ test.describe.serial("Start Test - Randomized Question Order", () => {
     await startButton.click();
 
     const guestName = page.getByRole("textbox", { name: "Your Name" });
-    await guestName.fill("Participant 1");
+    await guestName.fill("Randomized Test Participant");
 
     const joinButton = page.getByRole("button", { name: "Join & Start" });
     await joinButton.click();
@@ -522,12 +576,57 @@ test.describe.serial("Start Test - Randomized Question Order", () => {
     await waitForLoaderToDisappear(page);
     await page.waitForURL(`/en/test/start/*`);
 
-    // Verify test started and has questions
-    const radioOptions = page.locator('input[type="radio"]');
-    await expect(async () => {
-      const count = await radioOptions.count();
-      expect(count).toBeGreaterThan(0);
-    }).toPass();
+    // Capture the order of questions as they appear in the test
+    const displayedQuestionOrder: string[] = [];
+
+    // Get first question
+    let currentText = await getCurrentQuestionText(page);
+    displayedQuestionOrder.push(currentText);
+
+    // Navigate through remaining questions and capture their text
+    const nextButton = page.getByTestId("btn-next");
+    for (let i = 1; i < originalQuestionOrder.length; i++) {
+      if (await nextButton.isEnabled().catch(() => false)) {
+        await navigateToNextQuestion(page);
+        currentText = await getCurrentQuestionText(page);
+        displayedQuestionOrder.push(currentText);
+      }
+    }
+
+    // Verify we captured all questions
+    expect(displayedQuestionOrder.length).toBe(originalQuestionOrder.length);
+
+    // Verify all questions from original set are present
+    for (const question of originalQuestionOrder) {
+      expect(displayedQuestionOrder).toContain(question);
+    }
+
+    // Verify that the displayed order is NOT the same as original (randomized)
+    expect(displayedQuestionOrder).not.toEqual(originalQuestionOrder);
+
+    // Navigate back to first question before second verification
+    for (let i = originalQuestionOrder.length - 1; i > 0; i--) {
+      await navigateToPreviousQuestion(page);
+    }
+
+    // Verify the randomized order remains consistent on second pass
+    const verifyQuestionOrder: string[] = [];
+
+    // Get first question on second pass
+    currentText = await getCurrentQuestionText(page);
+    verifyQuestionOrder.push(currentText);
+
+    // Navigate through remaining questions and verify consistency
+    for (let i = 1; i < originalQuestionOrder.length; i++) {
+      if (await nextButton.isEnabled().catch(() => false)) {
+        await navigateToNextQuestion(page);
+        currentText = await getCurrentQuestionText(page);
+        verifyQuestionOrder.push(currentText);
+      }
+    }
+
+    // Verify that the order is consistent with the first pass
+    expect(verifyQuestionOrder).toEqual(displayedQuestionOrder);
 
     // Complete test
     await completeTest(page);

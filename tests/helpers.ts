@@ -20,19 +20,26 @@ export async function waitForLoaderToDisappear(page: Page): Promise<void> {
 
 /**
  * Helper: Get the current question number being displayed
- * Extracts the number from "Question X of Y" text
+ * Extracts the number from "Question X of Y" text using the test ID
  */
 export async function getCurrentQuestionNumber(page: Page): Promise<number> {
-  // Look for the text containing question count (e.g., "Question 1 of 3")
-  const questionText = await page
-    .locator('p:has-text("Question")')
-    .first()
-    .textContent()
-    .catch(() => "");
+  // Use test ID for reliable access to the question count element
+  const questionCountElement = page.getByTestId("question-count");
+  const text = await questionCountElement.textContent().catch(() => "");
 
   // Extract the first number (current question number)
-  const match = questionText?.match(/\d+/);
+  const match = text?.match(/\d+/);
   return match ? parseInt(match[0], 10) : 0;
+}
+
+/**
+ * Helper: Extract current question text from the display
+ * Gets the question text from the question text display element using test ID
+ */
+export async function getCurrentQuestionText(page: Page): Promise<string> {
+  const questionContainer = page.getByTestId("question-text-display");
+  const text = await questionContainer.textContent();
+  return text?.trim() || "";
 }
 
 /**
@@ -333,14 +340,14 @@ export async function setDuration(page: Page, duration: number): Promise<void> {
 }
 
 /**
- * Helper: Toggle the "Randomize Questions" setting.
+ * Helper: Toggle the question ordering setting (Ordered vs Randomized).
  */
-export async function toggleRandomizeQuestions(
+export async function toggleQuestionOrdering(
   page: Page,
   testId: string,
 ): Promise<void> {
-  const randomizeToggle = page
-    .getByText("Randomize", { exact: false })
+  const questionOrderingToggle = page
+    .getByText("Ordered", { exact: false })
     .locator("..")
     .locator("..")
     .getByRole("switch");
@@ -351,7 +358,7 @@ export async function toggleRandomizeQuestions(
       response.request().method() === "PATCH" &&
       response.status() === 200,
   );
-  await randomizeToggle.click();
+  await questionOrderingToggle.click();
   await responsePromise;
 }
 
@@ -495,14 +502,14 @@ export async function createTestWithMultipleQuestions(
     title = "Multi-Question Test",
     questionCount = 3,
     duration = null,
-    randomizeQuestions = false,
+    shouldRandomize = false,
     description = "A test with multiple questions",
     maxAttempts = null,
   }: {
     title?: string;
     questionCount?: number;
     duration?: number | null;
-    randomizeQuestions?: boolean;
+    shouldRandomize?: boolean;
     description?: string;
     maxAttempts?: number | null;
   } = {},
@@ -533,9 +540,9 @@ export async function createTestWithMultipleQuestions(
     await setDuration(page, duration);
   }
 
-  // Set randomize questions if requested
-  if (randomizeQuestions) {
-    await toggleRandomizeQuestions(page, testId);
+  // Randomize questions if requested
+  if (!shouldRandomize) {
+    await toggleQuestionOrdering(page, testId);
   }
 
   // Set max attempts if provided
@@ -675,15 +682,20 @@ export async function fillQuestionText(
   questionIndex: number,
   text: string,
 ): Promise<void> {
-  const questionTextarea = page
+  // Get the specific question card to scope the search
+  const questionCard = getQuestionCard(page, questionIndex);
+
+  // Find the textarea within this specific question card
+  const questionTextarea = questionCard
     .getByRole("textbox")
     .filter({ hasText: /question text|enter question/i })
-    .nth(questionIndex);
+    .first();
 
   await expect(async () => {
     await questionTextarea.click();
     await questionTextarea.fill(text);
     await page.click("body");
+    await page.waitForTimeout(200); // Small delay for question to load
   }).toPass();
 }
 

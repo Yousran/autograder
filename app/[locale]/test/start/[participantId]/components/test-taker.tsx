@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { NavbarTest } from "./navbar-test";
@@ -72,6 +72,41 @@ function arraysEqual(a: string[], b: string[]): boolean {
   return sa.every((v, i) => v === sb[i]);
 }
 
+/**
+ * Seeded random number generator for deterministic shuffling
+ */
+function seededRandom(seed: string): () => number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash << 5) - hash + seed.charCodeAt(i);
+    hash = hash & hash; // Convert to 32bit integer
+  }
+
+  return function () {
+    hash = (hash * 9301 + 49297) % 233280;
+    // Ensure we return a value between 0 and 1 (never negative)
+    return Math.abs(hash) / 233280;
+  };
+}
+
+/**
+ * Fisher-Yates shuffle with seeded random for deterministic results
+ */
+function shuffleWithSeed<T>(array: T[], seed: string): T[] {
+  const result = [...array];
+  const random = seededRandom(seed);
+
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    // Use explicit temp variable instead of destructuring to avoid corruption
+    const temp = result[i];
+    result[i] = result[j];
+    result[j] = temp;
+  }
+
+  return result;
+}
+
 // ---------------------------------------------------------------------------
 // TestTaker (main client orchestrator)
 // ---------------------------------------------------------------------------
@@ -84,6 +119,7 @@ interface TestTakerProps {
   /** ISO string of when the participant record was created. */
   participantCreatedAt: string;
   questions: Question[];
+  isQuestionsOrdered: boolean;
   initialEssayAnswers: Record<string, string>;
   initialChoiceAnswers: Record<string, string | null>;
   initialMultipleSelectAnswers: Record<string, string[]>;
@@ -105,7 +141,8 @@ export function TestTaker({
   testTitle,
   testDuration,
   participantCreatedAt,
-  questions,
+  questions: initialQuestions,
+  isQuestionsOrdered,
   initialEssayAnswers,
   initialChoiceAnswers,
   initialMultipleSelectAnswers,
@@ -113,6 +150,14 @@ export function TestTaker({
 }: TestTakerProps) {
   const t = useTranslations("Pages.testStart");
   const router = useRouter();
+
+  // Deterministically randomize questions based on participantId if not ordered
+  // Use useMemo to ensure stable reference across renders
+  const questions = useMemo(() => {
+    return isQuestionsOrdered
+      ? initialQuestions
+      : shuffleWithSeed(initialQuestions, participantId);
+  }, [isQuestionsOrdered, initialQuestions, participantId]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isQuestionListOpen, setIsQuestionListOpen] = useState(false);
@@ -414,10 +459,15 @@ export function TestTaker({
 
   const navigateTo = useCallback(
     (nextIndex: number) => {
+      // Clamp to valid range before saving
+      const validNextIndex = Math.max(
+        0,
+        Math.min(nextIndex, questions.length - 1),
+      );
       fireSaveAtIndex(currentIndex);
-      setCurrentIndex(nextIndex);
+      setCurrentIndex(validNextIndex);
     },
-    [currentIndex, fireSaveAtIndex],
+    [currentIndex, fireSaveAtIndex, questions.length],
   );
 
   // ---------------------------------------------------------------------------
@@ -464,13 +514,19 @@ export function TestTaker({
         <main className="flex flex-1 min-w-0 flex-col gap-6">
           {/* Question text */}
           <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
-            <p className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <p
+              className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide"
+              data-testid="question-count"
+            >
               {t("questionCount", {
                 current: currentIndex + 1,
                 total: questions.length,
               })}
             </p>
-            <div className="prose prose-sm max-w-none dark:prose-invert overflow-hidden">
+            <div
+              data-testid="question-text-display"
+              className="prose prose-sm max-w-none dark:prose-invert overflow-hidden"
+            >
               <PlateReadOnlyViewer
                 key={currentQuestion.id}
                 value={currentQuestion.questionText}

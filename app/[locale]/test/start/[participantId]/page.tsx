@@ -94,6 +94,7 @@ export default async function StartTestPage({
       testDuration={participant.test.testDuration}
       participantCreatedAt={participant.createdAt.toISOString()}
       questions={participant.test.questions}
+      isQuestionsOrdered={participant.test.isQuestionsOrdered}
       initialEssayAnswers={initialEssayAnswers}
       initialChoiceAnswers={initialChoiceAnswers}
       initialMultipleSelectAnswers={initialMultipleSelectAnswers}
