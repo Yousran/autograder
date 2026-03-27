@@ -14,7 +14,7 @@
  *   ✓ Question order is randomized for randomized tests
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect, BrowserContext } from "@playwright/test";
 import {
   createTestWithMultipleQuestions,
   waitForLoaderToDisappear,
@@ -630,5 +630,111 @@ test.describe.serial("Start Test - Randomized Question Order", () => {
 
     // Complete test
     await completeTest(page);
+  });
+
+  test("different participants see different question orders", async ({
+    browser,
+  }) => {
+    // Helper function to get question order for a participant
+    const getParticipantQuestionOrder = async (
+      context: BrowserContext,
+      participantName: string,
+    ): Promise<string[]> => {
+      const page = await context.newPage();
+      const questionOrder: string[] = [];
+
+      // Join test
+      await page.goto("/en");
+      await submitJoinCode(page, joinCode);
+      await page.waitForURL(`/en/join/${joinCode}`);
+
+      const startButton = page.getByRole("button", { name: "Start Test" });
+      await startButton.click();
+
+      const guestName = page.getByRole("textbox", { name: "Your Name" });
+      await guestName.fill(participantName);
+
+      const joinButton = page.getByRole("button", { name: "Join & Start" });
+      await joinButton.click();
+
+      await waitForLoaderToDisappear(page);
+      await page.waitForURL(`/en/test/start/*`);
+
+      // Get first question
+      let currentText = await getCurrentQuestionText(page);
+      questionOrder.push(currentText);
+
+      // Navigate through remaining questions and capture their text
+      const nextButton = page.getByTestId("btn-next");
+      for (let i = 1; i < originalQuestionOrder.length; i++) {
+        if (await nextButton.isEnabled().catch(() => false)) {
+          await navigateToNextQuestion(page);
+          currentText = await getCurrentQuestionText(page);
+          questionOrder.push(currentText);
+        }
+      }
+
+      await page.close();
+      return questionOrder;
+    };
+
+    // Create multiple participants and capture their question orders
+    const participant1Context = await browser.newContext();
+    const participant1Order = await getParticipantQuestionOrder(
+      participant1Context,
+      "Participant 1",
+    );
+    await participant1Context.close();
+
+    const participant2Context = await browser.newContext();
+    const participant2Order = await getParticipantQuestionOrder(
+      participant2Context,
+      "Participant 2",
+    );
+    await participant2Context.close();
+
+    const participant3Context = await browser.newContext();
+    const participant3Order = await getParticipantQuestionOrder(
+      participant3Context,
+      "Participant 3",
+    );
+    await participant3Context.close();
+
+    // Verify that all orders contain the same questions
+    expect(participant1Order.length).toBe(originalQuestionOrder.length);
+    expect(participant2Order.length).toBe(originalQuestionOrder.length);
+    expect(participant3Order.length).toBe(originalQuestionOrder.length);
+
+    // Verify all participants see all questions
+    for (const question of originalQuestionOrder) {
+      expect(participant1Order).toContain(question);
+      expect(participant2Order).toContain(question);
+      expect(participant3Order).toContain(question);
+    }
+
+    // Verify that at least one participant has a different order than another
+    // (This checks that randomization is actually working)
+    const allOrdersIdentical =
+      participant1Order.every((q, i) => q === participant2Order[i]) &&
+      participant2Order.every((q, i) => q === participant3Order[i]);
+
+    // With 3 questions and random shuffling, there's a very high probability
+    // that not all three participants will have the same order
+    expect(allOrdersIdentical).toBe(false);
+
+    // At least one different order should exist
+    const differentOrders = [];
+    if (!participant1Order.every((q, i) => q === participant2Order[i])) {
+      differentOrders.push({
+        participant: 1,
+        order: participant1Order,
+      });
+      differentOrders.push({ participant: 2, order: participant2Order });
+    }
+    if (!participant2Order.every((q, i) => q === participant3Order[i])) {
+      differentOrders.push({ participant: 3, order: participant3Order });
+    }
+
+    expect(differentOrders.length).toBeGreaterThan(0);
   });
 });
