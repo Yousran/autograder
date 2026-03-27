@@ -47,7 +47,8 @@
       "notFound": "Test not found.",
       "notAccepting": "This test is not currently accepting responses.",
       "loggedInOnly": "This test requires you to be signed in.",
-      "prerequisiteNotMet": "You have not completed the required prerequisite test(s) with the minimum score.",
+      "prerequisiteNotMet": "You have not completed the required prerequisite test(s).",
+      "prerequisiteInsufficientScore": "You have not achieved the required score in the prerequisite test(s).",
       "maxAttemptsReached": "You have reached the maximum number of attempts for this test.",
       "joinFailed": "Failed to join test. Please try again.",
       "alreadyJoined": "You have already joined this test."

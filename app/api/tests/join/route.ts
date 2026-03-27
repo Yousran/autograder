@@ -110,6 +110,20 @@ export async function POST(req: NextRequest) {
       select: { testId: true, score: true },
     });
 
+    // Check if all prerequisites are completed
+    const completedPrereqIds = new Set(prereqChecks.map((p) => p.testId));
+    const allCompleted = test.prerequisites.every((prereq) =>
+      completedPrereqIds.has(prereq.prerequisiteTestId),
+    );
+
+    if (!allCompleted) {
+      return NextResponse.json(
+        { error: tJoin("prerequisiteNotMet") },
+        { status: 403 },
+      );
+    }
+
+    // Check if all prerequisites meet the minimum score requirement
     const meetsAll = test.prerequisites.every((prereq) => {
       const best = prereqChecks
         .filter((p) => p.testId === prereq.prerequisiteTestId)
@@ -121,7 +135,7 @@ export async function POST(req: NextRequest) {
 
     if (!meetsAll) {
       return NextResponse.json(
-        { error: tJoin("prerequisiteNotMet") },
+        { error: tJoin("prerequisiteInsufficientScore") },
         { status: 403 },
       );
     }
