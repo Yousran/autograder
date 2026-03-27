@@ -92,6 +92,7 @@ export function BottomNavbar({
                 onClick={onPrev}
                 disabled={!hasPrev}
                 aria-label={t("prev")}
+                data-testid="btn-previous"
               >
                 <ChevronLeft />
               </Button>
@@ -109,6 +110,7 @@ export function BottomNavbar({
                   onClick={onToggleQuestionList}
                   aria-label={t("questionList")}
                   aria-expanded={isQuestionListOpen}
+                  data-testid="btn-question-list"
                 >
                   <List />
                 </Button>
@@ -124,6 +126,7 @@ export function BottomNavbar({
                   onClick={onToggleMark}
                   aria-label={isMarked ? t("marked") : t("mark")}
                   aria-pressed={isMarked}
+                  data-testid="btn-mark"
                   className={
                     isMarked
                       ? "bg-amber-500 hover:bg-amber-600 text-white border-amber-500"
@@ -147,6 +150,7 @@ export function BottomNavbar({
                   aria-label={t("finish")}
                   className="bg-green-500"
                   onClick={onSaveBeforeDialog}
+                  data-testid="btn-finish"
                 >
                   {t("finish")}
                 </Button>
@@ -178,7 +182,12 @@ export function BottomNavbar({
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="icon" onClick={onNext} aria-label={t("next")}>
+                <Button
+                  size="icon"
+                  onClick={onNext}
+                  aria-label={t("next")}
+                  data-testid="btn-next"
+                >
                   <ChevronRight />
                 </Button>
               </TooltipTrigger>

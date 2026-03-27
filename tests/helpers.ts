@@ -19,6 +19,57 @@ export async function waitForLoaderToDisappear(page: Page): Promise<void> {
 }
 
 /**
+ * Helper: Get the current question number being displayed
+ * Extracts the number from "Question X of Y" text
+ */
+export async function getCurrentQuestionNumber(page: Page): Promise<number> {
+  // Look for the text containing question count (e.g., "Question 1 of 3")
+  const questionText = await page
+    .locator('p:has-text("Question")')
+    .first()
+    .textContent()
+    .catch(() => "");
+
+  // Extract the first number (current question number)
+  const match = questionText?.match(/\d+/);
+  return match ? parseInt(match[0], 10) : 0;
+}
+
+/**
+ * Helper: Navigate to next question and wait for it to load
+ */
+export async function navigateToNextQuestion(page: Page): Promise<void> {
+  const currentNum = await getCurrentQuestionNumber(page);
+  const nextButton = page.getByTestId("btn-next");
+
+  await expect(nextButton).toBeEnabled({ timeout: 5000 });
+  await nextButton.click();
+
+  // Wait for question number to actually change
+  await expect(async () => {
+    const newNum = await getCurrentQuestionNumber(page);
+    expect(newNum).toBe(currentNum + 1);
+  }).toPass({ timeout: 5000 });
+}
+
+/**
+ * Helper: Navigate to previous question and wait for it to load
+ */
+export async function navigateToPreviousQuestion(page: Page): Promise<void> {
+  const currentNum = await getCurrentQuestionNumber(page);
+  const prevButton = page.getByTestId("btn-previous");
+
+  await expect(prevButton).toBeEnabled({ timeout: 5000 });
+  await prevButton.click();
+
+  // Wait for question number to actually change
+  await expect(async () => {
+    const newNum = await getCurrentQuestionNumber(page);
+    expect(newNum).toBe(currentNum - 1);
+  }).toPass({ timeout: 5000 });
+}
+
+/**
  * Helper: Create a new test as the authenticated user and return its ID.
  * Wraps the browser context creation and navigation in a retry block.
  */
@@ -136,15 +187,13 @@ export async function getJoinCode(page: Page): Promise<string> {
  */
 export async function completeTest(page: Page): Promise<void> {
   // Wait for finish button to appear (with extended timeout)
-  const finishButton = page.getByRole("button", {
-    name: /finish|submit|complete/i,
-  });
+  const finishButton = page.getByTestId("btn-finish");
 
   await expect(async () => {
-    await expect(finishButton.first()).toBeVisible();
+    await expect(finishButton).toBeVisible();
   }).toPass();
 
-  await finishButton.first().click();
+  await finishButton.click();
   await page.waitForTimeout(300);
 
   // Wait for confirmation button and click

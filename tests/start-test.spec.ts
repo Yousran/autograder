@@ -20,6 +20,9 @@ import {
   waitForLoaderToDisappear,
   submitJoinCode,
   completeTest,
+  getCurrentQuestionNumber,
+  navigateToPreviousQuestion,
+  navigateToNextQuestion,
 } from "./helpers";
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -373,31 +376,37 @@ test.describe.serial("Start Test - Answer Preservation", () => {
 
     // Answer Q1
     await radioOptions.nth(0).check();
+    await expect(radioOptions.nth(0)).toBeChecked();
 
     // Go to Q2
-    const nextButton = page.getByRole("button", { name: /next/i });
-    await nextButton.click();
-    await page.waitForTimeout(200);
+    await navigateToNextQuestion(page);
 
     // Answer Q2
     await radioOptions.nth(0).check();
-    await nextButton.click();
-    await page.waitForTimeout(200);
+    await expect(radioOptions.nth(0)).toBeChecked();
+    await navigateToNextQuestion(page);
 
     // Answer Q3
     await radioOptions.nth(0).check();
+    await expect(radioOptions.nth(0)).toBeChecked();
 
-    // Go back to Q2 and verify answer is still there
-    const prevButton = page.getByRole("button", { name: /previous/i });
-    await prevButton.click();
-    await page.waitForTimeout(200);
+    // Verify we're on question 3
+    let currentQuestionNum = await getCurrentQuestionNumber(page);
+    expect(currentQuestionNum).toBe(3);
 
-    // Verify second answer is preserved
-    const checkedResponses = page.locator('input[type="radio"]:checked');
-    await expect(async () => {
-      const count = await checkedResponses.count();
-      expect(count).toBeGreaterThan(0);
-    }).toPass();
+    // Go back to Q2 and verify navigation works
+    await navigateToPreviousQuestion(page);
+
+    // Verify we're now on question 2
+    currentQuestionNum = await getCurrentQuestionNumber(page);
+    expect(currentQuestionNum).toBe(2);
+
+    // Navigate forward back to Q3 before finishing
+    await navigateToNextQuestion(page);
+
+    // Verify we're back on question 3
+    currentQuestionNum = await getCurrentQuestionNumber(page);
+    expect(currentQuestionNum).toBe(3);
 
     // Complete the test
     await completeTest(page);
@@ -455,9 +464,10 @@ test.describe.serial("Start Test - Consistent Question Order", () => {
     // Answer first question to capture order
     const radioOptions = page.locator('input[type="radio"]');
     await radioOptions.nth(0).check();
+    await expect(radioOptions.nth(0)).toBeChecked();
 
-    const nextButton = page.getByRole("button", { name: "Next" });
-    await nextButton.click();
+    // Navigate to next question
+    await navigateToNextQuestion(page);
 
     // Complete test
     await completeTest(page);
