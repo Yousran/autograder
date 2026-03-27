@@ -151,7 +151,7 @@ test.describe.serial("Join Test - Guest User", () => {
 
     await startButton.click();
 
-    const guestConfirm = page.getByRole("textbox", { name: "Your Name" });
+    const guestConfirm = page.getByTestId("input-participant-name");
     await expect(async () => {
       await expect(guestConfirm).toBeVisible();
     }).toPass();

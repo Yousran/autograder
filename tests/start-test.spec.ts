@@ -123,7 +123,7 @@ test.describe.serial("Start Test - Already Started Within Duration", () => {
     await restartButton.click();
 
     // Should show confirmation dialog again
-    const nameInput = page.getByRole("textbox", { name: "Your Name" });
+    const nameInput = page.getByTestId("input-participant-name");
     await expect(async () => {
       await expect(nameInput).toBeVisible();
     }).toPass();

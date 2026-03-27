@@ -20,10 +20,10 @@ test.describe.serial("Sign-Up", () => {
 
     await expect(async () => {
       await expect(page).toHaveURL(SIGN_UP_URL);
-      await expect(page.locator("#name")).toBeVisible();
-      await expect(page.locator("#email")).toBeVisible();
-      await expect(page.locator("#password")).toBeVisible();
-      await expect(page.locator("#confirmPassword")).toBeVisible();
+      await expect(page.getByTestId("input-name")).toBeVisible();
+      await expect(page.getByTestId("input-email")).toBeVisible();
+      await expect(page.getByTestId("input-password")).toBeVisible();
+      await expect(page.getByTestId("input-confirm-password")).toBeVisible();
       await expect(
         page.getByRole("button", { name: /sign up/i }),
       ).toBeVisible();
@@ -33,10 +33,10 @@ test.describe.serial("Sign-Up", () => {
   test("shows error when passwords do not match", async ({ page }) => {
     await page.goto(SIGN_UP_URL);
 
-    await page.locator("#name").fill(testName);
-    await page.locator("#email").fill(testEmail);
-    await page.locator("#password").fill(testPassword);
-    await page.locator("#confirmPassword").fill("WrongPassword!");
+    await page.getByTestId("input-name").fill(testName);
+    await page.getByTestId("input-email").fill(testEmail);
+    await page.getByTestId("input-password").fill(testPassword);
+    await page.getByTestId("input-confirm-password").fill("WrongPassword!");
 
     await page.getByRole("button", { name: /sign up/i }).click();
 
@@ -46,7 +46,7 @@ test.describe.serial("Sign-Up", () => {
     // The page should stay on sign-up and show a validation error
     await expect(async () => {
       await expect(page).toHaveURL(SIGN_UP_URL);
-      await expect(page.locator("p.text-destructive")).toBeVisible();
+      await expect(page.getByTestId("error-message")).toBeVisible();
     }).toPass();
   });
 
@@ -77,7 +77,7 @@ test.describe.serial("Sign-Up", () => {
 
     await expect(async () => {
       await expect(page).toHaveURL(SIGN_UP_URL);
-      await expect(page.locator("p.text-destructive")).toBeVisible();
+      await expect(page.getByTestId("error-message")).toBeVisible();
     }).toPass();
   });
 
@@ -135,8 +135,8 @@ test.describe.serial("Sign-In", () => {
 
     await expect(async () => {
       await expect(page).toHaveURL(SIGN_IN_URL);
-      await expect(page.locator("#email")).toBeVisible();
-      await expect(page.locator("#password")).toBeVisible();
+      await expect(page.getByTestId("input-email")).toBeVisible();
+      await expect(page.getByTestId("input-password")).toBeVisible();
       await waitForLoaderToDisappear(page);
       await expect(
         page.getByRole("button", { name: /sign in/i }),
@@ -148,8 +148,8 @@ test.describe.serial("Sign-In", () => {
     await page.goto(SIGN_IN_URL);
 
     // Use the same email from Sign-Up but with wrong password
-    await page.locator("#email").fill(signInTestEmail);
-    await page.locator("#password").fill("WrongPassword!");
+    await page.getByTestId("input-email").fill(signInTestEmail);
+    await page.getByTestId("input-password").fill("WrongPassword!");
 
     await page.getByRole("button", { name: /sign in/i }).click();
 
@@ -159,15 +159,15 @@ test.describe.serial("Sign-In", () => {
     // Should remain on sign-in page and display an error
     await expect(async () => {
       await expect(page).toHaveURL(SIGN_IN_URL);
-      await expect(page.locator("p.text-destructive")).toBeVisible();
+      await expect(page.getByTestId("error-message")).toBeVisible();
     }).toPass();
   });
 
   test("successfully signs in with valid credentials", async ({ page }) => {
     await page.goto(SIGN_IN_URL);
 
-    await page.locator("#email").fill(signInTestEmail);
-    await page.locator("#password").fill(testPassword);
+    await page.getByTestId("input-email").fill(signInTestEmail);
+    await page.getByTestId("input-password").fill(testPassword);
 
     await page.getByRole("button", { name: /sign in/i }).click();
 

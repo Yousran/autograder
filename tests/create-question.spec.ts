@@ -65,7 +65,7 @@ test.describe.serial("Create First Question - At End", () => {
       await expect(questionCard).toBeVisible();
 
       // Verify the type selector shows default type (CHOICE)
-      const typeSelect = page.locator('[role="combobox"]').nth(0);
+      const typeSelect = page.getByTestId("select-question-type");
       await expect(typeSelect).toBeVisible();
     }).toPass();
   });

@@ -28,6 +28,7 @@ import {
   toggleShowDetailedScore,
   toggleShowCorrectAnswers,
   toggleOrderedQuestions,
+  setMaxAttempts,
 } from "./helpers";
 
 // ---------------------------------------------------------------------------
@@ -64,12 +65,12 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     const newTitle = `Updated Test Title ${Date.now()}`;
 
     // Hover and click to enter edit mode
-    const titlePreview = page.locator("text=/Untitled Test|Updated Test/");
-    await titlePreview.first().hover();
-    await titlePreview.first().click();
+    const titlePreview = page.getByTestId("test-title-preview");
+    await titlePreview.hover();
+    await titlePreview.click();
 
-    // Use specific selector for the title input (data-slot attribute)
-    const titleInput = page.locator('input[data-slot="editable-input"]');
+    // Use specific selector for the title input (data-testid attribute)
+    const titleInput = page.getByTestId("test-title-input");
     await titleInput.waitFor({ state: "visible" });
     await titleInput.fill(newTitle);
 
@@ -109,53 +110,39 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     await navigateToSettingsTab(page);
 
-    // Verify all settings sections are visible by their labels
+    // Verify all settings sections are visible by their test IDs
     await expect(async () => {
-      await expect(
-        page.locator("label").filter({ hasText: /description/i }),
-      ).toBeVisible();
+      await expect(page.getByTestId("test-description-preview")).toBeVisible();
+    }).toPass();
+
+    await expect(async () => {
+      await expect(page.getByTestId("input-duration")).toBeVisible();
+    }).toPass();
+
+    await expect(async () => {
+      await expect(page.getByTestId("input-max-attempts")).toBeVisible();
     }).toPass();
 
     await expect(async () => {
       await expect(
-        page.locator("label").filter({ hasText: /duration/i }),
+        page.getByTestId("toggle-accepting-responses"),
       ).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(
-        page.locator("label").filter({ hasText: /max.*attempt/i }),
-      ).toBeVisible();
+      await expect(page.getByTestId("toggle-logged-in-only")).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(
-        page.locator("label").filter({ hasText: /accepting.*response/i }),
-      ).toBeVisible();
+      await expect(page.getByTestId("toggle-detailed-score")).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(
-        page.locator("label").filter({ hasText: /logged.*in.*user/i }),
-      ).toBeVisible();
+      await expect(page.getByTestId("toggle-correct-answers")).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(
-        page.locator("label").filter({ hasText: /detailed.*score/i }),
-      ).toBeVisible();
-    }).toPass();
-
-    await expect(async () => {
-      await expect(
-        page.locator("label").filter({ hasText: /correct.*answer/i }),
-      ).toBeVisible();
-    }).toPass();
-
-    await expect(async () => {
-      await expect(
-        page.locator("label").filter({ hasText: /order.*question/i }),
-      ).toBeVisible();
+      await expect(page.getByTestId("toggle-questions-ordered")).toBeVisible();
     }).toPass();
   });
 
@@ -168,7 +155,10 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     const durationLabel = page
       .locator("label")
       .filter({ hasText: /duration/i });
-    const durationInput = durationLabel.locator("..").locator("input").first();
+    const durationInput = durationLabel
+      .locator("..")
+      .locator('input[type="text"]')
+      .first();
 
     // Update duration to 120 minutes
     await durationInput.click();
@@ -199,7 +189,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
       .filter({ hasText: /duration/i });
     const durationInputAfterReload = durationLabelAfterReload
       .locator("..")
-      .locator("input")
+      .locator('input[type="text"]')
       .first();
 
     await expect(async () => {
@@ -212,18 +202,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     await navigateToSettingsTab(page);
 
-    // Find and update max attempts
-    const maxAttemptLabel = page
-      .locator("label")
-      .filter({ hasText: /max.*attempt/i });
-    const maxAttemptInput = maxAttemptLabel
-      .locator("..")
-      .locator("input")
-      .first();
-
-    await maxAttemptInput.click();
-    await maxAttemptInput.clear();
-    await maxAttemptInput.fill("3");
+    await setMaxAttempts(page, 3);
 
     // Set up response listener BEFORE pressing Enter
     const responsePromise = page.waitForResponse(
@@ -232,8 +211,6 @@ test.describe.serial("Edit Test - Settings Tab", () => {
         response.request().method() === "PATCH" &&
         response.status() === 200,
     );
-
-    await maxAttemptInput.press("Enter");
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -244,13 +221,9 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await navigateToSettingsTab(page);
 
-    const maxAttemptLabelAfterReload = page
-      .locator("label")
-      .filter({ hasText: /max.*attempt/i });
-    const maxAttemptInputAfterReload = maxAttemptLabelAfterReload
-      .locator("..")
-      .locator("input")
-      .first();
+    const maxAttemptInputAfterReload = page
+      .getByTestId("input-max-attempts")
+      .locator('input[type="text"]');
 
     await expect(async () => {
       await expect(maxAttemptInputAfterReload).toHaveValue("3");
@@ -262,20 +235,12 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     await navigateToSettingsTab(page);
 
-    // Find the description input/textarea
-    const descriptionLabel = page
-      .locator("label")
-      .filter({ hasText: /description/i });
-    const descriptionContainer = descriptionLabel.locator("..");
-
-    // Click to enter edit mode
-    const descriptionText = descriptionContainer.locator("p, div").first();
+    // Get description text display element
+    const descriptionText = page.getByTestId("test-description-preview");
     await descriptionText.click();
 
-    // Wait for textarea or input to appear
-    const descriptionInput = descriptionContainer
-      .locator("textarea, input")
-      .first();
+    // Get description input using test ID
+    const descriptionInput = page.getByTestId("test-description-input");
     await descriptionInput.waitFor({ state: "visible" });
 
     const testDescription = `This is a test description created at ${Date.now()}`;
@@ -290,16 +255,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     );
 
     // Submit
-    const submitButton = descriptionContainer
-      .locator("button")
-      .filter({ hasText: /save/i })
-      .first();
-    if (await submitButton.isVisible()) {
-      await submitButton.click();
-    } else {
-      // Try pressing Enter for some input types
-      await descriptionInput.press("Enter");
-    }
+    await descriptionInput.press("Enter");
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -321,11 +277,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await navigateToSettingsTab(page);
 
     // Find switch to get initial state
-    const toggle = page
-      .getByText("Accepting Responses", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
+    const toggle = page.getByTestId("toggle-accepting-responses");
 
     const initialState = await toggle.getAttribute("aria-checked");
 
@@ -344,11 +296,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await navigateToSettingsTab(page);
 
-    const toggleAfterReload = page
-      .getByText("Accepting Responses", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
+    const toggleAfterReload = page.getByTestId("toggle-accepting-responses");
     const stateAfterReload =
       await toggleAfterReload.getAttribute("aria-checked");
 
@@ -363,11 +311,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await navigateToSettingsTab(page);
 
     // Find switch to get initial state
-    const toggle = page
-      .getByText("Logged-in Users Only", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
+    const toggle = page.getByTestId("toggle-logged-in-only");
 
     const initialState = await toggle.getAttribute("aria-checked");
 
@@ -386,11 +330,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await navigateToSettingsTab(page);
 
-    const toggleAfterReload = page
-      .getByText("Logged-in Users Only", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
+    const toggleAfterReload = page.getByTestId("toggle-logged-in-only");
     const stateAfterReload =
       await toggleAfterReload.getAttribute("aria-checked");
 
@@ -405,11 +345,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await navigateToSettingsTab(page);
 
     // Find switch to get initial state
-    const toggle = page
-      .getByText("Show Detailed Score", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
+    const toggle = page.getByTestId("toggle-detailed-score");
 
     const initialState = await toggle.getAttribute("aria-checked");
 
@@ -428,11 +364,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await navigateToSettingsTab(page);
 
-    const toggleAfterReload = page
-      .getByText("Show Detailed Score", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
+    const toggleAfterReload = page.getByTestId("toggle-detailed-score");
     const stateAfterReload =
       await toggleAfterReload.getAttribute("aria-checked");
 
@@ -447,11 +379,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await navigateToSettingsTab(page);
 
     // Find switch to get initial state
-    const toggle = page
-      .getByText("Show Correct Answers", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
+    const toggle = page.getByTestId("toggle-correct-answers");
 
     const initialState = await toggle.getAttribute("aria-checked");
 
@@ -470,11 +398,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await navigateToSettingsTab(page);
 
-    const toggleAfterReload = page
-      .getByText("Show Correct Answers", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
+    const toggleAfterReload = page.getByTestId("toggle-correct-answers");
     const stateAfterReload =
       await toggleAfterReload.getAttribute("aria-checked");
 
@@ -489,11 +413,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await navigateToSettingsTab(page);
 
     // Find switch to get initial state
-    const toggle = page
-      .getByText("Ordered Questions", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
+    const toggle = page.getByTestId("toggle-questions-ordered");
 
     const initialState = await toggle.getAttribute("aria-checked");
 
@@ -512,11 +432,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await navigateToSettingsTab(page);
 
-    const toggleAfterReload = page
-      .getByText("Ordered Questions", { exact: false })
-      .locator("..")
-      .locator("..")
-      .getByRole("switch");
+    const toggleAfterReload = page.getByTestId("toggle-questions-ordered");
     const stateAfterReload =
       await toggleAfterReload.getAttribute("aria-checked");
 

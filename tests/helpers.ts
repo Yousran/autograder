@@ -111,7 +111,7 @@ export async function createNewTest(browser: Browser): Promise<string> {
  * Helper: Click the Questions tab and wait for the panel to become active.
  */
 export async function navigateToQuestionsTab(page: Page): Promise<void> {
-  const questionsTab = page.getByRole("tab", { name: "Questions" });
+  const questionsTab = page.getByTestId("tab-questions");
   await questionsTab.waitFor({ state: "visible" });
   await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
   await questionsTab.click();
@@ -122,7 +122,7 @@ export async function navigateToQuestionsTab(page: Page): Promise<void> {
  * Helper: Click the Settings tab and wait for the panel to become active.
  */
 export async function navigateToSettingsTab(page: Page): Promise<void> {
-  const settingsTab = page.getByRole("tab", { name: "Settings" });
+  const settingsTab = page.getByTestId("tab-settings");
   await settingsTab.waitFor({ state: "visible" });
   await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
   await settingsTab.click();
@@ -130,13 +130,24 @@ export async function navigateToSettingsTab(page: Page): Promise<void> {
 }
 
 /**
+ * Helper: Click the Participants tab and wait for the panel to become active.
+ */
+export async function navigateToParticipantsTab(page: Page): Promise<void> {
+  const participantsTab = page.getByTestId("tab-participants");
+  await participantsTab.waitFor({ state: "visible" });
+  await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+  await participantsTab.click();
+  await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+}
+
+/**
  * Helper: Navigate to the profile page via the navbar user menu.
  */
 export async function navigateToProfilePage(page: Page): Promise<void> {
-  const userMenuButton = page.locator("header button").last();
+  const userMenuButton = page.getByTestId("btn-user-menu");
   await userMenuButton.click();
   await waitForLoaderToDisappear(page);
-  const profileMenuItem = page.locator("a[href*='/profile/']").first();
+  const profileMenuItem = page.getByTestId("link-profile");
   await profileMenuItem.waitFor({ state: "visible" });
   await profileMenuItem.click();
   await waitForLoaderToDisappear(page);
@@ -153,10 +164,10 @@ export async function fillSignUpForm(
   email: string,
   password: string,
 ): Promise<void> {
-  await page.locator("#name").fill(name);
-  await page.locator("#email").fill(email);
-  await page.locator("#password").fill(password);
-  await page.locator("#confirmPassword").fill(password);
+  await page.getByTestId("input-name").fill(name);
+  await page.getByTestId("input-email").fill(email);
+  await page.getByTestId("input-password").fill(password);
+  await page.getByTestId("input-confirm-password").fill(password);
   await page.getByRole("button", { name: /sign up/i }).click();
 }
 
@@ -167,8 +178,9 @@ export async function submitJoinCode(
   page: Page,
   joinCode: string,
 ): Promise<void> {
-  const joinCodeInput = page.getByRole("textbox");
-  const joinButton = page.getByRole("button", { name: /join/i });
+  const joinCodeInput = page.getByTestId("input-join-code");
+  const joinButton = page.getByTestId("btn-join-home");
+  await joinCodeInput.focus();
   await joinCodeInput.fill(joinCode);
   await expect(joinButton).toBeEnabled();
   await joinButton.click();
@@ -178,15 +190,12 @@ export async function submitJoinCode(
  * Helper: Get the join code from the test page.
  */
 export async function getJoinCode(page: Page): Promise<string> {
-  const joinCodeElement = page
-    .locator("label")
-    .filter({ hasText: /[A-Z0-9]{6}/ })
-    .first();
+  const joinCodeElement = page.getByTestId("join-code-display");
   await expect(async () => {
     await expect(joinCodeElement).toBeVisible();
   }).toPass();
   const joinCode = await joinCodeElement.textContent();
-  return joinCode || "";
+  return joinCode?.trim() || "";
 }
 
 /**
@@ -220,11 +229,11 @@ export async function updateTestTitle(
   testId: string,
   title: string,
 ): Promise<void> {
-  const titleElement = page.locator("text=/Untitled Test/");
-  await titleElement.first().hover();
-  await titleElement.first().click();
+  const titleElement = page.getByTestId("test-title-preview");
+  await titleElement.hover();
+  await titleElement.click();
 
-  const titleInput = page.locator('input[data-slot="editable-input"]');
+  const titleInput = page.getByTestId("test-title-input");
   await titleInput.waitFor({ state: "visible" });
   await titleInput.fill(title);
   await titleInput.press("Enter");
@@ -244,15 +253,9 @@ export async function updateTestDescription(
   page: Page,
   description: string,
 ): Promise<void> {
-  const descriptionLabel = page
-    .locator("label")
-    .filter({ hasText: /description/i });
-  const descriptionContainer = descriptionLabel.locator("..");
-  const descriptionText = descriptionContainer.locator("p, div").first();
+  const descriptionText = page.getByTestId("test-description-preview");
   await descriptionText.click();
-  const descriptionInput = descriptionContainer
-    .locator("textarea, input")
-    .first();
+  const descriptionInput = page.getByTestId("test-description-input");
   await descriptionInput.waitFor({ state: "visible" });
   await descriptionInput.fill(description);
   await descriptionInput.press("Enter");
@@ -265,11 +268,7 @@ export async function toggleAcceptingResponses(
   page: Page,
   testId: string,
 ): Promise<void> {
-  const toggle = page
-    .getByText("Accepting Responses", { exact: false })
-    .locator("..")
-    .locator("..")
-    .getByRole("switch");
+  const toggle = page.getByTestId("toggle-accepting-responses");
 
   const responsePromise = page.waitForResponse(
     (response) =>
@@ -288,11 +287,7 @@ export async function toggleLoggedInOnly(
   page: Page,
   testId: string,
 ): Promise<void> {
-  const toggle = page
-    .getByText("Logged-in Users Only", { exact: false })
-    .locator("..")
-    .locator("..")
-    .getByRole("switch");
+  const toggle = page.getByTestId("toggle-logged-in-only");
 
   const responsePromise = page.waitForResponse(
     (response) =>
@@ -311,13 +306,9 @@ export async function setMaxAttempts(
   page: Page,
   maxAttempts: number,
 ): Promise<void> {
-  const maxAttemptLabel = page
-    .locator("label")
-    .filter({ hasText: /max.*attempt/i });
-  const maxAttemptInput = maxAttemptLabel
-    .locator("..")
-    .locator("input")
-    .first();
+  const maxAttemptInput = page
+    .getByTestId("input-max-attempts")
+    .locator('input[type="text"]');
   await maxAttemptInput.click();
   await maxAttemptInput.clear();
   await maxAttemptInput.fill(maxAttempts.toString());
@@ -328,11 +319,9 @@ export async function setMaxAttempts(
  * Helper: Set the test duration.
  */
 export async function setDuration(page: Page, duration: number): Promise<void> {
-  const durationLabel = page
-    .locator("label")
-    .filter({ hasText: /duration|time limit/i });
-  const durationContainer = durationLabel.locator("..");
-  const durationInput = durationContainer.locator("input").first();
+  const durationInput = page
+    .getByTestId("input-duration")
+    .locator('input[type="text"]');
   await durationInput.click();
   await durationInput.clear();
   await durationInput.fill(duration.toString());
@@ -346,11 +335,7 @@ export async function toggleQuestionOrdering(
   page: Page,
   testId: string,
 ): Promise<void> {
-  const questionOrderingToggle = page
-    .getByText("Ordered", { exact: false })
-    .locator("..")
-    .locator("..")
-    .getByRole("switch");
+  const questionOrderingToggle = page.getByTestId("toggle-questions-ordered");
 
   const responsePromise = page.waitForResponse(
     (response) =>
@@ -369,11 +354,7 @@ export async function toggleShowDetailedScore(
   page: Page,
   testId: string,
 ): Promise<void> {
-  const toggle = page
-    .getByText("Show Detailed Score", { exact: false })
-    .locator("..")
-    .locator("..")
-    .getByRole("switch");
+  const toggle = page.getByTestId("toggle-detailed-score");
 
   const responsePromise = page.waitForResponse(
     (response) =>
@@ -392,11 +373,7 @@ export async function toggleShowCorrectAnswers(
   page: Page,
   testId: string,
 ): Promise<void> {
-  const toggle = page
-    .getByText("Show Correct Answers", { exact: false })
-    .locator("..")
-    .locator("..")
-    .getByRole("switch");
+  const toggle = page.getByTestId("toggle-correct-answers");
 
   const responsePromise = page.waitForResponse(
     (response) =>
@@ -415,11 +392,7 @@ export async function toggleOrderedQuestions(
   page: Page,
   testId: string,
 ): Promise<void> {
-  const toggle = page
-    .getByText("Ordered Questions", { exact: false })
-    .locator("..")
-    .locator("..")
-    .getByRole("switch");
+  const toggle = page.getByTestId("toggle-questions-ordered");
 
   const responsePromise = page.waitForResponse(
     (response) =>
@@ -572,10 +545,7 @@ export async function answerAllQuestions(
 ): Promise<void> {
   for (let i = 0; i < questionTexts.length; i++) {
     // Answer the current question (e.g., select first option for choice question)
-    const choiceOption = page
-      .locator("label")
-      .filter({ hasText: /option/i })
-      .first();
+    const choiceOption = page.getByTestId("choice-option-0");
     if (await choiceOption.isVisible().catch(() => false)) {
       await choiceOption.click();
     }
@@ -738,11 +708,11 @@ export async function addPrerequisite(
   await navigateToSettingsTab(page);
 
   // Scroll to prerequisites section
-  await page.locator("text=/prerequisite/i").first().scrollIntoViewIfNeeded();
+  await page.getByTestId("section-prerequisites").scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
 
   // Click Add Prerequisite button
-  const addButton = page.getByRole("button", { name: /add/i }).last();
+  const addButton = page.getByTestId("btn-add-prerequisite");
   await expect(async () => {
     await expect(addButton).toBeVisible();
     await expect(addButton).toBeEnabled();
@@ -750,12 +720,12 @@ export async function addPrerequisite(
   await addButton.click();
 
   // Wait for dialog to appear
-  await page.getByText(/select.*test/i).waitFor({ state: "visible" });
+  await page
+    .getByTestId("dialog-add-prerequisite")
+    .waitFor({ state: "visible" });
 
   // Select the prerequisite test from dropdown
-  const selectTrigger = page.getByRole("combobox", {
-    name: "Prerequisite Test",
-  });
+  const selectTrigger = page.getByTestId("select-prerequisite-test");
   await selectTrigger.click();
 
   // Click the option with the prerequisite test title
@@ -766,20 +736,15 @@ export async function addPrerequisite(
   // Set minimum score if not 0
   if (minScore > 0) {
     const scoreInput = page
-      .locator("label")
-      .filter({ hasText: /min.*score/i })
-      .locator("..")
-      .locator("input")
-      .first();
+      .getByTestId("input-min-score")
+      .locator('input[type="text"]');
     await scoreInput.click();
     await scoreInput.clear();
     await scoreInput.fill(minScore.toString());
   }
 
   // Click confirm/submit button in dialog
-  const confirmButton = page
-    .getByRole("button", { name: /confirm|submit|add/i })
-    .last();
+  const confirmButton = page.getByTestId("btn-confirm-prerequisite");
   await expect(confirmButton).toBeVisible();
   await confirmButton.click();
 
@@ -911,13 +876,10 @@ export async function answerQuestionWithChoice(
   page: Page,
   choiceText: string,
 ): Promise<void> {
-  // Find labels with radio/checkbox inputs that contain the matching text
-  const choiceLabel = page
-    .locator("label")
-    .filter({
-      has: page.locator('input[type="radio"], input[type="checkbox"]'),
-    })
-    .filter({ hasText: choiceText });
+  // Find choice element by test ID pattern
+  const choiceLabel = page.locator(`[data-testid^="choice-input-"]`).filter({
+    hasText: choiceText,
+  });
 
   await expect(async () => {
     await expect(choiceLabel).toBeVisible();
@@ -935,25 +897,22 @@ export async function answerQuestionWithChoiceIndex(
   choiceIndex: number,
 ): Promise<void> {
   await expect(async () => {
-    // Find all choice labels that have radio/checkbox inputs
-    // These are labels paired with input elements (radio or checkbox)
-    const choiceLabels = page.locator("label").filter({
-      has: page.locator('input[type="radio"], input[type="checkbox"]'),
-    });
+    // Find all choice inputs by data-testid pattern
+    const choiceInputs = page.locator(`[data-testid^="choice-input-"]`);
 
     // Get the count and validate index is valid
-    const count = await choiceLabels.count();
+    const count = await choiceInputs.count();
     expect(count).toBeGreaterThan(choiceIndex);
 
     // Select the target choice by index
-    const targetChoice = choiceLabels.nth(choiceIndex);
+    const targetChoice = choiceInputs.nth(choiceIndex);
     await expect(targetChoice).toBeVisible();
 
     // Scroll into view before clicking
     await targetChoice.scrollIntoViewIfNeeded();
     await page.waitForTimeout(100);
 
-    // Click the label to select the radio/checkbox
+    // Click the choice
     await targetChoice.click();
     await waitForLoaderToDisappear(page);
   }).toPass();

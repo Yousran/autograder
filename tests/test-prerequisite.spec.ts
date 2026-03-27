@@ -264,10 +264,10 @@ test.describe
 
     // Should see an error message about prerequisite
     await expect(async () => {
-      const errorMessage = page
-        .locator("text=/prerequisite|required/i")
-        .first();
+      const errorMessage = page.getByTestId("message-join-error");
       await expect(errorMessage).toBeVisible();
+      const text = await errorMessage.textContent();
+      expect(text).toMatch(/prerequisite/i);
     }).toPass();
   });
 
@@ -287,10 +287,10 @@ test.describe
 
     // Should see error about insufficient prerequisite score
     await expect(async () => {
-      const errorMessage = page
-        .locator("text=/prerequisite|required|score/i")
-        .first();
+      const errorMessage = page.getByTestId("message-join-error");
       await expect(errorMessage).toBeVisible();
+      const text = await errorMessage.textContent();
+      expect(text).toMatch(/insufficient|score/i);
     }).toPass();
   });
 });
@@ -451,13 +451,29 @@ test.describe
     // Attempt to join main test WITHOUT completing prerequisite
     await page.goto("/en");
     await submitJoinCode(page, mainTestJoinCode);
+    await page.waitForURL(`/en/join/${mainTestJoinCode}`);
+
+    // Guest should see Start Test button (not upfront error, since guests aren't checked until they provide name)
+    const startButton = page.getByRole("button", { name: "Start Test" });
+    await expect(startButton).toBeVisible();
+    await startButton.click();
+
+    // Enter a name and attempt to submit
+    const nameInput = page.getByRole("textbox", { name: "Your Name" });
+    await expect(nameInput).toBeVisible();
+    await nameInput.fill("GuestTestUser");
+
+    const confirmButton = page
+      .getByRole("button", { name: /Join & Start/ })
+      .first();
+    await confirmButton.click();
 
     // Should see error about prerequisite
     await expect(async () => {
-      const errorMessage = page
-        .locator("text=/prerequisite|required/i")
-        .first();
+      const errorMessage = page.getByTestId("message-join-error");
       await expect(errorMessage).toBeVisible();
+      const text = await errorMessage.textContent();
+      expect(text).toMatch(/prerequisite/i);
     }).toPass();
   });
 
@@ -527,14 +543,28 @@ test.describe
 
     await guest2Page.goto("/en");
     await submitJoinCode(guest2Page, mainJoinCode);
+    await guest2Page.waitForURL(`/en/join/${mainJoinCode}`);
 
     // Should fail because Guest2 hasn't completed prerequisite
     // (even though Guest1 did, they are different identities)
+    const startButton2 = guest2Page.getByRole("button", { name: "Start Test" });
+    await expect(startButton2).toBeVisible();
+    await startButton2.click();
+
+    const nameInput2 = guest2Page.getByRole("textbox", { name: "Your Name" });
+    await expect(nameInput2).toBeVisible();
+    await nameInput2.fill("Guest2");
+
+    const confirmButton2 = guest2Page
+      .getByRole("button", { name: /Join & Start/ })
+      .first();
+    await confirmButton2.click();
+
     await expect(async () => {
-      const errorMessage = guest2Page
-        .locator("text=/prerequisite|required/i")
-        .first();
+      const errorMessage = guest2Page.getByTestId("message-join-error");
       await expect(errorMessage).toBeVisible();
+      const text = await errorMessage.textContent();
+      expect(text).toMatch(/prerequisite/i);
     }).toPass();
 
     await guest2Context.close();

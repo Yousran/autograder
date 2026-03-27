@@ -49,7 +49,7 @@ test.describe.serial("Profile Page - Owner Profile", () => {
     await page.goto("/en");
 
     // Check that user info (avatar button) is visible in navbar
-    const navbarAvatar = page.locator("header button").last();
+    const navbarAvatar = page.getByTestId("btn-user-menu");
     await expect(async () => {
       await expect(navbarAvatar).toBeVisible();
     }).toPass();
@@ -116,14 +116,14 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     await page.waitForURL("/en");
 
     // Extract profile URL from navbar - click the avatar button (last button in header)
-    const userMenuButton = page.locator("header button").last();
+    const userMenuButton = page.getByTestId("btn-user-menu");
     await userMenuButton.click();
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
 
     // Wait for profile link to be visible in dropdown
-    const profileLink = page.locator("a[href*='/profile/']");
+    const profileLink = page.getByTestId("link-profile");
     await profileLink.waitFor({ state: "visible" });
     const profileUrl = await profileLink.getAttribute("href");
 
@@ -157,14 +157,14 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     await page.waitForURL("/en");
 
     // Get profile URL - click the avatar button (last button in header)
-    const userMenuButton = page.locator("header button").last();
+    const userMenuButton = page.getByTestId("btn-user-menu");
     await userMenuButton.click();
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
 
     // Wait for profile link to be visible in dropdown
-    const profileLink = page.locator("a[href*='/profile/']");
+    const profileLink = page.getByTestId("link-profile");
     await profileLink.waitFor({ state: "visible" });
     const profileUrl = await profileLink.getAttribute("href");
 
