@@ -180,7 +180,9 @@
       "confirm": "Bergabung & Mulai",
       "joining": "Bergabung...",
       "cancel": "Batal",
-      "nameFromAccount": "Nama Anda diambil dari akun Anda."
+      "nameFromAccount": "Nama Anda diambil dari akun Anda.",
+      "prerequisiteNotMet": "Anda belum menyelesaikan ujian prasyarat yang diperlukan.",
+      "prerequisiteInsufficientScore": "Anda belum mencapai skor yang dibutuhkan di ujian prasyarat."
     },
     "testStart": {
       "questionCount": "Soal {current} dari {total}",

@@ -37,6 +37,10 @@ export function DurationEditable({ testId, initialValue }: Props) {
   }
 
   return (
-    <EditableNumberInput initialValue={initialValue} onUpdate={handleUpdate} />
+    <EditableNumberInput
+      initialValue={initialValue}
+      onUpdate={handleUpdate}
+      data-testid="input-duration"
+    />
   );
 }

@@ -232,7 +232,7 @@ export function TestPrerequisiteCard({ testId }: Props) {
 
   return (
     <>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3" data-testid="section-prerequisites">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">{t("loading")}</p>
         ) : prerequisites.length === 0 ? (
@@ -252,12 +252,14 @@ export function TestPrerequisiteCard({ testId }: Props) {
                 </span>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <EditableNumberInput
-                    initialValue={prereq.minScoreRequired}
-                    min={0}
-                    max={100}
-                    onUpdate={(value) => handleScoreUpdate(prereq, value)}
-                  />
+                  <div data-testid={`input-prerequisite-score-${prereq.id}`}>
+                    <EditableNumberInput
+                      initialValue={prereq.minScoreRequired}
+                      min={0}
+                      max={100}
+                      onUpdate={(value) => handleScoreUpdate(prereq, value)}
+                    />
+                  </div>
 
                   <Button
                     variant="ghost"
@@ -300,7 +302,10 @@ export function TestPrerequisiteCard({ testId }: Props) {
 
       {/* Add Prerequisite Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent
+          className="sm:max-w-md"
+          data-testid="dialog-add-prerequisite"
+        >
           <DialogHeader>
             <DialogTitle>{t("dialogTitle")}</DialogTitle>
           </DialogHeader>
@@ -339,6 +344,7 @@ export function TestPrerequisiteCard({ testId }: Props) {
                 onUpdate={async (v) => {
                   setMinScore(v);
                 }}
+                data-testid="input-min-score"
               />
               <p className="text-xs text-muted-foreground">
                 {t("minScoreHint")}
@@ -357,6 +363,7 @@ export function TestPrerequisiteCard({ testId }: Props) {
             <Button
               onClick={handleAdd}
               disabled={isSubmitting || !selectedTestId}
+              data-testid="btn-confirm-prerequisite"
             >
               {isSubmitting ? t("adding") : t("addConfirm")}
             </Button>

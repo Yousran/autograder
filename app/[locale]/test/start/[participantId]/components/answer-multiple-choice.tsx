@@ -56,6 +56,7 @@ export function AnswerMultipleChoice({
               onChange={() => toggle(choice.id)}
               className="mt-0.5 size-4 accent-primary"
               aria-label={extractPlateText(choice.choiceText)}
+              data-testid={`choice-input-${choice.id}`}
             />
             <span className="min-w-0 overflow-hidden text-sm leading-relaxed">
               <PlateReadOnlyViewer

@@ -93,7 +93,10 @@ export function JoinCodeCard({
             {hasActiveCode ? (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Label className="text-5xl font-bold font-sans select-all pointer-events-auto cursor-default">
+                  <Label
+                    className="text-5xl font-bold font-sans select-all pointer-events-auto cursor-default"
+                    data-testid="join-code-display"
+                  >
                     {code}
                   </Label>
                 </TooltipTrigger>

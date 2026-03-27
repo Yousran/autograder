@@ -180,7 +180,9 @@
       "confirm": "Join & Start",
       "joining": "Joining...",
       "cancel": "Cancel",
-      "nameFromAccount": "Your name is taken from your account."
+      "nameFromAccount": "Your name is taken from your account.",
+      "prerequisiteNotMet": "You have not completed the required prerequisite test(s).",
+      "prerequisiteInsufficientScore": "You have not achieved the required score in the prerequisite test(s)."
     },
     "testStart": {
       "questionCount": "Question {current} of {total}",

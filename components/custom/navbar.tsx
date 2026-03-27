@@ -58,7 +58,10 @@ export default function Navbar() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
-                    <button className="rounded-full p-0 focus-visible:ring-2">
+                    <button
+                      className="rounded-full p-0 focus-visible:ring-2"
+                      data-testid="btn-user-menu"
+                    >
                       <Avatar>
                         <AvatarImage
                           src={session?.user?.image ?? undefined}
@@ -103,6 +106,7 @@ export default function Navbar() {
                       <Link
                         href={`/profile/${user.id}`}
                         className="flex items-center gap-2"
+                        data-testid="link-profile"
                       >
                         <Avatar>
                           <AvatarImage

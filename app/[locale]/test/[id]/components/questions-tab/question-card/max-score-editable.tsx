@@ -50,6 +50,10 @@ export function MaxScoreEditable({
   );
 
   return (
-    <EditableNumberInput initialValue={initialValue} onUpdate={handleUpdate} />
+    <EditableNumberInput
+      initialValue={initialValue}
+      onUpdate={handleUpdate}
+      data-testid="input-max-score"
+    />
   );
 }

@@ -26,6 +26,12 @@ export default async function JoinTestPage({ params }: PageProps) {
       isLoggedInUserOnly: true,
       joinCodeExpiresAt: true,
       joinCode: true,
+      prerequisites: {
+        select: {
+          prerequisiteTestId: true,
+          minScoreRequired: true,
+        },
+      },
       _count: {
         select: {
           questions: true,
@@ -66,6 +72,45 @@ export default async function JoinTestPage({ params }: PageProps) {
     );
   }
 
+  // Check prerequisites for authenticated users
+  let prerequisiteError: string | null = null;
+  if (test.prerequisites.length > 0 && isLoggedIn) {
+    const prereqTestIds = test.prerequisites.map((p) => p.prerequisiteTestId);
+
+    const prereqChecks = await prisma.participant.findMany({
+      where: {
+        testId: { in: prereqTestIds },
+        isCompleted: true,
+        userId: session.user.id,
+      },
+      select: { testId: true, score: true },
+    });
+
+    // Check if all prerequisites are completed
+    const completedPrereqIds = new Set(prereqChecks.map((p) => p.testId));
+    const allCompleted = test.prerequisites.every((prereq) =>
+      completedPrereqIds.has(prereq.prerequisiteTestId),
+    );
+
+    if (!allCompleted) {
+      prerequisiteError = t("prerequisiteNotMet");
+    } else {
+      // Check if all prerequisites meet the minimum score requirement
+      const meetsAll = test.prerequisites.every((prereq) => {
+        const best = prereqChecks
+          .filter((p) => p.testId === prereq.prerequisiteTestId)
+          .reduce<
+            number | null
+          >((max, p) => (max === null || p.score > max ? p.score : max), null);
+        return best !== null && best >= prereq.minScoreRequired;
+      });
+
+      if (!meetsAll) {
+        prerequisiteError = t("prerequisiteInsufficientScore");
+      }
+    }
+  }
+
   const testInfo = {
     id: test.id,
     title: test.title,
@@ -76,6 +121,7 @@ export default async function JoinTestPage({ params }: PageProps) {
     isAcceptingResponses: test.isAcceptingResponses,
     isLoggedInUserOnly: test.isLoggedInUserOnly,
     joinCode: test.joinCode,
+    prerequisiteError,
   };
 
   return (

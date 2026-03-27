@@ -26,6 +26,7 @@ export function EditableNumberInput({
   debounceDelay = 500,
   min = 1,
   max,
+  ...props
 }: EditableNumberInputProps) {
   const [value, setValue] = useState<number | undefined>(
     initialValue ?? undefined,
@@ -87,7 +88,7 @@ export function EditableNumberInput({
   };
 
   return (
-    <div onBlur={handleBlur} data-saving={isSaving}>
+    <div onBlur={handleBlur} data-saving={isSaving} {...props}>
       <NumberField
         value={value}
         onValueChange={(v) => setValue(v ?? undefined)}
@@ -97,7 +98,7 @@ export function EditableNumberInput({
       >
         <NumberFieldGroup>
           <NumberFieldDecrement />
-          <NumberFieldInput data-testid="input-number" />
+          <NumberFieldInput />
           <NumberFieldIncrement />
         </NumberFieldGroup>
       </NumberField>

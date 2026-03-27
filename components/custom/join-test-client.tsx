@@ -34,6 +34,7 @@ interface TestInfo {
   isAcceptingResponses: boolean;
   isLoggedInUserOnly: boolean;
   joinCode: string;
+  prerequisiteError?: string | null;
 }
 
 interface JoinTestClientProps {
@@ -62,6 +63,7 @@ export function JoinTestClient({
   const [participantCount, setParticipantCount] = useState(
     testInfo.participantCount,
   );
+  const prerequisiteError = testInfo.prerequisiteError ?? null;
 
   useEffect(() => {
     const poll = async () => {
@@ -158,7 +160,14 @@ export function JoinTestClient({
         </Card>
 
         {/* Start button */}
-        {isAcceptingResponses ? (
+        {prerequisiteError ? (
+          <Alert variant="destructive">
+            <AlertCircle />
+            <AlertDescription data-testid="message-join-error">
+              {prerequisiteError}
+            </AlertDescription>
+          </Alert>
+        ) : isAcceptingResponses ? (
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <Button size="lg" className="w-full" data-testid="btn-start-test">
@@ -199,7 +208,9 @@ export function JoinTestClient({
                     {error && (
                       <Alert variant="destructive" className="mt-1">
                         <AlertCircle className="size-4" />
-                        <AlertDescription>{error}</AlertDescription>
+                        <AlertDescription data-testid="message-join-error">
+                          {error}
+                        </AlertDescription>
                       </Alert>
                     )}
                   </div>

@@ -100,6 +100,7 @@ export default function SignInPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
+                data-testid="input-email"
               />
             </div>
 
@@ -120,6 +121,7 @@ export default function SignInPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                data-testid="input-password"
               />
             </div>
 
