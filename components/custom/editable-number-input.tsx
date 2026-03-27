@@ -97,7 +97,7 @@ export function EditableNumberInput({
       >
         <NumberFieldGroup>
           <NumberFieldDecrement />
-          <NumberFieldInput />
+          <NumberFieldInput data-testid="input-number" />
           <NumberFieldIncrement />
         </NumberFieldGroup>
       </NumberField>

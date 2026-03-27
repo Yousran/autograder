@@ -72,7 +72,10 @@ export function QuestionCard({
             </span>
           </SortableItemHandle>
           <Select defaultValue={question.type} onValueChange={onTypeChange}>
-            <SelectTrigger className="flex-1">
+            <SelectTrigger
+              className="flex-1"
+              data-testid="select-question-type"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

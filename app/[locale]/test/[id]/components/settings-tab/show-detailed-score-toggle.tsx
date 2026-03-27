@@ -40,5 +40,11 @@ export function ShowDetailedScoreToggle({ testId, initialValue }: Props) {
     }
   }
 
-  return <Switch checked={checked} onCheckedChange={handleCheckedChange} />;
+  return (
+    <Switch
+      checked={checked}
+      onCheckedChange={handleCheckedChange}
+      data-testid="toggle-detailed-score"
+    />
+  );
 }

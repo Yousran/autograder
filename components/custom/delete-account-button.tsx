@@ -74,7 +74,11 @@ export default function DeleteAccountButton({
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" className="w-full">
+        <Button
+          variant="destructive"
+          className="w-full"
+          data-testid="btn-delete-account"
+        >
           <Trash2 className="size-4 mr-2" />
           {t("deleteAccount")}
         </Button>
@@ -109,6 +113,7 @@ export default function DeleteAccountButton({
             variant="destructive"
             disabled={!isConfirmed || isDeleting}
             onClick={handleDelete}
+            data-testid="btn-confirm-delete-account"
           >
             {isDeleting && <Loader2 className="size-4 mr-2 animate-spin" />}
             {t("deleteAccountConfirmButton")}

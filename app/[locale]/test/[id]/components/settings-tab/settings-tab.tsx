@@ -42,7 +42,7 @@ export function SettingsTab({
     <div className="flex flex-col gap-4">
       <Card className="p-6 flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <Label className="text-md font-bold">
+          <Label className="text-md font-bold" data-testid="label-description">
             {tComponentTest("descriptionLabel")}
           </Label>
           <TestDescriptionEditable
@@ -52,13 +52,16 @@ export function SettingsTab({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-            <Label className="text-md font-bold">
+            <Label className="text-md font-bold" data-testid="label-duration">
               {tComponentTest("durationLabel")}
             </Label>
             <DurationEditable testId={testId} initialValue={initialDuration} />
           </div>
           <div className="flex flex-col gap-1">
-            <Label className="text-md font-bold">
+            <Label
+              className="text-md font-bold"
+              data-testid="label-max-attempts"
+            >
               {tComponentTest("maxAttemptsLabel")}
             </Label>
             <MaxAttemptEditable
@@ -69,7 +72,10 @@ export function SettingsTab({
         </div>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5 min-w-0">
-            <Label className="text-md font-bold">
+            <Label
+              className="text-md font-bold"
+              data-testid="label-accepting-responses"
+            >
               {tComponentTest("isAcceptingResponsesLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
@@ -83,7 +89,10 @@ export function SettingsTab({
         </div>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5 min-w-0">
-            <Label className="text-md font-bold">
+            <Label
+              className="text-md font-bold"
+              data-testid="label-logged-in-only"
+            >
               {tComponentTest("isLoggedInUserOnlyLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
@@ -97,7 +106,10 @@ export function SettingsTab({
         </div>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5 min-w-0">
-            <Label className="text-md font-bold">
+            <Label
+              className="text-md font-bold"
+              data-testid="label-detailed-score"
+            >
               {tComponentTest("isShowDetailedScoreLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
@@ -111,7 +123,10 @@ export function SettingsTab({
         </div>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5 min-w-0">
-            <Label className="text-md font-bold">
+            <Label
+              className="text-md font-bold"
+              data-testid="label-correct-answers"
+            >
               {tComponentTest("isShowCorrectAnswersLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
@@ -125,7 +140,10 @@ export function SettingsTab({
         </div>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5 min-w-0">
-            <Label className="text-md font-bold">
+            <Label
+              className="text-md font-bold"
+              data-testid="label-questions-ordered"
+            >
               {tComponentTest("isQuestionsOrderedLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">

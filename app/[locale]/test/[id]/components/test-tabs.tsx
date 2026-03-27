@@ -44,9 +44,15 @@ export function TestTabs({ test }: TestTabsProps) {
       className="w-full gap-4"
     >
       <TabsList className="w-full border-b">
-        <TabsTrigger value="settings">{t("tabSettings")}</TabsTrigger>
-        <TabsTrigger value="questions">{t("tabQuestions")}</TabsTrigger>
-        <TabsTrigger value="participants">{t("tabParticipants")}</TabsTrigger>
+        <TabsTrigger value="settings" data-testid="tab-settings">
+          {t("tabSettings")}
+        </TabsTrigger>
+        <TabsTrigger value="questions" data-testid="tab-questions">
+          {t("tabQuestions")}
+        </TabsTrigger>
+        <TabsTrigger value="participants" data-testid="tab-participants">
+          {t("tabParticipants")}
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="settings">
         <SettingsTab

@@ -245,6 +245,7 @@ export function TestPrerequisiteCard({ testId }: Props) {
               <li
                 key={prereq.id}
                 className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 min-w-0"
+                data-testid={`prerequisite-item-${prereq.id}`}
               >
                 <span className="text-sm font-medium truncate min-w-0 flex-1">
                   {prereq.prerequisiteTest.title}
@@ -266,6 +267,7 @@ export function TestPrerequisiteCard({ testId }: Props) {
                     aria-label={t("removeAriaLabel", {
                       title: prereq.prerequisiteTest.title,
                     })}
+                    data-testid={`btn-remove-prerequisite-${prereq.id}`}
                   >
                     <Trash2Icon className="size-3.5" />
                   </Button>
@@ -281,6 +283,7 @@ export function TestPrerequisiteCard({ testId }: Props) {
           className="self-start"
           onClick={openDialog}
           disabled={isLoading || availableTests.length === 0}
+          data-testid="btn-add-prerequisite"
         >
           <PlusIcon className="size-3.5 mr-1" />
           {t("addButton")}
@@ -310,6 +313,7 @@ export function TestPrerequisiteCard({ testId }: Props) {
                   id="prereq-test-select"
                   className="w-full overflow-hidden"
                   aria-label={t("selectTestLabel")}
+                  data-testid="select-prerequisite-test"
                 >
                   <SelectValue placeholder={t("selectTestPlaceholder")} />
                 </SelectTrigger>

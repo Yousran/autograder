@@ -350,7 +350,9 @@ export function QuestionMultipleChoice({
           </Button>
         </ChoiceItem>
       ))}
-      <Button onClick={handleCreateChoice}>{t("addChoice")}</Button>
+      <Button onClick={handleCreateChoice} data-testid="btn-add-choice">
+        {t("addChoice")}
+      </Button>
     </div>
   );
 }

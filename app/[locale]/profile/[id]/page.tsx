@@ -82,17 +82,28 @@ export default async function Page({ params }: Props) {
             />
 
             <div className="flex flex-col items-center gap-1">
-              <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
+              <h1
+                className="text-3xl font-extrabold tracking-tight text-foreground"
+                data-testid="profile-name"
+              >
                 {user.name}
               </h1>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p
+                className="text-sm text-muted-foreground"
+                data-testid="profile-email"
+              >
+                {user.email}
+              </p>
             </div>
           </div>
 
           <div className="grid gap-6">
             <Card>
               <CardContent>
-                <h2 className="text-lg font-semibold">
+                <h2
+                  className="text-lg font-semibold"
+                  data-testid="profile-info-section"
+                >
                   {t("profileInformation")}
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -126,7 +137,12 @@ export default async function Page({ params }: Props) {
             {isOwner && (
               <Card>
                 <CardContent>
-                  <h2 className="text-lg font-semibold">{t("createdTests")}</h2>
+                  <h2
+                    className="text-lg font-semibold"
+                    data-testid="profile-created-tests-section"
+                  >
+                    {t("createdTests")}
+                  </h2>
                   <p className="text-sm text-muted-foreground mt-1">
                     {t("createdTestsDescription")}
                   </p>
@@ -162,7 +178,12 @@ export default async function Page({ params }: Props) {
             {isOwner && takenTests.length > 0 && (
               <Card>
                 <CardContent>
-                  <h2 className="text-lg font-semibold">{t("testsTaken")}</h2>
+                  <h2
+                    className="text-lg font-semibold"
+                    data-testid="profile-tests-taken-section"
+                  >
+                    {t("testsTaken")}
+                  </h2>
                   <p className="text-sm text-muted-foreground mt-1">
                     {t("testsTakenDescription")}
                   </p>
@@ -206,7 +227,12 @@ export default async function Page({ params }: Props) {
             {isOwner && PROVIDER_LABELS && (
               <Card>
                 <CardContent>
-                  <h3 className="text-lg font-semibold">{t("loginMethods")}</h3>
+                  <h3
+                    className="text-lg font-semibold"
+                    data-testid="profile-login-methods-section"
+                  >
+                    {t("loginMethods")}
+                  </h3>
                   <p className="text-sm text-muted-foreground mt-1">
                     {t("connectedAccounts")}
                   </p>
@@ -239,7 +265,10 @@ export default async function Page({ params }: Props) {
             {isOwner && (
               <Card className="border-destructive/50">
                 <CardContent>
-                  <h3 className="text-lg font-semibold text-destructive">
+                  <h3
+                    className="text-lg font-semibold text-destructive"
+                    data-testid="profile-delete-account-section"
+                  >
                     {t("deleteAccount")}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">

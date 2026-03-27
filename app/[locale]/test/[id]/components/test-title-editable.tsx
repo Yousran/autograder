@@ -59,8 +59,14 @@ export function TestTitleEditable({ testId, initialTitle }: Props) {
       className="group"
     >
       <EditableArea>
-        <EditablePreview className="text-3xl md:text-3xl text-center font-bold border-transparent px-0 py-0 rounded-none" />
-        <EditableInput className="text-3xl md:text-3xl font-bold" />
+        <EditablePreview
+          className="text-3xl md:text-3xl text-center font-bold border-transparent px-0 py-0 rounded-none"
+          data-testid="test-title-preview"
+        />
+        <EditableInput
+          className="text-3xl md:text-3xl font-bold"
+          data-testid="test-title-input"
+        />
         <EditableTrigger
           className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
           asChild

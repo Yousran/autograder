@@ -82,6 +82,7 @@ export function EditableTextarea({
       onChange={(e) => setValue(e.target.value)}
       onBlur={handleBlur}
       data-saving={isSaving}
+      data-testid="textarea-description"
     />
   );
 }

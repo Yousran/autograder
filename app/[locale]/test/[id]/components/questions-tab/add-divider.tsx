@@ -44,6 +44,7 @@ export function AddDivider({
                 "opacity-100 sm:opacity-0 sm:group-hover/add:opacity-100 transition-opacity duration-200",
             )}
             onClick={onClick}
+            data-testid="btn-add-question"
           >
             <PlusIcon />
             {t("addQuestion")}

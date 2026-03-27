@@ -40,5 +40,11 @@ export function QuestionsOrderedToggle({ testId, initialValue }: Props) {
     }
   }
 
-  return <Switch checked={checked} onCheckedChange={handleCheckedChange} />;
+  return (
+    <Switch
+      checked={checked}
+      onCheckedChange={handleCheckedChange}
+      data-testid="toggle-questions-ordered"
+    />
+  );
 }
