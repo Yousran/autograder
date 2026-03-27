@@ -19,7 +19,7 @@
     "nextjs-app-router-patterns": {
       "source": "wshobson/agents",
       "sourceType": "github",
-      "computedHash": "bdf01cb716d99c640cf02438eee71b544709730ef4d59b3cc24b8721a4540e4b"
+      "computedHash": "04c1df896cc2c9ef824d618b95d21686c5b8e24e5cb32b3d6fe9d97d4b661536"
     },
     "playwright-generate-test": {
       "source": "github/awesome-copilot",
