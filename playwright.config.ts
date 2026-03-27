@@ -70,5 +70,8 @@ export default defineConfig({
     command: "npm run dev",
     url: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
+    env: {
+      PLAYWRIGHT_TEST: "true",
+    },
   },
 });
