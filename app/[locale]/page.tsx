@@ -1,4 +1,3 @@
-//TODO: testId support for all components for easier e2e testing
 //TODO: question reordering e2e tests using playwright
 //TODO: ai grading and feedback generation using openrouter as default but with model provider selection support
 //TODO: dont load the choices separately for each question, but load them in bulk with the questions to avoid multiple requests and reordering issues

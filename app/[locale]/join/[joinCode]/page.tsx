@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/dal";
 import { JoinTestClient } from "@/components/custom/join-test-client";
 import Navbar from "@/components/custom/navbar";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ joinCode: string; locale: string }>;
@@ -54,23 +52,6 @@ export default async function JoinTestPage({ params }: PageProps) {
 
   const session = await getSession();
   const isLoggedIn = !!session;
-
-  /** If the test requires login but user is a guest, show an info alert. */
-  if (test.isLoggedInUserOnly && !isLoggedIn) {
-    return (
-      <div className="h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1 flex items-center justify-center p-4">
-          <div className="w-full max-w-md">
-            <Alert variant="destructive">
-              <AlertCircle className="size-4" />
-              <AlertDescription>{t("loggedInOnly")}</AlertDescription>
-            </Alert>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   // Check prerequisites for authenticated users
   let prerequisiteError: string | null = null;

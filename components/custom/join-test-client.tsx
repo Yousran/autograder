@@ -18,11 +18,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Clock, FileQuestion, Users, AlertCircle } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { JoinStatusResponse } from "@/app/api/tests/join/route";
+
+/**
+ * Uniform error alert component for consistent error message display
+ */
+function ErrorAlert({ message, ...props }: { message: string }) {
+  return (
+    <Alert variant="destructive" {...props}>
+      <AlertCircle className="size-4" />
+      <AlertDescription data-testid="message-join-error">
+        {message}
+      </AlertDescription>
+    </Alert>
+  );
+}
 
 interface TestInfo {
   id: string;
@@ -64,6 +77,10 @@ export function JoinTestClient({
     testInfo.participantCount,
   );
   const prerequisiteError = testInfo.prerequisiteError ?? null;
+
+  // Check if user needs to be logged in
+  const loggedInError =
+    testInfo.isLoggedInUserOnly && !isLoggedIn ? t("loggedInOnly") : null;
 
   useEffect(() => {
     const poll = async () => {
@@ -129,9 +146,6 @@ export function JoinTestClient({
               <CardTitle className="text-xl text-center leading-snug">
                 {testInfo.title}
               </CardTitle>
-              {testInfo.isLoggedInUserOnly && (
-                <Badge variant="secondary">{t("loggedInOnly")}</Badge>
-              )}
               {testInfo.description && (
                 <p className="text-sm text-muted-foreground">
                   {testInfo.description}
@@ -160,13 +174,8 @@ export function JoinTestClient({
         </Card>
 
         {/* Start button */}
-        {prerequisiteError ? (
-          <Alert variant="destructive">
-            <AlertCircle />
-            <AlertDescription data-testid="message-join-error">
-              {prerequisiteError}
-            </AlertDescription>
-          </Alert>
+        {loggedInError || prerequisiteError ? (
+          <ErrorAlert message={(loggedInError || prerequisiteError)!} />
         ) : isAcceptingResponses ? (
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
@@ -183,10 +192,7 @@ export function JoinTestClient({
               </AlertDialogHeader>
 
               {!isAcceptingResponses ? (
-                <Alert variant="destructive">
-                  <AlertCircle className="size-4" />
-                  <AlertDescription>{t("notAccepting")}</AlertDescription>
-                </Alert>
+                <ErrorAlert message={t("notAccepting")} />
               ) : (
                 <>
                   <div className="flex flex-col gap-2 py-1">
@@ -205,14 +211,7 @@ export function JoinTestClient({
                         {t("nameFromAccount")}
                       </p>
                     )}
-                    {error && (
-                      <Alert variant="destructive" className="mt-1">
-                        <AlertCircle className="size-4" />
-                        <AlertDescription data-testid="message-join-error">
-                          {error}
-                        </AlertDescription>
-                      </Alert>
-                    )}
+                    {error && <ErrorAlert message={error} />}
                   </div>
                   <AlertDialogFooter>
                     <AlertDialogCancel disabled={isPending}>
@@ -233,10 +232,7 @@ export function JoinTestClient({
             </AlertDialogContent>
           </AlertDialog>
         ) : (
-          <Alert variant="destructive">
-            <AlertCircle />
-            <AlertDescription>{t("notAccepting")}</AlertDescription>
-          </Alert>
+          <ErrorAlert message={t("notAccepting")} />
         )}
       </div>
     </div>
