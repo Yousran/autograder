@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, List, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -75,6 +76,7 @@ export function BottomNavbar({
 }: BottomNavbarProps) {
   const t = useTranslations("Pages.testStart");
   const [open, setOpen] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
 
   return (
     <TooltipProvider>
@@ -144,15 +146,22 @@ export function BottomNavbar({
 
           {/* Next or Finish */}
           {isLast ? (
-            <AlertDialog open={open} onOpenChange={setOpen}>
+            <AlertDialog
+              open={open}
+              onOpenChange={(newOpen) => {
+                if (isPending || isFinishing) return;
+                setOpen(newOpen);
+              }}
+            >
               <AlertDialogTrigger asChild>
                 <Button
                   aria-label={t("finish")}
                   className="bg-green-500"
                   onClick={onSaveBeforeDialog}
+                  disabled={isPending || isFinishing}
                   data-testid="btn-finish"
                 >
-                  {t("finish")}
+                  {isPending || isFinishing ? <Spinner /> : t("finish")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -163,18 +172,22 @@ export function BottomNavbar({
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>{t("goBack")}</AlertDialogCancel>
+                  <AlertDialogCancel disabled={isPending || isFinishing}>
+                    {t("goBack")}
+                  </AlertDialogCancel>
                   <AlertDialogAction
-                    disabled={isPending}
+                    disabled={isPending || isFinishing}
                     onClick={(e) => {
-                      if (isPending) {
-                        e.preventDefault();
-                        return;
-                      }
+                      e.preventDefault();
+                      setIsFinishing(true);
                       void onFinish();
                     }}
                   >
-                    {t("confirmFinish")}
+                    {isPending || isFinishing ? (
+                      <Spinner />
+                    ) : (
+                      t("confirmFinish")
+                    )}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
