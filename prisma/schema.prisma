@@ -85,10 +85,10 @@ model Verification {
 model Participant {
   id          String  @id @default(cuid())
   testId      String
-  userId      String? // Optional: Allows Guest users OR Logged-in users to take tests
+  userId      String?
   isCompleted Boolean @default(false)
 
-  name  String // Keeping this as "Display Name" for the specific test session
+  name  String
   score Float  @default(0)
 
   createdAt DateTime @default(now())
@@ -110,17 +110,19 @@ model Test {
   creatorId String
 
   title        String
-  joinCode     String    @unique
+  joinCode     String?   @unique
   description  String?   @db.Text
   testDuration Int?
   startTime    DateTime?
   endTime      DateTime?
+  maxAttempts  Int?
+
+  joinCodeExpiresAt DateTime?
 
   isAcceptingResponses Boolean @default(true)
-  loggedInUserOnly     Boolean @default(false)
-  maxAttempts          Int?
-  showDetailedScore    Boolean @default(true)
-  showCorrectAnswers   Boolean @default(false)
+  isLoggedInUserOnly   Boolean @default(false)
+  isShowDetailedScore  Boolean @default(true)
+  isShowCorrectAnswers Boolean @default(false)
   isQuestionsOrdered   Boolean @default(false)
 
   createdAt DateTime @default(now())
@@ -137,8 +139,8 @@ model Test {
 
 model TestPrerequisite {
   id                 String @id @default(cuid())
-  testId             String // The test that is currently "locked"
-  prerequisiteTestId String // The test that must be completed first
+  testId             String
+  prerequisiteTestId String
   minScoreRequired   Float  @default(0)
 
   test             Test @relation("TestPrerequisites", fields: [testId], references: [id], onDelete: Cascade)
@@ -161,7 +163,7 @@ model Question {
 
   questionText String       @db.Text
   type         QuestionType
-  order        Int          @default(0)
+  order        String       @default("a0")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -179,7 +181,7 @@ model EssayQuestion {
   id            String  @id @default(cuid())
   answerText    String  @db.Text
   isExactAnswer Boolean
-  maxScore      Int
+  maxScore      Int     @default(1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -209,7 +211,7 @@ model ChoiceQuestion {
   id String @id @default(cuid())
 
   isChoiceRandomized Boolean
-  maxScore           Int
+  maxScore           Int     @default(1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -259,7 +261,7 @@ model MultipleSelectQuestion {
   id String @id @default(cuid())
 
   isChoiceRandomized Boolean
-  maxScore           Int
+  maxScore           Int     @default(1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

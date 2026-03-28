@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Third-party generated files from shadcn/diceui:
+    "components/ui/**/*",
+    "components/visually-hidden-input.tsx",
+    "lib/compose-refs.ts",
   ]),
 ]);
 

@@ -1,6 +1,5 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-// If your Prisma file is located elsewhere, you can change the path
 import { PrismaClient } from "@/lib/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -10,9 +9,15 @@ const adapter = new PrismaPg({
 
 const prisma = new PrismaClient({ adapter });
 export const auth = betterAuth({
+  baseURL: process.env.VERCEL_BRANCH_URL
+    ? `https://${process.env.VERCEL_BRANCH_URL}`
+    : "http://localhost:3000",
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  advanced: {
+    trustedProxyHeaders: true,
+  },
   emailAndPassword: {
     enabled: true,
   },

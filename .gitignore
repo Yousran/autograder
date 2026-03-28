@@ -10,6 +10,9 @@
 !.yarn/releases
 !.yarn/versions
 
+# agents
+.agents
+
 # testing
 /coverage
 
@@ -43,6 +46,11 @@ next-env.d.ts
 
 /lib/generated/prisma
 
-/generated/prisma
-
-/lib/generated/prisma
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.auth/user.json
+/playwright/.cache/
+/playwright/.auth/
