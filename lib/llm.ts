@@ -9,6 +9,9 @@ const apiKeys = [
   process.env.OPENROUTER_API_KEY_5,
 ].filter(Boolean);
 
+// 8-second timeout (leave 2s buffer before Vercel's 10s limit)
+const LLM_TIMEOUT_MS = 8000;
+
 export async function llm({
   questionText,
   answer,
@@ -24,6 +27,8 @@ export async function llm({
 }) {
   for (let i = 0; i < apiKeys.length; i++) {
     const key = apiKeys[i];
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), LLM_TIMEOUT_MS);
 
     const openai = new OpenAI({
       baseURL: "https://openrouter.ai/api/v1",
@@ -37,6 +42,7 @@ export async function llm({
               : "",
         "X-Title": process.env.NEXT_PUBLIC_APP_NAME || "",
       },
+      timeout: LLM_TIMEOUT_MS,
     });
 
     try {
@@ -48,7 +54,7 @@ export async function llm({
             content:
               `Kamu adalah penilai jawaban soal essay. Berikan skor dari ${minScore} hingga ${maxScore}. ` +
               `Jika jawaban tidak relevan, berikan skor ${minScore}. Jika relevan, berikan skor ${maxScore}. ` +
-              `Berikan Balasan dengan format. Score: <Whole Number(score)>\nExplanation: <explanation>`,
+              `Respond ONLY dengan format: Score: [angka]\nExplanation: [penjelasan]. Jangan gunakan simbol atau formatting lain.`,
           },
           {
             role: "user",
@@ -59,13 +65,16 @@ export async function llm({
         ],
       });
 
+      clearTimeout(timeoutId);
+
       const reply = res.choices[0].message.content || "";
 
       console.log(`Key ${i + 1} response: ${reply}`);
 
+      // More flexible regex to handle various formats
       const match = reply
         .replace(/\r/g, "")
-        .match(/Score:\s*(\d+)\s*Explanation:\s*([\s\S]*)/);
+        .match(/Score:\s*(\d+)\s*(?:Explanation:|Penjelasan:)\s*([\s\S]*)/i);
 
       if (match) {
         const score = parseInt(match[1], 10);
@@ -77,12 +86,23 @@ export async function llm({
 
         if (!isNaN(score) && score >= minScore && score <= maxScore) {
           return { score, explanation };
+        } else {
+          console.warn(
+            `Key ${i + 1} score out of range: ${score} (expected ${minScore}-${maxScore})`,
+          );
         }
+      } else {
+        console.warn(`Key ${i + 1} failed to parse response: ${reply}`);
       }
-
-      console.warn(`Key ${i + 1} returned invalid score:`, reply);
     } catch (err) {
-      console.warn(`Key ${i + 1} failed:`, err);
+      clearTimeout(timeoutId);
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      console.warn(`Key ${i + 1} failed (${errorMsg}):`, err);
+
+      // If timeout, skip to next key faster
+      if (errorMsg.includes("timeout") || errorMsg.includes("abort")) {
+        continue;
+      }
     }
   }
 
