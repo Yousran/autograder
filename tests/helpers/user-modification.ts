@@ -19,6 +19,20 @@ export async function fillSignUpForm(
 }
 
 /**
+ * Helper: Fill and submit the sign-in form.
+ * The caller should navigate to the sign-in URL beforehand.
+ */
+export async function fillSignInForm(
+  page: Page,
+  email: string,
+  password: string,
+): Promise<void> {
+  await page.getByTestId("input-email").fill(email);
+  await page.getByTestId("input-password").fill(password);
+  await page.getByRole("button", { name: /sign in/i }).click();
+}
+
+/**
  * Helper: Navigate to the profile page via the navbar user menu.
  */
 export async function navigateToProfilePage(page: Page): Promise<void> {

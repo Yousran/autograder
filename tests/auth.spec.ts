@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { fillSignUpForm, waitForLoaderToDisappear } from "./helpers";
+import { fillSignUpForm } from "./helpers/user-modification";
+import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 const SIGN_UP_URL = "/en/auth/sign-up";
 const SIGN_IN_URL = "/en/auth/sign-in";

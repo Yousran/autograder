@@ -2,8 +2,8 @@ import { test, expect } from "@playwright/test";
 import {
   fillSignUpForm,
   navigateToProfilePage,
-  waitForLoaderToDisappear,
-} from "./helpers";
+} from "./helpers/user-modification";
+import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 const SIGN_UP_URL = "/en/auth/sign-up";
 
