@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "components/ui/**/*",
     "components/visually-hidden-input.tsx",
     "lib/compose-refs.ts",
+    // Playwright:
+    "playwright-report/**",
   ]),
 ]);
 
