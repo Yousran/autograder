@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { QuestionType } from "../generated/prisma/enums";
 import type { ChoiceQuestion } from "../generated/prisma/client";
-import { createChoiceSchema, defaultChoiceData } from "./choice";
+import { createChoiceSchema } from "./choice";
 export {
   ChoiceValidationSchema,
   createChoiceSchema,

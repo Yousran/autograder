@@ -1,10 +1,7 @@
 import { z } from "zod";
 import { QuestionType } from "../generated/prisma/enums";
 import type { MultipleSelectQuestion } from "../generated/prisma/client";
-import {
-  createMultipleSelectChoiceSchema,
-  defaultMultipleSelectChoiceData,
-} from "./multiple-choice";
+import { createMultipleSelectChoiceSchema } from "./multiple-choice";
 export {
   MultipleSelectChoiceValidationSchema,
   createMultipleSelectChoiceSchema,
