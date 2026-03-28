@@ -149,7 +149,7 @@ export function BottomNavbar({
             <AlertDialog
               open={open}
               onOpenChange={(newOpen) => {
-                if (isPending || isFinishing) return;
+                if (isFinishing) return;
                 setOpen(newOpen);
               }}
             >
@@ -158,10 +158,10 @@ export function BottomNavbar({
                   aria-label={t("finish")}
                   className="bg-green-500"
                   onClick={onSaveBeforeDialog}
-                  disabled={isPending || isFinishing}
+                  disabled={isFinishing}
                   data-testid="btn-finish"
                 >
-                  {isPending || isFinishing ? <Spinner /> : t("finish")}
+                  {isFinishing ? <Spinner /> : t("finish")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -172,7 +172,7 @@ export function BottomNavbar({
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isPending || isFinishing}>
+                  <AlertDialogCancel disabled={isFinishing}>
                     {t("goBack")}
                   </AlertDialogCancel>
                   <AlertDialogAction
