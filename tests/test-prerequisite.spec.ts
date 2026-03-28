@@ -15,16 +15,14 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { createTest, addPrerequisite } from "./helpers/test-modification";
 import {
-  addPrerequisite,
-  completeTest,
   completeTestWithParticipant,
+  completeTest,
   completeTestWithScores,
-  createTestWithQuestion,
-  createTestWithScoringQuestion,
   submitJoinCode,
-  waitForLoaderToDisappear,
-} from "./helpers";
+} from "./helpers/test-start-navigation-helper";
+import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Create Test with Prerequisite
@@ -34,17 +32,22 @@ test.describe.serial("Test Prerequisite - Create Test", () => {
   test.use({ storageState: "playwright/.auth/user.json" });
   const uniqueId = Date.now();
 
-  test("educator can add a prerequisite to a test", async ({ page }) => {
+  test("educator can add a prerequisite to a test", async ({
+    page,
+    browser,
+  }) => {
     // Create prerequisite test
-    await createTestWithQuestion(page, {
+    await createTest(browser, {
       title: `Prerequisite Math Test-${uniqueId}`,
       description: "Basic math skills required",
+      questions: [{ text: "Sample Question", type: "CHOICE" }],
     });
 
     // Create main test that will have the prerequisite
-    const { testId: mainTestId } = await createTestWithQuestion(page, {
+    const { testId: mainTestId } = await createTest(browser, {
       title: `Advanced Math Test-${uniqueId}`,
       description: "Requires completion of basic math test first",
+      questions: [{ text: "Sample Question", type: "CHOICE" }],
     });
 
     expect(mainTestId).toBeTruthy();
@@ -68,15 +71,17 @@ test.describe.serial("Test Prerequisite - Create Test", () => {
     }).toPass();
   });
 
-  test("prerequisite appears in test settings", async ({ page }) => {
+  test("prerequisite appears in test settings", async ({ page, browser }) => {
     // Create prerequisite test
-    await createTestWithQuestion(page, {
+    await createTest(browser, {
       title: `Required Test-${uniqueId}`,
+      questions: [{ text: "Sample Question", type: "CHOICE" }],
     });
 
     // Create main test
-    const { testId: mainTestId } = await createTestWithQuestion(page, {
+    const { testId: mainTestId } = await createTest(browser, {
       title: `Test with Prerequisite-${uniqueId}`,
+      questions: [{ text: "Sample Question", type: "CHOICE" }],
     });
 
     // Add prerequisite via UI
@@ -93,9 +98,10 @@ test.describe.serial("Test Prerequisite - Create Test", () => {
     }).toPass();
   });
 
-  test("cannot add test as its own prerequisite", async ({ page }) => {
-    const { testId } = await createTestWithQuestion(page, {
+  test("cannot add test as its own prerequisite", async ({ page, browser }) => {
+    const { testId } = await createTest(browser, {
       title: `Self Reference Test-${uniqueId}`,
+      questions: [{ text: "Sample Question", type: "CHOICE" }],
     });
 
     // Attempt to add prerequisite with same test ID
@@ -128,31 +134,33 @@ test.describe
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
       // Create prerequisite test
-      const { joinCode: pJoinCode } = await createTestWithQuestion(page, {
+      const { joinCode: pJoinCode } = await createTest(browser, {
         title: `Prerequisite for User Test-${uniqueId}`,
         description: "User must complete this first",
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
       prereqJoinCode = pJoinCode;
 
       // Create main test with prerequisite
-      const newPage = await context.newPage();
-      const { testId: mTestId, joinCode: mJoinCode } =
-        await createTestWithQuestion(newPage, {
+      const { testId: mTestId, joinCode: mJoinCode } = await createTest(
+        browser,
+        {
           title: `Main Test for User-${uniqueId}`,
           description: "Requires prerequisite completion",
-        });
+          questions: [{ text: "Sample Question", type: "CHOICE" }],
+        },
+      );
       mainTestId = mTestId;
       mainTestJoinCode = mJoinCode;
 
       // Add prerequisite to main test
+      const context = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const page = await context.newPage();
       await addPrerequisite(
-        newPage,
+        page,
         mainTestId,
         `Prerequisite for User Test-${uniqueId}`,
         0,
@@ -215,43 +223,45 @@ test.describe
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
       // Create prerequisite test with a scoreable question
-      const { joinCode: pJoinCode } = await createTestWithScoringQuestion(
-        page,
-        {
-          title: `Prerequisite User Not Met-${uniqueId}`,
-          description: "User has not completed this",
-          questionText: "What is the correct answer?",
-          choices: ["Correct", "Wrong1", "Wrong2"],
-          correctChoiceIndex: 0,
-        },
-      );
+      const { joinCode: pJoinCode } = await createTest(browser, {
+        title: `Prerequisite User Not Met-${uniqueId}`,
+        description: "User has not completed this",
+        questions: [
+          {
+            text: "What is the correct answer?",
+            type: "CHOICE",
+            choices: ["Correct", "Wrong1", "Wrong2"],
+            correctChoiceIndex: 0,
+          },
+        ],
+      });
       prereqJoinCode = pJoinCode;
 
       // Create main test with prerequisite (requires 50% score)
-      const newPage = await context.newPage();
-      const { joinCode: mJoinCode, testId: mTestId } =
-        await createTestWithQuestion(newPage, {
+      const { joinCode: mJoinCode, testId: mTestId } = await createTest(
+        browser,
+        {
           title: `Main Test User Not Met-${uniqueId}`,
           description: "Has unmet prerequisite",
-        });
+          questions: [{ text: "Sample Question", type: "CHOICE" }],
+        },
+      );
       mainTestJoinCode = mJoinCode;
       mainTestId = mTestId;
 
       // Add prerequisite with 50% minimum score requirement
+      const addPrerq = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const addPage = await addPrerq.newPage();
       await addPrerequisite(
-        newPage,
+        addPage,
         mainTestId,
         `Prerequisite User Not Met-${uniqueId}`,
         50,
       );
-
-      await context.close();
+      await addPrerq.close();
     }).toPass();
   });
 
@@ -312,38 +322,36 @@ test.describe
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
       // Create prerequisite test as authenticated user
-      const creatorContext = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
+      const { joinCode: pJoinCode } = await createTest(browser, {
+        title: `Prerequisite Guest Test-${uniqueId}`,
+        description: "Guest must complete this first",
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
-      const creatorPage = await creatorContext.newPage();
-
-      const { joinCode: pJoinCode } = await createTestWithQuestion(
-        creatorPage,
-        {
-          title: `Prerequisite Guest Test-${uniqueId}`,
-          description: "Guest must complete this first",
-        },
-      );
       prereqJoinCode = pJoinCode;
 
       // Create main test with prerequisite
-      const newPage = await creatorContext.newPage();
-      const { testId: mTestId, joinCode: mJoinCode } =
-        await createTestWithQuestion(newPage, {
+      const { testId: mTestId, joinCode: mJoinCode } = await createTest(
+        browser,
+        {
           title: `Main Test Guest-${uniqueId}`,
           description: "Requires guest to complete prerequisite",
-        });
+          questions: [{ text: "Sample Question", type: "CHOICE" }],
+        },
+      );
       mainTestJoinCode = mJoinCode;
 
-      // Add prerequisite
+      // Navigate to test and add prerequisite via the new createTest flow
+      const context = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const prereqPage = await context.newPage();
       await addPrerequisite(
-        newPage,
+        prereqPage,
         mTestId,
         `Prerequisite Guest Test-${uniqueId}`,
         0,
       );
-
-      await creatorContext.close();
+      await context.close();
     }).toPass();
   });
 
@@ -414,34 +422,35 @@ test.describe
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
       // Create tests as authenticated user
-      const creatorContext = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const creatorPage = await creatorContext.newPage();
-
-      await createTestWithQuestion(creatorPage, {
+      await createTest(browser, {
         title: `Prerequisite Guest Not Met-${uniqueId}`,
         description: "Guest has not completed this",
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
 
       // Create main test with prerequisite
-      const newPage = await creatorContext.newPage();
-      const { joinCode: mJoinCode, testId: mTestId } =
-        await createTestWithQuestion(newPage, {
+      const { joinCode: mJoinCode, testId: mTestId } = await createTest(
+        browser,
+        {
           title: `Main Test Guest Not Met-${uniqueId}`,
           description: "Has unmet prerequisite",
-        });
+          questions: [{ text: "Sample Question", type: "CHOICE" }],
+        },
+      );
       mainTestJoinCode = mJoinCode;
 
-      // Add prerequisite
+      // Add prerequisite via context
+      const context = await browser.newContext({
+        storageState: "playwright/.auth/user.json",
+      });
+      const prereqPage = await context.newPage();
       await addPrerequisite(
-        newPage,
+        prereqPage,
         mTestId,
         `Prerequisite Guest Not Met-${uniqueId}`,
         0,
       );
-
-      await creatorContext.close();
+      await context.close();
     }).toPass();
   });
 
@@ -487,33 +496,32 @@ test.describe
     const guest1Page = await guest1Context.newPage();
 
     // Create prerequisite and main test as authenticated user
+    const { joinCode: preqJoinCode } = await createTest(browser, {
+      title: `Prerequisite Different Guest-${uniqueId}`,
+      description: "For testing different guest identities",
+      questions: [{ text: "Sample Question", type: "CHOICE" }],
+    });
+
+    const { joinCode: mainJoinCode, testId: mainTestId } = await createTest(
+      browser,
+      {
+        title: `Main Test Different Guest-${uniqueId}`,
+        description: "Has prerequisite",
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
+      },
+    );
+
+    // Add prerequisite via context
     const creatorContext = await browser.newContext({
       storageState: "playwright/.auth/user.json",
     });
     const creatorPage = await creatorContext.newPage();
-
-    const { joinCode: preqJoinCode } = await createTestWithQuestion(
-      creatorPage,
-      {
-        title: `Prerequisite Different Guest-${uniqueId}`,
-        description: "For testing different guest identities",
-      },
-    );
-
-    const { joinCode: mainJoinCode, testId: mainTestId } =
-      await createTestWithQuestion(creatorPage, {
-        title: `Main Test Different Guest-${uniqueId}`,
-        description: "Has prerequisite",
-      });
-
-    // Add prerequisite
     await addPrerequisite(
       creatorPage,
       mainTestId,
       `Prerequisite Different Guest-${uniqueId}`,
       0,
     );
-
     await creatorContext.close();
 
     // Guest1 completes prerequisite with name "Guest1"
@@ -619,17 +627,18 @@ test.describe("Test Prerequisite - API Authorization", () => {
     const page = await context.newPage();
 
     // Create two tests
-    const { testId: prereqId } = await createTestWithQuestion(page, {
+    const { testId: prereqId } = await createTest(browser, {
       title: "Prerequisite Test",
+      questions: [{ text: "Sample Question", type: "CHOICE" }],
     });
 
-    const mainPage = await context.newPage();
-    const { testId: mainId } = await createTestWithQuestion(mainPage, {
+    const { testId: mainId } = await createTest(browser, {
       title: "Main Test",
+      questions: [{ text: "Sample Question", type: "CHOICE" }],
     });
 
     // Set prerequisite with score requirement via API
-    const response = await mainPage.request.post(
+    const response = await page.request.post(
       `/api/tests/${mainId}/prerequisites`,
       {
         data: {
@@ -657,8 +666,9 @@ test.describe("Test Prerequisite - API Authorization", () => {
     const page = await context.newPage();
 
     // Create a test as the authenticated user
-    const { testId } = await createTestWithQuestion(page, {
+    const { testId } = await createTest(browser, {
       title: "Test I Own",
+      questions: [{ text: "Sample Question", type: "CHOICE" }],
     });
 
     // Try to add prerequisite to a non-existent or foreign test
