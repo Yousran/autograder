@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ScanQrCode } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { Spinner } from "@/components/ui/spinner";
 import Navbar from "@/components/custom/navbar";
 import { Separator } from "@/components/ui/separator";
 import { CreateTestButton } from "@/components/custom/create-test-button";
@@ -45,12 +46,14 @@ export default function Home() {
   const t = useTranslations("Pages.home");
   const [code, setCode] = useState("");
   const [isQrOpen, setIsQrOpen] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
   const { data: session } = authClient.useSession();
   const router = useRouter();
 
   const handleJoin = () => {
     const trimmed = code.trim();
     if (trimmed.length === 6) {
+      setIsJoining(true);
       router.push(`/join/${trimmed}`);
     }
   };
@@ -89,10 +92,10 @@ export default function Home() {
                 <Button
                   className="flex-1"
                   onClick={handleJoin}
-                  disabled={code.trim().length !== 6}
+                  disabled={code.trim().length !== 6 || isJoining}
                   data-testid="btn-join-home"
                 >
-                  {t("join")}
+                  {isJoining ? <Spinner /> : t("join")}
                 </Button>
                 <TooltipProvider>
                   <Tooltip>
