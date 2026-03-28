@@ -2,62 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { createEssayAnswerSchema } from "@/lib/schemas/answer";
-import { llm } from "@/lib/llm";
-
-type EssayQuestionGradeContext = {
-  answerText: string;
-  isExactAnswer: boolean;
-  maxScore: number;
-  questionText?: string;
-};
-
-type GradeMessages = { exactMatch: string; noMatch: string };
-
-/**
- * Grades an essay answer.
- * - If `isExactAnswer` is true, performs a case-insensitive trimmed comparison.
- *   Full score on match, 1 on mismatch.
- * - If `isExactAnswer` is false, uses AI grading via OpenRouter.
- */
-async function gradeEssayAnswer(
-  question: EssayQuestionGradeContext,
-  participantAnswer: string,
-  messages: GradeMessages,
-  questionText: string,
-): Promise<{ score: number; scoreExplanation: string | null }> {
-  if (question.isExactAnswer) {
-    const normalize = (s: string) => s.trim().toLowerCase();
-    const isMatch =
-      normalize(participantAnswer) === normalize(question.answerText);
-
-    return {
-      score: isMatch ? question.maxScore : 1,
-      scoreExplanation: isMatch ? messages.exactMatch : messages.noMatch,
-    };
-  }
-
-  // Use AI grading for non-exact answers
-  try {
-    const result = await llm({
-      questionText,
-      answer: participantAnswer,
-      answerKey: question.answerText,
-      minScore: 1,
-      maxScore: question.maxScore,
-    });
-    return {
-      score: result.score,
-      scoreExplanation: result.explanation,
-    };
-  } catch (err) {
-    console.error("AI grading failed:", err);
-    // Fallback to returning 1 score
-    return {
-      score: 1,
-      scoreExplanation: messages.noMatch,
-    };
-  }
-}
+import { gradeEssayAnswerAsync } from "@/lib/graders/essay-grader";
 
 async function getT() {
   const locale = await getLocale();
@@ -70,6 +15,7 @@ async function getT() {
 /**
  * POST /api/answer/essay
  * Creates a new essay answer for the participant.
+ * Answer is saved immediately, then graded asynchronously.
  */
 export async function POST(req: NextRequest) {
   const [tAnswer, tValidation] = await getT();
@@ -123,26 +69,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { score, scoreExplanation } = await gradeEssayAnswer(
-    essay,
-    answerText,
-    {
-      exactMatch: tAnswer("exactMatch"),
-      noMatch: tAnswer("noMatch"),
-    },
-    essay.question.questionText,
-  );
-
   const existing = await prisma.essayAnswer.findFirst({
     where: { participantId, questionId },
     select: { id: true },
   });
 
+  let answerId: string;
   if (existing) {
-    // Upsert — update instead of duplicate
+    // Upsert — update with new answer text, score starts at 0
     const updated = await prisma.essayAnswer.update({
       where: { id: existing.id },
-      data: { answerText, score, scoreExplanation },
+      data: { answerText, score: 0, scoreExplanation: null },
       select: {
         id: true,
         answerText: true,
@@ -150,19 +87,46 @@ export async function POST(req: NextRequest) {
         scoreExplanation: true,
       },
     });
+    answerId = updated.id;
+
+    // Grade asynchronously in the background
+    await gradeEssayAnswerAsync(answerId, answerText, questionId, {
+      exactMatch: tAnswer("exactMatch"),
+      noMatch: tAnswer("noMatch"),
+    }).catch((err) => {
+      console.error(`Background grading failed for ${answerId}:`, err);
+    });
+
     return NextResponse.json(updated, { status: 200 });
   }
 
   const created = await prisma.essayAnswer.create({
-    data: { participantId, questionId, answerText, score, scoreExplanation },
+    data: {
+      participantId,
+      questionId,
+      answerText,
+      score: 0,
+      scoreExplanation: null,
+    },
     select: { id: true, answerText: true, score: true, scoreExplanation: true },
   });
+  answerId = created.id;
+
+  // Grade asynchronously in the background
+  await gradeEssayAnswerAsync(answerId, answerText, questionId, {
+    exactMatch: tAnswer("exactMatch"),
+    noMatch: tAnswer("noMatch"),
+  }).catch((err) => {
+    console.error(`Background grading failed for ${answerId}:`, err);
+  });
+
   return NextResponse.json(created, { status: 201 });
 }
 
 /**
  * PATCH /api/answer/essay
  * Updates an existing essay answer.
+ * Answer is updated immediately, then graded asynchronously.
  */
 export async function PATCH(req: NextRequest) {
   const [tAnswer, tValidation] = await getT();
@@ -205,16 +169,6 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  const { score, scoreExplanation } = await gradeEssayAnswer(
-    essay,
-    answerText,
-    {
-      exactMatch: tAnswer("exactMatch"),
-      noMatch: tAnswer("noMatch"),
-    },
-    essay.question.questionText,
-  );
-
   const existing = await prisma.essayAnswer.findFirst({
     where: { participantId, questionId },
     select: { id: true },
@@ -227,10 +181,19 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
+  // Update answer immediately with score reset to 0
   const updated = await prisma.essayAnswer.update({
     where: { id: existing.id },
-    data: { answerText, score, scoreExplanation },
+    data: { answerText, score: 0, scoreExplanation: null },
     select: { id: true, answerText: true, score: true, scoreExplanation: true },
+  });
+
+  // Grade asynchronously in the background
+  await gradeEssayAnswerAsync(existing.id, answerText, questionId, {
+    exactMatch: tAnswer("exactMatch"),
+    noMatch: tAnswer("noMatch"),
+  }).catch((err) => {
+    console.error(`Background grading failed for ${existing.id}:`, err);
   });
 
   return NextResponse.json(updated, { status: 200 });
