@@ -29,7 +29,9 @@ export async function llm({
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: key!,
       defaultHeaders: {
-        "HTTP-Referer": process.env.NEXT_PUBLIC_BASE_URL || "",
+        "HTTP-Referer": process.env.VERCEL_BRANCH_URL
+          ? `https://${process.env.VERCEL_BRANCH_URL}`
+          : "",
         "X-Title": process.env.NEXT_PUBLIC_APP_NAME || "",
       },
     });
