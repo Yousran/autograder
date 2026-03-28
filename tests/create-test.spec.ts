@@ -12,7 +12,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { waitForLoaderToDisappear } from "./helpers";
+import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 // The storageState is already set globally from the setup project for all
 // projects defined in playwright.config.ts.  No override is needed here.

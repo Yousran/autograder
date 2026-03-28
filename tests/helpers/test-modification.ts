@@ -238,8 +238,8 @@ export async function setMaxAttempts(
   await maxAttemptInput.click();
   await maxAttemptInput.clear();
   await maxAttemptInput.fill(maxAttempts.toString());
-  await maxAttemptInput.press("Enter");
   await waitForTestPatchResponse(page);
+  await maxAttemptInput.press("Enter");
 }
 
 /**
@@ -252,8 +252,8 @@ export async function setDuration(page: Page, duration: number): Promise<void> {
   await durationInput.click();
   await durationInput.clear();
   await durationInput.fill(duration.toString());
-  await durationInput.press("Enter");
   await waitForTestPatchResponse(page);
+  await durationInput.press("Enter");
 }
 
 /**
@@ -281,8 +281,6 @@ export async function toggleTestSetting(
   if (currentState !== setState) {
     await toggle.click();
   }
-
-  await waitForTestPatchResponse(page);
 }
 
 /**
