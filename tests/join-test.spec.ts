@@ -17,10 +17,7 @@
 
 import { test, expect } from "@playwright/test";
 import { createTest } from "./helpers/test-modification";
-import {
-  submitJoinCode,
-  completeTest,
-} from "./helpers/test-start-navigation-helper";
+import { submitJoinCode, completeTest } from "./helpers/test-start";
 import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 // ─────────────────────────────────────────────────────────────────────────

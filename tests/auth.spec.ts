@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillSignUpForm } from "./helpers/user-modification";
+import { fillSignUpForm, fillSignInForm } from "./helpers/user-modification";
 import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 const SIGN_UP_URL = "/en/auth/sign-up";
@@ -149,10 +149,7 @@ test.describe.serial("Sign-In", () => {
     await page.goto(SIGN_IN_URL);
 
     // Use the same email from Sign-Up but with wrong password
-    await page.getByTestId("input-email").fill(signInTestEmail);
-    await page.getByTestId("input-password").fill("WrongPassword!");
-
-    await page.getByRole("button", { name: /sign in/i }).click();
+    await fillSignInForm(page, signInTestEmail, "WrongPassword!");
 
     // Wait for any loading overlay to disappear
     await waitForLoaderToDisappear(page);
@@ -167,10 +164,7 @@ test.describe.serial("Sign-In", () => {
   test("successfully signs in with valid credentials", async ({ page }) => {
     await page.goto(SIGN_IN_URL);
 
-    await page.getByTestId("input-email").fill(signInTestEmail);
-    await page.getByTestId("input-password").fill(testPassword);
-
-    await page.getByRole("button", { name: /sign in/i }).click();
+    await fillSignInForm(page, signInTestEmail, testPassword);
 
     // Wait for any loading overlay to disappear
     await waitForLoaderToDisappear(page);

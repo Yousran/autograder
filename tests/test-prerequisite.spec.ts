@@ -21,7 +21,7 @@ import {
   completeTest,
   completeTestWithScores,
   submitJoinCode,
-} from "./helpers/test-start-navigation-helper";
+} from "./helpers/test-start";
 import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 // ─────────────────────────────────────────────────────────────────────────

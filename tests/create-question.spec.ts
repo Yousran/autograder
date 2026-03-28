@@ -92,6 +92,10 @@ test.describe.serial("Create Question", () => {
     await expect(async () => {
       await TestNavigateToTab(page, "questions");
 
+      // The add button should be visible and always show (alwaysVisible=true)
+      const addButton = page.getByRole("button", { name: /add question/i });
+      await expect(addButton).toBeVisible();
+
       // Click to create the first question
       await addQuestion(page);
     }).toPass();

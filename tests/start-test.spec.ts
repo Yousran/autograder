@@ -15,17 +15,16 @@
  */
 
 import { test, expect, BrowserContext } from "@playwright/test";
+import { createTest } from "./helpers/test-modification";
+import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 import {
-  createTestWithMultipleQuestions,
-  waitForLoaderToDisappear,
   submitJoinCode,
   completeTest,
   getCurrentQuestionNumber,
   getCurrentQuestionText,
   navigateToPreviousQuestion,
   navigateToNextQuestion,
-  fillQuestionText,
-} from "./helpers";
+} from "./helpers/test-start";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Start Test - Session Re-entry
@@ -38,19 +37,12 @@ test.describe.serial("Start Test - Already Started Within Duration", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      const result = await createTestWithMultipleQuestions(page, {
+      const result = await createTest(browser, {
         title: "Restart Test Within Duration",
-        questionCount: 1,
         maxAttempts: 2,
+        questions: [{ text: "Question 1", type: "CHOICE" as const }],
       });
       joinCode = result.joinCode;
-
-      await context.close();
     }).toPass();
   });
 
@@ -155,19 +147,12 @@ test.describe.serial("Start Test - Return to Results", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      const result = await createTestWithMultipleQuestions(page, {
+      const result = await createTest(browser, {
         title: "Test Return to Results",
-        questionCount: 1,
         maxAttempts: 2,
+        questions: [{ text: "Question 1", type: "CHOICE" as const }],
       });
       joinCode = result.joinCode;
-
-      await context.close();
     }).toPass();
   });
 
@@ -218,21 +203,14 @@ test.describe.serial("Start Test - Duration Exceeded", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
       // Create test with very short duration (1 minute)
-      const result = await createTestWithMultipleQuestions(page, {
+      const result = await createTest(browser, {
         title: "Duration Exceeded Test",
-        questionCount: 1,
         duration: 1,
         maxAttempts: 2,
+        questions: [{ text: "Question 1", type: "CHOICE" as const }],
       });
       joinCode = result.joinCode;
-
-      await context.close();
     }).toPass();
   });
 
@@ -281,21 +259,14 @@ test.describe.serial("Start Test - Auto-Submit on Timeout", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
       // Create test with very short duration for quick timeout
-      const result = await createTestWithMultipleQuestions(page, {
+      const result = await createTest(browser, {
         title: "Auto-Submit Test",
-        questionCount: 1,
         duration: 1, // 1 minute duration
         maxAttempts: 2,
+        questions: [{ text: "Question 1", type: "CHOICE" as const }],
       });
       joinCode = result.joinCode;
-
-      await context.close();
     }).toPass();
   });
 
@@ -334,19 +305,16 @@ test.describe.serial("Start Test - Answer Preservation", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      const result = await createTestWithMultipleQuestions(page, {
+      const result = await createTest(browser, {
         title: "Answer Preservation Test",
-        questionCount: 3,
         maxAttempts: 2,
+        questions: [
+          { text: "Question 1", type: "CHOICE" as const },
+          { text: "Question 2", type: "CHOICE" as const },
+          { text: "Question 3", type: "CHOICE" as const },
+        ],
       });
       joinCode = result.joinCode;
-
-      await context.close();
     }).toPass();
   });
 
@@ -431,26 +399,16 @@ test.describe.serial("Start Test - Consistent Question Order", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      const result = await createTestWithMultipleQuestions(page, {
+      const result = await createTest(browser, {
         title: "Non-Randomized Questions",
-        questionCount: 3,
-        shouldRandomize: false,
-        maxAttempts: 2,
+        questionsOrdered: true,
+        questions: expectedQuestionOrder.map((text) => ({
+          text,
+          type: "CHOICE" as const,
+        })),
       });
-
-      // Fill in distinct question text for each question
-      for (let i = 0; i < expectedQuestionOrder.length; i++) {
-        await fillQuestionText(page, i, expectedQuestionOrder[i]);
-      }
 
       joinCode = result.joinCode;
-
-      await context.close();
     }).toPass();
   });
 
@@ -532,27 +490,18 @@ test.describe.serial("Start Test - Randomized Question Order", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
       // Create test with multiple questions with distinct text
-      const result = await createTestWithMultipleQuestions(page, {
+      const result = await createTest(browser, {
         title: "Randomized Questions with Text",
-        questionCount: 3,
-        shouldRandomize: true,
+        questionsOrdered: false,
         maxAttempts: 2,
+        questions: originalQuestionOrder.map((text) => ({
+          text,
+          type: "CHOICE" as const,
+        })),
       });
-
-      // Fill in distinct question text for each question
-      for (let i = 0; i < originalQuestionOrder.length; i++) {
-        await fillQuestionText(page, i, originalQuestionOrder[i]);
-      }
 
       joinCode = result.joinCode;
-
-      await context.close();
     }).toPass();
   });
 
