@@ -128,7 +128,6 @@ export function JoinTestClient({
           return;
         }
 
-        setOpen(false);
         router.push(`/test/start/${data.participantId}`);
       } catch {
         setError(t("cancel"));
@@ -177,10 +176,20 @@ export function JoinTestClient({
         {loggedInError || prerequisiteError ? (
           <ErrorAlert message={(loggedInError || prerequisiteError)!} />
         ) : isAcceptingResponses ? (
-          <AlertDialog open={open} onOpenChange={setOpen}>
+          <AlertDialog
+            open={open}
+            onOpenChange={(newOpen) => {
+              if (!isPending) setOpen(newOpen);
+            }}
+          >
             <AlertDialogTrigger asChild>
-              <Button size="lg" className="w-full" data-testid="btn-start-test">
-                {t("startButton")}
+              <Button
+                size="lg"
+                className="w-full"
+                data-testid="btn-start-test"
+                disabled={isPending}
+              >
+                {isPending ? <Spinner /> : t("startButton")}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
