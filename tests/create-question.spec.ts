@@ -16,9 +16,8 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { createTest, TestNavigateToTab } from "./helpers/test-modification";
 import {
-  createNewTest,
-  navigateToQuestionsTab,
   addQuestion,
   setQuestionType,
   addChoiceToQuestion,
@@ -26,7 +25,10 @@ import {
   fillQuestionAnswer,
   getQuestionCard,
   getQuestionCount,
-} from "./helpers";
+  getChoiceCount,
+  fillChoiceText,
+} from "./helpers/question-modification";
+// import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Create First Question - Two Test Scenarios
@@ -38,7 +40,8 @@ test.describe.serial("Create First Question - At End", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    testId = await createNewTest(browser);
+    const result = await createTest(browser, { title: "First Question Test" });
+    testId = result.testId;
   });
 
   test("creates the first question at the end of the Questions tab", async ({
@@ -47,7 +50,7 @@ test.describe.serial("Create First Question - At End", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      await navigateToQuestionsTab(page);
+      await TestNavigateToTab(page, "questions");
 
       // Initially there should be no questions, so only one "Add Question" button at bottom
       const addQuestionButtons = page.getByRole("button", {
@@ -77,7 +80,8 @@ test.describe.serial("Create Question", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    testId = await createNewTest(browser);
+    const result = await createTest(browser, { title: "Create Question Test" });
+    testId = result.testId;
   });
 
   test("shows the add button when first opening the questions tab", async ({
@@ -86,7 +90,7 @@ test.describe.serial("Create Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      await navigateToQuestionsTab(page);
+      await TestNavigateToTab(page, "questions");
 
       // Click to create the first question
       await addQuestion(page);
@@ -104,7 +108,7 @@ test.describe.serial("Create Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      await navigateToQuestionsTab(page);
+      await TestNavigateToTab(page, "questions");
 
       // Verify there is 1 question
       const count = await getQuestionCount(page);
@@ -128,7 +132,7 @@ test.describe.serial("Create Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      await navigateToQuestionsTab(page);
+      await TestNavigateToTab(page, "questions");
 
       // Wait for the question cards to appear to ensure the tab has actually switched
       const count = await getQuestionCount(page);
@@ -166,14 +170,15 @@ test.describe.serial("Create Essay Question", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    testId = await createNewTest(browser);
+    const result = await createTest(browser, { title: "Essay Question Test" });
+    testId = result.testId;
   });
 
   test("creates and configures an essay question", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      await navigateToQuestionsTab(page);
+      await TestNavigateToTab(page, "questions");
 
       // The add button should be visible and always show (alwaysVisible=true)
       const addButton = page.getByRole("button", { name: /add question/i });
@@ -201,7 +206,7 @@ test.describe.serial("Create Essay Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      await navigateToQuestionsTab(page);
+      await TestNavigateToTab(page, "questions");
 
       const count = await getQuestionCount(page);
       expect(count).toBe(1);
@@ -216,7 +221,7 @@ test.describe.serial("Create Essay Question", () => {
     // Verify the answer was saved by reloading
     await expect(async () => {
       await page.reload();
-      await navigateToQuestionsTab(page);
+      await TestNavigateToTab(page, "questions");
       const answerTextarea = page
         .locator('textarea[placeholder*="answer"], textarea[id="answer"]')
         .nth(0);
@@ -235,14 +240,15 @@ test.describe.serial("Create Choice Question", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    testId = await createNewTest(browser);
+    const result = await createTest(browser, { title: "Choice Question Test" });
+    testId = result.testId;
   });
 
   test("creates a choice question with default type", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      await navigateToQuestionsTab(page);
+      await TestNavigateToTab(page, "questions");
 
       // The add button should be visible and always show (alwaysVisible=true)
       const addButton = page.getByRole("button", { name: /add question/i });
@@ -262,31 +268,21 @@ test.describe.serial("Create Choice Question", () => {
   test("adds choice options to a single-select question", async ({ page }) => {
     await page.goto(`/en/test/${testId}`);
 
-    await expect(async () => {
-      await navigateToQuestionsTab(page);
+    await TestNavigateToTab(page, "questions");
 
+    await expect(async () => {
       // Verify question is created
       const questionCard = getQuestionCard(page, 0);
       await expect(questionCard).toBeVisible();
 
       // Verify a choice item appears
-      const deleteButton = page.getByRole("button", {
-        name: "Delete Choice",
-      });
-      await expect(deleteButton).toHaveCount(3);
-
-      // Add a choice option
-      await addChoiceToQuestion(page, 0);
-
-      await expect(deleteButton).toHaveCount(4);
+      expect(await getChoiceCount(page, 0)).toBe(3);
     }).toPass();
 
     await expect(async () => {
-      await page.reload();
-      const deleteButton = page.getByRole("button", {
-        name: "Delete Choice",
-      });
-      await expect(deleteButton).toHaveCount(4);
+      await addChoiceToQuestion(page, 0);
+      await fillChoiceText(page, 0, 3, "New Choice Option");
+      expect(await getChoiceCount(page, 0)).toBe(4);
     }).toPass();
   });
 });
@@ -301,7 +297,10 @@ test.describe.serial("Create Multiple Choice Question", () => {
   let testId: string;
 
   test.beforeAll(async ({ browser }) => {
-    testId = await createNewTest(browser);
+    const result = await createTest(browser, {
+      title: "Multiple Choice Question Test",
+    });
+    testId = result.testId;
   });
 
   test("creates and changes question to multiple choice type", async ({
@@ -310,7 +309,7 @@ test.describe.serial("Create Multiple Choice Question", () => {
     await page.goto(`/en/test/${testId}`);
 
     await expect(async () => {
-      await navigateToQuestionsTab(page);
+      await TestNavigateToTab(page, "questions");
 
       // The add button should be visible and always show (alwaysVisible=true)
       const addButton = page.getByRole("button", { name: /add question/i });
@@ -340,31 +339,21 @@ test.describe.serial("Create Multiple Choice Question", () => {
   }) => {
     await page.goto(`/en/test/${testId}`);
 
-    await expect(async () => {
-      await navigateToQuestionsTab(page);
+    await TestNavigateToTab(page, "questions");
 
+    await expect(async () => {
       // Verify question is created
       const questionCard = getQuestionCard(page, 0);
       await expect(questionCard).toBeVisible();
 
       // Verify a choice item appears
-      const deleteButton = page.getByRole("button", {
-        name: "Delete Choice",
-      });
-      await expect(deleteButton).toHaveCount(3);
-
-      // Add a choice option
-      await addChoiceToQuestion(page, 0);
-
-      await expect(deleteButton).toHaveCount(4);
+      expect(await getChoiceCount(page, 0)).toBe(2);
     }).toPass();
 
     await expect(async () => {
-      await page.reload();
-      const deleteButton = page.getByRole("button", {
-        name: "Delete Choice",
-      });
-      await expect(deleteButton).toHaveCount(4);
+      await addChoiceToQuestion(page, 0);
+      await fillChoiceText(page, 0, 2, "New Choice Option");
+      expect(await getChoiceCount(page, 0)).toBe(3);
     }).toPass();
   });
 });

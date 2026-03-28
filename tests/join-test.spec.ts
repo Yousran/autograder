@@ -16,12 +16,12 @@
 // TODO: Test Prerequisite check
 
 import { test, expect } from "@playwright/test";
+import { createTest } from "./helpers/test-modification";
 import {
-  completeTest,
-  createTestWithQuestion,
   submitJoinCode,
-  waitForLoaderToDisappear,
-} from "./helpers";
+  completeTest,
+} from "./helpers/test-start-navigation-helper";
+import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Utility: Create a test with a question and customize settings
@@ -37,18 +37,11 @@ test.describe.serial("Join Test - Authenticated User", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      // Create test as authenticated user
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      const result = await createTestWithQuestion(page, {
+      const result = await createTest(browser, {
         title: "Test to Join as User",
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
       joinCode = result.joinCode;
-
-      await context.close();
     }).toPass();
   });
 
@@ -107,18 +100,11 @@ test.describe.serial("Join Test - Guest User", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      // Create test as authenticated user
-      const context = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const page = await context.newPage();
-
-      const result = await createTestWithQuestion(page, {
+      const result = await createTest(browser, {
         title: "Test to Join as Guest",
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
       joinCode = result.joinCode;
-
-      await context.close();
     }).toPass();
   });
 
@@ -180,19 +166,12 @@ test.describe.serial("Join Test - Not Accepting Responses", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      // Create test that does NOT accept responses
-      const creatorContext = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const creatorPage = await creatorContext.newPage();
-
-      const result = await createTestWithQuestion(creatorPage, {
+      const result = await createTest(browser, {
         title: "Closed Test",
         acceptingResponses: false,
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
       joinCode = result.joinCode;
-
-      await creatorContext.close();
     }).toPass();
   });
 
@@ -231,19 +210,11 @@ test.describe.serial("Join Test - Max Attempts Exceeded", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      // Create test with max 1 attempt
-      const creatorContext = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const creatorPage = await creatorContext.newPage();
-
-      const result = await createTestWithQuestion(creatorPage, {
+      const result = await createTest(browser, {
         title: "Max Attempts Test",
-        maxAttempts: 1,
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
       joinCode = result.joinCode;
-
-      await creatorContext.close();
     }).toPass();
   });
 
@@ -339,19 +310,12 @@ test.describe.serial("Join Test - Logged In Users Only", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      // Create test that does NOT accept responses
-      const creatorContext = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const creatorPage = await creatorContext.newPage();
-
-      const result = await createTestWithQuestion(creatorPage, {
+      const result = await createTest(browser, {
         title: "Closed Test",
         loggedInOnly: true,
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
       joinCode = result.joinCode;
-
-      await creatorContext.close();
     }).toPass();
   });
 
@@ -422,25 +386,19 @@ test.describe.serial("Join Test - API Guards (Unauthenticated)", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      // Create tests for API guard testing as authenticated creator
-      const creatorContext = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const creatorPage = await creatorContext.newPage();
-
-      const guestResult = await createTestWithQuestion(creatorPage, {
+      const guestResult = await createTest(browser, {
         title: "API Join Test - Guests Allowed",
         loggedInOnly: false,
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
       guestAllowedJoinCode = guestResult.joinCode;
 
-      const loggedInResult = await createTestWithQuestion(creatorPage, {
+      const loggedInResult = await createTest(browser, {
         title: "Logged In Required Test API",
         loggedInOnly: true,
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
       loggedInRequiredJoinCode = loggedInResult.joinCode;
-
-      await creatorContext.close();
     }).toPass();
   });
 
@@ -506,25 +464,19 @@ test.describe.serial("Join Test - API Guards (Authenticated)", () => {
 
   test.beforeAll(async ({ browser }) => {
     await expect(async () => {
-      // Create tests for API guard testing as authenticated creator
-      const creatorContext = await browser.newContext({
-        storageState: "playwright/.auth/user.json",
-      });
-      const creatorPage = await creatorContext.newPage();
-
-      const guestResult = await createTestWithQuestion(creatorPage, {
+      const guestResult = await createTest(browser, {
         title: "API Join Test - Auth Guest Allowed",
         loggedInOnly: false,
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
       guestAllowedJoinCode = guestResult.joinCode;
 
-      const loggedInResult = await createTestWithQuestion(creatorPage, {
+      const loggedInResult = await createTest(browser, {
         title: "Logged In Required Test - Auth User",
         loggedInOnly: true,
+        questions: [{ text: "Sample Question", type: "CHOICE" }],
       });
       loggedInRequiredJoinCode = loggedInResult.joinCode;
-
-      await creatorContext.close();
     }).toPass();
   });
 

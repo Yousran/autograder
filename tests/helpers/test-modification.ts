@@ -235,7 +235,6 @@ export async function setMaxAttempts(
   const maxAttemptInput = page
     .getByTestId("input-max-attempts")
     .locator('input[type="text"]');
-  await maxAttemptInput.click();
   await maxAttemptInput.clear();
   await maxAttemptInput.fill(maxAttempts.toString());
   await waitForTestPatchResponse(page);
@@ -250,7 +249,6 @@ export async function setDuration(page: Page, duration: number): Promise<void> {
     .getByTestId("input-duration")
     .locator('input[type="text"]');
   await durationInput.click();
-  await durationInput.clear();
   await durationInput.fill(duration.toString());
   await waitForTestPatchResponse(page);
   await durationInput.press("Enter");
