@@ -16,7 +16,7 @@ type GradeMessages = { exactMatch: string; noMatch: string };
 /**
  * Grades an essay answer.
  * - If `isExactAnswer` is true, performs a case-insensitive trimmed comparison.
- *   Full score on match, 0 on mismatch.
+ *   Full score on match, 1 on mismatch.
  * - If `isExactAnswer` is false, uses AI grading via OpenRouter.
  */
 async function gradeEssayAnswer(
@@ -31,7 +31,7 @@ async function gradeEssayAnswer(
       normalize(participantAnswer) === normalize(question.answerText);
 
     return {
-      score: isMatch ? question.maxScore : 0,
+      score: isMatch ? question.maxScore : 1,
       scoreExplanation: isMatch ? messages.exactMatch : messages.noMatch,
     };
   }
@@ -42,7 +42,7 @@ async function gradeEssayAnswer(
       questionText,
       answer: participantAnswer,
       answerKey: question.answerText,
-      minScore: 0,
+      minScore: 1,
       maxScore: question.maxScore,
     });
     return {
@@ -51,9 +51,9 @@ async function gradeEssayAnswer(
     };
   } catch (err) {
     console.error("AI grading failed:", err);
-    // Fallback to returning 0 score
+    // Fallback to returning 1 score
     return {
-      score: 0,
+      score: 1,
       scoreExplanation: messages.noMatch,
     };
   }
