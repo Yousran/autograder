@@ -47,5 +47,11 @@ export function IsChoiceRandomizedToggle({
     }
   }
 
-  return <Switch checked={checked} onCheckedChange={handleCheckedChange} />;
+  return (
+    <Switch
+      checked={checked}
+      onCheckedChange={handleCheckedChange}
+      data-testid="toggle-choice-randomized"
+    />
+  );
 }

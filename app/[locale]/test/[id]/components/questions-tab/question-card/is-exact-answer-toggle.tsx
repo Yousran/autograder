@@ -42,5 +42,11 @@ export function IsExactAnswerToggle({ questionId, initialValue }: Props) {
     }
   }
 
-  return <Switch checked={checked} onCheckedChange={handleCheckedChange} />;
+  return (
+    <Switch
+      checked={checked}
+      onCheckedChange={handleCheckedChange}
+      data-testid="toggle-exact-answer"
+    />
+  );
 }

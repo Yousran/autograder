@@ -247,7 +247,10 @@ export function QuestionChoice({
       <div className="mt-4 space-y-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
-            <Label className="text-sm font-medium">
+            <Label
+              className="text-sm font-medium"
+              data-testid="label-choice-randomized"
+            >
               {t("choiceRandomizeLabel")}
             </Label>
             <p className="text-xs text-muted-foreground">
@@ -262,7 +265,12 @@ export function QuestionChoice({
         </div>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
-            <Label className="text-sm font-medium">{t("maxScoreLabel")}</Label>
+            <Label
+              className="text-sm font-medium"
+              data-testid="label-choice-max-score"
+            >
+              {t("maxScoreLabel")}
+            </Label>
             <p className="text-xs text-muted-foreground">
               {t("maxScoreDescription")}
             </p>

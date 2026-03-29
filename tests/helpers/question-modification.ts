@@ -52,7 +52,7 @@ export function getQuestionTextArea(
  */
 export function getAddChoiceButton(page: Page, questionIndex: number): Locator {
   const questionCard = getQuestionCard(page, questionIndex);
-  return questionCard.getByRole("button", { name: /add choice/i });
+  return questionCard.getByTestId("btn-add-choice");
 }
 
 /**
@@ -83,9 +83,59 @@ export function getChoiceCorrectButton(
  * Helper: Get the answer text area for a specific question (essay type)
  */
 export function getAnswerTextArea(page: Page, questionIndex: number): Locator {
-  return page
-    .locator('textarea[placeholder*="answer"], textarea[id="answer"]')
-    .nth(questionIndex);
+  const questionCard = getQuestionCard(page, questionIndex);
+  return questionCard.getByTestId("textarea-essay-answer");
+}
+
+/**
+ * Helper: Get the essay answer label
+ */
+export function getEssayAnswerLabel(page: Page): Locator {
+  return page.getByTestId("label-essay-answer");
+}
+
+/**
+ * Helper: Get the answer matching label
+ */
+export function getAnswerMatchingLabel(page: Page): Locator {
+  return page.getByTestId("label-answer-matching");
+}
+
+/**
+ * Helper: Get the max score label for a question
+ */
+export function getMaxScoreLabel(
+  page: Page,
+  type: "essay" | "choice" = "essay",
+): Locator {
+  if (type === "essay") {
+    return page.getByTestId("label-max-score");
+  }
+  return page.getByTestId("label-choice-max-score");
+}
+
+/**
+ * Helper: Get the choice randomized label
+ */
+export function getChoiceRandomizedLabel(page: Page): Locator {
+  return page.getByTestId("label-choice-randomized");
+}
+
+/**
+ * Helper: Get all add question buttons
+ */
+export function getAddQuestionButtons(page: Page): Locator {
+  return page.getByTestId("btn-add-question");
+}
+
+/**
+ * Helper: Get the add question divider at a specific position
+ */
+export function getAddQuestionDivider(
+  page: Page,
+  position: number = 0,
+): Locator {
+  return page.locator(".group\\/add").nth(position);
 }
 
 /**
@@ -118,7 +168,7 @@ export async function addQuestion(
 ): Promise<number> {
   const existingCount = await getQuestionCount(page);
 
-  const addButtons = page.getByRole("button", { name: /add question/i });
+  const addButtons = getAddQuestionButtons(page);
   await expect(async () => {
     await expect(addButtons.last()).toBeVisible();
     await addButtons.last().click();

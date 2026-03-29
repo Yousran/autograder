@@ -40,7 +40,11 @@ export function QuestionEssay({
   return (
     <div className="mt-4 space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="answer" className="text-sm font-medium">
+        <Label
+          htmlFor="answer"
+          className="text-sm font-medium"
+          data-testid="label-essay-answer"
+        >
           {t("essayAnswerLabel")}
         </Label>
         <EditableTextarea
@@ -49,11 +53,15 @@ export function QuestionEssay({
           initialValue={answerText}
           onUpdate={handleUpdate}
           className="min-h-20"
+          data-testid="textarea-essay-answer"
         />
       </div>
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <Label className="text-sm font-medium">
+          <Label
+            className="text-sm font-medium"
+            data-testid="label-answer-matching"
+          >
             {t("answerMatchingLabel")}
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -69,7 +77,9 @@ export function QuestionEssay({
       </div>
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <Label className="text-sm font-medium">{t("maxScoreLabel")}</Label>
+          <Label className="text-sm font-medium" data-testid="label-max-score">
+            {t("maxScoreLabel")}
+          </Label>
           <p className="text-xs text-muted-foreground">
             {t("maxScoreDescription")}
           </p>

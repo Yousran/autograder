@@ -27,6 +27,13 @@ import {
   getQuestionCount,
   getChoiceCount,
   setChoiceText,
+  getEssayAnswerLabel,
+  getAnswerMatchingLabel,
+  getMaxScoreLabel,
+  getChoiceRandomizedLabel,
+  getAddQuestionButtons,
+  getAddQuestionDivider,
+  getAnswerTextArea,
 } from "./helpers/question-modification";
 import { waitForSkeletonToDisappear } from "./helpers/ui-interactions";
 // import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
@@ -54,9 +61,7 @@ test.describe.serial("Create First Question - At End", () => {
       await TestNavigateToTab(page, "questions");
 
       // Initially there should be no questions, so only one "Add Question" button at bottom
-      const addQuestionButtons = page.getByRole("button", {
-        name: /add question/i,
-      });
+      const addQuestionButtons = getAddQuestionButtons(page);
       await expect(addQuestionButtons).toHaveCount(1);
 
       // Click the "Add Question" button (visible at the end when no questions exist)
@@ -94,7 +99,7 @@ test.describe.serial("Create Question", () => {
       await TestNavigateToTab(page, "questions");
 
       // The add button should be visible and always show (alwaysVisible=true)
-      const addButton = page.getByRole("button", { name: /add question/i });
+      const addButton = getAddQuestionButtons(page);
       await expect(addButton).toBeVisible();
 
       // Click to create the first question
@@ -146,13 +151,11 @@ test.describe.serial("Create Question", () => {
       expect(count).toBe(2);
 
       // Now the dividers will exist in the DOM
-      const middleDivider = page.locator(".group\\/add").nth(0);
+      const middleDivider = getAddQuestionDivider(page, 0);
 
       // Hover and wait for the specific button to become visible (handling your 200ms transition)
       await middleDivider.hover();
-      const addButton = middleDivider.getByRole("button", {
-        name: /add question/i,
-      });
+      const addButton = middleDivider.getByTestId("btn-add-question");
 
       await expect(addButton).toBeVisible();
       await addButton.click();
@@ -189,7 +192,7 @@ test.describe.serial("Create Essay Question", () => {
       await TestNavigateToTab(page, "questions");
 
       // The add button should be visible and always show (alwaysVisible=true)
-      const addButton = page.getByRole("button", { name: /add question/i });
+      const addButton = getAddQuestionButtons(page);
       await expect(addButton).toBeVisible();
 
       await addQuestion(page);
@@ -204,9 +207,9 @@ test.describe.serial("Create Essay Question", () => {
 
     // Verify essay-specific UI appears
     await expect(async () => {
-      await expect(page.getByText(/expected answer/i)).toBeVisible();
-      await expect(page.getByText(/answer matching/i)).toBeVisible();
-      await expect(page.getByText(/max score/i)).toBeVisible();
+      await expect(getEssayAnswerLabel(page)).toBeVisible();
+      await expect(getAnswerMatchingLabel(page)).toBeVisible();
+      await expect(getMaxScoreLabel(page, "essay")).toBeVisible();
     }).toPass();
   });
 
@@ -230,9 +233,7 @@ test.describe.serial("Create Essay Question", () => {
     await expect(async () => {
       await page.reload();
       await waitForSkeletonToDisappear(page);
-      const answerTextarea = page
-        .locator('textarea[placeholder*="answer"], textarea[id="answer"]')
-        .nth(0);
+      const answerTextarea = getAnswerTextArea(page, 0);
       await expect(answerTextarea).toHaveValue("Paris");
     }).toPass();
   });
@@ -259,17 +260,15 @@ test.describe.serial("Create Choice Question", () => {
       await TestNavigateToTab(page, "questions");
 
       // The add button should be visible and always show (alwaysVisible=true)
-      const addButton = page.getByRole("button", { name: /add question/i });
+      const addButton = getAddQuestionButtons(page);
       await expect(addButton).toBeVisible();
 
       await addQuestion(page);
 
       // Verify question is created with choice-specific UI
       await expect(getQuestionCard(page, 0)).toBeVisible();
-      await expect(
-        page.getByText(/choice randomized|randomize/i).nth(0),
-      ).toBeVisible();
-      await expect(page.getByText(/max score/i)).toBeVisible();
+      await expect(getChoiceRandomizedLabel(page)).toBeVisible();
+      await expect(getMaxScoreLabel(page, "choice")).toBeVisible();
     }).toPass();
   });
 
@@ -320,7 +319,7 @@ test.describe.serial("Create Multiple Choice Question", () => {
       await TestNavigateToTab(page, "questions");
 
       // The add button should be visible and always show (alwaysVisible=true)
-      const addButton = page.getByRole("button", { name: /add question/i });
+      const addButton = getAddQuestionButtons(page);
       await expect(addButton).toBeVisible();
 
       await addQuestion(page);
@@ -335,10 +334,8 @@ test.describe.serial("Create Multiple Choice Question", () => {
 
     // Verify multiple choice UI appears
     await expect(async () => {
-      await expect(
-        page.getByText(/choice randomized|randomize.*choice/i),
-      ).toBeVisible();
-      await expect(page.getByText(/max score/i)).toBeVisible();
+      await expect(getChoiceRandomizedLabel(page)).toBeVisible();
+      await expect(getMaxScoreLabel(page, "choice")).toBeVisible();
     }).toPass();
   });
 
