@@ -1,15 +1,62 @@
-import { Page, expect } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { waitForLoaderToDisappear } from "./ui-interactions";
 
+// ─────────────────────────────────────────────────────────────────────────
+// Getter Functions: Locate Components
+// ─────────────────────────────────────────────────────────────────────────
+
 /**
- * Helper: Fill the join code input and click the Join button.
+ * Helper: Get the join code input element
  */
-export async function submitJoinCode(
-  page: Page,
-  joinCode: string,
-): Promise<void> {
-  const joinCodeInput = page.getByTestId("input-join-code");
-  const joinButton = page.getByTestId("btn-join-home");
+export function getJoinCodeInput(page: Page): Locator {
+  return page.getByTestId("input-join-code");
+}
+
+/**
+ * Helper: Get the join button
+ */
+export function getJoinButton(page: Page): Locator {
+  return page.getByTestId("btn-join-home");
+}
+
+/**
+ * Helper: Get the question count element
+ */
+export function getQuestionCountElement(page: Page): Locator {
+  return page.getByTestId("question-count");
+}
+
+/**
+ * Helper: Get the question text display element
+ */
+export function getQuestionTextDisplay(page: Page): Locator {
+  return page.getByTestId("question-text-display");
+}
+
+/**
+ * Helper: Get the next button
+ */
+export function getNextButton(page: Page): Locator {
+  return page.getByTestId("btn-next");
+}
+
+/**
+ * Helper: Get the previous button
+ */
+export function getPreviousButton(page: Page): Locator {
+  return page.getByTestId("btn-previous");
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Set Functions: Submit Forms
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Helper: Set the join code input and click the Join button.
+ */
+export async function setJoinCode(page: Page, joinCode: string): Promise<void> {
+  const joinCodeInput = getJoinCodeInput(page);
+  const joinButton = getJoinButton(page);
   await joinCodeInput.focus();
   await joinCodeInput.fill(joinCode);
   await expect(joinButton).toBeEnabled();
@@ -21,8 +68,7 @@ export async function submitJoinCode(
  * Extracts the number from "Question X of Y" text using the test ID
  */
 export async function getCurrentQuestionNumber(page: Page): Promise<number> {
-  // Use test ID for reliable access to the question count element
-  const questionCountElement = page.getByTestId("question-count");
+  const questionCountElement = getQuestionCountElement(page);
   const text = await questionCountElement.textContent().catch(() => "");
 
   // Extract the first number (current question number)
@@ -35,7 +81,7 @@ export async function getCurrentQuestionNumber(page: Page): Promise<number> {
  * Gets the question text from the question text display element using test ID
  */
 export async function getCurrentQuestionText(page: Page): Promise<string> {
-  const questionContainer = page.getByTestId("question-text-display");
+  const questionContainer = getQuestionTextDisplay(page);
   const text = await questionContainer.textContent();
   return text?.trim() || "";
 }
@@ -45,7 +91,7 @@ export async function getCurrentQuestionText(page: Page): Promise<string> {
  */
 export async function navigateToNextQuestion(page: Page): Promise<void> {
   const currentNum = await getCurrentQuestionNumber(page);
-  const nextButton = page.getByTestId("btn-next");
+  const nextButton = getNextButton(page);
 
   await expect(nextButton).toBeEnabled({ timeout: 5000 });
   await nextButton.click();
@@ -62,7 +108,7 @@ export async function navigateToNextQuestion(page: Page): Promise<void> {
  */
 export async function navigateToPreviousQuestion(page: Page): Promise<void> {
   const currentNum = await getCurrentQuestionNumber(page);
-  const prevButton = page.getByTestId("btn-previous");
+  const prevButton = getPreviousButton(page);
 
   await expect(prevButton).toBeEnabled({ timeout: 5000 });
   await prevButton.click();
@@ -159,7 +205,7 @@ export async function completeTestWithParticipant(
   page: Page,
   joinCode: string,
 ): Promise<string> {
-  await submitJoinCode(page, joinCode);
+  await setJoinCode(page, joinCode);
   await page.waitForURL(`/en/join/${joinCode}`);
 
   const startButton = page.getByRole("button", { name: "Start Test" });
@@ -229,7 +275,7 @@ export async function completeTestWithScores(
   joinCode: string,
   choiceIndices: number[],
 ): Promise<string> {
-  await submitJoinCode(page, joinCode);
+  await setJoinCode(page, joinCode);
   await page.waitForURL(`/en/join/${joinCode}`);
 
   const startButton = page.getByRole("button", { name: "Start Test" });

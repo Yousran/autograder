@@ -18,7 +18,7 @@ import { test, expect, BrowserContext } from "@playwright/test";
 import { createTest } from "./helpers/test-modification";
 import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 import {
-  submitJoinCode,
+  setJoinCode,
   completeTest,
   getCurrentQuestionNumber,
   getCurrentQuestionText,
@@ -51,7 +51,7 @@ test.describe.serial("Start Test - Already Started Within Duration", () => {
   }) => {
     // First participant joins and starts the test
     await page.goto("/en");
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -85,7 +85,7 @@ test.describe.serial("Start Test - Already Started Within Duration", () => {
   }) => {
     // First participant joins and starts the test
     await page.goto("/en");
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -106,7 +106,7 @@ test.describe.serial("Start Test - Already Started Within Duration", () => {
     await page.goto("/en");
 
     // Attempt to rejoin with the same join code
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     // Should be able to click Start Test again
@@ -160,7 +160,7 @@ test.describe.serial("Start Test - Return to Results", () => {
     page,
   }) => {
     await page.goto("/en");
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -218,7 +218,7 @@ test.describe.serial("Start Test - Duration Exceeded", () => {
     page,
   }) => {
     await page.goto("/en");
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -272,7 +272,7 @@ test.describe.serial("Start Test - Auto-Submit on Timeout", () => {
 
   test("test auto-submits when time limit expires", async ({ page }) => {
     await page.goto("/en");
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -322,7 +322,7 @@ test.describe.serial("Start Test - Answer Preservation", () => {
     page,
   }) => {
     await page.goto("/en");
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -417,7 +417,7 @@ test.describe.serial("Start Test - Consistent Question Order", () => {
   }) => {
     // First participant
     await page.goto("/en");
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -510,7 +510,7 @@ test.describe.serial("Start Test - Randomized Question Order", () => {
   }) => {
     // Participant joins and starts the test
     await page.goto("/en");
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -594,7 +594,7 @@ test.describe.serial("Start Test - Randomized Question Order", () => {
 
       // Join test
       await page.goto("/en");
-      await submitJoinCode(page, joinCode);
+      await setJoinCode(page, joinCode);
       await page.waitForURL(`/en/join/${joinCode}`);
 
       const startButton = page.getByRole("button", { name: "Start Test" });

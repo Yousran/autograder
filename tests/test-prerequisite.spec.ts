@@ -20,7 +20,7 @@ import {
   completeTestWithParticipant,
   completeTest,
   completeTestWithScores,
-  submitJoinCode,
+  setJoinCode,
 } from "./helpers/test-start";
 import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
@@ -186,7 +186,7 @@ test.describe
 
     // Now join the main test that requires the prerequisite
     await page.goto("/en");
-    await submitJoinCode(page, mainTestJoinCode);
+    await setJoinCode(page, mainTestJoinCode);
     await page.waitForURL(`/en/join/${mainTestJoinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -270,7 +270,7 @@ test.describe
   }) => {
     // Attempt to join main test WITHOUT completing prerequisite
     await page.goto("/en");
-    await submitJoinCode(page, mainTestJoinCode);
+    await setJoinCode(page, mainTestJoinCode);
 
     // Should see an error message about prerequisite
     await expect(async () => {
@@ -293,7 +293,7 @@ test.describe
 
     // Now attempt to join main test (which requires 50% score)
     await page.goto("/en");
-    await submitJoinCode(page, mainTestJoinCode);
+    await setJoinCode(page, mainTestJoinCode);
 
     // Should see error about insufficient prerequisite score
     await expect(async () => {
@@ -360,7 +360,7 @@ test.describe
   }) => {
     // Guest completes prerequisite test with name
     await page.goto("/en");
-    await submitJoinCode(page, prereqJoinCode);
+    await setJoinCode(page, prereqJoinCode);
     await page.waitForURL(`/en/join/${prereqJoinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -383,7 +383,7 @@ test.describe
 
     // Now attempt to join main test with same name
     await page.goto("/en");
-    await submitJoinCode(page, mainTestJoinCode);
+    await setJoinCode(page, mainTestJoinCode);
     await page.waitForURL(`/en/join/${mainTestJoinCode}`);
 
     const mainStartButton = page.getByRole("button", { name: "Start Test" });
@@ -459,7 +459,7 @@ test.describe
   }) => {
     // Attempt to join main test WITHOUT completing prerequisite
     await page.goto("/en");
-    await submitJoinCode(page, mainTestJoinCode);
+    await setJoinCode(page, mainTestJoinCode);
     await page.waitForURL(`/en/join/${mainTestJoinCode}`);
 
     // Guest should see Start Test button (not upfront error, since guests aren't checked until they provide name)
@@ -526,7 +526,7 @@ test.describe
 
     // Guest1 completes prerequisite with name "Guest1"
     await guest1Page.goto("/en");
-    await submitJoinCode(guest1Page, preqJoinCode);
+    await setJoinCode(guest1Page, preqJoinCode);
     await guest1Page.waitForURL(`/en/join/${preqJoinCode}`);
     const startButton = guest1Page.getByRole("button", { name: "Start Test" });
     await startButton.click();
@@ -550,7 +550,7 @@ test.describe
     const guest2Page = await guest2Context.newPage();
 
     await guest2Page.goto("/en");
-    await submitJoinCode(guest2Page, mainJoinCode);
+    await setJoinCode(guest2Page, mainJoinCode);
     await guest2Page.waitForURL(`/en/join/${mainJoinCode}`);
 
     // Should fail because Guest2 hasn't completed prerequisite

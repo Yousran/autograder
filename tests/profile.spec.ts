@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import {
-  fillSignUpForm,
+  setSignUpForm,
   navigateToProfilePage,
 } from "./helpers/user-modification";
 import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
@@ -102,7 +102,7 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     const publicProfileName = "Public Test User";
 
     await page.goto(SIGN_UP_URL);
-    await fillSignUpForm(
+    await setSignUpForm(
       page,
       publicProfileName,
       publicProfileEmail,
@@ -149,7 +149,7 @@ test.describe.serial("Profile Page - Unauthenticated Access", () => {
     const creatorName = "Profile Creator";
 
     await page.goto(SIGN_UP_URL);
-    await fillSignUpForm(page, creatorName, creatorEmail, testPassword);
+    await setSignUpForm(page, creatorName, creatorEmail, testPassword);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);

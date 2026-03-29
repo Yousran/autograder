@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillSignUpForm, fillSignInForm } from "./helpers/user-modification";
+import { setSignUpForm, setSignInForm } from "./helpers/user-modification";
 import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 const SIGN_UP_URL = "/en/auth/sign-up";
@@ -54,7 +54,7 @@ test.describe.serial("Sign-Up", () => {
   test("successfully signs up a new user", async ({ page }) => {
     await page.goto(SIGN_UP_URL);
 
-    await fillSignUpForm(page, testName, testEmail, testPassword);
+    await setSignUpForm(page, testName, testEmail, testPassword);
 
     // Wait for any loading overlay to disappear
     await waitForLoaderToDisappear(page);
@@ -71,7 +71,7 @@ test.describe.serial("Sign-Up", () => {
 
     await page.goto(SIGN_UP_URL);
 
-    await fillSignUpForm(page, testName, testEmail, testPassword);
+    await setSignUpForm(page, testName, testEmail, testPassword);
 
     // Wait for any loading overlay to disappear
     await waitForLoaderToDisappear(page);
@@ -124,7 +124,7 @@ test.describe.serial("Sign-In", () => {
       const page = await context.newPage();
 
       await page.goto(SIGN_UP_URL);
-      await fillSignUpForm(page, testName, signInTestEmail, testPassword);
+      await setSignUpForm(page, testName, signInTestEmail, testPassword);
 
       await page.waitForURL("/en");
       await context.close();
@@ -149,7 +149,7 @@ test.describe.serial("Sign-In", () => {
     await page.goto(SIGN_IN_URL);
 
     // Use the same email from Sign-Up but with wrong password
-    await fillSignInForm(page, signInTestEmail, "WrongPassword!");
+    await setSignInForm(page, signInTestEmail, "WrongPassword!");
 
     // Wait for any loading overlay to disappear
     await waitForLoaderToDisappear(page);
@@ -164,7 +164,7 @@ test.describe.serial("Sign-In", () => {
   test("successfully signs in with valid credentials", async ({ page }) => {
     await page.goto(SIGN_IN_URL);
 
-    await fillSignInForm(page, signInTestEmail, testPassword);
+    await setSignInForm(page, signInTestEmail, testPassword);
 
     // Wait for any loading overlay to disappear
     await waitForLoaderToDisappear(page);

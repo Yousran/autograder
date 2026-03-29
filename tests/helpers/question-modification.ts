@@ -1,5 +1,9 @@
-import { Page, expect } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { waitForLoaderToDisappear } from "./ui-interactions";
+
+// ─────────────────────────────────────────────────────────────────────────
+// Getter Functions: Locate Components
+// ─────────────────────────────────────────────────────────────────────────
 
 /**
  * Helper: Get the number of questions in the current test.
@@ -13,7 +17,7 @@ export async function getQuestionCount(page: Page): Promise<number> {
  * Helper: Get a specific question card by index (0-based).
  * Selects elements with data-testid matching "question-card-*" pattern.
  */
-export function getQuestionCard(page: Page, questionIndex: number) {
+export function getQuestionCard(page: Page, questionIndex: number): Locator {
   return page.locator('[data-testid^="question-card-"]').nth(questionIndex);
 }
 
@@ -27,6 +31,61 @@ export async function getChoiceCount(
 ): Promise<number> {
   const questionCard = getQuestionCard(page, questionIndex);
   return questionCard.locator('[data-testid^="choice-row-"]').count();
+}
+
+/**
+ * Helper: Get the question text area for a specific question
+ */
+export function getQuestionTextArea(
+  page: Page,
+  questionIndex: number,
+): Locator {
+  const questionCard = getQuestionCard(page, questionIndex);
+  return questionCard
+    .getByRole("textbox")
+    .filter({ hasText: /question text|enter question/i })
+    .first();
+}
+
+/**
+ * Helper: Get the add choice button for a specific question
+ */
+export function getAddChoiceButton(page: Page, questionIndex: number): Locator {
+  const questionCard = getQuestionCard(page, questionIndex);
+  return questionCard.getByRole("button", { name: /add choice/i });
+}
+
+/**
+ * Helper: Get a specific choice row by index
+ */
+export function getChoiceRow(
+  page: Page,
+  questionIndex: number,
+  choiceIndex: number,
+): Locator {
+  const questionCard = getQuestionCard(page, questionIndex);
+  return questionCard.locator(`[data-testid="choice-row-${choiceIndex}"]`);
+}
+
+/**
+ * Helper: Get the correct button for a specific choice
+ */
+export function getChoiceCorrectButton(
+  page: Page,
+  questionIndex: number,
+  choiceIndex: number,
+): Locator {
+  const choiceRow = getChoiceRow(page, questionIndex, choiceIndex);
+  return choiceRow.locator("button").first();
+}
+
+/**
+ * Helper: Get the answer text area for a specific question (essay type)
+ */
+export function getAnswerTextArea(page: Page, questionIndex: number): Locator {
+  return page
+    .locator('textarea[placeholder*="answer"], textarea[id="answer"]')
+    .nth(questionIndex);
 }
 
 /**
@@ -75,7 +134,7 @@ export async function addQuestion(
 
   await setQuestionType(page, questionIndex, type);
 
-  await fillQuestionText(page, questionIndex, questionText);
+  await setQuestionText(page, questionIndex, questionText);
 
   // Handle choice questions
   if (type === "CHOICE" && choices) {
@@ -90,7 +149,7 @@ export async function addQuestion(
 
     // Fill all choices
     for (let i = 0; i < choices.length; i++) {
-      await fillChoiceText(page, questionIndex, i, choices[i]);
+      await setChoiceText(page, questionIndex, i, choices[i]);
       if (i === correctChoiceIndex) {
         await markChoiceAsCorrect(page, questionIndex, i);
       }
@@ -98,7 +157,7 @@ export async function addQuestion(
   }
   // Handle essay questions
   if (type === "ESSAY" && answer) {
-    await fillQuestionAnswer(page, questionIndex, answer);
+    await setQuestionAnswer(page, questionIndex, answer);
   }
   // Handle multiple select questions
   if (type === "MULTIPLE_SELECT" && choices) {
@@ -113,7 +172,7 @@ export async function addQuestion(
 
     // Fill all choices
     for (let i = 0; i < choices.length; i++) {
-      await fillChoiceText(page, questionIndex, i, choices[i]);
+      await setChoiceText(page, questionIndex, i, choices[i]);
       if (i === correctChoiceIndex) {
         await markChoiceAsCorrect(page, questionIndex, i);
       }
@@ -150,21 +209,14 @@ export async function setQuestionType(
 }
 
 /**
- * Helper: Fill the question text for a specific question.
+ * Helper: Set the question text for a specific question.
  */
-export async function fillQuestionText(
+export async function setQuestionText(
   page: Page,
   questionIndex: number,
   text: string,
 ): Promise<void> {
-  // Get the specific question card to scope the search
-  const questionCard = getQuestionCard(page, questionIndex);
-
-  // Find the textarea within this specific question card
-  const questionTextarea = questionCard
-    .getByRole("textbox")
-    .filter({ hasText: /question text|enter question/i })
-    .first();
+  const questionTextarea = getQuestionTextArea(page, questionIndex);
 
   await expect(async () => {
     await questionTextarea.click();
@@ -181,10 +233,7 @@ export async function addChoiceToQuestion(
   page: Page,
   questionIndex: number,
 ): Promise<void> {
-  const questionCard = getQuestionCard(page, questionIndex);
-  const addChoiceButton = questionCard.getByRole("button", {
-    name: /add choice/i,
-  });
+  const addChoiceButton = getAddChoiceButton(page, questionIndex);
 
   await expect(async () => {
     await expect(addChoiceButton).toBeVisible();
@@ -194,11 +243,11 @@ export async function addChoiceToQuestion(
 }
 
 /**
- * Helper: Fill choice text for a specific choice in a question.
+ * Helper: Set choice text for a specific choice in a question.
  * choiceIndex: 0-based index of the choice within the question
  * Scopes search to the specific question card to handle multiple questions correctly.
  */
-export async function fillChoiceText(
+export async function setChoiceText(
   page: Page,
   questionIndex: number,
   choiceIndex: number,
@@ -207,13 +256,8 @@ export async function fillChoiceText(
   // Wait for any loading to complete
   await waitForLoaderToDisappear(page);
 
-  // Get the specific question card to scope search
-  const questionCard = getQuestionCard(page, questionIndex);
-
-  // Find the choice row within this specific question
-  const choiceRow = questionCard.locator(
-    `[data-testid="choice-row-${choiceIndex}"]`,
-  );
+  // Get the specific choice row
+  const choiceRow = getChoiceRow(page, questionIndex, choiceIndex);
 
   await expect(async () => {
     await choiceRow.isVisible();
@@ -244,15 +288,12 @@ export async function markChoiceAsCorrect(
   questionIndex: number,
   choiceIndex: number,
 ): Promise<void> {
-  const questionCard = getQuestionCard(page, questionIndex);
-
   // Find the specific choice row by testid within this question
-  const choiceRow = questionCard.locator(
-    `[data-testid="choice-row-${choiceIndex}"]`,
+  const correctButton = getChoiceCorrectButton(
+    page,
+    questionIndex,
+    choiceIndex,
   );
-
-  // Find the toggle/mark correct button (first button in the choice row)
-  const correctButton = choiceRow.locator("button").first();
 
   await expect(async () => {
     await expect(correctButton).toBeVisible();
@@ -262,16 +303,14 @@ export async function markChoiceAsCorrect(
 }
 
 /**
- * Helper: Fill the answer text for a specific question (essay type).
+ * Helper: Set the answer text for a specific question (essay type).
  */
-export async function fillQuestionAnswer(
+export async function setQuestionAnswer(
   page: Page,
   questionIndex: number,
   answer: string,
 ): Promise<void> {
-  const answerTextarea = page
-    .locator('textarea[placeholder*="answer"], textarea[id="answer"]')
-    .nth(questionIndex);
+  const answerTextarea = getAnswerTextArea(page, questionIndex);
 
   await expect(async () => {
     await expect(answerTextarea).toBeVisible();

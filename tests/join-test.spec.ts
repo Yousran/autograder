@@ -17,7 +17,7 @@
 
 import { test, expect } from "@playwright/test";
 import { createTest } from "./helpers/test-modification";
-import { submitJoinCode, completeTest } from "./helpers/test-start";
+import { setJoinCode, completeTest } from "./helpers/test-start";
 import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -65,7 +65,7 @@ test.describe.serial("Join Test - Authenticated User", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -126,7 +126,7 @@ test.describe.serial("Join Test - Guest User", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
     await page.waitForURL(`/en/join/${joinCode}`);
 
     const startButton = page.getByRole("button", { name: "Start Test" });
@@ -181,7 +181,7 @@ test.describe.serial("Join Test - Not Accepting Responses", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -225,7 +225,7 @@ test.describe.serial("Join Test - Max Attempts Exceeded", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -262,7 +262,7 @@ test.describe.serial("Join Test - Max Attempts Exceeded", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -326,7 +326,7 @@ test.describe.serial("Join Test - Logged In Users Only", () => {
       await expect(page.getByRole("button", { name: /join/i })).toBeVisible();
     }).toPass();
 
-    await submitJoinCode(page, joinCode);
+    await setJoinCode(page, joinCode);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -357,7 +357,7 @@ test.describe.serial("Join Test - Logged In Users Only", () => {
       ).toBeVisible();
     }).toPass();
 
-    await submitJoinCode(creatorPage, joinCode);
+    await setJoinCode(creatorPage, joinCode);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(creatorPage);

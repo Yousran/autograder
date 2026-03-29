@@ -22,11 +22,19 @@ import { test, expect } from "@playwright/test";
 import {
   createTest,
   TestNavigateToTab,
-  updateTestTitle,
-  updateTestDescription,
+  setTestTitle,
+  setTestDescription,
   setMaxAttempts,
   setDuration,
   toggleTestSetting,
+  getTestDescriptionPreview,
+  getDurationInput,
+  getMaxAttemptsInput,
+  getToggleAcceptingResponses,
+  getToggleLoggedInOnly,
+  getToggleDetailedScore,
+  getToggleCorrectAnswers,
+  getToggleQuestionsOrdered,
 } from "./helpers/test-modification";
 import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
@@ -66,37 +74,35 @@ test.describe.serial("Edit Test - Settings Tab", () => {
 
     // Verify all settings sections are visible by their test IDs
     await expect(async () => {
-      await expect(page.getByTestId("test-description-preview")).toBeVisible();
+      await expect(getTestDescriptionPreview(page)).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(page.getByTestId("input-duration")).toBeVisible();
+      await expect(getDurationInput(page)).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(page.getByTestId("input-max-attempts")).toBeVisible();
+      await expect(getMaxAttemptsInput(page)).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(
-        page.getByTestId("toggle-accepting-responses"),
-      ).toBeVisible();
+      await expect(getToggleAcceptingResponses(page)).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(page.getByTestId("toggle-logged-in-only")).toBeVisible();
+      await expect(getToggleLoggedInOnly(page)).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(page.getByTestId("toggle-detailed-score")).toBeVisible();
+      await expect(getToggleDetailedScore(page)).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(page.getByTestId("toggle-correct-answers")).toBeVisible();
+      await expect(getToggleCorrectAnswers(page)).toBeVisible();
     }).toPass();
 
     await expect(async () => {
-      await expect(page.getByTestId("toggle-questions-ordered")).toBeVisible();
+      await expect(getToggleQuestionsOrdered(page)).toBeVisible();
     }).toPass();
   });
 
@@ -106,7 +112,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     const newTitle = `Updated Test Title ${Date.now()}`;
 
     // Update title using helper
-    await updateTestTitle(page, newTitle);
+    await setTestTitle(page, newTitle);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -127,7 +133,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     const testDescription = `This is a test description created at ${Date.now()}`;
 
     // Update description using helper
-    await updateTestDescription(page, testDescription);
+    await setTestDescription(page, testDescription);
 
     // Wait for loader to disappear
     await waitForLoaderToDisappear(page);
@@ -137,7 +143,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await TestNavigateToTab(page, "settings");
 
     await expect(async () => {
-      await expect(page.getByTestId("test-description-preview")).toBeVisible();
+      await expect(getTestDescriptionPreview(page)).toBeVisible();
     }).toPass();
   });
 
@@ -157,9 +163,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await TestNavigateToTab(page, "settings");
 
     await expect(async () => {
-      await expect(
-        page.getByTestId("input-duration").locator('input[type="text"]'),
-      ).toHaveValue("120");
+      await expect(getDurationInput(page)).toHaveValue("120");
     }).toPass();
   });
 
@@ -179,9 +183,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await TestNavigateToTab(page, "settings");
 
     await expect(async () => {
-      await expect(
-        page.getByTestId("input-max-attempts").locator('input[type="text"]'),
-      ).toHaveValue("3");
+      await expect(getMaxAttemptsInput(page)).toHaveValue("3");
     }).toPass();
   });
 
@@ -191,7 +193,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await TestNavigateToTab(page, "settings");
 
     // Find switch to get initial state
-    const toggle = page.getByTestId("toggle-accepting-responses");
+    const toggle = getToggleAcceptingResponses(page);
 
     const initialState = (await toggle.getAttribute("aria-checked")) === "true";
 
@@ -209,7 +211,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await TestNavigateToTab(page, "settings");
 
-    const toggleAfterReload = page.getByTestId("toggle-accepting-responses");
+    const toggleAfterReload = getToggleAcceptingResponses(page);
     const stateAfterReload =
       (await toggleAfterReload.getAttribute("aria-checked")) === "true";
 
@@ -224,7 +226,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await TestNavigateToTab(page, "settings");
 
     // Find switch to get initial state
-    const toggle = page.getByTestId("toggle-logged-in-only");
+    const toggle = getToggleLoggedInOnly(page);
 
     const initialState = (await toggle.getAttribute("aria-checked")) === "true";
 
@@ -242,7 +244,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await TestNavigateToTab(page, "settings");
 
-    const toggleAfterReload = page.getByTestId("toggle-logged-in-only");
+    const toggleAfterReload = getToggleLoggedInOnly(page);
     const stateAfterReload =
       (await toggleAfterReload.getAttribute("aria-checked")) === "true";
 
@@ -257,7 +259,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await TestNavigateToTab(page, "settings");
 
     // Find switch to get initial state
-    const toggle = page.getByTestId("toggle-detailed-score");
+    const toggle = getToggleDetailedScore(page);
 
     const initialState = (await toggle.getAttribute("aria-checked")) === "true";
 
@@ -275,7 +277,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await TestNavigateToTab(page, "settings");
 
-    const toggleAfterReload = page.getByTestId("toggle-detailed-score");
+    const toggleAfterReload = getToggleDetailedScore(page);
     const stateAfterReload =
       (await toggleAfterReload.getAttribute("aria-checked")) === "true";
 
@@ -290,7 +292,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await TestNavigateToTab(page, "settings");
 
     // Find switch to get initial state
-    const toggle = page.getByTestId("toggle-correct-answers");
+    const toggle = getToggleCorrectAnswers(page);
 
     const initialState = (await toggle.getAttribute("aria-checked")) === "true";
 
@@ -308,7 +310,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await TestNavigateToTab(page, "settings");
 
-    const toggleAfterReload = page.getByTestId("toggle-correct-answers");
+    const toggleAfterReload = getToggleCorrectAnswers(page);
     const stateAfterReload =
       (await toggleAfterReload.getAttribute("aria-checked")) === "true";
 
@@ -323,7 +325,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await TestNavigateToTab(page, "settings");
 
     // Find switch to get initial state
-    const toggle = page.getByTestId("toggle-questions-ordered");
+    const toggle = getToggleQuestionsOrdered(page);
 
     const initialState = (await toggle.getAttribute("aria-checked")) === "true";
 
@@ -341,7 +343,7 @@ test.describe.serial("Edit Test - Settings Tab", () => {
     await page.reload();
     await TestNavigateToTab(page, "settings");
 
-    const toggleAfterReload = page.getByTestId("toggle-questions-ordered");
+    const toggleAfterReload = getToggleQuestionsOrdered(page);
     const stateAfterReload =
       (await toggleAfterReload.getAttribute("aria-checked")) === "true";
 

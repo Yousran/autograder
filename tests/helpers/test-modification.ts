@@ -1,9 +1,90 @@
-import { Browser, Page, expect } from "@playwright/test";
+import { Browser, Page, Locator, expect } from "@playwright/test";
 import {
   waitForLoaderToDisappear,
   waitForSkeletonToDisappear,
 } from "./ui-interactions";
 import { addQuestion } from "./question-modification";
+
+// ─────────────────────────────────────────────────────────────────────────
+// Getter Functions: Locate Components
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Helper: Get the test title preview element
+ */
+export function getTestTitlePreview(page: Page): Locator {
+  return page.getByTestId("test-title-preview");
+}
+
+/**
+ * Helper: Get the test title input element
+ */
+export function getTestTitleInput(page: Page): Locator {
+  return page.getByTestId("test-title-input");
+}
+
+/**
+ * Helper: Get the test description preview element
+ */
+export function getTestDescriptionPreview(page: Page): Locator {
+  return page.getByTestId("test-description-preview");
+}
+
+/**
+ * Helper: Get the test description input element
+ */
+export function getTestDescriptionInput(page: Page): Locator {
+  return page.getByTestId("test-description-input");
+}
+
+/**
+ * Helper: Get the max attempts input element
+ */
+export function getMaxAttemptsInput(page: Page): Locator {
+  return page.getByTestId("input-max-attempts").locator('input[type="text"]');
+}
+
+/**
+ * Helper: Get the duration input element
+ */
+export function getDurationInput(page: Page): Locator {
+  return page.getByTestId("input-duration").locator('input[type="text"]');
+}
+
+/**
+ * Helper: Get the accepting responses toggle
+ */
+export function getToggleAcceptingResponses(page: Page): Locator {
+  return page.getByTestId("toggle-accepting-responses");
+}
+
+/**
+ * Helper: Get the logged in only toggle
+ */
+export function getToggleLoggedInOnly(page: Page): Locator {
+  return page.getByTestId("toggle-logged-in-only");
+}
+
+/**
+ * Helper: Get the detailed score toggle
+ */
+export function getToggleDetailedScore(page: Page): Locator {
+  return page.getByTestId("toggle-detailed-score");
+}
+
+/**
+ * Helper: Get the correct answers toggle
+ */
+export function getToggleCorrectAnswers(page: Page): Locator {
+  return page.getByTestId("toggle-correct-answers");
+}
+
+/**
+ * Helper: Get the questions ordered toggle
+ */
+export function getToggleQuestionsOrdered(page: Page): Locator {
+  return page.getByTestId("toggle-questions-ordered");
+}
 
 /**
  * Helper: Wait for a PATCH response to /api/tests/{testId}
@@ -107,13 +188,13 @@ export async function createTest(
   const testId = testIdMatch ? testIdMatch[1] : "";
 
   // Update test title
-  await updateTestTitle(page, title);
+  await setTestTitle(page, title);
 
   // Go to Settings tab and update configuration
   await TestNavigateToTab(page, "settings");
 
   // Update test description
-  await updateTestDescription(page, description);
+  await setTestDescription(page, description);
 
   if (duration !== null) {
     await setDuration(page, duration);
@@ -192,18 +273,19 @@ export async function getJoinCode(page: Page): Promise<string> {
   return joinCode?.trim() || "";
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// Set Functions: Update Test Settings
+// ─────────────────────────────────────────────────────────────────────────
+
 /**
- * Helper: Update the test title.
+ * Helper: Set the test title.
  */
-export async function updateTestTitle(
-  page: Page,
-  title: string,
-): Promise<void> {
-  const titlePreview = page.getByTestId("test-title-preview");
+export async function setTestTitle(page: Page, title: string): Promise<void> {
+  const titlePreview = getTestTitlePreview(page);
   await titlePreview.hover();
   await titlePreview.click();
 
-  const titleInput = page.getByTestId("test-title-input");
+  const titleInput = getTestTitleInput(page);
   await titleInput.waitFor({ state: "visible" });
   await titleInput.fill(title);
   await titleInput.press("Enter");
@@ -212,17 +294,17 @@ export async function updateTestTitle(
 }
 
 /**
- * Helper: Update the test description.
+ * Helper: Set the test description.
  */
-export async function updateTestDescription(
+export async function setTestDescription(
   page: Page,
   description: string,
 ): Promise<void> {
-  const descriptionPreview = page.getByTestId("test-description-preview");
+  const descriptionPreview = getTestDescriptionPreview(page);
   await descriptionPreview.hover();
   await descriptionPreview.click();
 
-  const descriptionInput = page.getByTestId("test-description-input");
+  const descriptionInput = getTestDescriptionInput(page);
   await descriptionInput.waitFor({ state: "visible" });
   await descriptionInput.fill(description);
   await descriptionInput.press("Enter");
@@ -237,9 +319,7 @@ export async function setMaxAttempts(
   page: Page,
   maxAttempts: number,
 ): Promise<void> {
-  const maxAttemptInput = page
-    .getByTestId("input-max-attempts")
-    .locator('input[type="text"]');
+  const maxAttemptInput = getMaxAttemptsInput(page);
   await maxAttemptInput.clear();
   await maxAttemptInput.fill(maxAttempts.toString());
   await waitForTestPatchResponse(page);
@@ -250,9 +330,7 @@ export async function setMaxAttempts(
  * Helper: Set the test duration.
  */
 export async function setDuration(page: Page, duration: number): Promise<void> {
-  const durationInput = page
-    .getByTestId("input-duration")
-    .locator('input[type="text"]');
+  const durationInput = getDurationInput(page);
   await durationInput.click();
   await durationInput.fill(duration.toString());
   await waitForTestPatchResponse(page);

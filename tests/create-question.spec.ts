@@ -21,12 +21,12 @@ import {
   addQuestion,
   setQuestionType,
   addChoiceToQuestion,
-  fillQuestionText,
-  fillQuestionAnswer,
+  setQuestionText,
+  setQuestionAnswer,
   getQuestionCard,
   getQuestionCount,
   getChoiceCount,
-  fillChoiceText,
+  setChoiceText,
 } from "./helpers/question-modification";
 import { waitForSkeletonToDisappear } from "./helpers/ui-interactions";
 // import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
@@ -220,10 +220,10 @@ test.describe.serial("Create Essay Question", () => {
       expect(count).toBe(1);
 
       // Fill the question text
-      await fillQuestionText(page, 0, "What is the capital of France?");
+      await setQuestionText(page, 0, "What is the capital of France?");
 
       // Fill the answer text
-      await fillQuestionAnswer(page, 0, "Paris");
+      await setQuestionAnswer(page, 0, "Paris");
     }).toPass();
 
     // Verify the answer was saved by reloading
@@ -289,7 +289,7 @@ test.describe.serial("Create Choice Question", () => {
 
     await expect(async () => {
       await addChoiceToQuestion(page, 0);
-      await fillChoiceText(page, 0, 3, "New Choice Option");
+      await setChoiceText(page, 0, 3, "New Choice Option");
       expect(await getChoiceCount(page, 0)).toBe(4);
     }).toPass();
   });
@@ -360,7 +360,7 @@ test.describe.serial("Create Multiple Choice Question", () => {
 
     await expect(async () => {
       await addChoiceToQuestion(page, 0);
-      await fillChoiceText(page, 0, 2, "New Choice Option");
+      await setChoiceText(page, 0, 2, "New Choice Option");
       expect(await getChoiceCount(page, 0)).toBe(3);
     }).toPass();
   });
