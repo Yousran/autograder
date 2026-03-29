@@ -10,15 +10,6 @@ import {
   NumberFieldInput,
 } from "@/components/reui/number-field";
 
-interface EditableNumberInputProps {
-  initialValue: number | null;
-  onUpdate: (value: number | null) => Promise<void> | void;
-  onUpdateError?: (error: Error) => void;
-  debounceDelay?: number;
-  min?: number;
-  max?: number;
-}
-
 export function EditableNumberInput({
   initialValue,
   onUpdate,
@@ -27,7 +18,14 @@ export function EditableNumberInput({
   min = 1,
   max,
   ...props
-}: EditableNumberInputProps) {
+}: {
+  initialValue: number | null;
+  onUpdate: (value: number | null) => Promise<void> | void;
+  onUpdateError?: (error: Error) => void;
+  debounceDelay?: number;
+  min?: number;
+  max?: number;
+}) {
   const [value, setValue] = useState<number | undefined>(
     initialValue ?? undefined,
   );

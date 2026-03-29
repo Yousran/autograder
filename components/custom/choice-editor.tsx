@@ -236,15 +236,6 @@ const editorPlugins = [
 // Component
 // ---------------------------------------------------------------------------
 
-interface ChoiceEditorProps {
-  initialValue: string;
-  onUpdate: (value: string) => Promise<void> | void;
-  onUpdateError?: (error: Error) => void;
-  debounceDelay?: number;
-  placeholder?: string;
-  className?: string;
-}
-
 /**
  * A rich-text editor for answer choices.
  * Memoized so that sibling state changes (e.g. isCorrect toggling) do not
@@ -259,7 +250,14 @@ export const ChoiceEditor = memo(
     debounceDelay = 600,
     placeholder,
     className,
-  }: ChoiceEditorProps) {
+  }: {
+    initialValue: string;
+    onUpdate: (value: string) => Promise<void> | void;
+    onUpdateError?: (error: Error) => void;
+    debounceDelay?: number;
+    placeholder?: string;
+    className?: string;
+  }) {
     const t = useTranslations("Components.editableTextarea");
     const tEditor = useTranslations("Components.editor");
 

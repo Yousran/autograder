@@ -8,19 +8,17 @@ import { IsExactAnswerToggle } from "./is-exact-answer-toggle";
 import { MaxScoreEditable } from "./max-score-editable";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 
-interface QuestionEssayProps {
-  questionId: string;
-  answerText?: string;
-  isExactAnswer?: boolean;
-  maxScore?: number;
-}
-
 export function QuestionEssay({
   questionId,
   answerText = "",
   isExactAnswer = false,
   maxScore = 1,
-}: QuestionEssayProps) {
+}: {
+  questionId: string;
+  answerText?: string;
+  isExactAnswer?: boolean;
+  maxScore?: number;
+}) {
   const t = useTranslations("Components.questionsTab");
 
   const handleUpdate = useCallback(

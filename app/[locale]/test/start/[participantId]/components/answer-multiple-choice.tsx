@@ -5,13 +5,6 @@ import { extractPlateText } from "./test-taker";
 import type { Choice } from "./test-taker";
 import { PlateReadOnlyViewer } from "@/components/custom/plate-readonly-viewer";
 
-interface AnswerMultipleChoiceProps {
-  questionId: string;
-  choices: Choice[];
-  value: string[];
-  onChange: (value: string[]) => void;
-}
-
 /**
  * Multiple-select (checkbox) answer input.
  * The parent is responsible for persisting the answer on navigation.
@@ -20,7 +13,12 @@ export function AnswerMultipleChoice({
   choices,
   value,
   onChange,
-}: AnswerMultipleChoiceProps) {
+}: {
+  questionId: string;
+  choices: Choice[];
+  value: string[];
+  onChange: (value: string[]) => void;
+}) {
   const groupId = useId();
 
   const toggle = (choiceId: string) => {

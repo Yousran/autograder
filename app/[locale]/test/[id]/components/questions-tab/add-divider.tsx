@@ -5,15 +5,13 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface AddDividerProps {
-  onClick: () => void;
-  alwaysVisible?: boolean;
-}
-
 export function AddDivider({
   onClick,
   alwaysVisible = false,
-}: AddDividerProps) {
+}: {
+  onClick: () => void;
+  alwaysVisible?: boolean;
+}) {
   const t = useTranslations("Components.questionsTab");
 
   return (

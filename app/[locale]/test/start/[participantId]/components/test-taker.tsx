@@ -111,21 +111,6 @@ function shuffleWithSeed<T>(array: T[], seed: string): T[] {
 // TestTaker (main client orchestrator)
 // ---------------------------------------------------------------------------
 
-interface TestTakerProps {
-  participantId: string;
-  testTitle: string;
-  /** Duration in minutes, or null if no time limit. */
-  testDuration: number | null;
-  /** ISO string of when the participant record was created. */
-  participantCreatedAt: string;
-  questions: Question[];
-  isQuestionsOrdered: boolean;
-  initialEssayAnswers: Record<string, string>;
-  initialChoiceAnswers: Record<string, string | null>;
-  initialMultipleSelectAnswers: Record<string, string[]>;
-  noQuestionsLabel: string;
-}
-
 /** Computes remaining seconds from participant creation time and test duration. */
 function computeRemainingSeconds(
   participantCreatedAt: string,
@@ -147,7 +132,20 @@ export function TestTaker({
   initialChoiceAnswers,
   initialMultipleSelectAnswers,
   noQuestionsLabel,
-}: TestTakerProps) {
+}: {
+  participantId: string;
+  testTitle: string;
+  /** Duration in minutes, or null if no time limit. */
+  testDuration: number | null;
+  /** ISO string of when the participant record was created. */
+  participantCreatedAt: string;
+  questions: Question[];
+  isQuestionsOrdered: boolean;
+  initialEssayAnswers: Record<string, string>;
+  initialChoiceAnswers: Record<string, string | null>;
+  initialMultipleSelectAnswers: Record<string, string[]>;
+  noQuestionsLabel: string;
+}) {
   const t = useTranslations("Pages.testStart");
   const router = useRouter();
 

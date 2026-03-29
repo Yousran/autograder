@@ -10,15 +10,6 @@ import { Spinner } from "@/components/ui/spinner";
 
 type AnswerType = "essay" | "choice" | "multiple-choice";
 
-interface ScoreSliderInputProps {
-  answerId: string;
-  answerType: AnswerType;
-  initialScore: number;
-  maxScore: number;
-  /** Extra fields to include in the PATCH body alongside `score` (e.g. for essay). */
-  extraPatchFields?: Record<string, unknown>;
-}
-
 /**
  * Optimistic score slider for test creators.
  * Immediately reflects changes in the UI and debounces the PATCH request.
@@ -30,7 +21,14 @@ export function ScoreSliderInput({
   initialScore,
   maxScore,
   extraPatchFields,
-}: ScoreSliderInputProps) {
+}: {
+  answerId: string;
+  answerType: AnswerType;
+  initialScore: number;
+  maxScore: number;
+  /** Extra fields to include in the PATCH body alongside `score` (e.g. for essay). */
+  extraPatchFields?: Record<string, unknown>;
+}) {
   const t = useTranslations("Components.scoreSliderInput");
   const [score, setScore] = useState(initialScore);
   const [isSaving, setIsSaving] = useState(false);

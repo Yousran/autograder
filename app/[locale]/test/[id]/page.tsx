@@ -54,11 +54,11 @@ async function ensureFreshJoinCode(test: TestType): Promise<TestType> {
   return test;
 }
 
-interface Props {
+export default async function TestPage({
+  params,
+}: {
   params: Promise<{ id: string }>;
-}
-
-export default async function TestPage({ params }: Props) {
+}) {
   const { id } = await params;
 
   const raw = await prisma.test.findUnique({ where: { id } });

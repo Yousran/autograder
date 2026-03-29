@@ -31,22 +31,20 @@ function isValidHex(value: string) {
   return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value);
 }
 
-interface ColorPickerProps {
-  value: string;
-  onChange: (hex: string) => void;
-  /** Called when the user clears the color, reverting to the theme default. */
-  onClear?: () => void;
-  className?: string;
-  children?: React.ReactNode;
-}
-
 export function ColorPicker({
   value,
   onChange,
   onClear,
   className,
   children,
-}: ColorPickerProps) {
+}: {
+  value: string;
+  onChange: (hex: string) => void;
+  /** Called when the user clears the color, reverting to the theme default. */
+  onClear?: () => void;
+  className?: string;
+  children?: React.ReactNode;
+}) {
   const [inputValue, setInputValue] = useState(isValidHex(value) ? value : "");
 
   const handlePickerChange = useCallback(

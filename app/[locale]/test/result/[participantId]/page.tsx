@@ -6,14 +6,14 @@ import { prisma } from "@/lib/prisma";
 import { GaugeCombined } from "@/components/ui/gauge";
 import { Label } from "@/components/ui/label";
 
-interface ResultPageProps {
+export default async function ResultPage({
+  params,
+}: {
   params: Promise<{
     locale: string;
     participantId: string;
   }>;
-}
-
-export default async function ResultPage({ params }: ResultPageProps) {
+}) {
   const { locale, participantId } = await params;
   const t = await getTranslations("Pages.testResult");
 

@@ -21,12 +21,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface Props {
+export function TestTitleEditable({
+  testId,
+  initialTitle,
+}: {
   testId: string;
   initialTitle: string;
-}
-
-export function TestTitleEditable({ testId, initialTitle }: Props) {
+}) {
   const tApiTests = useTranslations("Api.tests");
   const tCommon = useTranslations("Common");
 

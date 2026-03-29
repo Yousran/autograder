@@ -23,15 +23,13 @@ import {
 import { cn } from "@/lib/utils";
 import { Label } from "../ui/label";
 
-interface JoinCodeCardProps {
-  initialCode: string | null;
-  initialExpiresAt: Date | null;
-}
-
 export function JoinCodeCard({
   initialCode,
   initialExpiresAt,
-}: JoinCodeCardProps) {
+}: {
+  initialCode: string | null;
+  initialExpiresAt: Date | null;
+}) {
   const t = useTranslations("Components.joinCode");
   const locale = useLocale();
   const dateFnsLocale = locale === "id" ? idLocale : enUS;

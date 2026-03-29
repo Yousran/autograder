@@ -13,18 +13,6 @@ import { ShowCorrectAnswersToggle } from "./show-correct-answers-toggle";
 import { QuestionsOrderedToggle } from "./questions-ordered-toggle";
 import { TestPrerequisiteCard } from "./test-prerequisite-card";
 
-interface Props {
-  testId: string;
-  initialDescription: string | null;
-  initialDuration: number | null;
-  initialMaxAttempts: number | null;
-  initialIsAcceptingResponses: boolean;
-  initialIsLoggedInUserOnly: boolean;
-  initialIsShowDetailedScore: boolean;
-  initialIsShowCorrectAnswers: boolean;
-  initialIsQuestionsOrdered: boolean;
-}
-
 export function SettingsTab({
   testId,
   initialDescription,
@@ -35,7 +23,17 @@ export function SettingsTab({
   initialIsShowDetailedScore,
   initialIsShowCorrectAnswers,
   initialIsQuestionsOrdered,
-}: Props) {
+}: {
+  testId: string;
+  initialDescription: string | null;
+  initialDuration: number | null;
+  initialMaxAttempts: number | null;
+  initialIsAcceptingResponses: boolean;
+  initialIsLoggedInUserOnly: boolean;
+  initialIsShowDetailedScore: boolean;
+  initialIsShowCorrectAnswers: boolean;
+  initialIsQuestionsOrdered: boolean;
+}) {
   const tComponentTest = useTranslations("Components.test");
 
   return (

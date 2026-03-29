@@ -12,10 +12,6 @@ import type {
   GetParticipantsResponse,
 } from "@/lib/schemas/participant";
 
-interface ParticipantsTabProps {
-  testId: string;
-}
-
 function ParticipantCardSkeleton() {
   return (
     <Card className="flex items-center justify-between gap-4 px-5 py-4">
@@ -35,7 +31,7 @@ function ParticipantCardSkeleton() {
  * Client component — fetches participants for the given test via
  * GET /api/participants?testid=... and renders a card per participant.
  */
-export function ParticipantsTab({ testId }: ParticipantsTabProps) {
+export function ParticipantsTab({ testId }: { testId: string }) {
   const t = useTranslations("Components.participantsTab");
   const [participants, setParticipants] = useState<ParticipantSummary[]>([]);
   const [maxScore, setMaxScore] = useState(0);

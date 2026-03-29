@@ -4,17 +4,19 @@ import { useTranslations } from "next-intl";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-interface AnswerEssayProps {
-  questionId: string;
-  value: string;
-  onChange: (value: string) => void;
-}
-
 /**
  * Essay answer input — a resizable textarea.
  * The parent is responsible for persisting the answer on navigation.
  */
-export function AnswerEssay({ questionId, value, onChange }: AnswerEssayProps) {
+export function AnswerEssay({
+  questionId,
+  value,
+  onChange,
+}: {
+  questionId: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
   const t = useTranslations("Pages.testStart");
   const id = `essay-${questionId}`;
 

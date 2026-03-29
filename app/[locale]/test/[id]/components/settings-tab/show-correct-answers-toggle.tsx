@@ -5,12 +5,13 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 
-interface Props {
+export function ShowCorrectAnswersToggle({
+  testId,
+  initialValue,
+}: {
   testId: string;
   initialValue: boolean;
-}
-
-export function ShowCorrectAnswersToggle({ testId, initialValue }: Props) {
+}) {
   const tApiTests = useTranslations("Api.tests");
   const [checked, setChecked] = useState(initialValue);
 

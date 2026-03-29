@@ -2,12 +2,13 @@ import { redirect } from "@/i18n/navigation";
 import { requireTestCreator } from "@/lib/dal";
 import { getLocale } from "next-intl/server";
 
-interface Props {
+export default async function TestLayout({
+  children,
+  params,
+}: {
   children: React.ReactNode;
   params: Promise<{ id: string }>;
-}
-
-export default async function TestLayout({ children, params }: Props) {
+}) {
   const [{ id }, locale] = await Promise.all([params, getLocale()]);
 
   const result = await requireTestCreator(id);

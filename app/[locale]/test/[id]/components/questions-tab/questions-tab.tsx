@@ -14,11 +14,7 @@ import {
 } from "@/lib/schemas/question";
 import { QuestionType } from "@/lib/generated/prisma/browser";
 
-interface QuestionsTabProps {
-  testId: string;
-}
-
-export function QuestionsTab({ testId }: QuestionsTabProps) {
+export function QuestionsTab({ testId }: { testId: string }) {
   const t = useTranslations("Components.questionsTab");
   const [questions, setQuestions] = useState<QuestionWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);

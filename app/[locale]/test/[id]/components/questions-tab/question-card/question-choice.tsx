@@ -20,17 +20,15 @@ import {
   getChoiceEditorPlainText,
 } from "@/components/custom/choice-editor";
 
-interface QuestionChoiceProps {
-  questionId: string;
-  isChoiceRandomized?: boolean;
-  maxScore?: number;
-}
-
 export function QuestionChoice({
   questionId,
   isChoiceRandomized = false,
   maxScore = 1,
-}: QuestionChoiceProps) {
+}: {
+  questionId: string;
+  isChoiceRandomized?: boolean;
+  maxScore?: number;
+}) {
   const t = useTranslations("Components.questionsTab");
   const tValidation = useTranslations("Validation");
   const [choices, setChoices] = useState<ChoiceSchemaType[]>([]);

@@ -28,21 +28,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface QuestionCardProps {
-  question: QuestionWithDetails;
-  index: number;
-  onDelete: (id: string) => void;
-  onTypeChange?: (type: QuestionType) => void;
-  loadChoices?: boolean;
-}
-
 export function QuestionCard({
   question,
   index,
   onDelete,
   onTypeChange,
   loadChoices,
-}: QuestionCardProps) {
+}: {
+  question: QuestionWithDetails;
+  index: number;
+  onDelete: (id: string) => void;
+  onTypeChange?: (type: QuestionType) => void;
+  loadChoices?: boolean;
+}) {
   const t = useTranslations("Components.questionsTab");
 
   const handleQuestionTextUpdate = useCallback(

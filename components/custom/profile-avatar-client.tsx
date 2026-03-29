@@ -12,19 +12,17 @@ import { useTranslations } from "next-intl";
 // import { toast } from "sonner"; // Or whatever toast library you use
 // import { authClient } from "@/lib/auth-client"; // Adjust path to your better-auth client
 
-interface ProfileAvatarClientProps {
-  userId: string;
-  initialImage: string | null;
-  userName: string | null;
-  isOwner: boolean;
-}
-
 export default function ProfileAvatarClient({
   userId,
   initialImage,
   userName,
   isOwner,
-}: ProfileAvatarClientProps) {
+}: {
+  userId: string;
+  initialImage: string | null;
+  userName: string | null;
+  isOwner: boolean;
+}) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);

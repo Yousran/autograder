@@ -22,15 +22,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { authClient } from "@/lib/auth-client";
 
-interface DeleteAccountButtonProps {
-  userId: string;
-}
-
 const CONFIRMATION_WORD = "DELETE";
 
-export default function DeleteAccountButton({
-  userId,
-}: DeleteAccountButtonProps) {
+export default function DeleteAccountButton({ userId }: { userId: string }) {
   const router = useRouter();
   const t = useTranslations("Pages.profile");
   const tCommon = useTranslations("Common");

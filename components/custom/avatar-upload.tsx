@@ -13,19 +13,17 @@ import { CircleAlertIcon, UserIcon, XIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslations } from "next-intl";
 
-interface AvatarUploadProps {
-  maxSize?: number;
-  className?: string;
-  onFileChange?: (file: FileWithPreview | null) => void;
-  defaultAvatar?: string;
-}
-
 export function AvatarUpload({
   maxSize = 2 * 1024 * 1024, // 2MB
   className,
   onFileChange,
   defaultAvatar,
-}: AvatarUploadProps) {
+}: {
+  maxSize?: number;
+  className?: string;
+  onFileChange?: (file: FileWithPreview | null) => void;
+  defaultAvatar?: string;
+}) {
   const [
     { files, isDragging, errors },
     {

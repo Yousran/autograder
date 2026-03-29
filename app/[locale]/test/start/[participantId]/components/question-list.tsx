@@ -5,15 +5,6 @@ import { cn } from "@/lib/utils";
 import type { Question } from "./test-taker";
 import { Button } from "@/components/ui/button";
 
-interface QuestionListProps {
-  questions: Question[];
-  currentIndex: number;
-  answeredSet: Set<string>;
-  /** Set of question IDs that the user has marked for review. */
-  markedSet: Set<string>;
-  onSelect: (index: number) => void;
-}
-
 /**
  * Sidebar grid of question number buttons.
  * Highlights the current question, marks answered ones, and shows a flag
@@ -25,7 +16,14 @@ export function QuestionList({
   answeredSet,
   markedSet,
   onSelect,
-}: QuestionListProps) {
+}: {
+  questions: Question[];
+  currentIndex: number;
+  answeredSet: Set<string>;
+  /** Set of question IDs that the user has marked for review. */
+  markedSet: Set<string>;
+  onSelect: (index: number) => void;
+}) {
   const t = useTranslations("Pages.testStart");
 
   return (

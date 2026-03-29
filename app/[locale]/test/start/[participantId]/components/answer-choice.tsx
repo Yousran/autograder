@@ -5,18 +5,20 @@ import { extractPlateText } from "./test-taker";
 import type { Choice } from "./test-taker";
 import { PlateReadOnlyViewer } from "@/components/custom/plate-readonly-viewer";
 
-interface AnswerChoiceProps {
-  questionId: string;
-  choices: Choice[];
-  value: string | null;
-  onChange: (value: string | null) => void;
-}
-
 /**
  * Single-choice (radio) answer input.
  * The parent is responsible for persisting the answer on navigation.
  */
-export function AnswerChoice({ choices, value, onChange }: AnswerChoiceProps) {
+export function AnswerChoice({
+  choices,
+  value,
+  onChange,
+}: {
+  questionId: string;
+  choices: Choice[];
+  value: string | null;
+  onChange: (value: string | null) => void;
+}) {
   const groupName = useId();
 
   return (

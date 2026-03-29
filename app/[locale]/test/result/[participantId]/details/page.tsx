@@ -14,16 +14,14 @@ import {
   type MultipleSelectAnswerView,
 } from "@/components/custom/question-detail-card";
 
-interface DetailsPageProps {
+export default async function ParticipantDetailsPage({
+  params,
+}: {
   params: Promise<{
     locale: string;
     participantId: string;
   }>;
-}
-
-export default async function ParticipantDetailsPage({
-  params,
-}: DetailsPageProps) {
+}) {
   const { locale, participantId } = await params;
   const t = await getTranslations("Pages.participantDetails");
 

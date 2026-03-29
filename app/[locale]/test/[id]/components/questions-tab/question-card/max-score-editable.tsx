@@ -6,17 +6,15 @@ import { toast } from "sonner";
 import { EditableNumberInput } from "@/components/custom/editable-number-input";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 
-interface Props {
-  questionId: string;
-  initialValue: number | null;
-  questionType?: QuestionType;
-}
-
 export function MaxScoreEditable({
   questionId,
   initialValue,
   questionType = QuestionType.ESSAY,
-}: Props) {
+}: {
+  questionId: string;
+  initialValue: number | null;
+  questionType?: QuestionType;
+}) {
   const t = useTranslations("Api.questions");
 
   const handleUpdate = useCallback(

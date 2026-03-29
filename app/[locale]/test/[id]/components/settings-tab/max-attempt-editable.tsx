@@ -4,12 +4,13 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { EditableNumberInput } from "@/components/custom/editable-number-input";
 
-interface Props {
+export function MaxAttemptEditable({
+  testId,
+  initialValue,
+}: {
   testId: string;
   initialValue: number | null;
-}
-
-export function MaxAttemptEditable({ testId, initialValue }: Props) {
+}) {
   const tApiTests = useTranslations("Api.tests");
 
   async function handleUpdate(value: number | null) {

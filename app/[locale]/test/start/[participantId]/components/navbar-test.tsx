@@ -5,12 +5,6 @@ import { Clock } from "lucide-react";
 import { SettingsMenu } from "@/components/custom/settings-menu";
 import { Badge } from "@/components/ui/badge";
 
-interface NavbarTestProps {
-  testTitle: string;
-  /** Remaining seconds for the countdown. Null means no time limit. */
-  secondsRemaining: number | null;
-}
-
 /** Formats seconds into mm:ss or hh:mm:ss. */
 function formatTime(totalSeconds: number): string {
   const h = Math.floor(totalSeconds / 3600);
@@ -31,7 +25,14 @@ function formatTime(totalSeconds: number): string {
  * Top sticky navbar displayed during a test.
  * Shows the test title, optional countdown timer, and settings.
  */
-export function NavbarTest({ testTitle, secondsRemaining }: NavbarTestProps) {
+export function NavbarTest({
+  testTitle,
+  secondsRemaining,
+}: {
+  testTitle: string;
+  /** Remaining seconds for the countdown. Null means no time limit. */
+  secondsRemaining: number | null;
+}) {
   const t = useTranslations("Pages.testStart");
   const isWarning =
     secondsRemaining != null && secondsRemaining > 0 && secondsRemaining <= 300;

@@ -195,15 +195,6 @@ const editorPlugins = [
   }),
 ];
 
-interface QuestionEditorProps {
-  initialValue: string;
-  onUpdate: (value: string) => Promise<void> | void;
-  onUpdateError?: (error: Error) => void;
-  debounceDelay?: number;
-  placeholder?: string;
-  className?: string;
-}
-
 export function QuestionEditor({
   initialValue,
   onUpdate,
@@ -211,7 +202,14 @@ export function QuestionEditor({
   debounceDelay = 600,
   placeholder,
   className,
-}: QuestionEditorProps) {
+}: {
+  initialValue: string;
+  onUpdate: (value: string) => Promise<void> | void;
+  onUpdateError?: (error: Error) => void;
+  debounceDelay?: number;
+  placeholder?: string;
+  className?: string;
+}) {
   const t = useTranslations("Components.editableTextarea");
   const tEditor = useTranslations("Components.editor");
 

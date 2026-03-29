@@ -23,7 +23,27 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-interface BottomNavbarProps {
+/**
+ * Sticky bottom navigation bar.
+ * - Shows Previous and Next buttons on left/right.
+ * - Center section has a Question List toggle and a Mark button.
+ * - On the last question, Next becomes a Finish button that opens a
+ *   confirmation dialog. The confirm button is disabled while any background
+ *   save is still in-flight (isPending).
+ */
+export function BottomNavbar({
+  hasPrev,
+  isLast,
+  isPending,
+  isQuestionListOpen,
+  isMarked,
+  onPrev,
+  onNext,
+  onToggleQuestionList,
+  onToggleMark,
+  onSaveBeforeDialog,
+  onFinish,
+}: {
   /** Whether there is a previous question to navigate to. */
   hasPrev: boolean;
   /** Whether the current question is the last one. */
@@ -51,29 +71,7 @@ interface BottomNavbarProps {
   onSaveBeforeDialog: () => void;
   /** Called when the user confirms finishing the test. */
   onFinish: () => void;
-}
-
-/**
- * Sticky bottom navigation bar.
- * - Shows Previous and Next buttons on left/right.
- * - Center section has a Question List toggle and a Mark button.
- * - On the last question, Next becomes a Finish button that opens a
- *   confirmation dialog. The confirm button is disabled while any background
- *   save is still in-flight (isPending).
- */
-export function BottomNavbar({
-  hasPrev,
-  isLast,
-  isPending,
-  isQuestionListOpen,
-  isMarked,
-  onPrev,
-  onNext,
-  onToggleQuestionList,
-  onToggleMark,
-  onSaveBeforeDialog,
-  onFinish,
-}: BottomNavbarProps) {
+}) {
   const t = useTranslations("Pages.testStart");
   const [open, setOpen] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);

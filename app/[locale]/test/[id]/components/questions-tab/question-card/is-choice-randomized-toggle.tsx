@@ -6,17 +6,15 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 
-interface Props {
-  questionId: string;
-  initialValue: boolean;
-  questionType: QuestionType;
-}
-
 export function IsChoiceRandomizedToggle({
   questionId,
   initialValue,
   questionType,
-}: Props) {
+}: {
+  questionId: string;
+  initialValue: boolean;
+  questionType: QuestionType;
+}) {
   const t = useTranslations("Api.questions");
   const [checked, setChecked] = useState(initialValue);
 

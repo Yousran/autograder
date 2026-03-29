@@ -51,11 +51,7 @@ type AvailableTest = z.infer<typeof AvailableTestSchema>;
 // Main component
 // ---------------------------------------------------------------------------
 
-interface Props {
-  testId: string;
-}
-
-export function TestPrerequisiteCard({ testId }: Props) {
+export function TestPrerequisiteCard({ testId }: { testId: string }) {
   const t = useTranslations("Components.prerequisite");
 
   const [prerequisites, setPrerequisites] = useState<PrerequisiteItem[]>([]);

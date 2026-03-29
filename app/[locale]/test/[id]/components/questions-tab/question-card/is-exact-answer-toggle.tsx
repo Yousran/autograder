@@ -6,12 +6,13 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 
-interface Props {
+export function IsExactAnswerToggle({
+  questionId,
+  initialValue,
+}: {
   questionId: string;
   initialValue: boolean;
-}
-
-export function IsExactAnswerToggle({ questionId, initialValue }: Props) {
+}) {
   const t = useTranslations("Api.questions");
   const [checked, setChecked] = useState(initialValue);
 

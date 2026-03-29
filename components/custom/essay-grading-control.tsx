@@ -10,13 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 
-interface EssayGradingControlProps {
-  answerId: string;
-  initialScore: number;
-  maxScore: number;
-  initialScoreExplanation: string | null;
-}
-
 /**
  * Combined score slider + explanation textarea for essay grading.
  * Both fields call PATCH /api/answer/essay/[answerId] independently.
@@ -27,7 +20,12 @@ export function EssayGradingControl({
   initialScore,
   maxScore,
   initialScoreExplanation,
-}: EssayGradingControlProps) {
+}: {
+  answerId: string;
+  initialScore: number;
+  maxScore: number;
+  initialScoreExplanation: string | null;
+}) {
   const t = useTranslations("Components.essayGradingControl");
   const [score, setScore] = useState(initialScore);
   const [explanation, setExplanation] = useState(initialScoreExplanation ?? "");

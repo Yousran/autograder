@@ -9,11 +9,7 @@ import { TestSchema } from "@/lib/schemas/test";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ParticipantsTab } from "./participants-tab/participants-tab";
 
-interface TestTabsProps {
-  test: TestSchema;
-}
-
-export function TestTabs({ test }: TestTabsProps) {
+export function TestTabs({ test }: { test: TestSchema }) {
   const t = useTranslations("Pages.test");
   const searchParams = useSearchParams();
   const router = useRouter();

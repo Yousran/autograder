@@ -5,11 +5,11 @@ import { getSession } from "@/lib/dal";
 import { JoinTestClient } from "@/components/custom/join-test-client";
 import Navbar from "@/components/custom/navbar";
 
-interface PageProps {
+export default async function JoinTestPage({
+  params,
+}: {
   params: Promise<{ joinCode: string; locale: string }>;
-}
-
-export default async function JoinTestPage({ params }: PageProps) {
+}) {
   const { joinCode } = await params;
   const t = await getTranslations("Pages.join");
 

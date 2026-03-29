@@ -16,16 +16,14 @@ import {
 import { ScoreSliderInput } from "@/components/custom/score-slider-input";
 import { EssayGradingControl } from "@/components/custom/essay-grading-control";
 
-interface EditDetailsPageProps {
+export default async function CreatorEditDetailsPage({
+  params,
+}: {
   params: Promise<{
     locale: string;
     participantId: string;
   }>;
-}
-
-export default async function CreatorEditDetailsPage({
-  params,
-}: EditDetailsPageProps) {
+}) {
   const { locale, participantId } = await params;
 
   const session = await getSession();

@@ -12,17 +12,18 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-interface QrScannerDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
 /**
  * Dialog containing a QR code scanner. Scanned QR codes are expected to be
  * the full join-link URL (e.g. https://example.com/en/join/ABC123). The
  * component extracts the join code from the URL and navigates to the join page.
  */
-export function QrScannerDialog({ open, onOpenChange }: QrScannerDialogProps) {
+export function QrScannerDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const t = useTranslations("Pages.home");
   const router = useRouter();
 

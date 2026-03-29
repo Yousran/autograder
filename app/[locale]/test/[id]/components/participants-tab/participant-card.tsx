@@ -7,11 +7,6 @@ import { GaugeCombined } from "@/components/ui/gauge";
 import { useTranslations } from "next-intl";
 import type { ParticipantSummary } from "@/lib/schemas/participant";
 
-interface ParticipantCardProps {
-  participant: ParticipantSummary;
-  maxScore: number;
-}
-
 /**
  * Displays a single participant row with their name, completion status,
  * and a score gauge. Clicking navigates to the creator edit-details page.
@@ -19,7 +14,10 @@ interface ParticipantCardProps {
 export function ParticipantCard({
   participant,
   maxScore,
-}: ParticipantCardProps) {
+}: {
+  participant: ParticipantSummary;
+  maxScore: number;
+}) {
   const t = useTranslations("Components.participantsTab");
   const effectiveMax = maxScore > 0 ? maxScore : 100;
 

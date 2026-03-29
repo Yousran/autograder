@@ -50,19 +50,17 @@ interface TestInfo {
   prerequisiteError?: string | null;
 }
 
-interface JoinTestClientProps {
+export function JoinTestClient({
+  testInfo,
+  userName,
+  isLoggedIn,
+}: {
   testInfo: TestInfo;
   /** Pre-filled name from session. Null means the user is a guest. */
   userName: string | null;
   /** Whether the current user is authenticated. */
   isLoggedIn: boolean;
-}
-
-export function JoinTestClient({
-  testInfo,
-  userName,
-  isLoggedIn,
-}: JoinTestClientProps) {
+}) {
   const t = useTranslations("Pages.join");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

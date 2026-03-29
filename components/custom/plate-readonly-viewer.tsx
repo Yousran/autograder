@@ -122,12 +122,6 @@ const viewerPlugins = [
   }),
 ];
 
-interface PlateReadOnlyViewerProps {
-  /** Serialised Plate JSON string as stored in the database. */
-  value: string;
-  className?: string;
-}
-
 /**
  * Renders Plate-serialised rich-text content in read-only mode.
  * Automatically converts legacy HTML content to Plate format.
@@ -136,7 +130,11 @@ interface PlateReadOnlyViewerProps {
 export function PlateReadOnlyViewer({
   value,
   className,
-}: PlateReadOnlyViewerProps) {
+}: {
+  /** Serialised Plate JSON string as stored in the database. */
+  value: string;
+  className?: string;
+}) {
   const editor = usePlateEditor({
     plugins: viewerPlugins,
     value: parseValue(value),
