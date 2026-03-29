@@ -63,8 +63,14 @@ export function QuestionCard({
     <SortableItem value={question.id}>
       <Card className="group p-6" data-testid={`question-card-${question.id}`}>
         <div className="flex items-center gap-4">
-          <SortableItemHandle className="text-muted-foreground hover:text-foreground relative shrink-0">
-            <Label className="text-lg p-2 transition-opacity group-hover:opacity-0">
+          <SortableItemHandle
+            className="text-muted-foreground hover:text-foreground relative shrink-0"
+            data-testid={`question-holder-${question.id}`}
+          >
+            <Label
+              className="text-lg p-2 transition-opacity group-hover:opacity-0"
+              data-testid={`question-order-${question.id}`}
+            >
               {index + 1}
             </Label>
             <span className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">

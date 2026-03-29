@@ -341,6 +341,7 @@ export async function setChoiceText(
 
 /**
  * Helper: Mark a choice as correct for a specific question.
+ * Detects if the choice is already marked as correct to avoid toggling it to incorrect.
  * Scopes to the specific question and choice row using data-testid.
  */
 export async function markChoiceAsCorrect(
@@ -357,8 +358,17 @@ export async function markChoiceAsCorrect(
 
   await expect(async () => {
     await expect(correctButton).toBeVisible();
-    await correctButton.click();
-    await waitForLoaderToDisappear(page);
+
+    // Check if the button is already marked as correct by checking its class
+    // The "default" variant (for correct state) includes "bg-primary" class
+    const buttonClass = await correctButton.getAttribute("class");
+    const isAlreadyCorrect = buttonClass?.includes("bg-primary");
+
+    // Only click if not already correct
+    if (!isAlreadyCorrect) {
+      await correctButton.click();
+      await waitForLoaderToDisappear(page);
+    }
   }).toPass();
 }
 
@@ -379,4 +389,85 @@ export async function setQuestionAnswer(
     await page.click("body");
     await waitForLoaderToDisappear(page);
   }).toPass();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Question Reordering Functions
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Helper: Get the question order number for a specific question
+ * Returns the displayed order number (1-based index)
+ */
+export async function getQuestionOrder(
+  page: Page,
+  questionIndex: number,
+): Promise<string> {
+  const questionCard = getQuestionCard(page, questionIndex);
+  const orderElement = questionCard.locator('[data-testid^="question-order-"]');
+  const text = await orderElement.textContent();
+  return text ?? "";
+}
+
+/**
+ * Helper: Get the question holder (the draggable handle) for a specific question
+ */
+export function getQuestionHolder(page: Page, questionIndex: number): Locator {
+  const questionCard = getQuestionCard(page, questionIndex);
+  return questionCard.locator('[data-testid^="question-holder-"]');
+}
+
+/**
+ * Helper: Reorder questions by dragging a question from sourceIndex to targetIndex
+ * This simulates the drag-and-drop functionality for question reordering.
+ * Uses mouse operations with scroll-during-drag to handle targets outside viewport.
+ *
+ * @param page - The Playwright page object
+ * @param sourceIndex - The 0-based index of the question to move
+ * @param targetIndex - The 0-based index where the question should be moved to
+ */
+export async function reorderQuestions(
+  page: Page,
+  sourceIndex: number,
+  targetIndex: number,
+): Promise<void> {
+  const sourceCard = getQuestionCard(page, sourceIndex);
+  const targetCard = getQuestionCard(page, targetIndex);
+
+  // Scroll source into view
+  await sourceCard.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+
+  const dragHandle = getQuestionHolder(page, sourceIndex);
+  await expect(dragHandle).toBeVisible();
+
+  // Get the drag handle position
+  const handleBox = await dragHandle.boundingBox();
+  if (!handleBox) throw new Error("Drag handle bounding box not found");
+
+  // Start dragging from the handle
+  await page.mouse.move(
+    handleBox.x + handleBox.width / 2,
+    handleBox.y + handleBox.height / 2,
+  );
+
+  await page.mouse.down();
+
+  // Start dragging from the handle
+  await page.mouse.move(
+    handleBox.x + handleBox.width / 2,
+    handleBox.y + 20 + handleBox.height / 2,
+  );
+
+  // Scroll target into view while the mouse button is held
+  await targetCard.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+
+  await page.mouse.up();
+
+  // Wait for the UI to update after drop
+  await waitForLoaderToDisappear(page);
+
+  // Wait for animation to complete
+  await page.waitForTimeout(300);
 }
