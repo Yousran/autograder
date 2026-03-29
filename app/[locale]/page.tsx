@@ -1,12 +1,9 @@
-//TODO: uniform test naming, structure and organization in the tests folder
-//TODO: question reordering e2e tests using playwright
 //TODO: ai grading and feedback generation using openrouter as default but with model provider selection support
 //TODO: dont load the choices separately for each question, but load them in bulk with the questions to avoid multiple requests and reordering issues
 //TODO: reordering issues where the question text and type related data goes missing when displaced in the list
 //TODO: nextstepjs tour component for onboarding
 //TODO: scroll to top button on question editing page
 //TODO: scroll to newly created question
-//TODO: e2e tests using playwright
 //TODO: make sure to use next-intl for all text content and add missing translations
 //TODO: add comments to all functions and components
 //TODO: make sure to use centralized types for API routes and form validation
