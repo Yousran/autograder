@@ -80,7 +80,11 @@ export function QuestionCard({
             </SelectTrigger>
             <SelectContent>
               {QUESTION_TYPES.map((type) => (
-                <SelectItem key={type} value={type}>
+                <SelectItem
+                  key={type}
+                  value={type}
+                  data-testid={`option-question-type-${type}`}
+                >
                   {getQuestionTypeLabel(type, t)}
                 </SelectItem>
               ))}

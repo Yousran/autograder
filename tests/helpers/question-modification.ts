@@ -41,10 +41,7 @@ export function getQuestionTextArea(
   questionIndex: number,
 ): Locator {
   const questionCard = getQuestionCard(page, questionIndex);
-  return questionCard
-    .getByRole("textbox")
-    .filter({ hasText: /question text|enter question/i })
-    .first();
+  return questionCard.getByTestId("input-question-text");
 }
 
 /**
@@ -241,19 +238,15 @@ export async function setQuestionType(
   questionIndex: number,
   type: "ESSAY" | "CHOICE" | "MULTIPLE_SELECT",
 ): Promise<void> {
-  const typeSelect = page.locator('[role="combobox"]').nth(questionIndex);
+  const typeSelect = page
+    .getByTestId("select-question-type")
+    .nth(questionIndex);
 
   await expect(async () => {
     await typeSelect.click();
     await waitForLoaderToDisappear(page);
 
-    const typeMap: Record<string, RegExp> = {
-      ESSAY: /^essay$/i,
-      CHOICE: /^choice|single/i,
-      MULTIPLE_SELECT: /^multiple|select/i,
-    };
-
-    const option = page.getByRole("option", { name: typeMap[type] });
+    const option = page.getByTestId(`option-question-type-${type}`);
     await option.first().click();
   }).toPass();
 }
@@ -266,13 +259,15 @@ export async function setQuestionText(
   questionIndex: number,
   text: string,
 ): Promise<void> {
-  const questionTextarea = getQuestionTextArea(page, questionIndex);
-
   await expect(async () => {
+    const questionTextarea = getQuestionTextArea(page, questionIndex);
+    await expect(questionTextarea).toBeVisible();
+    await expect(questionTextarea).toBeEnabled();
+
     await questionTextarea.click();
     await questionTextarea.fill(text);
     await page.click("body");
-    await page.waitForTimeout(200); // Small delay for question to load
+    await waitForLoaderToDisappear(page);
   }).toPass();
 }
 
@@ -306,17 +301,14 @@ export async function setChoiceText(
   // Wait for any loading to complete
   await waitForLoaderToDisappear(page);
 
-  // Get the specific choice row
-  const choiceRow = getChoiceRow(page, questionIndex, choiceIndex);
-
   await expect(async () => {
-    await choiceRow.isVisible();
+    const choiceRow = getChoiceRow(page, questionIndex, choiceIndex);
+    await expect(choiceRow).toBeVisible();
+    await expect(choiceRow).toBeEnabled();
 
-    const choiceEditor = choiceRow
-      .getByRole("textbox")
-      .filter({ hasText: /choice text/i });
-
-    await choiceEditor.waitFor({ state: "visible" });
+    const choiceEditor = choiceRow.getByTestId("input-choice-text");
+    await expect(choiceEditor).toBeVisible();
+    await expect(choiceEditor).toBeEnabled();
 
     await choiceEditor.click();
 

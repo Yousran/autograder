@@ -491,7 +491,11 @@ export const ChoiceEditor = memo(
             <EditorContainer
               className={["min-h-2", className].filter(Boolean).join(" ")}
             >
-              <Editor placeholder={placeholder} variant="default" />
+              <Editor
+                placeholder={placeholder}
+                variant="default"
+                data-testid="input-choice-text"
+              />
             </EditorContainer>
           </div>
         </Plate>

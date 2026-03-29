@@ -458,7 +458,11 @@ export function QuestionEditor({
           <EditorContainer
             className={["min-h-24", className].filter(Boolean).join(" ")}
           >
-            <Editor placeholder={placeholder} variant="default" />
+            <Editor
+              placeholder={placeholder}
+              variant="default"
+              data-testid="input-question-text"
+            />
           </EditorContainer>
         </div>
       </Plate>
