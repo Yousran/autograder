@@ -17,6 +17,15 @@ function toFractionalKey(order: string): string | null {
   return /^[a-z]/.test(order) ? order : null;
 }
 
+/**
+ * POST /api/questions/create
+ * Creates a new question for a test (test owner only).
+ * Supports insertion at a specific position using fractional indexing.
+ * Validates the create request and returns the newly created question.
+ *
+ * @param req - The Next.js request with JSON body { testId, insertAfterId? }
+ * @returns 200 with created question, or 400/401/403/404 on error
+ */
 export async function POST(req: NextRequest) {
   const locale = await getLocale();
   const [tQuestions, tValidation] = await Promise.all([

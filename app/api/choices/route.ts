@@ -7,6 +7,14 @@ import { QuestionType } from "@/lib/generated/prisma/enums";
 import { ChoiceSchema, getChoicesQuerySchema } from "@/lib/schemas/choice";
 import { MultipleSelectChoiceSchema } from "@/lib/schemas/multiple-choice";
 
+/**
+ * GET /api/choices
+ * Lists all choices for a question (test owner only).
+ * Works with both single-choice and multiple-select questions.
+ *
+ * @param req - The Next.js request with query param `questionid`
+ * @returns 200 with array of choices, or 401/403/404/422 on error
+ */
 export async function GET(req: NextRequest) {
   const locale = await getLocale();
   const [tChoices, tValidation] = await Promise.all([

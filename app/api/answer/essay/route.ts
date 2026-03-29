@@ -4,6 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { createEssayAnswerSchema } from "@/lib/schemas/answer";
 import { gradeEssayAnswerAsync } from "@/lib/graders/essay-grader";
 
+/**
+ * Loads and returns translation functions for the Answer API and Validation namespaces.
+ * Helper for async imports in route handlers.
+ *
+ * @returns Promise with tuple of [tAnswer, tValidation] translation functions
+ */
 async function getT() {
   const locale = await getLocale();
   return Promise.all([

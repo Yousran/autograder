@@ -4,14 +4,19 @@ import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { updateTestPrerequisiteSchema } from "@/lib/schemas/prerequisite";
 
-interface Params {
-  params: Promise<{ id: string; prereqId: string }>;
-}
-
-/** PATCH /api/tests/[id]/prerequisites/[prereqId]
- * Updates the minScoreRequired for a prerequisite.
+/**
+ * PATCH /api/tests/[id]/prerequisites/[prereqId]
+ * Updates the minScoreRequired for a prerequisite (test owner only).
+ * Test owner can adjust the minimum score participants need to pass the prerequisite.
+ *
+ * @param req - The Next.js request with JSON body { minScoreRequired: number }
+ * @param params - URL parameters { id: testId, prereqId: prerequisiteId }
+ * @returns 200 with updated prerequisite, or 400/401/403/404/422 on error
  */
-export async function PATCH(req: NextRequest, { params }: Params) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; prereqId: string }> },
+) {
   const { id, prereqId } = await params;
   const locale = await getLocale();
 
@@ -68,10 +73,19 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   return NextResponse.json(updated);
 }
 
-/** DELETE /api/tests/[id]/prerequisites/[prereqId]
- * Removes a prerequisite from the test.
+/**
+ * DELETE /api/tests/[id]/prerequisites/[prereqId]
+ * Removes a prerequisite from a test (test owner only).
+ * Participants will no longer be checked against this prerequisite.
+ *
+ * @param req - Not used
+ * @param params - URL parameters { id: testId, prereqId: prerequisiteId }
+ * @returns 204 No Content on success, or 401/403/404 on error
  */
-export async function DELETE(_req: NextRequest, { params }: Params) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; prereqId: string }> },
+) {
   const { id, prereqId } = await params;
   const locale = await getLocale();
   const t = await getTranslations({ locale, namespace: "Api.prerequisites" });

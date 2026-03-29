@@ -4,6 +4,14 @@ import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { getParticipantsQuerySchema } from "@/lib/schemas/participant";
 
+/**
+ * GET /api/participants
+ * Lists all participants for a test (test owner only).
+ * Returns participant summary with scores and completion status.
+ *
+ * @param req - The Next.js request with query param `testid`
+ * @returns 200 with array of participants, or 401/403/404 if unauthorized
+ */
 export async function GET(req: NextRequest) {
   const locale = await getLocale();
   const [tParticipants, tValidation] = await Promise.all([

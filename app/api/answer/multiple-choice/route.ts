@@ -9,6 +9,11 @@ type MultipleSelectChoiceInfo = { id: string; isCorrect: boolean };
  * Grades a multiple-select answer using proportional (merciful) scoring.
  * Formula: max(0, (correctSelections - incorrectSelections) / totalCorrect) * maxScore
  * Rounded to the nearest integer. Score cannot go below 0.
+ *
+ * @param maxScore - The maximum points for this question
+ * @param allChoices - All available choices with correctness flags
+ * @param selectedChoiceIds - IDs of choices the participant selected
+ * @returns The calculated score based on proportional formula
  */
 function gradeMultipleSelectAnswer(
   maxScore: number,
@@ -41,6 +46,12 @@ function gradeMultipleSelectAnswer(
   return Math.round(scoreRatio * maxScore);
 }
 
+/**
+ * Loads and returns translation functions for the Answer API and Validation namespaces.
+ * Helper for async imports in route handlers.
+ *
+ * @returns Promise with tuple of [tAnswer, tValidation] translation functions
+ */
 async function getT() {
   const locale = await getLocale();
   return Promise.all([

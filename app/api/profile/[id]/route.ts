@@ -3,6 +3,15 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { requireAuth } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 
+/**
+ * PATCH /api/profile/[id]
+ * Updates the user's profile image (authenticated user only).
+ * The user can only update their own profile (id must match session.user.id).
+ *
+ * @param req - The Next.js request with JSON body { image: string }
+ * @param params - URL parameters { id: userId }
+ * @returns 200 with updated profile { id, image }, or 400/401/403/500 on error
+ */
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -39,8 +48,18 @@ export async function PATCH(
   }
 }
 
+/**
+ * DELETE /api/profile/[id]
+ * Deletes the user's account permanently (authenticated user only).
+ * The user can only delete their own account (id must match session.user.id).
+ * Also cascades delete of related data (tests, participants, answers, etc.)
+ *
+ * @param req - Not used
+ * @param params - URL parameters { id: userId }
+ * @returns 200 with { success: true }, or 401/403/500 on error
+ */
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const locale = await getLocale();

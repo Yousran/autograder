@@ -4,11 +4,19 @@ import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { patchTestSchema, TestSchema } from "@/lib/schemas/test";
 
-interface Params {
-  params: Promise<{ id: string }>;
-}
-
-export async function GET(req: NextRequest, { params }: Params) {
+/**
+ * GET /api/tests/[id]
+ * Retrieves a single test by ID (public endpoint, no auth required).
+ * Returns the full test object if found.
+ *
+ * @param req - The Next.js request
+ * @param params - URL parameters { id: testId }
+ * @returns 200 with TestSchema if found, 404 if not found
+ */
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   const locale = await getLocale();
   const t = await getTranslations({ locale, namespace: "Api.tests" });
@@ -23,7 +31,20 @@ export async function GET(req: NextRequest, { params }: Params) {
   return NextResponse.json(TestSchema.parse(test));
 }
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+/**
+ * PATCH /api/tests/[id]
+ * Updates a test (admin/owner only).
+ * Requires the user to be authenticated and own the test.
+ * Validates the update payload against the test patch schema.
+ *
+ * @param req - The Next.js request with JSON body
+ * @param params - URL parameters { id: testId }
+ * @returns 200 with updated TestSchema, or 400/401/403/404 on error
+ */
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   const locale = await getLocale();
 

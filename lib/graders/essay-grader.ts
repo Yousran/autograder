@@ -11,10 +11,16 @@ type EssayQuestionGradeContext = {
 type GradeMessages = { exactMatch: string; noMatch: string };
 
 /**
- * Grades an essay answer.
- * - If `isExactAnswer` is true, performs a case-insensitive trimmed comparison.
- *   Full score on match, 0 on mismatch.
- * - If `isExactAnswer` is false, uses AI grading via OpenRouter.
+ * Grades an essay answer using either exact matching or AI-powered grading.
+ * If `isExactAnswer` is true, performs case-insensitive trimmed comparison (full score or 0).
+ * If `isExactAnswer` is false, uses AI (via OpenRouter) to grade intelligently.
+ * Falls back to 0 score if AI grading fails.
+ *
+ * @param question - The essay question context with answer key and scoring config
+ * @param participantAnswer - The participant's written response
+ * @param messages - Localized messages for exact match/no match feedback
+ * @param questionText - The original question text (used for AI context)
+ * @returns Promise with { score, scoreExplanation } where explanation may be null on errors
  */
 export async function gradeEssayAnswer(
   question: EssayQuestionGradeContext,

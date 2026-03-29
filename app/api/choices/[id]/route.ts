@@ -5,6 +5,14 @@ import { patchChoiceSchema } from "@/lib/schemas/choice";
 import { patchMultipleSelectChoiceSchema } from "@/lib/schemas/multiple-choice";
 import { requireTestCreator } from "@/lib/dal";
 
+/**
+ * PATCH /api/choices/[id]
+ * Updates a choice (test owner only).
+ * Works with both single-choice and multiple-select choices.
+ *
+ * @param req - The Next.js request with JSON body (partial choice fields)
+ * @returns 200 with updated choice, or 401/403/404/422 on error
+ */
 export async function PATCH(req: NextRequest) {
   const locale = await getLocale();
   const [tChoices, tValidation] = await Promise.all([
@@ -217,16 +225,28 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
+/**
+ * DELETE /api/choices/[id]
+ * Deletes a choice from a question (test owner only).
+ * Works with both single-choice and multiple-select choices.
+ * Cascades update of all answers that referenced this choice.
+ *
+ * @param req - The Next.js request (no body)
+ * @returns 204 No Content on success, or 401/403/404/422/500 on error
+ */
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const locale = await getLocale();
   const [tChoices, tValidation] = await Promise.all([
     getTranslations({ locale, namespace: "Api.choices" }),
     getTranslations({ locale, namespace: "Validation" }),
   ]);
 
-  const choiceid = req.nextUrl.pathname.split("/").pop();
+  const { id } = await params;
 
-  if (!choiceid) {
+  if (!id) {
     return NextResponse.json(
       { error: tValidation("choiceIdRequired") },
       { status: 422 },
@@ -238,12 +258,12 @@ export async function DELETE(req: NextRequest) {
   let choiceRecord: { questionId: string } | null = null;
   try {
     choiceRecord = await prisma.choice.findUnique({
-      where: { id: choiceid },
+      where: { id },
       select: { questionId: true },
     });
     if (!choiceRecord) {
       choiceRecord = await prisma.multipleSelectChoice.findUnique({
-        where: { id: choiceid },
+        where: { id },
         select: { questionId: true },
       });
     }
@@ -293,7 +313,7 @@ export async function DELETE(req: NextRequest) {
     if (question.type === "CHOICE") {
       // Prevent deleting a choice that is marked correct
       const existing = await prisma.choice.findUnique({
-        where: { id: choiceid },
+        where: { id },
         select: { isCorrect: true, questionId: true },
       });
       if (!existing) {
@@ -322,12 +342,12 @@ export async function DELETE(req: NextRequest) {
         );
       }
 
-      const deleted = await prisma.choice.delete({ where: { id: choiceid } });
+      const deleted = await prisma.choice.delete({ where: { id } });
       return NextResponse.json({ choice: deleted }, { status: 200 });
     } else if (question.type === "MULTIPLE_SELECT") {
       // Prevent deleting a multiple-select choice that's marked correct
       const existing = await prisma.multipleSelectChoice.findUnique({
-        where: { id: choiceid },
+        where: { id },
         select: { isCorrect: true, questionId: true },
       });
       if (!existing) {
@@ -356,7 +376,7 @@ export async function DELETE(req: NextRequest) {
       }
 
       const deleted = await prisma.multipleSelectChoice.delete({
-        where: { id: choiceid },
+        where: { id },
       });
       return NextResponse.json(
         { multipleSelectChoice: deleted },

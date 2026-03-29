@@ -49,6 +49,14 @@ const MAX_SIZE_BY_TYPE: Record<string, number> = {
   raw: 8 * 1024 * 1024, // 8 MB
 };
 
+/**
+ * Determines the Cloudinary resource type for a given MIME type.
+ * Uses exact matches first, then falls back to prefix matching.
+ * Audio files are mapped to "video" resource type in Cloudinary.
+ *
+ * @param mimeType - The MIME type string (e.g., "image/jpeg", "video/mp4")
+ * @returns The Cloudinary resource type: "image" | "video" | "raw" | "auto", or null if unsupported
+ */
 function getResourceType(
   mimeType: string,
 ): "image" | "video" | "raw" | "auto" | null {
@@ -63,10 +71,17 @@ function getResourceType(
   return null;
 }
 
-// POST /api/upload
-// Uploads a file to Cloudinary. Requires authentication.
-// Body: multipart/form-data — fields: file, folder (optional, default: "autograder")
-// Supported: images, videos, audio, PDFs, documents.
+/**
+ * POST /api/upload
+ * Uploads a file to Cloudinary (authenticated user only).
+ * Supports: images (≤4MB), videos (≤64MB), audio (≤16MB), PDFs/documents (≤8MB).
+ * Automatically determines resource type and applies size limits.
+ *
+ * @param req - The Next.js request with multipart/form-data body
+ *   - file: File (required)
+ *   - folder: string (optional, default: "autograder")
+ * @returns 200 with { secure_url: string }, or 400/401/413/500 on error
+ */
 export async function POST(req: NextRequest) {
   const locale = await getLocale();
   const t = await getTranslations({ locale, namespace: "Api.upload" });

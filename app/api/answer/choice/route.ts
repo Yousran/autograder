@@ -7,6 +7,10 @@ import { createChoiceAnswerSchema } from "@/lib/schemas/answer";
  * Grades a single-choice answer.
  * Returns `maxScore` when the selected choice is correct, otherwise 0.
  * A null selectedChoiceId (skipped) always scores 0.
+ *
+ * @param maxScore - The maximum points for this question
+ * @param selectedChoice - The choice with correctness flag, or null if skipped
+ * @returns The score (0 or maxScore)
  */
 function gradeChoiceAnswer(
   maxScore: number,
@@ -16,6 +20,12 @@ function gradeChoiceAnswer(
   return selectedChoice.isCorrect ? maxScore : 0;
 }
 
+/**
+ * Loads and returns translation functions for the Answer API and Validation namespaces.
+ * Helper for async imports in route handlers.
+ *
+ * @returns Promise with tuple of [tAnswer, tValidation] translation functions
+ */
 async function getT() {
   const locale = await getLocale();
   return Promise.all([

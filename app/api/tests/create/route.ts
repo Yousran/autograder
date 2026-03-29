@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { defaultTestData, TestSchema } from "@/lib/schemas/test";
 import { getLocale, getTranslations } from "next-intl/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { customAlphabet } from "nanoid";
 import { addDays } from "date-fns";
 
@@ -10,7 +10,16 @@ const nanoid = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 6);
 const TTL_DAYS = 7;
 const MAX_RETRIES = 5;
 
-export async function POST() {
+/**
+ * POST /api/tests/create
+ * Creates a new test with default settings (authenticated user only).
+ * Generates a unique 6-character join code with 7-day TTL.
+ * Returns the created test with default question placeholder.
+ *
+ * @param req - The Next.js request (no body required)
+ * @returns 200 with newly created TestSchema, or 401 if not authenticated
+ */
+export async function POST(req: NextRequest) {
   const auth = await requireAuth();
   if (!auth.ok) return auth.response;
 

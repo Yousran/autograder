@@ -4,6 +4,14 @@ import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { getQuestionsQuerySchema } from "@/lib/schemas/question";
 
+/**
+ * GET /api/questions
+ * Lists all questions for a test with their details (test owner only).
+ * Returns questions with type-specific data (essay, choice, or multipleSelect).
+ *
+ * @param req - The Next.js request with query param `testid`
+ * @returns 200 with array of questions with details, or 401/403/404 if unauthorized
+ */
 export async function GET(req: NextRequest) {
   const locale = await getLocale();
   const [tQuestions, tValidation] = await Promise.all([

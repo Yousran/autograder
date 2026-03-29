@@ -5,6 +5,15 @@ import { getChoicesQuerySchema, defaultChoiceData } from "@/lib/schemas/choice";
 import { defaultMultipleSelectChoiceData } from "@/lib/schemas/multiple-choice";
 import { requireTestCreator } from "@/lib/dal";
 
+/**
+ * POST /api/choices/create
+ * Creates a new choice for a question (test owner only).
+ * Automatically determines choice type based on question type.
+ * Returns the newly created choice.
+ *
+ * @param req - The Next.js request with query param `questionid`
+ * @returns 200 with created choice, or 401/403/404/422 on error
+ */
 export async function POST(req: NextRequest) {
   const locale = await getLocale();
   const [tChoices, tValidation] = await Promise.all([

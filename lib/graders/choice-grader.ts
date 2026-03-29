@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
  * Grades a single-choice answer.
  * Returns `maxScore` when the selected choice is correct, otherwise 0.
  * A null selectedChoiceId (skipped) always scores 0.
+ *
+ * @param maxScore - The maximum points possible for this question
+ * @param selectedChoice - The choice object with isCorrect flag, or null if skipped
+ * @returns The score (0 or maxScore) based on correctness
  */
 export function gradeChoiceAnswer(
   maxScore: number,
@@ -16,6 +20,11 @@ export function gradeChoiceAnswer(
 /**
  * Synchronously grades and returns the score for a choice answer.
  * This is a fast operation that can be done immediately in the request.
+ *
+ * @param questionId - The ID of the choice question
+ * @param selectedChoiceId - The ID of the selected choice, or null if skipped
+ * @returns Promise resolving to the calculated score
+ * @throws Error if the question is not found in the database
  */
 export async function gradeChoiceAnswerSync(
   questionId: string,

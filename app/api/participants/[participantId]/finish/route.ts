@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
  * Marks a participant as completed (isCompleted = true).
  */
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ participantId: string }> },
 ) {
   const { participantId } = await params;

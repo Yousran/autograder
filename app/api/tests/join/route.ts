@@ -9,6 +9,14 @@ export interface JoinStatusResponse {
   participantCount: number;
 }
 
+/**
+ * GET /api/tests/join
+ * Checks if a test (by join code) is accepting responses without joining.
+ * Returns test status: accepting responses flag and participant count.
+ *
+ * @param req - The Next.js request with query param `joinCode`
+ * @returns 200 with JoinStatusResponse, or 400/404 on error
+ */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const joinCode = searchParams.get("joinCode");
@@ -38,6 +46,15 @@ export async function GET(req: NextRequest) {
   });
 }
 
+/**
+ * POST /api/tests/join
+ * Joins a test with a join code and participant name.
+ * Creates a participant record (authenticated users are auto-associated).
+ * Returns the created participant record.
+ *
+ * @param req - The Next.js request with JSON body { name, joinCode }
+ * @returns 200 with participant data, or 400/404/422 on error
+ */
 export async function POST(req: NextRequest) {
   const locale = await getLocale();
   const [tJoin, tValidation] = await Promise.all([

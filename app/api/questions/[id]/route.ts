@@ -12,13 +12,21 @@ import {
   defaultQuestionData,
 } from "@/lib/schemas/question";
 
-interface Params {
-  params: Promise<{ id: string }>;
-}
-
-export async function DELETE(_req: NextRequest, { params }: Params) {
-  const { id } = await params;
+/**
+ * DELETE /api/questions/[id]
+ * Deletes a question from a test (test owner only).
+ * Also deletes all related answers for that question.
+ *
+ * @param req - Not used
+ * @param params - URL parameters { id: questionId }
+ * @returns 200 with empty response, or 401/403/404 on error
+ */
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const locale = await getLocale();
+  const { id } = await params;
 
   const tQuestions = await getTranslations({
     locale,
@@ -78,7 +86,20 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+/**
+ * PATCH /api/questions/[id]
+ * Updates a question's settings and details (test owner only).
+ * Supports changing question type, reordering, and all type-specific properties.
+ * Type switching uses a transaction to maintain consistency.
+ *
+ * @param req - The Next.js request with JSON body (partial question fields)
+ * @param params - URL parameters { id: questionId }
+ * @returns 200 with updated question, or 400/401/403/404 on error
+ */
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   const locale = await getLocale();
 

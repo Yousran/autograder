@@ -6,6 +6,11 @@ type MultipleSelectChoiceInfo = { id: string; isCorrect: boolean };
  * Grades a multiple-select answer using proportional (merciful) scoring.
  * Formula: max(0, (correctSelections - incorrectSelections) / totalCorrect) * maxScore
  * Rounded to the nearest integer. Score cannot go below 0.
+ *
+ * @param maxScore - The maximum points possible for this question
+ * @param allChoices - All available choices with their correctness flags
+ * @param selectedChoiceIds - IDs of choices the participant selected
+ * @returns The calculated score based on proportional formula
  */
 export function gradeMultipleSelectAnswer(
   maxScore: number,
@@ -40,7 +45,13 @@ export function gradeMultipleSelectAnswer(
 
 /**
  * Synchronously grades and returns the score for a multiple-select answer.
+ * Fetches question data and calls gradeMultipleSelectAnswer for calculation.
  * This is a fast operation that can be done immediately in the request.
+ *
+ * @param questionId - The ID of the multiple-select question
+ * @param selectedChoiceIds - Array of IDs of choices the participant selected
+ * @returns Promise resolving to the calculated score
+ * @throws Error if the question is not found in the database
  */
 export async function gradeMultipleSelectAnswerSync(
   questionId: string,

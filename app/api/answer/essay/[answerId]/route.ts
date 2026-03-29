@@ -4,6 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/dal";
 import { createGradeEssayAnswerSchema } from "@/lib/schemas/answer";
 
+/**
+ * Loads and returns translation functions for the Answer API and Validation namespaces.
+ * Helper for async imports in route handlers.
+ *
+ * @returns Promise with tuple of [tAnswer, tValidation] translation functions
+ */
 async function getT() {
   const locale = await getLocale();
   return Promise.all([
@@ -12,6 +18,14 @@ async function getT() {
   ]);
 }
 
+/**
+ * Recalculates and updates the total score for a participant.
+ * Aggregates scores from all three answer types: essay, choice, and multiple-select.
+ * Called after manual score overrides to keep totals in sync.
+ *
+ * @param participantId - The ID of the participant to recalculate
+ * @returns Promise that resolves once the participant score is updated
+ */
 async function recalculateParticipantScore(participantId: string) {
   const [essayTotal, choiceTotal, msTotal] = await Promise.all([
     prisma.essayAnswer.aggregate({
