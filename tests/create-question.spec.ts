@@ -28,6 +28,7 @@ import {
   getChoiceCount,
   fillChoiceText,
 } from "./helpers/question-modification";
+import { waitForSkeletonToDisappear } from "./helpers/ui-interactions";
 // import { waitForLoaderToDisappear } from "./helpers/ui-interactions";
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -103,6 +104,7 @@ test.describe.serial("Create Question", () => {
     // Verify the question is created
     await page.reload();
     await expect(async () => {
+      await waitForSkeletonToDisappear(page);
       const count = await getQuestionCount(page);
       expect(count).toBe(1);
     }).toPass();
@@ -125,6 +127,7 @@ test.describe.serial("Create Question", () => {
     // Verify the question count is now 2
     await page.reload();
     await expect(async () => {
+      await waitForSkeletonToDisappear(page);
       const count = await getQuestionCount(page);
       expect(count).toBe(2);
     }).toPass();
@@ -158,6 +161,7 @@ test.describe.serial("Create Question", () => {
     // Verify there are now 3 questions
     await page.reload();
     await expect(async () => {
+      await waitForSkeletonToDisappear(page);
       const count = await getQuestionCount(page);
       expect(count).toBe(3);
     }).toPass();
@@ -225,7 +229,7 @@ test.describe.serial("Create Essay Question", () => {
     // Verify the answer was saved by reloading
     await expect(async () => {
       await page.reload();
-      await TestNavigateToTab(page, "questions");
+      await waitForSkeletonToDisappear(page);
       const answerTextarea = page
         .locator('textarea[placeholder*="answer"], textarea[id="answer"]')
         .nth(0);

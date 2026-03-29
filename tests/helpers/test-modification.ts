@@ -1,5 +1,8 @@
 import { Browser, Page, expect } from "@playwright/test";
-import { waitForLoaderToDisappear } from "./ui-interactions";
+import {
+  waitForLoaderToDisappear,
+  waitForSkeletonToDisappear,
+} from "./ui-interactions";
 import { addQuestion } from "./question-modification";
 
 /**
@@ -152,6 +155,7 @@ export async function createTest(
 
 /**
  * Helper: Click the Questions tab and wait for the panel to become active.
+ * Automatically waits for skeleton loaders to disappear when navigating to the questions tab.
  */
 export async function TestNavigateToTab(
   page: Page,
@@ -173,6 +177,7 @@ export async function TestNavigateToTab(
   await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
   await tab.click();
   await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
+  await waitForSkeletonToDisappear(page);
 }
 
 /**

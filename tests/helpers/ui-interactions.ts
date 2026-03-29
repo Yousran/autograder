@@ -17,3 +17,19 @@ export async function waitForLoaderToDisappear(page: Page): Promise<void> {
     await spinner.first().waitFor({ state: "hidden" });
   }
 }
+
+/**
+ * Helper: Wait for skeleton loaders to disappear
+ * Checks if skeleton elements exist and waits for them to be hidden
+ */
+export async function waitForSkeletonToDisappear(page: Page): Promise<void> {
+  const skeleton = page.locator('[data-slot="skeleton"]');
+  if (
+    await skeleton
+      .first()
+      .isVisible()
+      .catch(() => false)
+  ) {
+    await skeleton.first().waitFor({ state: "hidden" });
+  }
+}
