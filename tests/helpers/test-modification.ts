@@ -237,28 +237,43 @@ export async function createTest(
 /**
  * Helper: Click the Questions tab and wait for the panel to become active.
  * Automatically waits for skeleton loaders to disappear when navigating to the questions tab.
+ * Ensures tab and tabPanel are hydrated and ready before interaction.
  */
 export async function TestNavigateToTab(
   page: Page,
   tabName: "questions" | "settings" | "participants",
 ): Promise<void> {
   let tab;
+  let tabPanel;
+
   switch (tabName) {
-    case "questions":
-      tab = page.getByTestId("tab-questions");
-      break;
     case "settings":
       tab = page.getByTestId("tab-settings");
+      tabPanel = page.getByTestId("tabpanel-settings");
+      break;
+    case "questions":
+      tab = page.getByTestId("tab-questions");
+      tabPanel = page.getByTestId("tabpanel-questions");
       break;
     case "participants":
       tab = page.getByTestId("tab-participants");
+      tabPanel = page.getByTestId("tabpanel-participants");
       break;
   }
-  await tab.waitFor({ state: "visible" });
-  await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-  await tab.click();
-  await page.getByRole("tabpanel").first().waitFor({ state: "visible" });
-  await waitForSkeletonToDisappear(page);
+
+  await expect(async () => {
+    // Wait for tab to be visible and enabled before clicking
+    await expect(tab).toBeVisible();
+    await expect(tab).toBeEnabled();
+
+    await tab.click();
+
+    // Wait for tabPanel to become visible after clicking
+    await expect(tabPanel).toBeVisible();
+
+    // Wait for skeleton loaders to disappear
+    await waitForSkeletonToDisappear(page);
+  }).toPass();
 }
 
 /**

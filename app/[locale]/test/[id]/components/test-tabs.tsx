@@ -54,7 +54,7 @@ export function TestTabs({ test }: TestTabsProps) {
           {t("tabParticipants")}
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="settings">
+      <TabsContent value="settings" data-testid="tabpanel-settings">
         <SettingsTab
           testId={test.id}
           initialDescription={test.description}
@@ -67,10 +67,10 @@ export function TestTabs({ test }: TestTabsProps) {
           initialIsQuestionsOrdered={test.isQuestionsOrdered}
         />
       </TabsContent>
-      <TabsContent value="questions">
+      <TabsContent value="questions" data-testid="tabpanel-questions">
         <QuestionsTab testId={test.id} />
       </TabsContent>
-      <TabsContent value="participants">
+      <TabsContent value="participants" data-testid="tabpanel-participants">
         <ParticipantsTab testId={test.id} />
       </TabsContent>
     </Tabs>
