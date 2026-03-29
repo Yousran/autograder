@@ -84,7 +84,7 @@ function getResourceType(
  */
 export async function POST(req: NextRequest) {
   const locale = await getLocale();
-  const t = await getTranslations({ locale, namespace: "Api.upload" });
+  const tUpload = await getTranslations({ locale, namespace: "Api.upload" });
 
   try {
     const authResult = await requireAuth();
@@ -95,14 +95,17 @@ export async function POST(req: NextRequest) {
     const folder = (formData.get("folder") as string | null) ?? "autograder";
 
     if (!(file instanceof File)) {
-      return NextResponse.json({ error: t("invalidFile") }, { status: 400 });
+      return NextResponse.json(
+        { error: tUpload("invalidFile") },
+        { status: 400 },
+      );
     }
 
     const resourceType = getResourceType(file.type);
 
     if (!resourceType) {
       return NextResponse.json(
-        { error: t("unsupportedFormat") },
+        { error: tUpload("unsupportedFormat") },
         { status: 400 },
       );
     }
@@ -116,7 +119,10 @@ export async function POST(req: NextRequest) {
     const maxSize = MAX_SIZE_BY_TYPE[categoryKey] ?? MAX_SIZE_BY_TYPE.raw;
 
     if (file.size > maxSize) {
-      return NextResponse.json({ error: t("fileTooLarge") }, { status: 400 });
+      return NextResponse.json(
+        { error: tUpload("fileTooLarge") },
+        { status: 400 },
+      );
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -133,6 +139,9 @@ export async function POST(req: NextRequest) {
       publicId: result.public_id,
     });
   } catch {
-    return NextResponse.json({ error: t("uploadFailed") }, { status: 500 });
+    return NextResponse.json(
+      { error: tUpload("uploadFailed") },
+      { status: 500 },
+    );
   }
 }

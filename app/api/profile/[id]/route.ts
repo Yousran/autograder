@@ -4,6 +4,17 @@ import { requireAuth } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 
 /**
+ * Loads and returns translation functions for the Profile API namespace.
+ * Helper for async imports in route handlers.
+ *
+ * @returns Promise with translation function for the Profile API
+ */
+async function getT() {
+  const locale = await getLocale();
+  return Promise.all([getTranslations({ locale, namespace: "Api.profile" })]);
+}
+
+/**
  * PATCH /api/profile/[id]
  * Updates the user's profile image (authenticated user only).
  * The user can only update their own profile (id must match session.user.id).
@@ -16,8 +27,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const locale = await getLocale();
-  const t = await getTranslations({ locale, namespace: "Api.profile" });
+  const [tProfile] = await getT();
   try {
     const authResult = await requireAuth();
     if (!authResult.ok) return authResult.response;
@@ -26,13 +36,19 @@ export async function PATCH(
     const { id } = await params;
 
     if (session.user.id !== id) {
-      return NextResponse.json({ error: t("forbidden") }, { status: 403 });
+      return NextResponse.json(
+        { error: tProfile("forbidden") },
+        { status: 403 },
+      );
     }
 
     const body = await req.json().catch(() => ({}));
     const image = body?.image as string | undefined;
     if (!image || typeof image !== "string") {
-      return NextResponse.json({ error: t("invalidImage") }, { status: 400 });
+      return NextResponse.json(
+        { error: tProfile("invalidImage") },
+        { status: 400 },
+      );
     }
 
     const user = await prisma.user.update({
@@ -44,7 +60,10 @@ export async function PATCH(
     return NextResponse.json({ id: user.id, image: user.image });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: t("serverError") }, { status: 500 });
+    return NextResponse.json(
+      { error: tProfile("serverError") },
+      { status: 500 },
+    );
   }
 }
 
@@ -62,8 +81,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const locale = await getLocale();
-  const t = await getTranslations({ locale, namespace: "Api.profile" });
+  const [tProfile] = await getT();
   try {
     const authResult = await requireAuth();
     if (!authResult.ok) return authResult.response;
@@ -72,7 +90,10 @@ export async function DELETE(
     const { id } = await params;
 
     if (session.user.id !== id) {
-      return NextResponse.json({ error: t("forbidden") }, { status: 403 });
+      return NextResponse.json(
+        { error: tProfile("forbidden") },
+        { status: 403 },
+      );
     }
 
     await prisma.user.delete({ where: { id } });
@@ -80,6 +101,9 @@ export async function DELETE(
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: t("serverError") }, { status: 500 });
+    return NextResponse.json(
+      { error: tProfile("serverError") },
+      { status: 500 },
+    );
   }
 }

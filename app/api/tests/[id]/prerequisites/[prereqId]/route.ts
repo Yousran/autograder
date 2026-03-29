@@ -5,6 +5,20 @@ import { prisma } from "@/lib/prisma";
 import { updateTestPrerequisiteSchema } from "@/lib/schemas/prerequisite";
 
 /**
+ * Loads and returns translation functions for the Prerequisites API and Validation namespaces.
+ * Helper for async imports in route handlers.
+ *
+ * @returns Promise with tuple of [tPrerequisites, tValidation] translation functions
+ */
+async function getT() {
+  const locale = await getLocale();
+  return Promise.all([
+    getTranslations({ locale, namespace: "Api.prerequisites" }),
+    getTranslations({ locale, namespace: "Validation" }),
+  ]);
+}
+
+/**
  * PATCH /api/tests/[id]/prerequisites/[prereqId]
  * Updates the minScoreRequired for a prerequisite (test owner only).
  * Test owner can adjust the minimum score participants need to pass the prerequisite.
@@ -18,29 +32,37 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string; prereqId: string }> },
 ) {
   const { id, prereqId } = await params;
-  const locale = await getLocale();
 
-  const [t, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.prerequisites" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const [tPrerequisites, tValidation] = await getT();
 
   const auth = await requireTestCreator(id);
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
-      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
+      return NextResponse.json(
+        { error: tPrerequisites("unauthorized") },
+        { status: 401 },
+      );
     }
     if (auth.reason === "not_found") {
-      return NextResponse.json({ error: t("notFound") }, { status: 404 });
+      return NextResponse.json(
+        { error: tPrerequisites("notFound") },
+        { status: 404 },
+      );
     }
-    return NextResponse.json({ error: t("forbidden") }, { status: 403 });
+    return NextResponse.json(
+      { error: tPrerequisites("forbidden") },
+      { status: 403 },
+    );
   }
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: t("updateFailed") }, { status: 400 });
+    return NextResponse.json(
+      { error: tPrerequisites("updateFailed") },
+      { status: 400 },
+    );
   }
 
   const schema = updateTestPrerequisiteSchema((key) => tValidation(key));
@@ -48,7 +70,10 @@ export async function PATCH(
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? t("updateFailed") },
+      {
+        error:
+          parsed.error.issues[0]?.message ?? tPrerequisites("updateFailed"),
+      },
       { status: 422 },
     );
   }
@@ -59,7 +84,10 @@ export async function PATCH(
   });
 
   if (!record) {
-    return NextResponse.json({ error: t("prereqNotFound") }, { status: 404 });
+    return NextResponse.json(
+      { error: tPrerequisites("prereqNotFound") },
+      { status: 404 },
+    );
   }
 
   const updated = await prisma.testPrerequisite.update({
@@ -87,18 +115,26 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; prereqId: string }> },
 ) {
   const { id, prereqId } = await params;
-  const locale = await getLocale();
-  const t = await getTranslations({ locale, namespace: "Api.prerequisites" });
+  const [tPrerequisites] = await getT();
 
   const auth = await requireTestCreator(id);
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
-      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
+      return NextResponse.json(
+        { error: tPrerequisites("unauthorized") },
+        { status: 401 },
+      );
     }
     if (auth.reason === "not_found") {
-      return NextResponse.json({ error: t("notFound") }, { status: 404 });
+      return NextResponse.json(
+        { error: tPrerequisites("notFound") },
+        { status: 404 },
+      );
     }
-    return NextResponse.json({ error: t("forbidden") }, { status: 403 });
+    return NextResponse.json(
+      { error: tPrerequisites("forbidden") },
+      { status: 403 },
+    );
   }
 
   const record = await prisma.testPrerequisite.findFirst({
@@ -107,7 +143,10 @@ export async function DELETE(
   });
 
   if (!record) {
-    return NextResponse.json({ error: t("prereqNotFound") }, { status: 404 });
+    return NextResponse.json(
+      { error: tPrerequisites("prereqNotFound") },
+      { status: 404 },
+    );
   }
 
   await prisma.testPrerequisite.delete({ where: { id: prereqId } });

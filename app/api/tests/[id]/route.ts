@@ -5,6 +5,20 @@ import { prisma } from "@/lib/prisma";
 import { patchTestSchema, TestSchema } from "@/lib/schemas/test";
 
 /**
+ * Loads and returns translation functions for the Tests API and Validation namespaces.
+ * Helper for async imports in route handlers.
+ *
+ * @returns Promise with tuple of [tTests, tValidation] translation functions
+ */
+async function getT() {
+  const locale = await getLocale();
+  return Promise.all([
+    getTranslations({ locale, namespace: "Api.tests" }),
+    getTranslations({ locale, namespace: "Validation" }),
+  ]);
+}
+
+/**
  * GET /api/tests/[id]
  * Retrieves a single test by ID (public endpoint, no auth required).
  * Returns the full test object if found.
@@ -18,15 +32,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const locale = await getLocale();
-  const t = await getTranslations({ locale, namespace: "Api.tests" });
+  const [tTests] = await getT();
 
   const test = await prisma.test.findUnique({
     where: { id },
   });
 
   if (!test) {
-    return NextResponse.json({ error: t("notFound") }, { status: 404 });
+    return NextResponse.json({ error: tTests("notFound") }, { status: 404 });
   }
   return NextResponse.json(TestSchema.parse(test));
 }
@@ -46,12 +59,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const locale = await getLocale();
 
-  const [tTests, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.tests" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const [tTests, tValidation] = await getT();
 
   // Auth + ownership check
   const auth = await requireTestCreator(id);

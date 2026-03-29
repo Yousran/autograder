@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { defaultTestData, TestSchema } from "@/lib/schemas/test";
 import { getLocale, getTranslations } from "next-intl/server";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { customAlphabet } from "nanoid";
 import { addDays } from "date-fns";
 
@@ -16,15 +16,14 @@ const MAX_RETRIES = 5;
  * Generates a unique 6-character join code with 7-day TTL.
  * Returns the created test with default question placeholder.
  *
- * @param req - The Next.js request (no body required)
- * @returns 200 with newly created TestSchema, or 401 if not authenticated
+ * @returns 201 with newly created TestSchema, or 400/401 on error
  */
-export async function POST(req: NextRequest) {
+export async function POST() {
   const auth = await requireAuth();
   if (!auth.ok) return auth.response;
 
   const locale = await getLocale();
-  const t = await getTranslations({ locale, namespace: "Api.tests" });
+  const tTests = await getTranslations({ locale, namespace: "Api.tests" });
 
   const expiresAt = addDays(new Date(), TTL_DAYS);
   const now = new Date();
@@ -67,6 +66,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(TestSchema.parse(test), { status: 201 });
   } catch (error) {
     console.error("Error creating test:", error);
-    return NextResponse.json({ error: t("createFailed") }, { status: 500 });
+    return NextResponse.json(
+      { error: tTests("createFailed") },
+      { status: 500 },
+    );
   }
 }

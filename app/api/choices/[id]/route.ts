@@ -6,6 +6,20 @@ import { patchMultipleSelectChoiceSchema } from "@/lib/schemas/multiple-choice";
 import { requireTestCreator } from "@/lib/dal";
 
 /**
+ * Loads and returns translation functions for the Answer API and Validation namespaces.
+ * Helper for async imports in route handlers.
+ *
+ * @returns Promise with tuple of [tAnswer, tValidation] translation functions
+ */
+async function getT() {
+  const locale = await getLocale();
+  return Promise.all([
+    getTranslations({ locale, namespace: "Api.choices" }),
+    getTranslations({ locale, namespace: "Validation" }),
+  ]);
+}
+
+/**
  * PATCH /api/choices/[id]
  * Updates a choice (test owner only).
  * Works with both single-choice and multiple-select choices.
@@ -14,11 +28,7 @@ import { requireTestCreator } from "@/lib/dal";
  * @returns 200 with updated choice, or 401/403/404/422 on error
  */
 export async function PATCH(req: NextRequest) {
-  const locale = await getLocale();
-  const [tChoices, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.choices" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const [tChoices, tValidation] = await getT();
 
   // Extract choiceid from URL
   const choiceid = req.nextUrl.pathname.split("/").pop();
@@ -238,11 +248,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const locale = await getLocale();
-  const [tChoices, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.choices" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const [tChoices, tValidation] = await getT();
 
   const { id } = await params;
 

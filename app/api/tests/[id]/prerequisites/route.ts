@@ -4,6 +4,20 @@ import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { createTestPrerequisiteSchema } from "@/lib/schemas/prerequisite";
 
+/**
+ * Loads and returns translation functions for the Prerequisites API and Validation namespaces.
+ * Helper for async imports in route handlers.
+ *
+ * @returns Promise with tuple of [tPrerequisites, tValidation] translation functions
+ */
+async function getT() {
+  const locale = await getLocale();
+  return Promise.all([
+    getTranslations({ locale, namespace: "Api.prerequisites" }),
+    getTranslations({ locale, namespace: "Validation" }),
+  ]);
+}
+
 /** GET /api/tests/[id]/prerequisites
  * Returns the prerequisites for the test along with available tests
  * (other tests created by the same user) that can be added as prerequisites.
@@ -17,19 +31,27 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const locale = await getLocale();
   const { id } = await params;
-  const t = await getTranslations({ locale, namespace: "Api.prerequisites" });
+  const [tPrerequisites] = await getT();
 
   const auth = await requireTestCreator(id);
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
-      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
+      return NextResponse.json(
+        { error: tPrerequisites("unauthorized") },
+        { status: 401 },
+      );
     }
     if (auth.reason === "not_found") {
-      return NextResponse.json({ error: t("notFound") }, { status: 404 });
+      return NextResponse.json(
+        { error: tPrerequisites("notFound") },
+        { status: 404 },
+      );
     }
-    return NextResponse.json({ error: t("forbidden") }, { status: 403 });
+    return NextResponse.json(
+      { error: tPrerequisites("forbidden") },
+      { status: 403 },
+    );
   }
 
   const [prerequisites, availableTests] = await Promise.all([
@@ -68,29 +90,37 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const locale = await getLocale();
 
-  const [t, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.prerequisites" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const [tPrerequisites, tValidation] = await getT();
 
   const auth = await requireTestCreator(id);
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
-      return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
+      return NextResponse.json(
+        { error: tPrerequisites("unauthorized") },
+        { status: 401 },
+      );
     }
     if (auth.reason === "not_found") {
-      return NextResponse.json({ error: t("notFound") }, { status: 404 });
+      return NextResponse.json(
+        { error: tPrerequisites("notFound") },
+        { status: 404 },
+      );
     }
-    return NextResponse.json({ error: t("forbidden") }, { status: 403 });
+    return NextResponse.json(
+      { error: tPrerequisites("forbidden") },
+      { status: 403 },
+    );
   }
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: t("createFailed") }, { status: 400 });
+    return NextResponse.json(
+      { error: tPrerequisites("createFailed") },
+      { status: 400 },
+    );
   }
 
   const schema = createTestPrerequisiteSchema((key) => tValidation(key));
@@ -98,7 +128,10 @@ export async function POST(
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? t("createFailed") },
+      {
+        error:
+          parsed.error.issues[0]?.message ?? tPrerequisites("createFailed"),
+      },
       { status: 422 },
     );
   }
@@ -107,7 +140,10 @@ export async function POST(
 
   // Guard: cannot add itself as its own prerequisite
   if (prerequisiteTestId === id) {
-    return NextResponse.json({ error: t("selfPrerequisite") }, { status: 422 });
+    return NextResponse.json(
+      { error: tPrerequisites("selfPrerequisite") },
+      { status: 422 },
+    );
   }
 
   // Guard: prerequisite test must exist (and be owned by the same creator)
@@ -118,7 +154,7 @@ export async function POST(
 
   if (!prereqTest) {
     return NextResponse.json(
-      { error: t("prereqTestNotFound") },
+      { error: tPrerequisites("prereqTestNotFound") },
       { status: 404 },
     );
   }
@@ -130,7 +166,10 @@ export async function POST(
   });
 
   if (existing) {
-    return NextResponse.json({ error: t("alreadyAdded") }, { status: 409 });
+    return NextResponse.json(
+      { error: tPrerequisites("alreadyAdded") },
+      { status: 409 },
+    );
   }
 
   const created = await prisma.testPrerequisite.create({
