@@ -187,14 +187,6 @@ test.describe.serial("Sign-In", () => {
     }).toPass();
   });
 
-  // test("navigates to forgot-password page", async ({ page }) => {
-  //   await page.goto(SIGN_IN_URL);
-
-  //   await page.getByRole("link", { name: /forgot password/i }).click();
-
-  //   await expect(page).toHaveURL("/en/auth/forgot-password");
-  // });
-
   test("Google sign-in button redirects to Google OAuth", async ({ page }) => {
     await page.goto(SIGN_IN_URL);
 
