@@ -77,7 +77,6 @@ export function EditableTextarea({
 
   return (
     <Textarea
-      data-testid={props["data-testid"]}
       {...props}
       value={value}
       onChange={(e) => setValue(e.target.value)}
