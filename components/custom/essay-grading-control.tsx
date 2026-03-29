@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 interface EssayGradingControlProps {
   answerId: string;
@@ -125,19 +126,22 @@ export function EssayGradingControl({
           className="flex-1"
           aria-label={t("score")}
         />
-        <Badge
-          variant="outline"
-          className="tabular-nums shrink-0 min-w-16 justify-center"
-        >
-          {score} / {maxScore}
-        </Badge>
+        <div className="flex items-center gap-2 shrink-0 min-w-16">
+          {isSavingScore && <Spinner className="size-3" />}
+          <Badge variant="outline" className="tabular-nums justify-center">
+            {score} / {maxScore}
+          </Badge>
+        </div>
       </div>
 
       {/* Score explanation textarea */}
       <div className="flex flex-col gap-1.5">
-        <Label className="text-xs text-muted-foreground">
-          {t("explanation")}
-        </Label>
+        <div className="flex items-center gap-2">
+          {isSavingExplanation && <Spinner className="size-3" />}
+          <Label className="text-xs text-muted-foreground">
+            {t("explanation")}
+          </Label>
+        </div>
         <Textarea
           value={explanation}
           onChange={(e) => setExplanation(e.target.value)}

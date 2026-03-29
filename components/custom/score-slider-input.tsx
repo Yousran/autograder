@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
 
 type AnswerType = "essay" | "choice" | "multiple-choice";
 
@@ -92,12 +93,12 @@ export function ScoreSliderInput({
         className="flex-1"
         aria-label={t("score")}
       />
-      <Badge
-        variant="outline"
-        className="tabular-nums shrink-0 min-w-16 justify-center"
-      >
-        {score} / {maxScore}
-      </Badge>
+      <div className="flex items-center gap-2 shrink-0 min-w-16">
+        {isSaving && <Spinner className="size-3" />}
+        <Badge variant="outline" className="tabular-nums justify-center">
+          {score} / {maxScore}
+        </Badge>
+      </div>
     </div>
   );
 }

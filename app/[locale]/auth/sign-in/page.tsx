@@ -27,6 +27,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -48,6 +49,7 @@ export default function SignInPage() {
   }
 
   async function handleGoogle() {
+    setGoogleLoading(true);
     await authClient.signIn.social({
       provider: "google",
       callbackURL: "/",
@@ -71,9 +73,14 @@ export default function SignInPage() {
             className="w-full"
             onClick={handleGoogle}
             type="button"
+            disabled={googleLoading || loading}
           >
-            <FcGoogle className="mr-2 h-5 w-5" />
-            {t("continueWithGoogle")}
+            {googleLoading ? (
+              <Spinner className="mr-2" />
+            ) : (
+              <FcGoogle className="mr-2 h-5 w-5" />
+            )}
+            {!googleLoading && t("continueWithGoogle")}
           </Button>
 
           {/* Divider */}

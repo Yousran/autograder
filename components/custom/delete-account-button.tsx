@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Loader2, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -115,7 +116,7 @@ export default function DeleteAccountButton({
             onClick={handleDelete}
             data-testid="btn-confirm-delete-account"
           >
-            {isDeleting && <Loader2 className="size-4 mr-2 animate-spin" />}
+            {isDeleting && <Spinner className="mr-2" />}
             {t("deleteAccountConfirmButton")}
           </Button>
         </AlertDialogFooter>

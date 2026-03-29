@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CameraIcon, User } from "lucide-react";
 import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
 import { getInitials } from "@/lib/initials";
 import { useTranslations } from "next-intl";
@@ -130,9 +131,7 @@ export default function ProfileAvatarClient({
           {/* Uploading State Overlay */}
           {isUploading && (
             <div className="absolute inset-0 z-10 flex items-center justify-center rounded-full bg-background/70 backdrop-blur-sm">
-              <span className="text-xs font-semibold animate-pulse">
-                {t("saving")}
-              </span>
+              <Spinner className="size-6" />
             </div>
           )}
         </div>
