@@ -376,6 +376,7 @@ export async function toggleTestSetting(
   // Only click if the current state differs from desired state
   if (currentState !== setState) {
     await toggle.click();
+    await waitForTestPatchResponse(page);
   }
 }
 
