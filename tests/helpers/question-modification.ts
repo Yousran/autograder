@@ -136,6 +136,23 @@ export function getAddQuestionDivider(
 }
 
 /**
+ * Helper: Wait for a PATCH response to /api/questions/{id}
+ * Matches any PATCH response to the /api/questions/ endpoint with 200 status,
+ * regardless of the specific question ID.
+ * Used by functions that modify question settings via API.
+ *
+ * @param page - The Playwright page object
+ */
+export async function waitForQuestionPatchResponse(page: Page): Promise<void> {
+  await page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/questions/") &&
+      response.request().method() === "PATCH" &&
+      response.status() === 200,
+  );
+}
+
+/**
  * Helper: Add a new question to the test with optional configuration.
  * Returns the 0-based index of the newly created question.
  *
@@ -267,6 +284,7 @@ export async function setQuestionText(
     await questionTextarea.click();
     await questionTextarea.fill(text);
     await page.click("body");
+    await waitForQuestionPatchResponse(page);
     await waitForLoaderToDisappear(page);
   }).toPass();
 }
