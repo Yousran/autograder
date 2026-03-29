@@ -2,49 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { createMultipleSelectAnswerSchema } from "@/lib/schemas/answer";
-
-type MultipleSelectChoiceInfo = { id: string; isCorrect: boolean };
-
-/**
- * Grades a multiple-select answer using proportional (merciful) scoring.
- * Formula: max(0, (correctSelections - incorrectSelections) / totalCorrect) * maxScore
- * Rounded to the nearest integer. Score cannot go below 0.
- *
- * @param maxScore - The maximum points for this question
- * @param allChoices - All available choices with correctness flags
- * @param selectedChoiceIds - IDs of choices the participant selected
- * @returns The calculated score based on proportional formula
- */
-function gradeMultipleSelectAnswer(
-  maxScore: number,
-  allChoices: MultipleSelectChoiceInfo[],
-  selectedChoiceIds: string[],
-): number {
-  if (selectedChoiceIds.length === 0) return 0;
-
-  const totalCorrect = allChoices.filter((c) => c.isCorrect).length;
-  if (totalCorrect === 0) return 0;
-
-  let correctSelections = 0;
-  let incorrectSelections = 0;
-
-  for (const selectedId of selectedChoiceIds) {
-    const choice = allChoices.find((c) => c.id === selectedId);
-    if (choice) {
-      if (choice.isCorrect) {
-        correctSelections++;
-      } else {
-        incorrectSelections++;
-      }
-    }
-  }
-
-  const scoreRatio = Math.max(
-    0,
-    (correctSelections - incorrectSelections) / totalCorrect,
-  );
-  return Math.round(scoreRatio * maxScore);
-}
+import { gradeMultipleSelectAnswer } from "@/lib/graders/multiple-choice-grader";
 
 /**
  * Loads and returns translation functions for the Answer API and Validation namespaces.

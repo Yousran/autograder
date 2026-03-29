@@ -2,23 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { createChoiceAnswerSchema } from "@/lib/schemas/answer";
-
-/**
- * Grades a single-choice answer.
- * Returns `maxScore` when the selected choice is correct, otherwise 0.
- * A null selectedChoiceId (skipped) always scores 0.
- *
- * @param maxScore - The maximum points for this question
- * @param selectedChoice - The choice with correctness flag, or null if skipped
- * @returns The score (0 or maxScore)
- */
-function gradeChoiceAnswer(
-  maxScore: number,
-  selectedChoice: { isCorrect: boolean } | null,
-): number {
-  if (!selectedChoice) return 0;
-  return selectedChoice.isCorrect ? maxScore : 0;
-}
+import { gradeChoiceAnswer } from "@/lib/graders/choice-grader";
 
 /**
  * Loads and returns translation functions for the Answer API and Validation namespaces.
