@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TranslateFn } from "./translate";
 import type { Question } from "../generated/prisma/client";
 import { QuestionType } from "../generated/prisma/enums";
 
@@ -29,12 +30,6 @@ import type {
   ChoiceAnswerView,
   MultipleSelectAnswerView,
 } from "./answer";
-
-/**
- * A translation function accepting a key within the "Validation" namespace.
- * Pass the `t` from `useTranslations("Validation")` or `getTranslations("Validation")`.
- */
-type TranslateFn = (key: string) => string;
 
 /** Full discriminated union — used for validating any question type on create. */
 export const createQuestionSchema = (t: TranslateFn) =>

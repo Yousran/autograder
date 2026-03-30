@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TranslateFn } from "./translate";
 
 // ---------------------------------------------------------------------------
 // Participant summary — returned by GET /api/participants
@@ -25,12 +26,6 @@ export type GetParticipantsResponse = z.infer<
 export const getParticipantsQuerySchema = z.object({
   testid: z.string().min(1),
 });
-
-/**
- * A translation function accepting a key within the "Validation" namespace.
- * Pass the `t` from `useTranslations("Validation")` or `getTranslations("Validation")`.
- */
-type TranslateFn = (key: string) => string;
 
 // ---------------------------------------------------------------------------
 // Join test schema

@@ -1,11 +1,6 @@
 import { z } from "zod";
+import { TranslateFn } from "./translate";
 import type { ChoiceAnswer } from "../generated/prisma/client";
-
-/**
- * A translation function accepting a key within the "Validation" namespace.
- * Pass the `t` from `useTranslations("Validation")` or `getTranslations("Validation")`.
- */
-type TranslateFn = (key: string) => string;
 
 // ---------------------------------------------------------------------------
 // Choice answer

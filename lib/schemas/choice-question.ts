@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TranslateFn } from "./translate";
 import { QuestionType } from "../generated/prisma/enums";
 import type { ChoiceQuestion } from "../generated/prisma/client";
 import { createChoiceSchema } from "./choice";
@@ -8,12 +9,6 @@ export {
   defaultChoiceData,
 } from "./choice";
 export type { ChoiceCreateInput } from "./choice";
-
-/**
- * A translation function accepting a key within the "Validation" namespace.
- * Pass the `t` from `useTranslations("Validation")` or `getTranslations("Validation")`.
- */
-type TranslateFn = (key: string) => string;
 
 // ---------------------------------------------------------------------------
 // Choice question

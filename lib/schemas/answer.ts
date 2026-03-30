@@ -1,10 +1,5 @@
 import { z } from "zod";
-
-/**
- * A translation function accepting a key within the "Validation" namespace.
- * Pass the `t` from `useTranslations("Validation")` or `getTranslations("Validation")`.
- */
-type TranslateFn = (key: string) => string;
+import { TranslateFn } from "./translate";
 
 // ---------------------------------------------------------------------------
 // Essay answer

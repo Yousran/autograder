@@ -1,12 +1,7 @@
 import { z } from "zod";
+import { TranslateFn } from "./translate";
 import { QuestionType } from "../generated/prisma/enums";
 import type { EssayQuestion, Question } from "../generated/prisma/client";
-
-/**
- * A translation function accepting a key within the "Validation" namespace.
- * Pass the `t` from `useTranslations("Validation")` or `getTranslations("Validation")`.
- */
-type TranslateFn = (key: string) => string;
 
 // ---------------------------------------------------------------------------
 // Essay question
