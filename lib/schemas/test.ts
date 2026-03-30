@@ -7,10 +7,6 @@ import { type Test } from "@/lib/generated/prisma/client";
  */
 type TranslateFn = (key: string) => string;
 
-// ---------------------------------------------------------------------------
-// Test schema
-// ---------------------------------------------------------------------------
-
 /**
  * Base object — no refinements and no defaults, safe to call .partial() on.
  * Defaults are applied only in the create schema below.
@@ -91,12 +87,6 @@ export const patchTestSchema = (t: TranslateFn) =>
 export type TestCreateInput = z.infer<ReturnType<typeof createTestSchema>>;
 export type TestPatchInput = z.infer<ReturnType<typeof patchTestSchema>>;
 
-// ---------------------------------------------------------------------------
-// TestSchema — Zod schema typed against the Prisma Test model.
-// Dates are coerced so the schema safely handles ISO strings from JSON as
-// well as native Date objects returned directly from Prisma.
-// ---------------------------------------------------------------------------
-
 /**
  * Runtime schema for the Prisma `Test` model.
  * Typed as `z.ZodType<Test>` so TypeScript enforces that it matches the
@@ -123,3 +113,21 @@ export const TestSchema: z.ZodType<Test> = z.object({
 });
 
 export type TestSchema = z.infer<typeof TestSchema>;
+
+export interface JoinStatusResponse {
+  isAcceptingResponses: boolean;
+  participantCount: number;
+}
+
+export interface TestInfo {
+  id: string;
+  title: string;
+  description: string | null;
+  testDuration: number | null;
+  questionCount: number;
+  participantCount: number;
+  isAcceptingResponses: boolean;
+  isLoggedInUserOnly: boolean;
+  joinCode: string;
+  prerequisiteError?: string | null;
+}

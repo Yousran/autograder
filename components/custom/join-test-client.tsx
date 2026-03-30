@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, FileQuestion, Users, AlertCircle } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import type { JoinStatusResponse } from "@/app/api/tests/join/route";
+import type { JoinStatusResponse, TestInfo } from "@/lib/schemas/test";
 
 /**
  * Uniform error alert component for consistent error message display
@@ -35,19 +35,6 @@ function ErrorAlert({ message, ...props }: { message: string }) {
       </AlertDescription>
     </Alert>
   );
-}
-
-interface TestInfo {
-  id: string;
-  title: string;
-  description: string | null;
-  testDuration: number | null;
-  questionCount: number;
-  participantCount: number;
-  isAcceptingResponses: boolean;
-  isLoggedInUserOnly: boolean;
-  joinCode: string;
-  prerequisiteError?: string | null;
 }
 
 export function JoinTestClient({

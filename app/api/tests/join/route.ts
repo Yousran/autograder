@@ -3,11 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/dal";
 import { createJoinTestSchema } from "@/lib/schemas/participant";
-
-export interface JoinStatusResponse {
-  isAcceptingResponses: boolean;
-  participantCount: number;
-}
+import { JoinStatusResponse } from "@/lib/schemas/test";
 
 /**
  * GET /api/tests/join
