@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
@@ -10,11 +10,10 @@ export default async function ResultPage({
   params,
 }: {
   params: Promise<{
-    locale: string;
     participantId: string;
   }>;
 }) {
-  const { locale, participantId } = await params;
+  const { participantId } = await params;
   const t = await getTranslations("Pages.testResult");
 
   // Fetch participant with test
@@ -108,7 +107,7 @@ export default async function ResultPage({
         </Label>
         {participant.test.isShowDetailedScore && (
           <Link
-            href={`/${locale}/test/result/${participantId}/details`}
+            href={`/test/result/${participantId}/details`}
             className="w-full"
           >
             <Button variant="outline" className="w-full">
@@ -117,7 +116,7 @@ export default async function ResultPage({
           </Link>
         )}
 
-        <Link href={`/${locale}`} className="w-full">
+        <Link href={`/`} className="w-full">
           <Button className="w-full">
             {t("backToHome") || "Back to Home"}
           </Button>

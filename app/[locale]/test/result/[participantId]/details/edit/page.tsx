@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ChevronLeft } from "lucide-react";
@@ -20,15 +20,14 @@ export default async function CreatorEditDetailsPage({
   params,
 }: {
   params: Promise<{
-    locale: string;
     participantId: string;
   }>;
 }) {
-  const { locale, participantId } = await params;
+  const { participantId } = await params;
 
   const session = await getSession();
   if (!session) {
-    redirect(`/${locale}/auth/sign-in`);
+    redirect(`/auth/sign-in`);
   }
 
   const t = await getTranslations("Pages.creatorDetails");
@@ -120,7 +119,7 @@ export default async function CreatorEditDetailsPage({
     <div className="container max-w-3xl mx-auto px-4 py-8 flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Link href={`/${locale}/test/${test.id}?tab=participants`}>
+        <Link href={`/test/${test.id}?tab=participants`}>
           <Button variant="ghost" size="sm">
             <ChevronLeft className="size-4" />
             {t("backToParticipants")}

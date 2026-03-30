@@ -17,13 +17,12 @@ import type { Participant, Test } from "@/lib/generated/prisma/client";
 
 type ParticipantWithTest = Participant & { test: Test };
 
-type Props = {
+export default async function Page({
+  params,
+}: {
   params: Promise<{ id: string }>;
-};
-
-export default async function Page({ params }: Props) {
+}) {
   const { id } = await params;
-
   if (!id) notFound();
 
   const user = await prisma.user.findUnique({
@@ -33,7 +32,6 @@ export default async function Page({ params }: Props) {
       tests: { orderBy: { createdAt: "desc" } },
     },
   });
-
   if (!user) notFound();
 
   const session = await getSession();
