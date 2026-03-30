@@ -14,7 +14,13 @@ export const SignInValidationSchema = (t: TranslateFn) =>
     password: z.string().min(1, t("passwordRequired")),
   });
 
-/** Full schema — used for sign-in. */
+/**
+ * Creates a Zod schema for user sign-in.
+ * Validates email and password credentials.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for validating sign-in credentials
+ */
 export const createSignInSchema = (t: TranslateFn) => SignInValidationSchema(t);
 
 export type SignInCreateInput = z.infer<ReturnType<typeof createSignInSchema>>;
@@ -24,7 +30,11 @@ export type SignInCreateInput = z.infer<ReturnType<typeof createSignInSchema>>;
 // ---------------------------------------------------------------------------
 
 /**
- * Base object — no refinements, safe to call .partial() on.
+ * Base validation schema for sign-up without refinements.
+ * Safe to call .partial() on this schema.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for sign-up validation
  */
 export const SignUpValidationSchema = (t: TranslateFn) =>
   z.object({
@@ -37,7 +47,13 @@ export const SignUpValidationSchema = (t: TranslateFn) =>
     confirmPassword: z.string().min(1, t("confirmPasswordRequired")),
   });
 
-/** Full schema with cross-field refinement — used for sign-up. */
+/**
+ * Creates a Zod schema for user sign-up.
+ * Validates name, email, password, and password confirmation with cross-field refinement.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for validating sign-up data
+ */
 export const createSignUpSchema = (t: TranslateFn) =>
   SignUpValidationSchema(t).refine(
     (data) => data.password === data.confirmPassword,
@@ -54,7 +70,11 @@ export type SignUpCreateInput = z.infer<ReturnType<typeof createSignUpSchema>>;
 // ---------------------------------------------------------------------------
 
 /**
- * Base object — no refinements, safe to call .partial() on.
+ * Base validation schema for profile updates without refinements.
+ * Safe to call .partial() on this schema.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for profile update validation
  */
 export const UpdateProfileValidationSchema = (t: TranslateFn) =>
   z.object({
@@ -65,11 +85,23 @@ export const UpdateProfileValidationSchema = (t: TranslateFn) =>
       .or(z.literal("").transform(() => undefined)),
   });
 
-/** Full schema — used for updating a user profile. */
+/**
+ * Creates a Zod schema for user profile updates.
+ * Same as the base schema with no cross-field refinements.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for validating profile updates
+ */
 export const createUpdateProfileSchema = (t: TranslateFn) =>
   UpdateProfileValidationSchema(t);
 
-/** Partial schema for PATCH — all fields optional, no refinements. */
+/**
+ * Creates a partial Zod schema for patching user profiles.
+ * All fields are optional for PATCH operations.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema for patching profiles
+ */
 export const patchUpdateProfileSchema = (t: TranslateFn) =>
   UpdateProfileValidationSchema(t).partial();
 

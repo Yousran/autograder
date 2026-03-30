@@ -3,8 +3,11 @@ import { TranslateFn } from "./translate";
 import { type Test } from "@/lib/generated/prisma/client";
 
 /**
- * Base object — no refinements and no defaults, safe to call .partial() on.
- * Defaults are applied only in the create schema below.
+ * Base validation schema for tests without refinements or defaults.
+ * Safe to call .partial() on this schema.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for test validation
  */
 export const TestValidationSchema = (t: TranslateFn) =>
   z.object({
@@ -31,7 +34,12 @@ export const TestValidationSchema = (t: TranslateFn) =>
     isQuestionsOrdered: z.boolean(),
   });
 
-/** Default Test Data — use as a placeholder before the real server response in optimistic. */
+/**
+ * Default test data object for optimistic UI updates.
+ * Use as a placeholder before receiving the real server response.
+ *
+ * @returns Default Test object with empty/initial values
+ */
 export const defaultTestData: Test = {
   id: "", // will be generated at creation time
   creatorId: "",
@@ -52,7 +60,13 @@ export const defaultTestData: Test = {
   updatedAt: new Date(),
 };
 
-/** Full schema with cross-field refinement — used for creating a test. */
+/**
+ * Creates a Zod schema for test creation with validation.
+ * Extends base schema with defaults and cross-field refinement (endTime > startTime).
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for creating tests with full validation
+ */
 export const createTestSchema = (t: TranslateFn) =>
   TestValidationSchema(t)
     .extend({
@@ -75,7 +89,13 @@ export const createTestSchema = (t: TranslateFn) =>
       },
     );
 
-/** Partial schema for PATCH — all fields optional, no refinements. */
+/**
+ * Creates a partial Zod schema for updating tests.
+ * All fields are optional for PATCH operations.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema for patching tests
+ */
 export const patchTestSchema = (t: TranslateFn) =>
   TestValidationSchema(t).partial();
 
@@ -83,9 +103,10 @@ export type TestCreateInput = z.infer<ReturnType<typeof createTestSchema>>;
 export type TestPatchInput = z.infer<ReturnType<typeof patchTestSchema>>;
 
 /**
- * Runtime schema for the Prisma `Test` model.
- * Typed as `z.ZodType<Test>` so TypeScript enforces that it matches the
- * Prisma model exactly. Use `TestSchema.parse()` to validate API responses.
+ * Runtime schema for the Prisma Test model.
+ * Typed as z.ZodType<Test> to enforce TypeScript compatibility with Prisma.
+ *
+ * @returns Zod schema that validates Test model objects
  */
 export const TestSchema: z.ZodType<Test> = z.object({
   id: z.string(),

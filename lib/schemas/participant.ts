@@ -5,6 +5,12 @@ import { TranslateFn } from "./translate";
 // Participant summary — returned by GET /api/participants
 // ---------------------------------------------------------------------------
 
+/**
+ * Schema for a participant summary in list responses.
+ * Contains the participant's ID, name, score, and completion status.
+ *
+ * @returns Zod schema for participant summary objects
+ */
 export const participantSummarySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -14,6 +20,12 @@ export const participantSummarySchema = z.object({
 
 export type ParticipantSummary = z.infer<typeof participantSummarySchema>;
 
+/**
+ * Schema for the GET /api/participants response.
+ * Contains all participant summaries and the maximum possible score.
+ *
+ * @returns Zod schema for the participants list response
+ */
 export const getParticipantsResponseSchema = z.object({
   participants: z.array(participantSummarySchema),
   maxScore: z.number(),
@@ -23,6 +35,12 @@ export type GetParticipantsResponse = z.infer<
   typeof getParticipantsResponseSchema
 >;
 
+/**
+ * Schema for validating query parameters when retrieving participants.
+ * Validates that the testId is provided.
+ *
+ * @returns Zod schema for participants query parameter validation
+ */
 export const getParticipantsQuerySchema = z.object({
   testid: z.string().min(1),
 });
@@ -32,6 +50,13 @@ export const getParticipantsQuerySchema = z.object({
 // Used when a user (guest or logged-in) joins a test via a join code.
 // ---------------------------------------------------------------------------
 
+/**
+ * Creates a Zod schema for joining a test.
+ * Validates participant name and 6-character join code.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for test join validation
+ */
 export const createJoinTestSchema = (t: TranslateFn) =>
   z.object({
     /** The participant's display name shown to the test creator. */
@@ -48,7 +73,13 @@ export const createJoinTestSchema = (t: TranslateFn) =>
 
 export type JoinTestInput = z.infer<ReturnType<typeof createJoinTestSchema>>;
 
-/** Partial schema for PATCH — all fields optional. */
+/**
+ * Creates a partial Zod schema for updating test join data.
+ * All fields are optional for PATCH operations.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema for patching test join data
+ */
 export const updateJoinTestSchema = (t: TranslateFn) =>
   createJoinTestSchema(t).partial();
 
@@ -61,6 +92,13 @@ export type JoinTestUpdateInput = z.infer<
 // Like JoinTestSchema but explicitly for unauthenticated participants.
 // ---------------------------------------------------------------------------
 
+/**
+ * Creates a Zod schema for guest participants joining a test.
+ * Validates guest name and 6-character join code.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for guest join validation
+ */
 export const createGuestJoinSchema = (t: TranslateFn) =>
   z.object({
     name: z
@@ -75,7 +113,13 @@ export const createGuestJoinSchema = (t: TranslateFn) =>
 
 export type GuestJoinInput = z.infer<ReturnType<typeof createGuestJoinSchema>>;
 
-/** Partial schema for PATCH — all fields optional. */
+/**
+ * Creates a partial Zod schema for updating guest join data.
+ * All fields are optional for PATCH operations.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema for patching guest join data
+ */
 export const updateGuestJoinSchema = (t: TranslateFn) =>
   createGuestJoinSchema(t).partial();
 

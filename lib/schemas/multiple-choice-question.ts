@@ -15,7 +15,11 @@ export type { MultipleSelectChoiceCreateInput } from "./multiple-choice";
 // ---------------------------------------------------------------------------
 
 /**
- * Base object — no refinements, safe to call .partial() on.
+ * Base validation schema for multiple-select questions without refinements.
+ * Safe to call .partial() on this schema.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for multiple-select question validation
  */
 export const MultipleSelectQuestionValidationSchema = (t: TranslateFn) =>
   z.object({
@@ -28,14 +32,26 @@ export const MultipleSelectQuestionValidationSchema = (t: TranslateFn) =>
       .min(2, t("atLeastTwoChoices")),
   });
 
-/** Full schema with cross-field refinement — used for creating a question. */
+/**
+ * Creates a Zod schema for multiple-select questions with validation.
+ * Includes cross-field refinement ensuring at least one choice is marked correct.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for creating multiple-select questions with cross-field validation
+ */
 export const createMultipleSelectQuestionSchema = (t: TranslateFn) =>
   MultipleSelectQuestionValidationSchema(t).refine(
     (data) => data.choices.some((c) => c.isCorrect),
     { error: t("atLeastOneCorrect") },
   );
 
-/** Partial schema for PATCH — `type` stays required (discriminator), all other fields optional. */
+/**
+ * Partial schema for PATCH operations on multiple-select questions.
+ * Type remains required (discriminator), all other fields optional.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema with required type discriminator for patching multiple-select questions
+ */
 export const patchMultipleSelectQuestionSchema = (t: TranslateFn) =>
   MultipleSelectQuestionValidationSchema(t)
     .omit({ type: true })
@@ -53,7 +69,12 @@ export type MultipleSelectQuestionPatchInput = z.infer<
 // Multiple select question details (for API responses with related data)
 // ---------------------------------------------------------------------------
 
-/** Schema for the multiple select question record returned by the API. */
+/**
+ * Schema for multiple-select question details in API responses.
+ * Contains randomization flag, max score, and available choices.
+ *
+ * @returns Zod schema for multiple-select question detail objects
+ */
 export const multipleSelectQuestionDetailSchema = z.object({
   id: z.string(),
   isChoiceRandomized: z.boolean(),
@@ -75,7 +96,12 @@ export type MultipleSelectQuestionDetail = z.infer<
 // Default data for optimistic updates
 // ---------------------------------------------------------------------------
 
-/** Default MultipleSelectQuestion data — use as a placeholder before the real server response in optimistic updates. */
+/**
+ * Default MultipleSelectQuestion data object for optimistic UI updates.
+ * Use as a placeholder before receiving the real server response.
+ *
+ * @returns Default MultipleSelectQuestion object with empty/initial values
+ */
 export const defaultMultipleSelectQuestionData: MultipleSelectQuestion = {
   id: "", // will be generated at creation time
   isChoiceRandomized: false,

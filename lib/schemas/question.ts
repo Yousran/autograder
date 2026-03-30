@@ -31,7 +31,13 @@ import type {
   MultipleSelectAnswerView,
 } from "./answer";
 
-/** Full discriminated union — used for validating any question type on create. */
+/**
+ * Creates a discriminated union schema for validating any question type on creation.
+ * Supports essay, choice, and multiple-select question types.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for creating questions of any supported type
+ */
 export const createQuestionSchema = (t: TranslateFn) =>
   z.discriminatedUnion("type", [
     EssayQuestionValidationSchema(t),
@@ -39,7 +45,13 @@ export const createQuestionSchema = (t: TranslateFn) =>
     MultipleSelectQuestionValidationSchema(t),
   ]);
 
-/** Partial discriminated union for PATCH. */
+/**
+ * Creates a partial discriminated union schema for PATCH operations on questions.
+ * Supports patching any question type or reordering questions.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for patching questions with optional reordering
+ */
 export const patchQuestionSchema = (t: TranslateFn) =>
   z.union([
     z.discriminatedUnion("type", [
@@ -66,6 +78,13 @@ export type QuestionPatchInput = z.infer<
 // Create question request (API body — only testId; type is resolved server-side)
 // ---------------------------------------------------------------------------
 
+/**
+ * Creates a Zod schema for question creation API requests.
+ * Validates testId and optional insertAfterId for question positioning.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for validating question creation requests
+ */
 export const createQuestionRequestSchema = (t: TranslateFn) =>
   z.object({
     testId: z.cuid(t("testIdRequired")),
@@ -81,6 +100,12 @@ export type QuestionRequestCreateInput = z.infer<
 // Question ordering (used when reordering questions inside a test)
 // ---------------------------------------------------------------------------
 
+/**
+ * Creates a Zod schema for question ordering during reordering operations.
+ * Validates question ID and order string for positioning.
+ *
+ * @returns Zod schema for validating question order objects
+ */
 export const createQuestionOrderSchema = () =>
   z.object({
     id: z.cuid(),
@@ -96,9 +121,11 @@ export type QuestionOrderCreateInput = z.infer<
 // ---------------------------------------------------------------------------
 
 /**
- * Runtime schema for the Prisma `Question` model.
- * Typed as `z.ZodType<Question>` so TypeScript enforces that it matches the
- * Prisma model exactly. Use `QuestionSchema.parse()` to validate API responses.
+ * Runtime schema for the Prisma Question model.
+ * Typed as z.ZodType<Question> to enforce TypeScript compatibility with Prisma.
+ * Use QuestionSchema.parse() to validate API responses.
+ *
+ * @returns Zod schema that validates Question model objects
  */
 const questionSchemaObject = z.object({
   id: z.string(),
@@ -112,7 +139,12 @@ const questionSchemaObject = z.object({
 
 export const QuestionSchema: z.ZodType<Question> = questionSchemaObject;
 
-/** Minimal question shape used by the questions list UI (e.g. QuestionCard). */
+/**
+ * Type for a question in the questions list UI.
+ * Represents the minimal question shape with metadata.
+ *
+ * @returns Question type inferred from QuestionSchema
+ */
 export type QuestionSchema = z.infer<typeof QuestionSchema>;
 
 // ---------------------------------------------------------------------------

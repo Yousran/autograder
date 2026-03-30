@@ -7,7 +7,11 @@ import type { ChoiceAnswer } from "../generated/prisma/client";
 // ---------------------------------------------------------------------------
 
 /**
- * Base object — no refinements, safe to call .partial() on.
+ * Base validation schema for choice answers without refinements.
+ * Safe to call .partial() on this schema.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for choice answer validation
  */
 export const ChoiceAnswerValidationSchema = (t: TranslateFn) =>
   z.object({
@@ -17,11 +21,23 @@ export const ChoiceAnswerValidationSchema = (t: TranslateFn) =>
     selectedChoiceId: z.string().nullable().optional(),
   });
 
-/** Full schema — same as base (no cross-field refinements needed). */
+/**
+ * Creates a Zod schema for choice answers.
+ * Same as the base schema with no cross-field refinements.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for creating choice answer objects
+ */
 export const createChoiceAnswerSchema = (t: TranslateFn) =>
   ChoiceAnswerValidationSchema(t);
 
-/** Partial schema for PATCH — all fields optional. */
+/**
+ * Partial schema for PATCH operations on choice answers.
+ * All fields are optional for partial updates.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema for patching choice answers
+ */
 export const patchChoiceAnswerSchema = (t: TranslateFn) =>
   ChoiceAnswerValidationSchema(t).partial();
 
@@ -36,7 +52,12 @@ export type ChoiceAnswerPatchInput = z.infer<
 // Default data for optimistic updates
 // ---------------------------------------------------------------------------
 
-/** Default ChoiceAnswer data — use as a placeholder before the real server response in optimistic updates. */
+/**
+ * Default ChoiceAnswer data object for optimistic UI updates.
+ * Use as a placeholder before receiving the real server response.
+ *
+ * @returns Default ChoiceAnswer object with empty/initial values
+ */
 export const defaultChoiceAnswerData: ChoiceAnswer = {
   id: "",
   questionId: "",

@@ -8,7 +8,11 @@ import type { EssayQuestion, Question } from "../generated/prisma/client";
 // ---------------------------------------------------------------------------
 
 /**
- * Base object — no refinements, safe to call .partial() on.
+ * Base validation schema for essay questions without refinements.
+ * Safe to call .partial() on this schema.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for essay question validation
  */
 export const EssayQuestionValidationSchema = (t: TranslateFn) =>
   z.object({
@@ -19,11 +23,23 @@ export const EssayQuestionValidationSchema = (t: TranslateFn) =>
     maxScore: z.number().int(t("integer")).positive(t("maxScorePositive")),
   });
 
-/** Full schema — same as base (no cross-field refinements needed). */
+/**
+ * Creates a Zod schema for essay questions.
+ * Same as the base schema with no cross-field refinements.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for creating essay question objects
+ */
 export const createEssayQuestionSchema = (t: TranslateFn) =>
   EssayQuestionValidationSchema(t);
 
-/** Partial schema for PATCH — `type` stays required (discriminator), all other fields optional. */
+/**
+ * Partial schema for PATCH operations on essay questions.
+ * Type remains required (discriminator), all other fields optional.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema with required type discriminator for patching essay questions
+ */
 export const patchEssayQuestionSchema = (t: TranslateFn) =>
   EssayQuestionValidationSchema(t)
     .omit({ type: true })
@@ -41,7 +57,12 @@ export type EssayQuestionPatchInput = z.infer<
 // Essay question details (for API responses with related data)
 // ---------------------------------------------------------------------------
 
-/** Schema for the essay question record returned by the API. */
+/**
+ * Schema for essay question details in API responses.
+ * Contains the reference answer text, exact match flag, and max score.
+ *
+ * @returns Zod schema for essay question detail objects
+ */
 export const essayQuestionDetailSchema = z.object({
   id: z.string(),
   answerText: z.string(),
@@ -55,7 +76,12 @@ export type EssayQuestionDetail = z.infer<typeof essayQuestionDetailSchema>;
 // Default data for optimistic updates
 // ---------------------------------------------------------------------------
 
-/** Default Question data — use as a placeholder before the real server response in optimistic updates. */
+/**
+ * Default Question data object for optimistic UI updates.
+ * Use as a placeholder before receiving the real server response.
+ *
+ * @returns Default Question object with empty/initial values
+ */
 export const defaultQuestionData: Question = {
   id: "", // will be generated at creation time
   testId: "",
@@ -66,7 +92,12 @@ export const defaultQuestionData: Question = {
   updatedAt: new Date(),
 };
 
-/** Default EssayQuestion data — use as a placeholder before the real server response in optimistic updates. */
+/**
+ * Default EssayQuestion data object for optimistic UI updates.
+ * Use as a placeholder before receiving the real server response.
+ *
+ * @returns Default EssayQuestion object with empty/initial values
+ */
 export const defaultEssayQuestionData: EssayQuestion = {
   id: "", // will be generated at creation time
   answerText: "",

@@ -6,7 +6,11 @@ import { TranslateFn } from "./translate";
 // ---------------------------------------------------------------------------
 
 /**
- * Base object — no defaults, safe to call .partial() on.
+ * Creates a Zod schema for test prerequisite objects.
+ * Validates prerequisiteTestId and minScoreRequired.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for prerequisite object validation
  */
 export const createTestPrerequisiteObjectSchema = (t: TranslateFn) =>
   z.object({
@@ -17,7 +21,13 @@ export const createTestPrerequisiteObjectSchema = (t: TranslateFn) =>
       .max(100, t("minScoreMax")),
   });
 
-/** Full schema with defaults — used for creating a prerequisite. */
+/**
+ * Creates a Zod schema for test prerequisite creation.
+ * Extends the base object with default minScoreRequired of 0.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for creating test prerequisites
+ */
 export const createTestPrerequisiteSchema = (t: TranslateFn) =>
   createTestPrerequisiteObjectSchema(t).extend({
     minScoreRequired: z
@@ -27,7 +37,13 @@ export const createTestPrerequisiteSchema = (t: TranslateFn) =>
       .default(0),
   });
 
-/** Partial schema for PATCH — all fields optional, no defaults. */
+/**
+ * Creates a partial Zod schema for updating test prerequisites.
+ * All fields are optional for PATCH operations.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema for patching test prerequisites
+ */
 export const updateTestPrerequisiteSchema = (t: TranslateFn) =>
   createTestPrerequisiteObjectSchema(t).partial();
 

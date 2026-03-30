@@ -5,6 +5,13 @@ import { TranslateFn } from "./translate";
 // Essay answer
 // ---------------------------------------------------------------------------
 
+/**
+ * Creates a Zod schema for validating essay answer submissions.
+ * Three required fields: participantId, questionId, and answerText.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for essay answer creation
+ */
 export const createEssayAnswerSchema = (t: TranslateFn) =>
   z.object({
     participantId: z.string().min(1, t("participantIdRequired")),
@@ -17,7 +24,13 @@ export type EssayAnswerInput = z.infer<
   ReturnType<typeof createEssayAnswerSchema>
 >;
 
-/** Partial schema for PATCH — all fields optional. */
+/**
+ * Creates a partial Zod schema for updating essay answers.
+ * All fields are optional for PATCH operations.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema where all essay answer fields are optional
+ */
 export const updateEssayAnswerSchema = (t: TranslateFn) =>
   createEssayAnswerSchema(t).partial();
 
@@ -29,6 +42,13 @@ export type EssayAnswerUpdateInput = z.infer<
 // Choice answer
 // ---------------------------------------------------------------------------
 
+/**
+ * Creates a Zod schema for validating choice answer submissions.
+ * Three required fields: participantId, questionId, and optional selectedChoiceId.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for choice answer creation
+ */
 export const createChoiceAnswerSchema = (t: TranslateFn) =>
   z.object({
     participantId: z.string().min(1, t("participantIdRequired")),
@@ -41,7 +61,13 @@ export type ChoiceAnswerInput = z.infer<
   ReturnType<typeof createChoiceAnswerSchema>
 >;
 
-/** Partial schema for PATCH — all fields optional. */
+/**
+ * Creates a partial Zod schema for updating choice answers.
+ * All fields are optional for PATCH operations.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema where all choice answer fields are optional
+ */
 export const updateChoiceAnswerSchema = (t: TranslateFn) =>
   createChoiceAnswerSchema(t).partial();
 
@@ -53,6 +79,13 @@ export type ChoiceAnswerUpdateInput = z.infer<
 // Multiple-select answer
 // ---------------------------------------------------------------------------
 
+/**
+ * Creates a Zod schema for validating multiple-select answer submissions.
+ * Three required fields: participantId, questionId, and selectedChoiceIds array.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for multiple-select answer creation
+ */
 export const createMultipleSelectAnswerSchema = (t: TranslateFn) =>
   z.object({
     participantId: z.string().min(1, t("participantIdRequired")),
@@ -65,7 +98,13 @@ export type MultipleSelectAnswerInput = z.infer<
   ReturnType<typeof createMultipleSelectAnswerSchema>
 >;
 
-/** Partial schema for PATCH — all fields optional. */
+/**
+ * Creates a partial Zod schema for updating multiple-select answers.
+ * All fields are optional for PATCH operations.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema where all multiple-select answer fields are optional
+ */
 export const updateMultipleSelectAnswerSchema = (t: TranslateFn) =>
   createMultipleSelectAnswerSchema(t).partial();
 
@@ -78,6 +117,13 @@ export type MultipleSelectAnswerUpdateInput = z.infer<
 // Collects all answers for one participant in a single request.
 // ---------------------------------------------------------------------------
 
+/**
+ * Creates a Zod schema for batch answer submission.
+ * Collects all answers (essay, choice, multiple-select) for one participant in a single request.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for batch answer submission validation
+ */
 export const createSubmitAnswersSchema = (t: TranslateFn) =>
   z.object({
     participantId: z.string().min(1, t("participantIdRequired")),
@@ -115,6 +161,13 @@ export type SubmitAnswersInput = z.infer<
 // Grade essay answer (manual grading by the test creator)
 // ---------------------------------------------------------------------------
 
+/**
+ * Creates a Zod schema for manual grading of essay answers.
+ * Validates the score and optional score explanation provided by the test creator.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for essay answer grading validation
+ */
 export const createGradeEssayAnswerSchema = (t: TranslateFn) =>
   z.object({
     score: z.number().int(t("integer")).min(0, t("scoreNonNegative")),
@@ -125,7 +178,13 @@ export type GradeEssayAnswerInput = z.infer<
   ReturnType<typeof createGradeEssayAnswerSchema>
 >;
 
-/** Partial schema for PATCH — all fields optional. */
+/**
+ * Creates a partial Zod schema for updating essay answer grades.
+ * All fields are optional for PATCH operations.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema where all grade fields are optional
+ */
 export const updateGradeEssayAnswerSchema = (t: TranslateFn) =>
   createGradeEssayAnswerSchema(t).partial();
 

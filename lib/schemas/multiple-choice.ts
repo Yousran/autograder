@@ -7,8 +7,11 @@ import type { MultipleSelectChoice } from "../generated/prisma/client";
 // ---------------------------------------------------------------------------
 
 /**
- * Base object — no refinements and no defaults, safe to call .partial() on.
- * Defaults are applied only in the create schema below.
+ * Base validation schema for multiple-select choices without defaults or refinements.
+ * Safe to call .partial() on this schema.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for multiple-select choice validation
  */
 export const MultipleSelectChoiceValidationSchema = (t: TranslateFn) =>
   z.object({
@@ -17,11 +20,23 @@ export const MultipleSelectChoiceValidationSchema = (t: TranslateFn) =>
     isCorrect: z.boolean(),
   });
 
-/** Full schema — same as base (no cross-field refinements needed). */
+/**
+ * Creates a Zod schema for multiple-select choices.
+ * Same as the base schema with no cross-field refinements.
+ *
+ * @param t - Translation function for error messages
+ * @returns Zod schema for creating multiple-select choice objects
+ */
 export const createMultipleSelectChoiceSchema = (t: TranslateFn) =>
   MultipleSelectChoiceValidationSchema(t);
 
-/** Partial schema for PATCH — all fields optional, no refinements. */
+/**
+ * Partial schema for PATCH operations on multiple-select choices.
+ * All fields are optional for partial updates.
+ *
+ * @param t - Translation function for error messages
+ * @returns Partial Zod schema for patching multiple-select choices
+ */
 export const patchMultipleSelectChoiceSchema = (t: TranslateFn) =>
   MultipleSelectChoiceValidationSchema(t).partial();
 
@@ -33,15 +48,17 @@ export type MultipleSelectChoicePatchInput = z.infer<
 >;
 
 // ---------------------------------------------------------------------------
-// MultipleSelectChoiceSchema — Zod schema typed against the Prisma MultipleSelectChoice model.
+// MultipleSelectChoiceSchema - Zod schema typed against the Prisma MultipleSelectChoice model.
 // Dates are coerced so the schema safely handles ISO strings from JSON as
 // well as native Date objects returned directly from Prisma.
 // ---------------------------------------------------------------------------
 
 /**
- * Runtime schema for the Prisma `MultipleSelectChoice` model.
- * Typed as `z.ZodType<MultipleSelectChoice>` so TypeScript enforces that it matches the
- * Prisma model exactly. Use `MultipleSelectChoiceSchema.parse()` to validate API responses.
+ * Runtime schema for the Prisma MultipleSelectChoice model.
+ * Typed as z.ZodType<MultipleSelectChoice> to enforce TypeScript compatibility with Prisma.
+ * Handles both ISO string dates from JSON and native Date objects.
+ *
+ * @returns Zod schema that validates MultipleSelectChoice model objects
  */
 export const MultipleSelectChoiceSchema: z.ZodType<MultipleSelectChoice> =
   z.object({
@@ -61,7 +78,12 @@ export type MultipleSelectChoiceSchema = z.infer<
 // Default data for optimistic updates
 // ---------------------------------------------------------------------------
 
-/** Default MultipleSelectChoice data — use as a placeholder before the real server response in optimistic updates. */
+/**
+ * Default MultipleSelectChoice data object for optimistic UI updates.
+ * Use as a placeholder before receiving the real server response.
+ *
+ * @returns Default MultipleSelectChoice object with empty/initial values
+ */
 export const defaultMultipleSelectChoiceData: MultipleSelectChoice = {
   id: "", // will be generated at creation time
   questionId: "",
