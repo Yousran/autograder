@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Navbar from "@/components/custom/navbar";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/dal";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
@@ -22,6 +22,7 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = await getTranslations("Pages.profile");
   const { id } = await params;
   if (!id) notFound();
 
@@ -46,9 +47,6 @@ export default async function Page({
       orderBy: { createdAt: "desc" },
     });
   }
-
-  const locale = await getLocale();
-  const t = await getTranslations({ locale, namespace: "Pages.profile" });
 
   const providers = user.accounts.map((a) => a.providerId);
   const PROVIDER_LABELS: Record<string, string> = {
