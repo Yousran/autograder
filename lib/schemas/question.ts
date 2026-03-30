@@ -24,6 +24,12 @@ import {
   multipleSelectQuestionDetailSchema,
 } from "./multiple-choice-question";
 
+import type {
+  EssayAnswerView,
+  ChoiceAnswerView,
+  MultipleSelectAnswerView,
+} from "./answer";
+
 /**
  * A translation function accepting a key within the "Validation" namespace.
  * Pass the `t` from `useTranslations("Validation")` or `getTranslations("Validation")`.
@@ -190,3 +196,32 @@ export const getQuestionsQuerySchema = z.object({
 });
 
 export type GetQuestionsQueryInput = z.infer<typeof getQuestionsQuerySchema>;
+
+// ---------------------------------------------------------------------------
+// Component props for QuestionDetailCard
+// Combines question and answer view data for displaying a question with its answer
+// ---------------------------------------------------------------------------
+
+export interface QuestionDetailCardProps {
+  questionNumber: number;
+  questionText: string;
+  type: "ESSAY" | "CHOICE" | "MULTIPLE_SELECT";
+  essay?: EssayAnswerView | null;
+  choice?: ChoiceAnswerView | null;
+  multipleSelect?: MultipleSelectAnswerView | null;
+  showDetailedScore: boolean;
+  /** ReactNode slot — pass nothing for participant view, pass a score control for creator edit view */
+  scoreControl?: React.ReactNode;
+  labels: {
+    essay: string;
+    choice: string;
+    multipleSelect: string;
+    yourAnswer: string;
+    correctAnswer: string;
+    notAnswered: string;
+    score: string;
+    scoreExplanation: string;
+    correct: string;
+    incorrect: string;
+  };
+}

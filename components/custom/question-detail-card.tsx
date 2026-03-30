@@ -4,66 +4,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PlateReadOnlyViewer } from "@/components/custom/plate-readonly-viewer";
 import { cn } from "@/lib/utils";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-export type ChoiceItemView = {
-  id: string;
-  text: string;
-  isSelected: boolean;
-  /** null means correctness is hidden from the viewer */
-  isCorrect: boolean | null;
-};
-
-export type EssayAnswerView = {
-  id: string;
-  answerText: string;
-  /** null means don't show correct answer */
-  correctAnswer: string | null;
-  score: number;
-  maxScore: number;
-  scoreExplanation: string | null;
-};
-
-export type ChoiceAnswerView = {
-  id: string;
-  choices: ChoiceItemView[];
-  score: number;
-  maxScore: number;
-};
-
-export type MultipleSelectAnswerView = {
-  id: string;
-  choices: ChoiceItemView[];
-  score: number;
-  maxScore: number;
-};
-
-export interface QuestionDetailCardProps {
-  questionNumber: number;
-  questionText: string;
-  type: "ESSAY" | "CHOICE" | "MULTIPLE_SELECT";
-  essay?: EssayAnswerView | null;
-  choice?: ChoiceAnswerView | null;
-  multipleSelect?: MultipleSelectAnswerView | null;
-  showDetailedScore: boolean;
-  /** ReactNode slot — pass nothing for participant view, pass a score control for creator edit view */
-  scoreControl?: React.ReactNode;
-  labels: {
-    essay: string;
-    choice: string;
-    multipleSelect: string;
-    yourAnswer: string;
-    correctAnswer: string;
-    notAnswered: string;
-    score: string;
-    scoreExplanation: string;
-    correct: string;
-    incorrect: string;
-  };
-}
+import { ChoiceItemView } from "@/lib/schemas/answer";
+import { QuestionDetailCardProps } from "@/lib/schemas/question";
 
 // ---------------------------------------------------------------------------
 // Internal helpers
