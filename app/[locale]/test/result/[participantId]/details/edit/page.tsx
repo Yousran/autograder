@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/dal";
-import {
-  QuestionDetailCard,
-  type ChoiceItemView,
-  type EssayAnswerView,
-  type ChoiceAnswerView,
-  type MultipleSelectAnswerView,
-} from "@/components/custom/question-detail-card";
+import { QuestionDetailCard } from "@/components/custom/question-detail-card";
+import type {
+  ChoiceItemView,
+  EssayAnswerView,
+  ChoiceAnswerView,
+  MultipleSelectAnswerView,
+} from "@/lib/schemas/answer";
 import { ScoreSliderInput } from "@/components/custom/score-slider-input";
 import { EssayGradingControl } from "@/components/custom/essay-grading-control";
 

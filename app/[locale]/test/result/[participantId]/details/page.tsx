@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/prisma";
-import {
-  QuestionDetailCard,
-  type ChoiceItemView,
-  type EssayAnswerView,
-  type ChoiceAnswerView,
-  type MultipleSelectAnswerView,
-} from "@/components/custom/question-detail-card";
+import { QuestionDetailCard } from "@/components/custom/question-detail-card";
+import type {
+  ChoiceItemView,
+  EssayAnswerView,
+  ChoiceAnswerView,
+  MultipleSelectAnswerView,
+} from "@/lib/schemas/answer";
 
 export default async function ParticipantDetailsPage({
   params,

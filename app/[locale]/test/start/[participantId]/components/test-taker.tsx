@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import type { QuestionType } from "@/lib/generated/prisma/enums";
 import { NavbarTest } from "./navbar-test";
 import { QuestionList } from "./question-list";
 import { BottomNavbar } from "./bottom-navbar";
@@ -14,8 +15,6 @@ import { PlateReadOnlyViewer } from "@/components/custom/plate-readonly-viewer";
 // ---------------------------------------------------------------------------
 // Shared types
 // ---------------------------------------------------------------------------
-
-export type QuestionType = "ESSAY" | "CHOICE" | "MULTIPLE_SELECT";
 
 export type Choice = { id: string; choiceText: string };
 
