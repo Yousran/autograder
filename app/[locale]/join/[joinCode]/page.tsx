@@ -8,7 +8,7 @@ import Navbar from "@/components/custom/navbar";
 export default async function JoinTestPage({
   params,
 }: {
-  params: Promise<{ joinCode: string; locale: string }>;
+  params: Promise<{ joinCode: string }>;
 }) {
   const { joinCode } = await params;
   const t = await getTranslations("Pages.join");
