@@ -8,7 +8,11 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 
-type AnswerType = "essay" | "choice" | "multiple-choice";
+/**
+ * Answer type discriminator for routing to correct API endpoint.
+ * Used to determine which endpoint to PATCH: /api/answer/essay, /api/answer/choice, or /api/answer/multiple-choice
+ */
+export type AnswerType = "essay" | "choice" | "multiple-choice";
 
 /**
  * Optimistic score slider for test creators.

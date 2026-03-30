@@ -13,11 +13,20 @@ import { AnswerMultipleChoice } from "./answer-multiple-choice";
 import { PlateReadOnlyViewer } from "@/components/custom/plate-readonly-viewer";
 
 // ---------------------------------------------------------------------------
-// Shared types
+// Shared types — specific to test-taking UI (no isCorrect to protect answers)
 // ---------------------------------------------------------------------------
 
+/**
+ * Choice item for display during test-taking.
+ * Excludes isCorrect to prevent participants from seeing the correct answers.
+ */
 export type Choice = { id: string; choiceText: string };
 
+/**
+ * Question with details for test-taking.
+ * Does not include isCorrect in choices to maintain test integrity.
+ * Used by test-taker component and related test-taking child components.
+ */
 export type Question = {
   id: string;
   questionText: string;
