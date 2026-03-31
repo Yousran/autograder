@@ -4,15 +4,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
+import { ScoreSliderInput } from "./score-slider-input";
 
 /**
  * Combined score slider + explanation textarea for essay grading.
- * Both fields call PATCH /api/answer/essay/[answerId] independently.
+ * Uses ScoreSliderInput for score management.
+ * Explanation textarea calls PATCH /api/answer/essay/[answerId] independently.
  * Each update is optimistic and rolls back on failure.
  */
 export function EssayGradingControl({
@@ -27,17 +27,10 @@ export function EssayGradingControl({
   initialScoreExplanation: string | null;
 }) {
   const t = useTranslations("Components.essayGradingControl");
-  const [score, setScore] = useState(initialScore);
   const [explanation, setExplanation] = useState(initialScoreExplanation ?? "");
-  const [isSavingScore, setIsSavingScore] = useState(false);
   const [isSavingExplanation, setIsSavingExplanation] = useState(false);
 
-  const [debouncedScore] = useDebounce(score, 500);
   const [debouncedExplanation] = useDebounce(explanation, 700);
-
-  useEffect(() => {
-    setScore(initialScore);
-  }, [initialScore]);
 
   useEffect(() => {
     setExplanation(initialScoreExplanation ?? "");
@@ -57,32 +50,6 @@ export function EssayGradingControl({
     },
     [answerId, t],
   );
-
-  // --- Score saving ---
-  const saveScore = useCallback(
-    async (newScore: number) => {
-      try {
-        setIsSavingScore(true);
-        await patchAnswer({ score: newScore });
-      } catch (err) {
-        setScore(initialScore);
-        toast.error(err instanceof Error ? err.message : t("updateFailed"));
-      } finally {
-        setIsSavingScore(false);
-      }
-    },
-    [initialScore, patchAnswer, t],
-  );
-
-  const saveScoreRef = useRef(saveScore);
-  useEffect(() => {
-    saveScoreRef.current = saveScore;
-  });
-  useEffect(() => {
-    if (debouncedScore !== initialScore) {
-      saveScoreRef.current(debouncedScore);
-    }
-  }, [debouncedScore, initialScore]);
 
   // --- Explanation saving ---
   const saveExplanation = useCallback(
@@ -113,24 +80,12 @@ export function EssayGradingControl({
   return (
     <div className="flex flex-col gap-3">
       {/* Score slider */}
-      <div className="flex items-center gap-3">
-        <Slider
-          value={[score]}
-          onValueChange={([val]) => setScore(val ?? 0)}
-          min={0}
-          max={maxScore}
-          step={1}
-          disabled={isSavingScore}
-          className="flex-1"
-          aria-label={t("score")}
-        />
-        <div className="flex items-center gap-2 shrink-0 min-w-16">
-          {isSavingScore && <Spinner className="size-3" />}
-          <Badge variant="outline" className="tabular-nums justify-center">
-            {score} / {maxScore}
-          </Badge>
-        </div>
-      </div>
+      <ScoreSliderInput
+        answerId={answerId}
+        answerType="essay"
+        initialScore={initialScore}
+        maxScore={maxScore}
+      />
 
       {/* Score explanation textarea */}
       <div className="flex flex-col gap-1.5">
