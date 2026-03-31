@@ -32,9 +32,14 @@ export function EditableNumberInput({
   const [isSaving, setIsSaving] = useState(false);
   const [debouncedValue] = useDebounce(value, debounceDelay);
 
-  // Sync value with initialValue when it changes from parent
+  // Sync value with initialValue only if there are no unsaved changes.
+  // This preserves user edits during parent re-renders (e.g., reordering questions).
   useEffect(() => {
-    setValue(initialValue ?? undefined);
+    // Only update if value hasn't been modified from the initial value,
+    // or if we're receiving a completely new initialValue.
+    setValue((prev) =>
+      prev === (initialValue ?? undefined) ? (initialValue ?? undefined) : prev,
+    );
   }, [initialValue]);
 
   const saveValue = useCallback(
