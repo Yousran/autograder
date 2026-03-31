@@ -3,7 +3,13 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
-import { GaugeCombined } from "@/components/ui/gauge";
+import {
+  Gauge,
+  GaugeIndicator,
+  GaugeRange,
+  GaugeTrack,
+  GaugeValueText,
+} from "@/components/ui/gauge";
 import { Label } from "@/components/ui/label";
 import { recalculateParticipantScore } from "@/lib/graders/total-score";
 
@@ -35,13 +41,19 @@ export default async function ResultPage({
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md p-8 flex flex-col gap-4">
         <div className="flex justify-center">
-          <GaugeCombined
+          <Gauge
             value={participant.score}
             max={100}
             min={0}
             size={200}
             thickness={12}
-          />
+          >
+            <GaugeIndicator>
+              <GaugeTrack />
+              <GaugeRange />
+            </GaugeIndicator>
+            <GaugeValueText className="text-5xl" />
+          </Gauge>
         </div>
         <Label className="text-center justify-center text-xl font-semibold">
           {participant.name || t("participant") || "Participant"}
