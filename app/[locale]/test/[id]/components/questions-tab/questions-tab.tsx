@@ -18,10 +18,6 @@ export function QuestionsTab({ testId }: { testId: string }) {
   const t = useTranslations("Components.questionsTab");
   const [questions, setQuestions] = useState<QuestionWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  // track which questions are allowed to mount choice UI
-  const [enabledChoices, setEnabledChoices] = useState<Record<string, boolean>>(
-    {},
-  );
 
   useEffect(() => {
     let cancelled = false;
@@ -38,8 +34,6 @@ export function QuestionsTab({ testId }: { testId: string }) {
         const data: QuestionWithDetails[] = await res.json();
         if (!cancelled) {
           setQuestions(data);
-          // fetched from server — choices are ready to mount
-          setEnabledChoices(Object.fromEntries(data.map((q) => [q.id, true])));
         }
       } catch {
         if (!cancelled) toast.error(t("fetchFailed"));
@@ -102,15 +96,6 @@ export function QuestionsTab({ testId }: { testId: string }) {
       toast.error(data?.error ?? t("reorderFailed"));
       return;
     }
-
-    // 2. Sync: patch order strings from server without changing array position
-    const orderMap: { id: string; order: string }[] = await res.json();
-    setQuestions((current) =>
-      current.map((q) => {
-        const synced = orderMap.find((o) => o.id === q.id);
-        return synced ? { ...q, order: synced.order } : q;
-      }),
-    );
   }
 
   async function handleCreate(afterId?: string | null): Promise<void> {
@@ -158,18 +143,14 @@ export function QuestionsTab({ testId }: { testId: string }) {
 
     const question: QuestionWithDetails = await res.json();
     setQuestions((prev) => prev.map((q) => (q.id === tempId ? question : q)));
-    // new persisted question — allow choices to mount
-    setEnabledChoices((prev) => ({ ...prev, [question.id]: true }));
   }
 
   async function handleTypeChange(
     id: string,
     type: QuestionType,
   ): Promise<void> {
-    // Optimistic update: prevent child from mounting choice UI until server responds
     const previous = questions;
     setQuestions((prev) => prev.map((q) => (q.id === id ? { ...q, type } : q)));
-    setEnabledChoices((prev) => ({ ...prev, [id]: false }));
 
     const res = await fetch(`/api/questions/${id}`, {
       method: "PATCH",
@@ -179,8 +160,6 @@ export function QuestionsTab({ testId }: { testId: string }) {
 
     if (!res || !res.ok) {
       setQuestions(previous);
-      // restore previous enable state
-      setEnabledChoices((prev) => ({ ...prev, [id]: true }));
       const data = await res?.json().catch(() => ({}));
       toast.error(data?.error ?? t("typeChangeFailed"));
       return;
@@ -190,12 +169,9 @@ export function QuestionsTab({ testId }: { testId: string }) {
     try {
       const updated = await res.json();
       setQuestions((prev) => prev.map((q) => (q.id === id ? updated : q)));
-      // server returned authoritative question — now allow mounting of related UI
-      setEnabledChoices((prev) => ({ ...prev, [id]: true }));
     } catch (err) {
       // If parsing fails, silently ignore — optimistic update already applied.
       console.error("Failed to parse updated question response:", err);
-      setEnabledChoices((prev) => ({ ...prev, [id]: true }));
     }
     toast.success("Question type updated");
   }
@@ -223,7 +199,6 @@ export function QuestionsTab({ testId }: { testId: string }) {
               index={index}
               onDelete={handleDelete}
               onTypeChange={(type) => handleTypeChange(question.id, type)}
-              loadChoices={!!enabledChoices[question.id]}
             />
             {index < questions.length - 1 && (
               <AddDivider onClick={() => handleCreate(question.id)} />

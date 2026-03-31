@@ -33,13 +33,11 @@ export function QuestionCard({
   index,
   onDelete,
   onTypeChange,
-  loadChoices,
 }: {
   question: QuestionWithDetails;
   index: number;
   onDelete: (id: string) => void;
   onTypeChange?: (type: QuestionType) => void;
-  loadChoices?: boolean;
 }) {
   const t = useTranslations("Components.questionsTab");
 
@@ -117,24 +115,22 @@ export function QuestionCard({
             console.error("Failed to update question text:", error);
           }}
         />
-        {question.type === QuestionType.CHOICE &&
-          (typeof loadChoices === "undefined" || loadChoices) && (
-            <QuestionChoice
-              questionId={question.id}
-              isChoiceRandomized={question.choice?.isChoiceRandomized ?? false}
-              maxScore={question.choice?.maxScore ?? 1}
-            />
-          )}
-        {question.type === QuestionType.MULTIPLE_SELECT &&
-          (typeof loadChoices === "undefined" || loadChoices) && (
-            <QuestionMultipleChoice
-              questionId={question.id}
-              isChoiceRandomized={
-                question.multipleSelect?.isChoiceRandomized ?? false
-              }
-              maxScore={question.multipleSelect?.maxScore ?? 1}
-            />
-          )}
+        {question.type === QuestionType.CHOICE && (
+          <QuestionChoice
+            questionId={question.id}
+            isChoiceRandomized={question.choice?.isChoiceRandomized ?? false}
+            maxScore={question.choice?.maxScore ?? 1}
+          />
+        )}
+        {question.type === QuestionType.MULTIPLE_SELECT && (
+          <QuestionMultipleChoice
+            questionId={question.id}
+            isChoiceRandomized={
+              question.multipleSelect?.isChoiceRandomized ?? false
+            }
+            maxScore={question.multipleSelect?.maxScore ?? 1}
+          />
+        )}
         {question.type === QuestionType.ESSAY && (
           <QuestionEssay
             questionId={question.id}
