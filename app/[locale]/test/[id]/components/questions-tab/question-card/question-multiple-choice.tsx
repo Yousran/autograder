@@ -302,8 +302,8 @@ export function QuestionMultipleChoice({
           />
         </div>
       </div>
-      {choices.map((choice, index) => (
-        <ChoiceItem key={choice.id} value={choice.id} choiceIndex={index}>
+      {choices.map((choice) => (
+        <ChoiceItem key={choice.id} choice={choice}>
           <Button
             variant={choice.isCorrect ? "default" : "outline"}
             size="icon"
