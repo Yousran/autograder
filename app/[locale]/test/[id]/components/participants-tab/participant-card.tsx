@@ -25,16 +25,10 @@ export function ParticipantCard({
     >
       <Card className="flex flex-row items-center gap-4 p-4 transition-colors hover:bg-muted/50 cursor-pointer">
         <div className="flex gap-1 flex-1 min-w-0">
-          <Badge
-            variant={participant.isCompleted ? "default" : "secondary"}
-            className="w-fit text-xs"
-          >
-            {participant.isCompleted ? t("completed") : t("inProgress")}
-          </Badge>
           <span className="font-medium truncate">{participant.name}</span>
         </div>
 
-        <div className="flex flex-col items-center gap-1 shrink-0">
+        <div className="flex flex-col items-center shrink-0">
           <GaugeCombined
             value={participant.score}
             min={0}
@@ -44,9 +38,12 @@ export function ParticipantCard({
             endAngle={135}
             thickness={6}
           />
-          <span className="text-xs text-muted-foreground tabular-nums">
-            {participant.score} / 100
-          </span>
+          <Badge
+            variant={participant.isCompleted ? "default" : "secondary"}
+            className="w-fit text-xs"
+          >
+            {participant.isCompleted ? t("completed") : t("inProgress")}
+          </Badge>
         </div>
       </Card>
     </Link>
