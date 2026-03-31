@@ -385,8 +385,8 @@ test.describe.serial("Reorder Questions", () => {
     expect(afterFirst[2].text).toBe("Essay question");
     expect(afterFirst[2].order).toBe("3");
 
-    // Reorder: move multiple select question (index 2) to position 0
-    await reorderQuestions(page, 2, 0);
+    // Reorder: move choice question (index 0) to position 1
+    await reorderQuestions(page, 0, 1);
 
     // Wait for the reordering to take effect
     await expect(async () => {
