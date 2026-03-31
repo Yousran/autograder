@@ -6,13 +6,6 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { Spinner } from "@/components/ui/spinner";
-
-/**
- * Answer type discriminator for routing to correct API endpoint.
- * Used to determine which endpoint to PATCH: /api/answer/essay, /api/answer/choice, or /api/answer/multiple-choice
- */
-export type AnswerType = "essay" | "choice" | "multiple-choice";
 
 /**
  * Optimistic score slider for test creators.
@@ -24,14 +17,11 @@ export function ScoreSliderInput({
   answerType,
   initialScore,
   maxScore,
-  extraPatchFields,
 }: {
   answerId: string;
-  answerType: AnswerType;
+  answerType: "choice" | "essay" | "multiple-choice";
   initialScore: number;
   maxScore: number;
-  /** Extra fields to include in the PATCH body alongside `score` (e.g. for essay). */
-  extraPatchFields?: Record<string, unknown>;
 }) {
   const t = useTranslations("Components.scoreSliderInput");
   const [score, setScore] = useState(initialScore);
@@ -50,7 +40,7 @@ export function ScoreSliderInput({
         const res = await fetch(`/api/answer/${answerType}/${answerId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ score: newScore, ...extraPatchFields }),
+          body: JSON.stringify({ score: newScore }),
         });
         if (!res.ok) {
           const data = (await res.json().catch(() => ({}))) as {
@@ -67,7 +57,7 @@ export function ScoreSliderInput({
         setIsSaving(false);
       }
     },
-    [answerId, answerType, initialScore, extraPatchFields, t],
+    [answerId, answerType, initialScore, t],
   );
 
   // Keep a stable ref to avoid stale closure issues
@@ -96,7 +86,6 @@ export function ScoreSliderInput({
         aria-label={t("score")}
       />
       <div className="flex items-center gap-2 shrink-0 min-w-16">
-        {isSaving && <Spinner className="size-3" />}
         <Badge variant="outline" className="tabular-nums justify-center">
           {score} / {maxScore}
         </Badge>

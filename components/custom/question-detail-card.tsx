@@ -11,26 +11,6 @@ import { QuestionDetailCardProps } from "@/lib/schemas/question";
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-function TypeBadge({
-  type,
-  labels,
-}: {
-  type: QuestionDetailCardProps["type"];
-  labels: QuestionDetailCardProps["labels"];
-}) {
-  const label =
-    type === "ESSAY"
-      ? labels.essay
-      : type === "CHOICE"
-        ? labels.choice
-        : labels.multipleSelect;
-  return (
-    <Badge variant="secondary" className="text-xs">
-      {label}
-    </Badge>
-  );
-}
-
 function ScoreBadge({ score, maxScore }: { score: number; maxScore: number }) {
   const isFullScore = score === maxScore;
   return (
@@ -138,9 +118,11 @@ export function QuestionDetailCard({
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-semibold text-muted-foreground">
-              Q{questionNumber}
+              {questionNumber}
             </span>
-            <TypeBadge type={type} labels={labels} />
+            <Badge variant="secondary" className="text-xs">
+              TYPE
+            </Badge>
           </div>
           {showDetailedScore && !scoreControl && hasAnswerData && (
             <ScoreBadge score={score} maxScore={maxScore} />
