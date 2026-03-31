@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Sortable } from "@/components/reui/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
 import { QuestionCard } from "./question-card/question-card";
-import { QuestionsSkeleton } from "./questions-skeleton";
+import { QuestionsSkeleton } from "@/components/custom/skeletons/questions-skeleton";
 import { AddDivider } from "./add-divider";
 import {
   QuestionWithDetails,

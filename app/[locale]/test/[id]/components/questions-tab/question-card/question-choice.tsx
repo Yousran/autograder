@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChoiceItem } from "@/components/custom/choice-item";
-import ChoiceSkeleton from "./choice-skeleton";
+import ChoiceSkeleton from "@/components/custom/skeletons/choice-skeleton";
 import { Check, Trash } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
