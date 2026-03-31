@@ -105,3 +105,41 @@ export const defaultChoiceQuestionData: ChoiceQuestion = {
   createdAt: new Date(),
   updatedAt: new Date(),
 };
+
+/**
+ * Schema for choice question details in API responses.
+ * Contains randomization flag, max score, and available choices.
+ *
+ * @returns Zod schema for choice question detail objects
+ */
+export const choiceQuestionWithAnswerSchema = z.object({
+  id: z.string(),
+  isChoiceRandomized: z.boolean(),
+  maxScore: z.number().int(),
+  choices: z.array(
+    z.object({
+      id: z.string(),
+      questionId: z.string(),
+      choiceText: z.string(),
+      isCorrect: z.boolean(),
+      createdAt: z.coerce.date(),
+      updatedAt: z.coerce.date(),
+    }),
+  ),
+  answers: z.array(
+    z.object({
+      id: z.string(),
+      score: z.number().int(),
+      choice: z
+        .object({
+          id: z.string(),
+          questionId: z.string(),
+          choiceText: z.string(),
+          isCorrect: z.boolean(),
+          createdAt: z.coerce.date(),
+          updatedAt: z.coerce.date(),
+        })
+        .nullable(),
+    }),
+  ),
+});

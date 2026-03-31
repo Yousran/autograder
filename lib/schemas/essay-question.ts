@@ -106,3 +106,24 @@ export const defaultEssayQuestionData: EssayQuestion = {
   createdAt: new Date(),
   updatedAt: new Date(),
 };
+
+/**
+ * Schema for essay question details in API responses.
+ * Contains the reference answer text, exact match flag, max score, and participant answers.
+ *
+ * @returns Zod schema for essay question detail objects
+ */
+export const essayQuestionWithAnswerSchema = z.object({
+  id: z.string(),
+  answerText: z.string(),
+  isExactAnswer: z.boolean(),
+  maxScore: z.number().int(),
+  answers: z.array(
+    z.object({
+      id: z.string(),
+      answerText: z.string(),
+      score: z.number().int(),
+      scoreExplanation: z.string().nullable(),
+    }),
+  ),
+});

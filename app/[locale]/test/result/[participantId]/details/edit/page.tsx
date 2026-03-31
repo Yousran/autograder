@@ -1,18 +1,14 @@
 import { Link } from "@/i18n/navigation";
-import { notFound, redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/dal";
 import { QuestionDetailCard } from "@/components/custom/question-detail-card";
-import type {
-  ChoiceItemView,
-  EssayAnswerView,
-  ChoiceAnswerView,
-  MultipleSelectAnswerView,
-} from "@/lib/schemas/answer";
+import { QuestionWithAnswerSchema } from "@/lib/schemas/question";
 import { ScoreSliderInput } from "@/components/custom/score-slider-input";
 import { EssayGradingControl } from "@/components/custom/essay-grading-control";
 
@@ -24,10 +20,11 @@ export default async function CreatorEditDetailsPage({
   }>;
 }) {
   const { participantId } = await params;
+  const locale = await getLocale();
 
   const session = await getSession();
   if (!session) {
-    redirect(`/auth/sign-in`);
+    redirect({ href: `/auth/sign-in`, locale });
   }
 
   const t = await getTranslations("Pages.creatorDetails");
@@ -51,7 +48,7 @@ export default async function CreatorEditDetailsPage({
   }
 
   // Only the test creator can access this page
-  if (participant.test.creatorId !== session.user.id) {
+  if (participant.test.creatorId !== session?.user.id) {
     notFound();
   }
 
@@ -70,7 +67,10 @@ export default async function CreatorEditDetailsPage({
       choice: {
         include: {
           choices: true,
-          answers: { where: { participantId } },
+          answers: {
+            where: { participantId },
+            include: { choice: true },
+          },
         },
       },
       multipleSelect: {
@@ -85,35 +85,15 @@ export default async function CreatorEditDetailsPage({
     },
   });
 
-  // Calculate totals
-  let totalScore = 0;
-  let totalMaxScore = 0;
-  for (const q of questions) {
-    if (q.essay) {
-      totalMaxScore += q.essay.maxScore;
-      totalScore += q.essay.answers[0]?.score ?? 0;
-    } else if (q.choice) {
-      totalMaxScore += q.choice.maxScore;
-      totalScore += q.choice.answers[0]?.score ?? 0;
-    } else if (q.multipleSelect) {
-      totalMaxScore += q.multipleSelect.maxScore;
-      totalScore += q.multipleSelect.answers[0]?.score ?? 0;
-    }
-  }
+  // Convert null relations to undefined for schema validation
+  const validatedQuestions = questions.map((q) => ({
+    ...q,
+    essay: q.essay ?? undefined,
+    choice: q.choice ?? undefined,
+    multipleSelect: q.multipleSelect ?? undefined,
+  }));
 
-  // Card labels — all answers & correct answers always visible to creator
-  const labels = {
-    essay: t("essay"),
-    choice: t("choice"),
-    multipleSelect: t("multipleSelect"),
-    yourAnswer: t("participantAnswer"),
-    correctAnswer: t("correctAnswer"),
-    notAnswered: t("notAnswered"),
-    score: t("score"),
-    scoreExplanation: t("scoreExplanation"),
-    correct: t("correct"),
-    incorrect: t("incorrect"),
-  };
+  QuestionWithAnswerSchema.array().parse(validatedQuestions);
 
   return (
     <div className="container max-w-3xl mx-auto px-4 py-8 flex flex-col gap-6">
@@ -142,35 +122,21 @@ export default async function CreatorEditDetailsPage({
           variant="outline"
           className="text-base font-semibold tabular-nums px-3 py-1"
         >
-          {totalScore} / {totalMaxScore}
+          {participant.score}
         </Badge>
-        <span className="text-xs text-muted-foreground ml-auto">
-          {t("autoUpdates")}
-        </span>
       </div>
 
       {/* Question cards with editable scores */}
       <div className="flex flex-col gap-4">
-        {questions.map((question, index) => {
-          let essayView: EssayAnswerView | null = null;
-          let choiceView: ChoiceAnswerView | null = null;
-          let multipleSelectView: MultipleSelectAnswerView | null = null;
+        {validatedQuestions.map((question, index) => {
           let scoreControl: React.ReactNode = null;
 
           if (question.type === "ESSAY" && question.essay) {
             const answer = question.essay.answers[0];
-            essayView = {
-              id: answer?.id ?? "",
-              answerText: answer?.answerText ?? "",
-              // Creator always sees the correct answer
-              correctAnswer: question.essay.answerText,
-              score: answer?.score ?? 0,
-              maxScore: question.essay.maxScore,
-              scoreExplanation: answer?.scoreExplanation ?? null,
-            };
             if (answer) {
               scoreControl = (
                 <EssayGradingControl
+                  key={answer.id}
                   answerId={answer.id}
                   initialScore={answer.score}
                   maxScore={question.essay.maxScore}
@@ -180,25 +146,10 @@ export default async function CreatorEditDetailsPage({
             }
           } else if (question.type === "CHOICE" && question.choice) {
             const answer = question.choice.answers[0];
-            const selectedId = answer?.selectedChoiceId ?? null;
-            const choiceItems: ChoiceItemView[] = question.choice.choices.map(
-              (c) => ({
-                id: c.id,
-                text: c.choiceText,
-                isSelected: c.id === selectedId,
-                // Creator always sees which choices are correct
-                isCorrect: c.isCorrect,
-              }),
-            );
-            choiceView = {
-              id: answer?.id ?? "",
-              choices: choiceItems,
-              score: answer?.score ?? 0,
-              maxScore: question.choice.maxScore,
-            };
             if (answer) {
               scoreControl = (
                 <ScoreSliderInput
+                  key={answer.id}
                   answerId={answer.id}
                   answerType="choice"
                   initialScore={answer.score}
@@ -211,26 +162,10 @@ export default async function CreatorEditDetailsPage({
             question.multipleSelect
           ) {
             const answer = question.multipleSelect.answers[0];
-            const selectedIds = new Set(
-              answer?.selectedChoices.map((c) => c.id) ?? [],
-            );
-            const choiceItems: ChoiceItemView[] =
-              question.multipleSelect.multipleSelectChoices.map((c) => ({
-                id: c.id,
-                text: c.choiceText,
-                isSelected: selectedIds.has(c.id),
-                // Creator always sees which choices are correct
-                isCorrect: c.isCorrect,
-              }));
-            multipleSelectView = {
-              id: answer?.id ?? "",
-              choices: choiceItems,
-              score: answer?.score ?? 0,
-              maxScore: question.multipleSelect.maxScore,
-            };
             if (answer) {
               scoreControl = (
                 <ScoreSliderInput
+                  key={answer.id}
                   answerId={answer.id}
                   answerType="multiple-choice"
                   initialScore={answer.score}
@@ -244,14 +179,10 @@ export default async function CreatorEditDetailsPage({
             <QuestionDetailCard
               key={question.id}
               questionNumber={index + 1}
-              questionText={question.questionText}
-              type={question.type}
-              essay={essayView}
-              choice={choiceView}
-              multipleSelect={multipleSelectView}
+              question={question}
               showDetailedScore={true}
+              showCorrectAnswers={true}
               scoreControl={scoreControl}
-              labels={labels}
             />
           );
         })}

@@ -17,7 +17,7 @@ export const ChoiceItem = ({
   <div
     className={cn(
       "flex flex-row items-start justify-center rounded-md gap-3 transition-all p-3 outline-1",
-      choice?.isCorrect ? "outline-green-500" : "outline-red-500",
+      choice?.isCorrect ? "outline-green-500/50" : "outline-red-500/50",
       className,
     )}
     data-testid={choice?.id ? `choice-row-${choice.id}` : undefined}

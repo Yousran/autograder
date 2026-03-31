@@ -1,96 +1,19 @@
-import { CheckCircle2, Circle, MinusCircle, XCircle } from "lucide-react";
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PlateReadOnlyViewer } from "@/components/custom/plate-readonly-viewer";
-import { cn } from "@/lib/utils";
-import { ChoiceItemView } from "@/lib/schemas/answer";
-import { QuestionDetailCardProps } from "@/lib/schemas/question";
-
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
-function ScoreBadge({ score, maxScore }: { score: number; maxScore: number }) {
-  const isFullScore = score === maxScore;
-  return (
-    <Badge
-      variant={isFullScore ? "default" : score > 0 ? "secondary" : "outline"}
-      className="tabular-nums"
-    >
-      {score} / {maxScore}
-    </Badge>
-  );
-}
-
-function ChoiceList({
-  choices,
-  labels,
-}: {
-  choices: ChoiceItemView[];
-  labels: QuestionDetailCardProps["labels"];
-}) {
-  return (
-    <ul className="flex min-w-0 w-full flex-col gap-1.5">
-      {choices.map((choice) => {
-        const showCorrectness = choice.isCorrect !== null;
-        const isCorrect = choice.isCorrect === true;
-        const isWrong = choice.isCorrect === false && choice.isSelected;
-
-        return (
-          <li
-            key={choice.id}
-            className={cn(
-              "flex items-start gap-2 rounded-md px-3 py-2 text-sm",
-              choice.isSelected &&
-                !showCorrectness &&
-                "bg-primary/10 font-medium",
-              showCorrectness && isCorrect && "bg-green-500/10",
-              showCorrectness && isWrong && "bg-red-500/10",
-              showCorrectness &&
-                !choice.isSelected &&
-                !isCorrect &&
-                "opacity-60",
-            )}
-          >
-            <span className="mt-0.5 shrink-0">
-              {!showCorrectness && choice.isSelected && (
-                <Circle className="size-4 fill-primary text-primary" />
-              )}
-              {!showCorrectness && !choice.isSelected && (
-                <Circle className="size-4 text-muted-foreground" />
-              )}
-              {showCorrectness && isCorrect && (
-                <CheckCircle2 className="size-4 text-green-600" />
-              )}
-              {showCorrectness && isWrong && (
-                <XCircle className="size-4 text-red-500" />
-              )}
-              {showCorrectness && !isCorrect && !isWrong && (
-                <MinusCircle className="size-4 text-muted-foreground" />
-              )}
-            </span>
-            <span className="min-w-0 flex-1 overflow-hidden">
-              <PlateReadOnlyViewer
-                value={choice.text}
-                className="wrap-break-word"
-              />
-            </span>
-            {showCorrectness && isCorrect && (
-              <span className="text-xs text-green-600 font-medium shrink-0 mt-0.5">
-                {labels.correct}
-              </span>
-            )}
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
+import { ChoiceItem } from "@/components/custom/choice-item";
+import { useTranslations } from "next-intl";
+import {
+  getQuestionTypeLabel,
+  QuestionWithAnswer,
+} from "@/lib/schemas/question";
+import type {
+  Choice,
+  MultipleSelectChoice,
+} from "@/lib/generated/prisma/client";
 
 /**
  * Shared read-only card for displaying a question with its participant answer.
@@ -98,112 +21,211 @@ function ChoiceList({
  */
 export function QuestionDetailCard({
   questionNumber,
-  questionText,
-  type,
-  essay,
-  choice,
-  multipleSelect,
+  question,
   showDetailedScore,
+  showCorrectAnswers,
   scoreControl,
-  labels,
-}: QuestionDetailCardProps) {
-  const maxScore =
-    essay?.maxScore ?? choice?.maxScore ?? multipleSelect?.maxScore ?? 0;
-  const score = essay?.score ?? choice?.score ?? multipleSelect?.score ?? 0;
-  const hasAnswerData = !!(essay || choice || multipleSelect);
-
+}: {
+  question: QuestionWithAnswer;
+  questionNumber: number;
+  showDetailedScore: boolean;
+  showCorrectAnswers?: boolean;
+  scoreControl?: React.ReactNode;
+}) {
+  const t = useTranslations("Pages.participantDetails");
+  const tQuestionTypes = useTranslations("Components.questionsTab");
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3 flex-wrap">
+          <span className="text-md font-bold">{questionNumber}</span>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-semibold text-muted-foreground">
-              {questionNumber}
-            </span>
-            <Badge variant="secondary" className="text-xs">
-              TYPE
+            <Badge
+              variant="secondary"
+              className="text-sm font-medium tabular-nums"
+            >
+              {getQuestionTypeLabel(question.type, tQuestionTypes)}
             </Badge>
+            {showDetailedScore &&
+              (() => {
+                const score =
+                  question.essay?.answers?.[0]?.score ??
+                  question.choice?.answers?.[0]?.score ??
+                  question.multipleSelect?.answers?.[0]?.score ??
+                  0;
+                const maxScore =
+                  question.essay?.maxScore ??
+                  question.choice?.maxScore ??
+                  question.multipleSelect?.maxScore ??
+                  0;
+
+                return (
+                  <Badge
+                    variant={score === maxScore ? "default" : "outline"}
+                    className="text-sm font-medium tabular-nums"
+                  >
+                    {score}/{maxScore}
+                  </Badge>
+                );
+              })()}
           </div>
-          {showDetailedScore && !scoreControl && hasAnswerData && (
-            <ScoreBadge score={score} maxScore={maxScore} />
-          )}
         </div>
         {/* Question text */}
-        <div className="pt-1 min-w-0 w-full overflow-hidden">
-          <PlateReadOnlyViewer value={questionText} />
-        </div>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4">
+        <div className="min-w-0 w-full overflow-hidden">
+          <PlateReadOnlyViewer value={question.questionText} />
+        </div>
         {/* ---- ESSAY ---- */}
-        {type === "ESSAY" && essay && (
+        {question.type === "ESSAY" && question.essay && (
           <>
             <div className="flex flex-col gap-1.5">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {labels.yourAnswer}
+                {t("yourAnswer")}
               </p>
-              {essay.answerText.trim() ? (
-                <div className="min-w-0 overflow-hidden rounded-md border bg-muted/30 px-3 py-2 text-sm">
-                  <PlateReadOnlyViewer value={essay.answerText} />
+              {question.essay.answers?.[0]?.answerText?.trim() ? (
+                <div className="min-w-0 overflow-hidden rounded-md border px-3 py-2 text-sm">
+                  <PlateReadOnlyViewer
+                    value={question.essay.answers[0].answerText}
+                  />
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground italic">
-                  {labels.notAnswered}
+                  {t("notAnswered")}
                 </p>
               )}
             </div>
 
-            {essay.correctAnswer !== null && (
+            {showCorrectAnswers && question.essay.answerText && (
               <div className="flex flex-col gap-1.5">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  {labels.correctAnswer}
+                  {t("correctAnswer")}
                 </p>
-                <div className="min-w-0 overflow-hidden rounded-md border border-green-500/30 bg-green-500/5 px-3 py-2 text-sm">
-                  <PlateReadOnlyViewer value={essay.correctAnswer} />
+                <div className="min-w-0 overflow-hidden rounded-md outline-1 outline-green-500/50 px-3 py-2 text-sm">
+                  <PlateReadOnlyViewer value={question.essay.answerText} />
                 </div>
               </div>
             )}
 
-            {showDetailedScore && essay.scoreExplanation && !scoreControl && (
-              <div className="flex flex-col gap-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  {labels.scoreExplanation}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {essay.scoreExplanation}
-                </p>
-              </div>
-            )}
+            {showDetailedScore &&
+              question.essay.answers?.[0]?.scoreExplanation &&
+              !scoreControl && (
+                <div className="flex flex-col gap-1">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    {t("scoreExplanation")}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {question.essay.answers[0].scoreExplanation}
+                  </p>
+                </div>
+              )}
           </>
         )}
 
         {/* ---- CHOICE ---- */}
-        {type === "CHOICE" && choice && (
-          <div className="flex flex-col gap-1.5">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {labels.yourAnswer}
-            </p>
-            <ChoiceList choices={choice.choices} labels={labels} />
+        {question.type === "CHOICE" && question.choice && (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                {t("yourAnswer")}
+              </p>
+              {question.choice.answers?.[0]?.choice ? (
+                <ChoiceItem
+                  choice={
+                    question.choice.answers[0]
+                      .choice as unknown as Choice | null
+                  }
+                >
+                  <PlateReadOnlyViewer
+                    value={question.choice.answers[0].choice?.choiceText ?? ""}
+                  />
+                </ChoiceItem>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  {t("notAnswered")}
+                </p>
+              )}
+            </div>
+
+            {showCorrectAnswers && (
+              <div className="flex flex-col gap-1.5">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  {t("correctAnswer", { count: 1 })}
+                </p>
+                <div className="flex flex-col gap-2">
+                  {question.choice.choices
+                    .filter((c) => c.isCorrect)
+                    .map((choice) => (
+                      <ChoiceItem
+                        key={choice.id}
+                        choice={choice as unknown as Choice}
+                      >
+                        <PlateReadOnlyViewer value={choice.choiceText} />
+                      </ChoiceItem>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* ---- MULTIPLE SELECT ---- */}
-        {type === "MULTIPLE_SELECT" && multipleSelect && (
-          <div className="flex flex-col gap-1.5">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {labels.yourAnswer}
-            </p>
-            <ChoiceList choices={multipleSelect.choices} labels={labels} />
+        {question.type === "MULTIPLE_SELECT" && question.multipleSelect && (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                {t("yourAnswer")}
+              </p>
+              {question.multipleSelect.answers?.[0]?.selectedChoices &&
+              question.multipleSelect.answers[0].selectedChoices.length > 0 ? (
+                <div className="flex flex-col gap-2">
+                  {question.multipleSelect.answers[0].selectedChoices.map(
+                    (choice) => (
+                      <ChoiceItem
+                        key={choice.id}
+                        choice={choice as unknown as MultipleSelectChoice}
+                      >
+                        <PlateReadOnlyViewer value={choice.choiceText} />
+                      </ChoiceItem>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  {t("notAnswered")}
+                </p>
+              )}
+            </div>
+
+            {showCorrectAnswers && (
+              <div className="flex flex-col gap-1.5">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  {t("correctAnswer", { count: 2 })}
+                </p>
+                <div className="flex flex-col gap-2">
+                  {question.multipleSelect.multipleSelectChoices
+                    .filter((c) => c.isCorrect)
+                    .map((choice) => (
+                      <ChoiceItem
+                        key={choice.id}
+                        choice={choice as unknown as MultipleSelectChoice}
+                      >
+                        <PlateReadOnlyViewer value={choice.choiceText} />
+                      </ChoiceItem>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Score control (creator edit view) */}
         {scoreControl && (
           <>
             <Separator />
             <div className="flex flex-col gap-2">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {labels.score}
+                SCORE
               </p>
               {scoreControl}
             </div>

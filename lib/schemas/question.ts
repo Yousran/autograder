@@ -11,6 +11,7 @@ import {
   EssayQuestionValidationSchema,
   patchEssayQuestionSchema,
   essayQuestionDetailSchema,
+  essayQuestionWithAnswerSchema,
 } from "./essay-question";
 import {
   ChoiceQuestionValidationSchema,
@@ -18,18 +19,14 @@ import {
   defaultChoiceQuestionData,
   defaultChoiceData,
   choiceQuestionDetailSchema,
+  choiceQuestionWithAnswerSchema,
 } from "./choice-question";
 import {
   MultipleSelectQuestionValidationSchema,
   patchMultipleSelectQuestionSchema,
   multipleSelectQuestionDetailSchema,
+  multipleSelectQuestionWithAnswerSchema,
 } from "./multiple-choice-question";
-
-import type {
-  EssayAnswerView,
-  ChoiceAnswerView,
-  MultipleSelectAnswerView,
-} from "./answer";
 
 /**
  * Creates a discriminated union schema for validating any question type on creation.
@@ -224,31 +221,15 @@ export const getQuestionsQuerySchema = z.object({
 
 export type GetQuestionsQueryInput = z.infer<typeof getQuestionsQuerySchema>;
 
-// ---------------------------------------------------------------------------
-// Component props for QuestionDetailCard
-// Combines question and answer view data for displaying a question with its answer
-// ---------------------------------------------------------------------------
+/**
+ * Extended question schema that includes optional related data (essay, choice, multipleSelect).
+ * This is used for API responses that include question type-specific details.
+ */
+export const QuestionWithAnswerSchema = questionSchemaObject.extend({
+  essay: essayQuestionWithAnswerSchema.optional(),
+  choice: choiceQuestionWithAnswerSchema.optional(),
+  multipleSelect: multipleSelectQuestionWithAnswerSchema.optional(),
+});
 
-export interface QuestionDetailCardProps {
-  questionNumber: number;
-  questionText: string;
-  type: "ESSAY" | "CHOICE" | "MULTIPLE_SELECT";
-  essay?: EssayAnswerView | null;
-  choice?: ChoiceAnswerView | null;
-  multipleSelect?: MultipleSelectAnswerView | null;
-  showDetailedScore: boolean;
-  /** ReactNode slot — pass nothing for participant view, pass a score control for creator edit view */
-  scoreControl?: React.ReactNode;
-  labels: {
-    essay: string;
-    choice: string;
-    multipleSelect: string;
-    yourAnswer: string;
-    correctAnswer: string;
-    notAnswered: string;
-    score: string;
-    scoreExplanation: string;
-    correct: string;
-    incorrect: string;
-  };
-}
+/** Question with optional related details (essay, choice, or multipleSelect data). */
+export type QuestionWithAnswer = z.infer<typeof QuestionWithAnswerSchema>;

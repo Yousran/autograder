@@ -109,3 +109,41 @@ export const defaultMultipleSelectQuestionData: MultipleSelectQuestion = {
   createdAt: new Date(),
   updatedAt: new Date(),
 };
+
+/**
+ * Schema for multiple-select question details in API responses.
+ * Contains randomization flag, max score, available choices, and participant answers.
+ *
+ * @returns Zod schema for multiple-select question detail objects
+ */
+export const multipleSelectQuestionWithAnswerSchema = z.object({
+  id: z.string(),
+  isChoiceRandomized: z.boolean(),
+  maxScore: z.number().int(),
+  multipleSelectChoices: z.array(
+    z.object({
+      id: z.string(),
+      questionId: z.string(),
+      choiceText: z.string(),
+      isCorrect: z.boolean(),
+      createdAt: z.coerce.date(),
+      updatedAt: z.coerce.date(),
+    }),
+  ),
+  answers: z.array(
+    z.object({
+      id: z.string(),
+      score: z.number().int(),
+      selectedChoices: z.array(
+        z.object({
+          id: z.string(),
+          questionId: z.string(),
+          choiceText: z.string(),
+          isCorrect: z.boolean(),
+          createdAt: z.coerce.date(),
+          updatedAt: z.coerce.date(),
+        }),
+      ),
+    }),
+  ),
+});
