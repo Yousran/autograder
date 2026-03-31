@@ -23,6 +23,7 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const t = await getTranslations("Pages.profile");
+  const tBadge = await getTranslations("Components.participantsTab");
   const { id } = await params;
   if (!id) notFound();
 
@@ -153,7 +154,7 @@ export default async function Page({
                         <Link
                           key={test.id}
                           href={`/test/${test.id}`}
-                          className="flex flex-col rounded-lg border bg-foreground/5 px-4 py-3 hover:bg-foreground/10 transition-colors"
+                          className="flex flex-col rounded-lg border bg-foreground/5 p-4 hover:bg-foreground/10 transition-colors"
                         >
                           <span className="text-sm font-medium text-foreground line-clamp-1">
                             {test.title}
@@ -189,7 +190,7 @@ export default async function Page({
                       <Link
                         key={participant.id}
                         href={`/test/result/${participant.id}`}
-                        className="flex items-center gap-4 rounded-lg border bg-foreground/5 px-4 py-3 hover:bg-foreground/10 transition-colors"
+                        className="flex items-center gap-4 p-4 rounded-lg border bg-foreground/5 hover:bg-foreground/10 transition-colors"
                       >
                         <div className="flex-1 min-w-0">
                           <span className="text-sm font-medium text-foreground line-clamp-1 block">
@@ -207,11 +208,18 @@ export default async function Page({
                             max={100}
                             min={0}
                             size={50}
-                            thickness={6}
+                            thickness={4}
                           />
-                          <span className="text-sm font-semibold text-foreground">
-                            {participant.score}
-                          </span>
+                          <Badge
+                            variant={
+                              participant.isCompleted ? "default" : "secondary"
+                            }
+                            className="w-fit text-xs"
+                          >
+                            {participant.isCompleted
+                              ? tBadge("completed")
+                              : tBadge("inProgress")}
+                          </Badge>
                         </div>
                       </Link>
                     ))}
