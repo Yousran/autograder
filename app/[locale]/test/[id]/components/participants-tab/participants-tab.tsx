@@ -18,7 +18,6 @@ import type {
 export function ParticipantsTab({ testId }: { testId: string }) {
   const t = useTranslations("Components.participantsTab");
   const [participants, setParticipants] = useState<ParticipantSummary[]>([]);
-  const [maxScore, setMaxScore] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -36,7 +35,6 @@ export function ParticipantsTab({ testId }: { testId: string }) {
         const data: GetParticipantsResponse = await res.json();
         if (!cancelled) {
           setParticipants(data.participants);
-          setMaxScore(data.maxScore);
         }
       } catch {
         if (!cancelled) toast.error(t("fetchFailed"));
@@ -73,11 +71,7 @@ export function ParticipantsTab({ testId }: { testId: string }) {
   return (
     <div className="flex flex-col gap-2">
       {participants.map((participant) => (
-        <ParticipantCard
-          key={participant.id}
-          participant={participant}
-          maxScore={maxScore}
-        />
+        <ParticipantCard key={participant.id} participant={participant} />
       ))}
     </div>
   );

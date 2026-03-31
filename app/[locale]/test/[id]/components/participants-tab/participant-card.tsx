@@ -13,13 +13,10 @@ import type { ParticipantSummary } from "@/lib/schemas/participant";
  */
 export function ParticipantCard({
   participant,
-  maxScore,
 }: {
   participant: ParticipantSummary;
-  maxScore: number;
 }) {
   const t = useTranslations("Components.participantsTab");
-  const effectiveMax = maxScore > 0 ? maxScore : 100;
 
   return (
     <Link
@@ -39,15 +36,16 @@ export function ParticipantCard({
 
         <div className="flex flex-col items-center gap-1 shrink-0">
           <GaugeCombined
-            value={Math.min(Math.max(participant.score, 0), effectiveMax)}
-            max={effectiveMax}
+            value={participant.score}
+            min={0}
+            max={100}
             size={64}
             startAngle={-135}
             endAngle={135}
             thickness={6}
           />
           <span className="text-xs text-muted-foreground tabular-nums">
-            {participant.score} / {maxScore > 0 ? maxScore : "—"}
+            {participant.score} / 100
           </span>
         </div>
       </Card>
