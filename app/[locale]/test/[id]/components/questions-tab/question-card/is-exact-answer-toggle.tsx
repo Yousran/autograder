@@ -5,22 +5,37 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { QuestionType } from "@/lib/generated/prisma/enums";
+import { QuestionWithDetails } from "@/lib/schemas/question";
+import { useQuestions } from "../../../context/question-context";
 
 export function IsExactAnswerToggle({
-  questionId,
-  initialValue,
+  question,
 }: {
-  questionId: string;
-  initialValue: boolean;
+  question: QuestionWithDetails;
 }) {
   const t = useTranslations("Api.questions");
-  const [checked, setChecked] = useState(initialValue);
+  const [checked, setChecked] = useState(
+    question.essay?.isExactAnswer ?? false,
+  );
+  const { updateQuestion } = useQuestions();
 
   async function handleCheckedChange(next: boolean) {
+    // Snapshot: Save current state
+    const previousData = question.essay?.isExactAnswer ?? false;
+
+    // Update Switch state first (immediate visual feedback)
     setChecked(next);
 
+    // Then update local data
+    updateQuestion(question.id, {
+      essay: question.essay
+        ? { ...question.essay, isExactAnswer: next }
+        : undefined,
+    });
+
     try {
-      const res = await fetch(`/api/questions/${questionId}`, {
+      // Execution: Make API call
+      const res = await fetch(`/api/questions/${question.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -32,14 +47,26 @@ export function IsExactAnswerToggle({
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         toast.error((data as { error?: string }).error ?? t("updateFailed"));
-        setChecked(!next);
+        // Reconciliation: Rollback on error
+        setChecked(previousData);
+        updateQuestion(question.id, {
+          essay: question.essay
+            ? { ...question.essay, isExactAnswer: previousData }
+            : undefined,
+        });
         return;
       }
 
       toast.success(t("updateSuccess"));
     } catch {
       toast.error(t("updateFailed"));
-      setChecked(!next);
+      // Reconciliation: Rollback on error
+      setChecked(previousData);
+      updateQuestion(question.id, {
+        essay: question.essay
+          ? { ...question.essay, isExactAnswer: previousData }
+          : undefined,
+      });
     }
   }
 
@@ -47,7 +74,7 @@ export function IsExactAnswerToggle({
     <Switch
       checked={checked}
       onCheckedChange={handleCheckedChange}
-      data-testid="toggle-exact-answer"
+      data-testid="toggle-is-exact-answer"
     />
   );
 }

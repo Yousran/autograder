@@ -116,28 +116,13 @@ export function QuestionCard({
           }}
         />
         {question.type === QuestionType.CHOICE && (
-          <QuestionChoice
-            questionId={question.id}
-            isChoiceRandomized={question.choice?.isChoiceRandomized ?? false}
-            maxScore={question.choice?.maxScore ?? 1}
-          />
+          <QuestionChoice question={question} />
         )}
         {question.type === QuestionType.MULTIPLE_SELECT && (
-          <QuestionMultipleChoice
-            questionId={question.id}
-            isChoiceRandomized={
-              question.multipleSelect?.isChoiceRandomized ?? false
-            }
-            maxScore={question.multipleSelect?.maxScore ?? 1}
-          />
+          <QuestionMultipleChoice question={question} />
         )}
         {question.type === QuestionType.ESSAY && (
-          <QuestionEssay
-            questionId={question.id}
-            answerText={question.essay?.answerText}
-            isExactAnswer={question.essay?.isExactAnswer}
-            maxScore={question.essay?.maxScore}
-          />
+          <QuestionEssay question={question} />
         )}
       </Card>
     </SortableItem>

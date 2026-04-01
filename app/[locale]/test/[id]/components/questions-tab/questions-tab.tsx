@@ -13,6 +13,7 @@ import {
   defaultQuestionData,
 } from "@/lib/schemas/question";
 import { QuestionType } from "@/lib/generated/prisma/browser";
+import { QuestionsProvider } from "../../context/question-context";
 
 export function QuestionsTab({ testId }: { testId: string }) {
   const t = useTranslations("Components.questionsTab");
@@ -181,32 +182,34 @@ export function QuestionsTab({ testId }: { testId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <Sortable
-        value={questions}
-        onValueChange={() => {}}
-        onMove={({ activeIndex, overIndex }) =>
-          handleReorder(activeIndex, overIndex)
-        }
-        getItemValue={(item) => item.id}
-        strategy="vertical"
-        className="flex flex-col"
-      >
-        {questions.map((question, index) => (
-          <Fragment key={question.id}>
-            <QuestionCard
-              question={question}
-              index={index}
-              onDelete={handleDelete}
-              onTypeChange={(type) => handleTypeChange(question.id, type)}
-            />
-            {index < questions.length - 1 && (
-              <AddDivider onClick={() => handleCreate(question.id)} />
-            )}
-          </Fragment>
-        ))}
-      </Sortable>
-      <AddDivider onClick={() => handleCreate()} alwaysVisible />
-    </div>
+    <QuestionsProvider questions={questions} setQuestions={setQuestions}>
+      <div className="flex flex-col gap-4">
+        <Sortable
+          value={questions}
+          onValueChange={() => {}}
+          onMove={({ activeIndex, overIndex }) =>
+            handleReorder(activeIndex, overIndex)
+          }
+          getItemValue={(item) => item.id}
+          strategy="vertical"
+          className="flex flex-col"
+        >
+          {questions.map((question, index) => (
+            <Fragment key={question.id}>
+              <QuestionCard
+                question={question}
+                index={index}
+                onDelete={handleDelete}
+                onTypeChange={(type) => handleTypeChange(question.id, type)}
+              />
+              {index < questions.length - 1 && (
+                <AddDivider onClick={() => handleCreate(question.id)} />
+              )}
+            </Fragment>
+          ))}
+        </Sortable>
+        <AddDivider onClick={() => handleCreate()} alwaysVisible />
+      </div>
+    </QuestionsProvider>
   );
 }

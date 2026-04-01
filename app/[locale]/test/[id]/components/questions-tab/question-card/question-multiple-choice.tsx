@@ -17,21 +17,17 @@ import {
 import { Label } from "@/components/ui/label";
 import { IsChoiceRandomizedToggle } from "./is-choice-randomized-toggle";
 import { MaxScoreEditable } from "./max-score-editable";
-import { QuestionType } from "@/lib/generated/prisma/enums";
 import { Button } from "@/components/ui/button";
 import {
   ChoiceEditor,
   getChoiceEditorPlainText,
 } from "@/components/custom/choice-editor";
+import { QuestionWithDetails } from "@/lib/schemas/question";
 
 export function QuestionMultipleChoice({
-  questionId,
-  isChoiceRandomized = false,
-  maxScore = 1,
+  question,
 }: {
-  questionId: string;
-  isChoiceRandomized?: boolean;
-  maxScore?: number;
+  question: QuestionWithDetails;
 }) {
   const t = useTranslations("Components.questionsTab");
   const tValidation = useTranslations("Validation");
@@ -42,7 +38,7 @@ export function QuestionMultipleChoice({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (questionId.startsWith("temp-")) {
+    if (question.id.startsWith("temp-")) {
       setIsLoading(false);
       return;
     }
@@ -52,7 +48,7 @@ export function QuestionMultipleChoice({
         setIsLoading(true);
         setError(null);
         const response = await fetch(
-          `/api/choices?questionid=${encodeURIComponent(questionId)}`,
+          `/api/choices?questionid=${encodeURIComponent(question.id)}`,
         );
 
         if (!response.ok) {
@@ -83,20 +79,20 @@ export function QuestionMultipleChoice({
     };
 
     fetchChoices();
-  }, [questionId, t]);
+  }, [question.id, t]);
 
   const handleCreateChoice = async () => {
     try {
       // Optimistic choice defaults to not-correct (multiple correct allowed)
       const optimisticChoice = {
         ...defaultChoiceData,
-        questionId,
+        questionId: question.id,
         isCorrect: false,
       };
       setChoices((prev) => [...prev, optimisticChoice]);
 
       const response = await fetch(
-        `/api/choices/create?questionid=${encodeURIComponent(questionId)}`,
+        `/api/choices/create?questionid=${encodeURIComponent(question.id)}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -277,11 +273,7 @@ export function QuestionMultipleChoice({
               {t("choiceRandomizeDescription")}
             </p>
           </div>
-          <IsChoiceRandomizedToggle
-            questionId={questionId}
-            initialValue={isChoiceRandomized}
-            questionType={QuestionType.MULTIPLE_SELECT}
-          />
+          <IsChoiceRandomizedToggle question={question} />
         </div>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
@@ -295,11 +287,7 @@ export function QuestionMultipleChoice({
               {t("maxScoreDescription")}
             </p>
           </div>
-          <MaxScoreEditable
-            questionId={questionId}
-            initialValue={maxScore}
-            questionType={QuestionType.MULTIPLE_SELECT}
-          />
+          <MaxScoreEditable question={question} />
         </div>
       </div>
       {choices.map((choice) => (

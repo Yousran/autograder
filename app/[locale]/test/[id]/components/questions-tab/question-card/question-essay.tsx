@@ -7,32 +7,54 @@ import { EditableTextarea } from "@/components/custom/editable-textarea";
 import { IsExactAnswerToggle } from "./is-exact-answer-toggle";
 import { MaxScoreEditable } from "./max-score-editable";
 import { QuestionType } from "@/lib/generated/prisma/enums";
+import { QuestionWithDetails } from "@/lib/schemas/question";
+import { useQuestions } from "../../../context/question-context";
 
-export function QuestionEssay({
-  questionId,
-  answerText = "",
-  isExactAnswer = false,
-  maxScore = 1,
-}: {
-  questionId: string;
-  answerText?: string;
-  isExactAnswer?: boolean;
-  maxScore?: number;
-}) {
+export function QuestionEssay({ question }: { question: QuestionWithDetails }) {
   const t = useTranslations("Components.questionsTab");
+  const { updateQuestion } = useQuestions();
 
   const handleUpdate = useCallback(
     async (value: string) => {
-      await fetch(`/api/questions/${questionId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          answerText: value,
-          type: QuestionType.ESSAY,
-        }),
+      // Snapshot: Save current state
+      const previousData = question.essay?.answerText ?? "";
+
+      // Optimistic Apply: Update UI immediately
+      updateQuestion(question.id, {
+        essay: question.essay
+          ? { ...question.essay, answerText: value }
+          : undefined,
       });
+
+      try {
+        // Execution: Make API call
+        const res = await fetch(`/api/questions/${question.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            answerText: value,
+            type: QuestionType.ESSAY,
+          }),
+        });
+
+        if (!res.ok) {
+          // Reconciliation: Rollback on error
+          updateQuestion(question.id, {
+            essay: question.essay
+              ? { ...question.essay, answerText: previousData }
+              : undefined,
+          });
+        }
+      } catch {
+        // Reconciliation: Rollback on error
+        updateQuestion(question.id, {
+          essay: question.essay
+            ? { ...question.essay, answerText: previousData }
+            : undefined,
+        });
+      }
     },
-    [questionId],
+    [question.id, question.essay, updateQuestion],
   );
 
   return (
@@ -48,7 +70,7 @@ export function QuestionEssay({
         <EditableTextarea
           id="answer"
           placeholder={t("essayAnswerPlaceholder")}
-          initialValue={answerText}
+          initialValue={question.essay?.answerText ?? ""}
           onUpdate={handleUpdate}
           className="min-h-20"
           data-testid="textarea-essay-answer"
@@ -63,15 +85,12 @@ export function QuestionEssay({
             {t("answerMatchingLabel")}
           </Label>
           <p className="text-xs text-muted-foreground">
-            {isExactAnswer
+            {question.essay?.isExactAnswer
               ? t("answerMatchingExact")
               : t("answerMatchingPartial")}
           </p>
         </div>
-        <IsExactAnswerToggle
-          questionId={questionId}
-          initialValue={isExactAnswer}
-        />
+        <IsExactAnswerToggle question={question} />
       </div>
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col gap-0.5">
@@ -82,7 +101,7 @@ export function QuestionEssay({
             {t("maxScoreDescription")}
           </p>
         </div>
-        <MaxScoreEditable questionId={questionId} initialValue={maxScore} />
+        <MaxScoreEditable question={question} />
       </div>
     </div>
   );
