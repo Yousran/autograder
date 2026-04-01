@@ -54,6 +54,7 @@ export function getAddChoiceButton(page: Page, questionIndex: number): Locator {
 
 /**
  * Helper: Get a specific choice row by index
+ * Uses nth() to select the choice at the given index (0-based) within the question
  */
 export function getChoiceRow(
   page: Page,
@@ -61,7 +62,7 @@ export function getChoiceRow(
   choiceIndex: number,
 ): Locator {
   const questionCard = getQuestionCard(page, questionIndex);
-  return questionCard.locator(`[data-testid="choice-row-${choiceIndex}"]`);
+  return questionCard.locator('[data-testid^="choice-row-"]').nth(choiceIndex);
 }
 
 /**
@@ -265,6 +266,7 @@ export async function setQuestionType(
 
     const option = page.getByTestId(`option-question-type-${type}`);
     await option.first().click();
+    await page.click("body");
   }).toPass();
 }
 
@@ -470,4 +472,117 @@ export async function reorderQuestions(
 
   // Wait for animation to complete
   await page.waitForTimeout(300);
+}
+
+/**
+ * Helper: Get the max score input element
+ */
+export function getMaxScoreInput(locator: Locator): Locator {
+  return locator.getByTestId("input-max-score").locator('input[type="text"]');
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Question State Management Functions
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Helper: Get the max score value for a specific question
+ * Returns the input value or null if not set
+ */
+export async function getMaxScore(
+  page: Page,
+  questionIndex: number,
+): Promise<number | null> {
+  const questionCard = getQuestionCard(page, questionIndex);
+  const maxScoreInput = getMaxScoreInput(questionCard);
+  const value = await maxScoreInput.inputValue();
+  return value ? parseInt(value, 10) : null;
+}
+
+/**
+ * Helper: Set the max score value for a specific question
+ * Waits for the PATCH response and loader to disappear
+ */
+export async function setMaxScore(
+  page: Page,
+  questionIndex: number,
+  score: number,
+): Promise<void> {
+  const questionCard = getQuestionCard(page, questionIndex);
+  const maxScoreInput = getMaxScoreInput(questionCard);
+
+  await expect(async () => {
+    await maxScoreInput.click();
+    await maxScoreInput.fill(score.toString());
+    await page.click("body");
+    await waitForQuestionPatchResponse(page);
+    await waitForLoaderToDisappear(page);
+    await maxScoreInput.press("Enter");
+  }).toPass();
+}
+
+/**
+ * Helper: Get the isExactAnswer toggle state for a specific question (essay type)
+ * Returns true if the toggle is checked, false otherwise
+ */
+export async function getIsExactAnswerState(
+  page: Page,
+  questionIndex: number,
+): Promise<boolean> {
+  const questionCard = getQuestionCard(page, questionIndex);
+  const toggleSwitch = questionCard.getByTestId("toggle-is-exact-answer");
+  const isChecked = await toggleSwitch.isChecked();
+  return isChecked;
+}
+
+/**
+ * Helper: Toggle the isExactAnswer state for a specific question (essay type)
+ * Waits for the PATCH response and loader to disappear
+ */
+export async function toggleIsExactAnswer(
+  page: Page,
+  questionIndex: number,
+): Promise<void> {
+  const questionCard = getQuestionCard(page, questionIndex);
+  const toggleSwitch = questionCard.getByTestId("toggle-is-exact-answer");
+
+  await expect(async () => {
+    await expect(toggleSwitch).toBeVisible();
+    await expect(toggleSwitch).toBeEnabled();
+    await toggleSwitch.click();
+    await waitForLoaderToDisappear(page);
+  }).toPass();
+}
+
+/**
+ * Helper: Get the isChoiceRandomized toggle state for a specific question (choice/multiple-select type)
+ * Returns true if the toggle is checked, false otherwise
+ */
+export async function getIsChoiceRandomizedState(
+  page: Page,
+  questionIndex: number,
+): Promise<boolean> {
+  const questionCard = getQuestionCard(page, questionIndex);
+  const toggleSwitch = questionCard.getByTestId("toggle-choice-randomized");
+  const isChecked = await toggleSwitch.isChecked();
+  return isChecked;
+}
+
+/**
+ * Helper: Toggle the isChoiceRandomized state for a specific question (choice/multiple-select type)
+ * Waits for the PATCH response and loader to disappear
+ */
+export async function toggleIsChoiceRandomized(
+  page: Page,
+  questionIndex: number,
+): Promise<void> {
+  const questionCard = getQuestionCard(page, questionIndex);
+  const toggleSwitch = questionCard.getByTestId("toggle-choice-randomized");
+
+  await expect(async () => {
+    await expect(toggleSwitch).toBeVisible();
+    await expect(toggleSwitch).toBeEnabled();
+    await toggleSwitch.click();
+    await waitForLoaderToDisappear(page);
+  }).toPass();
 }
