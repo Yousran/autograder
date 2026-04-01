@@ -132,7 +132,6 @@
   "Pages": {
     "home": {
       "title": "Selamat Datang di Autograder",
-      "getStarted": "Mulai",
       "enterJoinCode": "Masukkan Kode Ujian",
       "join": "Bergabung",
       "scanQrCode": "Pindai Kode QR",
@@ -151,7 +150,6 @@
       "password": "Kata Sandi",
       "confirmPassword": "Konfirmasi Kata Sandi",
       "name": "Nama Lengkap",
-      "forgotPassword": "Lupa kata sandi?",
       "noAccount": "Belum punya akun?",
       "alreadyHaveAccount": "Sudah punya akun?",
       "signInTitle": "Selamat datang kembali",
@@ -160,9 +158,7 @@
       "signUpDescription": "Masukkan detail Anda untuk memulai",
       "orContinueWith": "Atau lanjutkan dengan",
       "continueWithGoogle": "Lanjutkan dengan Google",
-      "passwordMismatch": "Kata sandi tidak cocok",
-      "signingIn": "Sedang masuk...",
-      "signingUp": "Sedang mendaftar..."
+      "passwordMismatch": "Kata sandi tidak cocok"
     },
     "join": {
       "notFound": "Ujian tidak ditemukan.",

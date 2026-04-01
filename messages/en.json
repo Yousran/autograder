@@ -132,7 +132,6 @@
   "Pages": {
     "home": {
       "title": "Welcome to Autograder",
-      "getStarted": "Get Started",
       "enterJoinCode": "Enter Join Code",
       "join": "Join",
       "scanQrCode": "Scan QR Code",
@@ -151,7 +150,6 @@
       "password": "Password",
       "confirmPassword": "Confirm Password",
       "name": "Full Name",
-      "forgotPassword": "Forgot password?",
       "noAccount": "Don't have an account?",
       "alreadyHaveAccount": "Already have an account?",
       "signInTitle": "Welcome back",
@@ -160,9 +158,7 @@
       "signUpDescription": "Enter your details to get started",
       "orContinueWith": "Or continue with",
       "continueWithGoogle": "Continue with Google",
-      "passwordMismatch": "Passwords do not match",
-      "signingIn": "Signing in...",
-      "signingUp": "Signing up..."
+      "passwordMismatch": "Passwords do not match"
     },
     "join": {
       "notFound": "Test not found.",

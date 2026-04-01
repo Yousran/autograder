@@ -1,5 +1,3 @@
-//TODO: dont load the choices separately for each question, but load them in bulk with the questions to avoid multiple requests and reordering issues
-//TODO: reordering issues where the question text and type related data goes missing when displaced in the list
 //TODO: make sure to use next-intl for all text content and add missing translations
 //TODO: on field error display instead of just showing a toast
 //TODO: ai grading and feedback generation using openrouter as default but with model provider selection support
