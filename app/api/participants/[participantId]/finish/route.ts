@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -9,6 +10,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ participantId: string }> },
 ) {
+  const t = await getTranslations();
   const { participantId } = await params;
 
   const participant = await prisma.participant.findUnique({
@@ -18,7 +20,7 @@ export async function POST(
 
   if (!participant) {
     return NextResponse.json(
-      { error: "Participant not found." },
+      { error: t("Api.answer.participantNotFound") },
       { status: 404 },
     );
   }

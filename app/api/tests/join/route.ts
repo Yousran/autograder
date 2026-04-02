@@ -14,12 +14,13 @@ import { JoinStatusResponse } from "@/lib/schemas/test";
  * @returns 200 with JoinStatusResponse, or 400/404 on error
  */
 export async function GET(req: NextRequest) {
+  const t = await getTranslations();
   const { searchParams } = new URL(req.url);
   const joinCode = searchParams.get("joinCode");
 
   if (!joinCode) {
     return NextResponse.json(
-      { error: "joinCode is required" },
+      { error: t("Validation.joinCodeRequired") },
       { status: 400 },
     );
   }
@@ -33,7 +34,10 @@ export async function GET(req: NextRequest) {
   });
 
   if (!test) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: t("Api.join.notFound") },
+      { status: 404 },
+    );
   }
 
   return NextResponse.json<JoinStatusResponse>({
