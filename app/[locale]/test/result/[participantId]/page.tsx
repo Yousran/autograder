@@ -21,7 +21,7 @@ export default async function ResultPage({
   }>;
 }) {
   const { participantId } = await params;
-  const t = await getTranslations("Pages.testResult");
+  const t = await getTranslations();
 
   await recalculateParticipantScore(participantId);
 
@@ -56,7 +56,9 @@ export default async function ResultPage({
           </Gauge>
         </div>
         <Label className="text-center justify-center text-xl font-semibold">
-          {participant.name || t("participant") || "Participant"}
+          {participant.name ||
+            t("Pages.testResult.participant") ||
+            "Participant"}
         </Label>
         {participant.test.isShowDetailedScore && (
           <Link
@@ -64,14 +66,14 @@ export default async function ResultPage({
             className="w-full"
           >
             <Button variant="outline" className="w-full">
-              {t("seeDetails") || "See Details"}
+              {t("Pages.testResult.seeDetails") || "See Details"}
             </Button>
           </Link>
         )}
 
         <Link href={`/`} className="w-full">
           <Button className="w-full">
-            {t("backToHome") || "Back to Home"}
+            {t("Pages.testResult.backToHome") || "Back to Home"}
           </Button>
         </Link>
       </div>

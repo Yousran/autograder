@@ -13,7 +13,7 @@ export function IsExactAnswerToggle({
 }: {
   question: QuestionWithDetails;
 }) {
-  const t = useTranslations("Api.questions");
+  const t = useTranslations();
   const [checked, setChecked] = useState(
     question.essay?.isExactAnswer ?? false,
   );
@@ -46,7 +46,9 @@ export function IsExactAnswerToggle({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        toast.error((data as { error?: string }).error ?? t("updateFailed"));
+        toast.error(
+          (data as { error?: string }).error ?? t("Api.questions.updateFailed"),
+        );
         // Reconciliation: Rollback on error
         setChecked(previousData);
         updateQuestion(question.id, {
@@ -57,9 +59,9 @@ export function IsExactAnswerToggle({
         return;
       }
 
-      toast.success(t("updateSuccess"));
+      toast.success(t("Api.questions.updateSuccess"));
     } catch {
-      toast.error(t("updateFailed"));
+      toast.error(t("Api.questions.updateFailed"));
       // Reconciliation: Rollback on error
       setChecked(previousData);
       updateQuestion(question.id, {

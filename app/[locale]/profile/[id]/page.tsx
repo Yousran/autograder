@@ -22,8 +22,7 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const t = await getTranslations("Pages.profile");
-  const tBadge = await getTranslations("Components.participantsTab");
+  const t = await getTranslations();
   const { id } = await params;
   if (!id) notFound();
 
@@ -101,16 +100,18 @@ export default async function Page({
                   className="text-lg font-semibold"
                   data-testid="profile-info-section"
                 >
-                  {t("profileInformation")}
+                  {t("Pages.profile.profileInformation")}
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {isOwner ? t("manageInfo") : t("publicInfo")}
+                  {isOwner
+                    ? t("Pages.profile.manageInfo")
+                    : t("Pages.profile.publicInfo")}
                 </p>
 
                 <div className="mt-4 grid gap-2">
                   <div>
                     <h3 className="text-xs font-medium text-foreground/70">
-                      {t("fullName")}
+                      {t("Pages.profile.fullName")}
                     </h3>
                     <p className="text-sm font-medium text-foreground">
                       {user.name}
@@ -120,7 +121,7 @@ export default async function Page({
                   {isOwner && user.email && (
                     <div>
                       <h3 className="text-xs font-medium text-foreground/70">
-                        {t("email")}
+                        {t("Pages.profile.email")}
                       </h3>
                       <p className="text-sm font-medium text-foreground">
                         {user.email}
@@ -138,16 +139,16 @@ export default async function Page({
                     className="text-lg font-semibold"
                     data-testid="profile-created-tests-section"
                   >
-                    {t("createdTests")}
+                    {t("Pages.profile.createdTests")}
                   </h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {t("createdTestsDescription")}
+                    {t("Pages.profile.createdTestsDescription")}
                   </p>
 
                   <div className="mt-4 flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
                     {user.tests.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
-                        {t("noTests")}
+                        {t("Pages.profile.noTests")}
                       </p>
                     ) : (
                       user.tests.map((test) => (
@@ -179,10 +180,10 @@ export default async function Page({
                     className="text-lg font-semibold"
                     data-testid="profile-tests-taken-section"
                   >
-                    {t("testsTaken")}
+                    {t("Pages.profile.testsTaken")}
                   </h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {t("testsTakenDescription")}
+                    {t("Pages.profile.testsTakenDescription")}
                   </p>
 
                   <div className="mt-4 flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
@@ -217,8 +218,8 @@ export default async function Page({
                             className="w-fit text-xs"
                           >
                             {participant.isCompleted
-                              ? tBadge("completed")
-                              : tBadge("inProgress")}
+                              ? t("Components.participantsTab.completed")
+                              : t("Components.participantsTab.inProgress")}
                           </Badge>
                         </div>
                       </Link>
@@ -235,10 +236,10 @@ export default async function Page({
                     className="text-lg font-semibold"
                     data-testid="profile-login-methods-section"
                   >
-                    {t("loginMethods")}
+                    {t("Pages.profile.loginMethods")}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {t("connectedAccounts")}
+                    {t("Pages.profile.connectedAccounts")}
                   </p>
 
                   <div className="mt-4 flex flex-col gap-3">
@@ -256,7 +257,7 @@ export default async function Page({
                             variant="outline"
                             className="ml-auto border-green-500 text-green-500"
                           >
-                            {t("connected")}
+                            {t("Pages.profile.connected")}
                           </Badge>
                         )}
                       </div>
@@ -273,10 +274,10 @@ export default async function Page({
                     className="text-lg font-semibold text-destructive"
                     data-testid="profile-delete-account-section"
                   >
-                    {t("deleteAccount")}
+                    {t("Pages.profile.deleteAccount")}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {t("deleteAccountDescription")}
+                    {t("Pages.profile.deleteAccountDescription")}
                   </p>
                   <div className="mt-4">
                     <DeleteAccountButton userId={user.id} />

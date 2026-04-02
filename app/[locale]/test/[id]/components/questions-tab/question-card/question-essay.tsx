@@ -11,7 +11,7 @@ import { QuestionWithDetails } from "@/lib/schemas/question";
 import { useQuestions } from "../../../context/question-context";
 
 export function QuestionEssay({ question }: { question: QuestionWithDetails }) {
-  const t = useTranslations("Components.questionsTab");
+  const t = useTranslations();
   const { updateQuestion } = useQuestions();
 
   const handleUpdate = useCallback(
@@ -65,11 +65,11 @@ export function QuestionEssay({ question }: { question: QuestionWithDetails }) {
           className="text-sm font-medium"
           data-testid="label-essay-answer"
         >
-          {t("essayAnswerLabel")}
+          {t("Components.questionsTab.essayAnswerLabel")}
         </Label>
         <EditableTextarea
           id="answer"
-          placeholder={t("essayAnswerPlaceholder")}
+          placeholder={t("Components.questionsTab.essayAnswerPlaceholder")}
           initialValue={question.essay?.answerText ?? ""}
           onUpdate={handleUpdate}
           className="min-h-20"
@@ -82,12 +82,12 @@ export function QuestionEssay({ question }: { question: QuestionWithDetails }) {
             className="text-sm font-medium"
             data-testid="label-answer-matching"
           >
-            {t("answerMatchingLabel")}
+            {t("Components.questionsTab.answerMatchingLabel")}
           </Label>
           <p className="text-xs text-muted-foreground">
             {question.essay?.isExactAnswer
-              ? t("answerMatchingExact")
-              : t("answerMatchingPartial")}
+              ? t("Components.questionsTab.answerMatchingExact")
+              : t("Components.questionsTab.answerMatchingPartial")}
           </p>
         </div>
         <IsExactAnswerToggle question={question} />
@@ -95,10 +95,10 @@ export function QuestionEssay({ question }: { question: QuestionWithDetails }) {
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col gap-0.5">
           <Label className="text-sm font-medium" data-testid="label-max-score">
-            {t("maxScoreLabel")}
+            {t("Components.questionsTab.maxScoreLabel")}
           </Label>
           <p className="text-xs text-muted-foreground">
-            {t("maxScoreDescription")}
+            {t("Components.questionsTab.maxScoreDescription")}
           </p>
         </div>
         <MaxScoreEditable question={question} />

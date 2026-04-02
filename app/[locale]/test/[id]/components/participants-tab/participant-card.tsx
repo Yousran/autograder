@@ -16,7 +16,7 @@ export function ParticipantCard({
 }: {
   participant: ParticipantSummary;
 }) {
-  const t = useTranslations("Components.participantsTab");
+  const t = useTranslations();
 
   return (
     <Link
@@ -42,7 +42,9 @@ export function ParticipantCard({
             variant={participant.isCompleted ? "default" : "secondary"}
             className="w-fit text-xs"
           >
-            {participant.isCompleted ? t("completed") : t("inProgress")}
+            {participant.isCompleted
+              ? t("Components.participantsTab.completed")
+              : t("Components.participantsTab.inProgress")}
           </Badge>
         </div>
       </Card>

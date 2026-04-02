@@ -154,7 +154,7 @@ export function TestTaker({
   initialMultipleSelectAnswers: Record<string, string[]>;
   noQuestionsLabel: string;
 }) {
-  const t = useTranslations("Pages.testStart");
+  const t = useTranslations();
   const router = useRouter();
 
   // Deterministically randomize questions based on participantId if not ordered
@@ -524,7 +524,7 @@ export function TestTaker({
               className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide"
               data-testid="question-count"
             >
-              {t("questionCount", {
+              {t("Pages.testStart.questionCount", {
                 current: currentIndex + 1,
                 total: questions.length,
               })}

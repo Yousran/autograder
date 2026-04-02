@@ -24,12 +24,12 @@ export function QuestionList({
   markedSet: Set<string>;
   onSelect: (index: number) => void;
 }) {
-  const t = useTranslations("Pages.testStart");
+  const t = useTranslations();
 
   return (
     <div className="w-fit flex flex-col gap-2">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-        {t("questionList")}
+        {t("Pages.testStart.questionList")}
       </p>
       <div className="flex flex-wrap gap-1.5" role="list">
         {questions.map((q, i) => {
@@ -42,9 +42,11 @@ export function QuestionList({
               type="button"
               role="listitem"
               onClick={() => onSelect(i)}
-              aria-label={`${t("questionCount", { current: i + 1, total: questions.length })} — ${
-                isAnswered ? t("answered") : t("unanswered")
-              }${isMarked ? ` — ${t("marked")}` : ""}`}
+              aria-label={`${t("Pages.testStart.questionCount", { current: i + 1, total: questions.length })} — ${
+                isAnswered
+                  ? t("Pages.testStart.answered")
+                  : t("Pages.testStart.unanswered")
+              }${isMarked ? ` — ${t("Pages.testStart.marked")}` : ""}`}
               aria-current={isActive ? "step" : undefined}
               className={cn(
                 "relative flex h-8 w-8 items-center justify-center rounded-md text-xs font-medium transition-colors",
@@ -72,20 +74,20 @@ export function QuestionList({
       <div className="mt-2 flex flex-col gap-1 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="inline-block size-3 rounded-sm bg-primary" />
-          {t("questionCount", {
+          {t("Pages.testStart.questionCount", {
             current: currentIndex + 1,
             total: questions.length,
           })}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block size-3 rounded-sm bg-green-100 dark:bg-green-900/50" />
-          {t("answered")}
+          {t("Pages.testStart.answered")}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="relative inline-block size-3 rounded-sm border bg-muted/40">
             <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-amber-500" />
           </span>
-          {t("marked")}
+          {t("Pages.testStart.marked")}
         </span>
       </div>
     </div>

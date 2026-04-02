@@ -26,8 +26,7 @@ const CONFIRMATION_WORD = "DELETE";
 
 export default function DeleteAccountButton({ userId }: { userId: string }) {
   const router = useRouter();
-  const t = useTranslations("Pages.profile");
-  const tCommon = useTranslations("Common");
+  const t = useTranslations();
 
   const [open, setOpen] = useState<boolean>(false);
   const [confirmInput, setConfirmInput] = useState<string>("");
@@ -45,17 +44,17 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
 
       if (!res.ok) {
         const data = (await res.json()) as { error?: string };
-        toast.error(data.error ?? t("deleteFailed"));
+        toast.error(data.error ?? t("Pages.profile.deleteFailed"));
         return;
       }
 
-      toast.success(t("deleteSuccess"));
+      toast.success(t("Pages.profile.deleteSuccess"));
       setOpen(false);
       await authClient.signOut();
       router.push("/");
       router.refresh();
     } catch {
-      toast.error(t("deleteFailed"));
+      toast.error(t("Pages.profile.deleteFailed"));
     } finally {
       setIsDeleting(false);
     }
@@ -75,21 +74,23 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
           data-testid="btn-delete-account"
         >
           <Trash2 className="size-4 mr-2" />
-          {t("deleteAccount")}
+          {t("Pages.profile.deleteAccount")}
         </Button>
       </AlertDialogTrigger>
 
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{t("deleteAccountDialogTitle")}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {t("Pages.profile.deleteAccountDialogTitle")}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            {t("deleteAccountDialogDescription")}
+            {t("Pages.profile.deleteAccountDialogDescription")}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <div className="my-2 flex flex-col gap-2">
           <Label htmlFor="confirm-delete" className="text-sm font-medium">
-            {t("deleteAccountConfirmLabel")}
+            {t("Pages.profile.deleteAccountConfirmLabel")}
           </Label>
           <Input
             id="confirm-delete"
@@ -102,7 +103,7 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>
-            {tCommon("cancel")}
+            {t("Common.cancel")}
           </AlertDialogCancel>
           <Button
             variant="destructive"
@@ -111,7 +112,7 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
             data-testid="btn-confirm-delete-account"
           >
             {isDeleting && <Spinner className="mr-2" />}
-            {t("deleteAccountConfirmButton")}
+            {t("Pages.profile.deleteAccountConfirmButton")}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

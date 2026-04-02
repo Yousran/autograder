@@ -12,7 +12,7 @@ export function MaxScoreEditable({
 }: {
   question: QuestionWithDetails;
 }) {
-  const t = useTranslations("Api.questions");
+  const t = useTranslations();
   const { updateQuestion } = useQuestions();
 
   const handleUpdate = useCallback(
@@ -29,7 +29,10 @@ export function MaxScoreEditable({
 
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          toast.error((data as { error?: string }).error ?? t("updateFailed"));
+          toast.error(
+            (data as { error?: string }).error ??
+              t("Api.questions.updateFailed"),
+          );
           return;
         }
 
@@ -54,10 +57,12 @@ export function MaxScoreEditable({
             });
           }
         }
-        toast.success(t("updateSuccess"));
+        toast.success(t("Api.questions.updateSuccess"));
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : t("updateFailed");
+          error instanceof Error
+            ? error.message
+            : t("Api.questions.updateFailed");
         toast.error(message);
       }
     },

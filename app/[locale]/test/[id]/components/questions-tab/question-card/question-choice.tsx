@@ -25,8 +25,7 @@ export function QuestionChoice({
 }: {
   question: QuestionWithDetails;
 }) {
-  const t = useTranslations("Components.questionsTab");
-  const tValidation = useTranslations("Validation");
+  const t = useTranslations();
   const [choices, setChoices] = useState<ChoiceSchemaType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +48,9 @@ export function QuestionChoice({
 
         if (!response.ok) {
           const data = await response.json();
-          throw new Error(data.error || t("fetchFailed"));
+          throw new Error(
+            data.error || t("Components.questionsTab.fetchFailed"),
+          );
         }
 
         const data = await response.json();
@@ -171,12 +172,16 @@ export function QuestionChoice({
     ).length;
     if (!target) return;
     if (target.isCorrect) {
-      setError(t("cannotDeleteCorrect") || "Cannot delete correct choice");
+      setError(
+        t("Components.questionsTab.cannotDeleteCorrect") ||
+          "Cannot delete correct choice",
+      );
       return;
     }
     if (persistedCount <= 2) {
       setError(
-        t("cannotDeleteMinChoices") || "At least two choices are required",
+        t("Components.questionsTab.cannotDeleteMinChoices") ||
+          "At least two choices are required",
       );
       return;
     }
@@ -207,7 +212,7 @@ export function QuestionChoice({
 
   const handleChoiceTextUpdate = async (choiceId: string, value: string) => {
     if (!getChoiceEditorPlainText(value).trim()) {
-      throw new Error(tValidation("choiceTextRequired"));
+      throw new Error(t("Validation.choiceTextRequired"));
     }
 
     const res = await fetch(`/api/choices/${encodeURIComponent(choiceId)}`, {
@@ -218,7 +223,7 @@ export function QuestionChoice({
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      throw new Error(data.error || t("updateFailed"));
+      throw new Error(data.error || "Failed to update choice text");
     }
   };
 
@@ -245,10 +250,10 @@ export function QuestionChoice({
               className="text-sm font-medium"
               data-testid="label-choice-randomized"
             >
-              {t("choiceRandomizeLabel")}
+              {t("Components.questionsTab.choiceRandomizeLabel")}
             </Label>
             <p className="text-xs text-muted-foreground">
-              {t("choiceRandomizeDescription")}
+              {t("Components.questionsTab.choiceRandomizeDescription")}
             </p>
           </div>
           <IsChoiceRandomizedToggle question={question} />
@@ -259,10 +264,10 @@ export function QuestionChoice({
               className="text-sm font-medium"
               data-testid="label-choice-max-score"
             >
-              {t("maxScoreLabel")}
+              {t("Components.questionsTab.maxScoreLabel")}
             </Label>
             <p className="text-xs text-muted-foreground">
-              {t("maxScoreDescription")}
+              {t("Components.questionsTab.maxScoreDescription")}
             </p>
           </div>
           <MaxScoreEditable question={question} />
@@ -275,7 +280,9 @@ export function QuestionChoice({
             size="icon"
             onClick={() => handleMarkCorrect(choice.id)}
             aria-label={
-              choice.isCorrect ? t("markedCorrect") : t("markCorrect")
+              choice.isCorrect
+                ? t("Components.questionsTab.markedCorrect")
+                : t("Components.questionsTab.markCorrect")
             }
           >
             <Check />
@@ -283,7 +290,7 @@ export function QuestionChoice({
           <ChoiceEditor
             initialValue={choice.choiceText || ""}
             onUpdate={(value) => handleChoiceTextUpdate(choice.id, value)}
-            placeholder={t("choiceTextPlaceholder")}
+            placeholder={t("Components.questionsTab.choiceTextPlaceholder")}
             onUpdateError={(error) => {
               console.error("Failed to update choice text:", error);
             }}
@@ -292,16 +299,16 @@ export function QuestionChoice({
             variant="outline"
             size="icon"
             onClick={() => handleDeleteChoice(choice.id)}
-            aria-label={t("deleteChoice")}
+            aria-label={t("Components.questionsTab.deleteChoice")}
             disabled={
               choice.isCorrect ||
               choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
             }
             title={
               choice.isCorrect
-                ? t("cannotDeleteCorrect")
+                ? t("Components.questionsTab.cannotDeleteCorrect")
                 : choices.filter((c) => !c.id.startsWith("temp-")).length <= 2
-                  ? t("cannotDeleteMinChoices")
+                  ? t("Components.questionsTab.cannotDeleteMinChoices")
                   : undefined
             }
           >
@@ -310,7 +317,7 @@ export function QuestionChoice({
         </ChoiceItem>
       ))}
       <Button onClick={handleCreateChoice} data-testid="btn-add-choice">
-        {t("addChoice")}
+        {t("Components.questionsTab.addChoice")}
       </Button>
     </div>
   );

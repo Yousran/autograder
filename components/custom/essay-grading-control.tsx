@@ -26,12 +26,11 @@ export function EssayGradingControl({
   maxScore: number;
   initialScoreExplanation: string | null;
 }) {
-  const t = useTranslations("Components.essayGradingControl");
+  const t = useTranslations();
   const [explanation, setExplanation] = useState(initialScoreExplanation ?? "");
   const [isSavingExplanation, setIsSavingExplanation] = useState(false);
 
   const [debouncedExplanation] = useDebounce(explanation, 700);
-
   useEffect(() => {
     setExplanation(initialScoreExplanation ?? "");
   }, [initialScoreExplanation]);
@@ -45,7 +44,9 @@ export function EssayGradingControl({
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(data.error ?? t("updateFailed"));
+        throw new Error(
+          data.error ?? t("Components.essayGradingControl.updateFailed"),
+        );
       }
     },
     [answerId, t],
@@ -59,7 +60,11 @@ export function EssayGradingControl({
         await patchAnswer({ scoreExplanation: newExplanation || null });
       } catch (err) {
         setExplanation(initialScoreExplanation ?? "");
-        toast.error(err instanceof Error ? err.message : t("updateFailed"));
+        toast.error(
+          err instanceof Error
+            ? err.message
+            : t("Components.essayGradingControl.updateFailed"),
+        );
       } finally {
         setIsSavingExplanation(false);
       }
@@ -92,13 +97,15 @@ export function EssayGradingControl({
         <div className="flex items-center gap-2">
           {isSavingExplanation && <Spinner className="size-3" />}
           <Label className="text-xs text-muted-foreground">
-            {t("explanation")}
+            {t("Components.essayGradingControl.explanation")}
           </Label>
         </div>
         <Textarea
           value={explanation}
           onChange={(e) => setExplanation(e.target.value)}
-          placeholder={t("explanationPlaceholder")}
+          placeholder={t(
+            "Components.essayGradingControl.explanationPlaceholder",
+          )}
           disabled={isSavingExplanation}
           rows={2}
           className="resize-none text-sm"

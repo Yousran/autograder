@@ -39,7 +39,7 @@ export function QuestionCard({
   onDelete: (id: string) => void;
   onTypeChange?: (type: QuestionType) => void;
 }) {
-  const t = useTranslations("Components.questionsTab");
+  const t = useTranslations();
 
   const handleQuestionTextUpdate = useCallback(
     async (newText: string) => {
@@ -103,14 +103,16 @@ export function QuestionCard({
                   <Trash />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{t("deleteQuestion")}</TooltipContent>
+              <TooltipContent>
+                {t("Components.questionsTab.deleteQuestion")}
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
         <QuestionEditor
           initialValue={question.questionText}
           onUpdate={handleQuestionTextUpdate}
-          placeholder={t("questionTextPlaceholder")}
+          placeholder={t("Components.questionsTab.questionTextPlaceholder")}
           onUpdateError={(error) => {
             console.error("Failed to update question text:", error);
           }}

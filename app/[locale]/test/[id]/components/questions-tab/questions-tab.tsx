@@ -16,7 +16,7 @@ import { QuestionType } from "@/lib/generated/prisma/browser";
 import { QuestionsProvider } from "../../context/question-context";
 
 export function QuestionsTab({ testId }: { testId: string }) {
-  const t = useTranslations("Components.questionsTab");
+  const t = useTranslations();
   const [questions, setQuestions] = useState<QuestionWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,7 +29,7 @@ export function QuestionsTab({ testId }: { testId: string }) {
         const res = await fetch(`/api/questions?testid=${testId}`);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          toast.error(data?.error ?? t("fetchFailed"));
+          toast.error(data?.error ?? t("Components.questionsTab.fetchFailed"));
           return;
         }
         const data: QuestionWithDetails[] = await res.json();
@@ -37,7 +37,7 @@ export function QuestionsTab({ testId }: { testId: string }) {
           setQuestions(data);
         }
       } catch {
-        if (!cancelled) toast.error(t("fetchFailed"));
+        if (!cancelled) toast.error(t("Components.questionsTab.fetchFailed"));
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -60,7 +60,7 @@ export function QuestionsTab({ testId }: { testId: string }) {
     if (!res || !res.ok) {
       setQuestions(previous);
       const data = await res?.json().catch(() => ({}));
-      toast.error(data?.error ?? t("deleteFailed"));
+      toast.error(data?.error ?? t("Components.questionsTab.deleteFailed"));
     }
   }
 
@@ -94,7 +94,7 @@ export function QuestionsTab({ testId }: { testId: string }) {
     if (!res || !res.ok) {
       setQuestions(previous); // rollback
       const data = await res?.json().catch(() => ({}));
-      toast.error(data?.error ?? t("reorderFailed"));
+      toast.error(data?.error ?? t("Components.questionsTab.reorderFailed"));
       return;
     }
   }
@@ -138,7 +138,7 @@ export function QuestionsTab({ testId }: { testId: string }) {
     if (!res || !res.ok) {
       setQuestions((prev) => prev.filter((q) => q.id !== tempId));
       const data = await res?.json().catch(() => ({}));
-      toast.error(data?.error ?? t("createFailed"));
+      toast.error(data?.error ?? t("Components.questionsTab.createFailed"));
       return;
     }
 
@@ -162,7 +162,7 @@ export function QuestionsTab({ testId }: { testId: string }) {
     if (!res || !res.ok) {
       setQuestions(previous);
       const data = await res?.json().catch(() => ({}));
-      toast.error(data?.error ?? t("typeChangeFailed"));
+      toast.error(data?.error ?? t("Components.questionsTab.createFailed"));
       return;
     }
     // Replace the local question with the server's authoritative response

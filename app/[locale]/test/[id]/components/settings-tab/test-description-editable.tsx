@@ -28,9 +28,7 @@ export function TestDescriptionEditable({
   testId: string;
   initialDescription: string | null;
 }) {
-  const tApiTests = useTranslations("Api.tests");
-  const tComponentTest = useTranslations("Components.test");
-  const tCommon = useTranslations("Common");
+  const t = useTranslations();
 
   async function handleSubmit(value: string) {
     try {
@@ -43,21 +41,21 @@ export function TestDescriptionEditable({
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         toast.error(
-          (data as { error?: string }).error ?? tApiTests("updateFailed"),
+          (data as { error?: string }).error ?? t("Api.tests.updateFailed"),
         );
         return;
       }
 
-      toast.success(tApiTests("updateSuccess"));
+      toast.success(t("Api.tests.updateSuccess"));
     } catch {
-      toast.error(tApiTests("updateFailed"));
+      toast.error(t("Api.tests.updateFailed"));
     }
   }
 
   return (
     <Editable
       defaultValue={initialDescription ?? ""}
-      placeholder={tComponentTest("descriptionPlaceholder")}
+      placeholder={t("Components.test.descriptionPlaceholder")}
       onSubmit={handleSubmit}
       className="group"
     >
@@ -83,12 +81,12 @@ export function TestDescriptionEditable({
           <Tooltip>
             <TooltipTrigger asChild>
               <EditableSubmit asChild>
-                <Button size="sm" aria-label={tCommon("save")}>
+                <Button size="sm" aria-label={t("Common.save")}>
                   <CheckIcon />
                 </Button>
               </EditableSubmit>
             </TooltipTrigger>
-            <TooltipContent>{tCommon("save")}</TooltipContent>
+            <TooltipContent>{t("Common.save")}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -96,13 +94,13 @@ export function TestDescriptionEditable({
                 <Button
                   variant="outline"
                   size="sm"
-                  aria-label={tCommon("cancel")}
+                  aria-label={t("Common.cancel")}
                 >
                   <XIcon />
                 </Button>
               </EditableCancel>
             </TooltipTrigger>
-            <TooltipContent>{tCommon("cancel")}</TooltipContent>
+            <TooltipContent>{t("Common.cancel")}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </EditableToolbar>

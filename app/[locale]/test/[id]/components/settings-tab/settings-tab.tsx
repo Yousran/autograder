@@ -34,14 +34,14 @@ export function SettingsTab({
   initialIsShowCorrectAnswers: boolean;
   initialIsQuestionsOrdered: boolean;
 }) {
-  const tComponentTest = useTranslations("Components.test");
+  const t = useTranslations();
 
   return (
     <div className="flex flex-col gap-4">
       <Card className="p-6 flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Label className="text-md font-bold" data-testid="label-description">
-            {tComponentTest("descriptionLabel")}
+            {t("Components.test.descriptionLabel")}
           </Label>
           <TestDescriptionEditable
             testId={testId}
@@ -51,7 +51,7 @@ export function SettingsTab({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
             <Label className="text-md font-bold" data-testid="label-duration">
-              {tComponentTest("durationLabel")}
+              {t("Components.test.durationLabel")}
             </Label>
             <DurationEditable testId={testId} initialValue={initialDuration} />
           </div>
@@ -60,7 +60,7 @@ export function SettingsTab({
               className="text-md font-bold"
               data-testid="label-max-attempts"
             >
-              {tComponentTest("maxAttemptsLabel")}
+              {t("Components.test.maxAttemptsLabel")}
             </Label>
             <MaxAttemptEditable
               testId={testId}
@@ -74,10 +74,10 @@ export function SettingsTab({
               className="text-md font-bold"
               data-testid="label-accepting-responses"
             >
-              {tComponentTest("isAcceptingResponsesLabel")}
+              {t("Components.test.isAcceptingResponsesLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              {tComponentTest("isAcceptingResponsesDesc")}
+              {t("Components.test.isAcceptingResponsesDesc")}
             </p>
           </div>
           <AcceptingResponsesToggle
@@ -91,10 +91,10 @@ export function SettingsTab({
               className="text-md font-bold"
               data-testid="label-logged-in-only"
             >
-              {tComponentTest("isLoggedInUserOnlyLabel")}
+              {t("Components.test.isLoggedInUserOnlyLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              {tComponentTest("isLoggedInUserOnlyDesc")}
+              {t("Components.test.isLoggedInUserOnlyDesc")}
             </p>
           </div>
           <LoggedInUserOnlyToggle
@@ -108,10 +108,10 @@ export function SettingsTab({
               className="text-md font-bold"
               data-testid="label-detailed-score"
             >
-              {tComponentTest("isShowDetailedScoreLabel")}
+              {t("Components.test.isShowDetailedScoreLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              {tComponentTest("isShowDetailedScoreDesc")}
+              {t("Components.test.isShowDetailedScoreDesc")}
             </p>
           </div>
           <ShowDetailedScoreToggle
@@ -125,10 +125,10 @@ export function SettingsTab({
               className="text-md font-bold"
               data-testid="label-correct-answers"
             >
-              {tComponentTest("isShowCorrectAnswersLabel")}
+              {t("Components.test.isShowCorrectAnswersLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              {tComponentTest("isShowCorrectAnswersDesc")}
+              {t("Components.test.isShowCorrectAnswersDesc")}
             </p>
           </div>
           <ShowCorrectAnswersToggle
@@ -142,10 +142,10 @@ export function SettingsTab({
               className="text-md font-bold"
               data-testid="label-questions-ordered"
             >
-              {tComponentTest("isQuestionsOrderedLabel")}
+              {t("Components.test.isQuestionsOrderedLabel")}
             </Label>
             <p className="text-sm text-muted-foreground">
-              {tComponentTest("isQuestionsOrderedDesc")}
+              {t("Components.test.isQuestionsOrderedDesc")}
             </p>
           </div>
           <QuestionsOrderedToggle
@@ -157,10 +157,10 @@ export function SettingsTab({
       <Card className="p-6 flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Label className="text-md font-bold">
-            {tComponentTest("prerequisiteLabel")}
+            {t("Components.test.prerequisiteLabel")}
           </Label>
           <p className="text-sm text-muted-foreground">
-            {tComponentTest("prerequisiteDesc")}
+            {t("Components.test.prerequisiteDesc")}
           </p>
         </div>
         <TestPrerequisiteCard testId={testId} />

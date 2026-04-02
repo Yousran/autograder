@@ -11,7 +11,7 @@ export default async function JoinTestPage({
   params: Promise<{ joinCode: string }>;
 }) {
   const { joinCode } = await params;
-  const t = await getTranslations("Pages.join");
+  const t = await getTranslations();
 
   const test = await prisma.test.findUnique({
     where: { joinCode },
@@ -74,7 +74,7 @@ export default async function JoinTestPage({
     );
 
     if (!allCompleted) {
-      prerequisiteError = t("prerequisiteNotMet");
+      prerequisiteError = t("Pages.join.prerequisiteNotMet");
     } else {
       // Check if all prerequisites meet the minimum score requirement
       const meetsAll = test.prerequisites.every((prereq) => {
@@ -87,7 +87,7 @@ export default async function JoinTestPage({
       });
 
       if (!meetsAll) {
-        prerequisiteError = t("prerequisiteInsufficientScore");
+        prerequisiteError = t("Pages.join.prerequisiteInsufficientScore");
       }
     }
   }

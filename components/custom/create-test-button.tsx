@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 
 export function CreateTestButton({ className }: { className?: string }) {
   const router = useRouter();
-  const t = useTranslations("Components.createTestButton");
+  const t = useTranslations();
   const [loading, setLoading] = useState(false);
 
   const handleCreate = async () => {
@@ -27,7 +27,7 @@ export function CreateTestButton({ className }: { className?: string }) {
       const data: Test = TestSchema.parse(await res.json());
       router.push(`/test/${data.id}`);
     } catch (error) {
-      console.error(t("createFailed"), error);
+      console.error(error);
       setLoading(false);
     }
   };
@@ -39,7 +39,7 @@ export function CreateTestButton({ className }: { className?: string }) {
       disabled={loading}
       data-testid="btn-create-test"
     >
-      {loading ? <Spinner /> : t("createTest")}
+      {loading ? <Spinner /> : t("Components.createTestButton.createTest")}
     </Button>
   );
 }

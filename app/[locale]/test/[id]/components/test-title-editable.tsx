@@ -28,8 +28,7 @@ export function TestTitleEditable({
   testId: string;
   initialTitle: string;
 }) {
-  const tApiTests = useTranslations("Api.tests");
-  const tCommon = useTranslations("Common");
+  const t = useTranslations();
 
   async function handleSubmit(value: string) {
     try {
@@ -42,14 +41,14 @@ export function TestTitleEditable({
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         toast.error(
-          (data as { error?: string }).error ?? tApiTests("updateFailed"),
+          (data as { error?: string }).error ?? t("Api.tests.updateFailed"),
         );
         return;
       }
 
-      toast.success(tApiTests("updateSuccess"));
+      toast.success(t("Api.tests.updateSuccess"));
     } catch {
-      toast.error(tApiTests("updateFailed"));
+      toast.error(t("Api.tests.updateFailed"));
     }
   }
 
@@ -78,12 +77,12 @@ export function TestTitleEditable({
           <Tooltip>
             <TooltipTrigger asChild>
               <EditableSubmit asChild>
-                <Button size="sm" aria-label={tCommon("save")}>
+                <Button size="sm" aria-label={t("Common.save")}>
                   <CheckIcon />
                 </Button>
               </EditableSubmit>
             </TooltipTrigger>
-            <TooltipContent>{tCommon("save")}</TooltipContent>
+            <TooltipContent>{t("Common.save")}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -91,13 +90,13 @@ export function TestTitleEditable({
                 <Button
                   variant="outline"
                   size="sm"
-                  aria-label={tCommon("cancel")}
+                  aria-label={t("Common.cancel")}
                 >
                   <XIcon />
                 </Button>
               </EditableCancel>
             </TooltipTrigger>
-            <TooltipContent>{tCommon("cancel")}</TooltipContent>
+            <TooltipContent>{t("Common.cancel")}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </EditableToolbar>

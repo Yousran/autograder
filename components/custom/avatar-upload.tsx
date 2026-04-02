@@ -52,7 +52,7 @@ export function AvatarUpload({
   const currentFile = files[0];
   const previewUrl = currentFile?.preview || defaultAvatar;
 
-  const t = useTranslations("Components.profile.avatarUpload");
+  const t = useTranslations();
 
   const handleRemove = () => {
     if (currentFile) {
@@ -80,7 +80,10 @@ export function AvatarUpload({
           <input {...getInputProps()} className="sr-only" />
 
           {previewUrl ? (
-            <AvatarImage src={previewUrl} alt={t("avatarPreview")} />
+            <AvatarImage
+              src={previewUrl}
+              alt={t("Components.profile.avatarUpload.avatarPreview")}
+            />
           ) : (
             <AvatarFallback>
               <UserIcon className="text-muted-foreground size-6" />
@@ -105,10 +108,14 @@ export function AvatarUpload({
       {/* Upload Instructions */}
       <div className="space-y-0.5 text-center">
         <p className="text-sm font-medium">
-          {currentFile ? t("uploaded") : t("upload")}
+          {currentFile
+            ? t("Components.profile.avatarUpload.uploaded")
+            : t("Components.profile.avatarUpload.upload")}
         </p>
         <p className="text-muted-foreground text-xs">
-          {t("formatsUpTo", { size: formatBytes(maxSize) })}
+          {t("Components.profile.avatarUpload.formatsUpTo", {
+            size: formatBytes(maxSize),
+          })}
         </p>
       </div>
 
@@ -116,7 +123,9 @@ export function AvatarUpload({
       {errors.length > 0 && (
         <Alert variant="destructive" className="mt-5">
           <CircleAlertIcon />
-          <AlertTitle>{t("fileUploadErrorTitle")}</AlertTitle>
+          <AlertTitle>
+            {t("Components.profile.avatarUpload.fileUploadErrorTitle")}
+          </AlertTitle>
           <AlertDescription>
             {errors.map((error, index) => (
               <p key={index} className="last:mb-0">

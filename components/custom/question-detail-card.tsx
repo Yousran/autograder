@@ -32,8 +32,7 @@ export function QuestionDetailCard({
   showCorrectAnswers?: boolean;
   scoreControl?: React.ReactNode;
 }) {
-  const t = useTranslations("Pages.participantDetails");
-  const tQuestionTypes = useTranslations("Components.questionsTab");
+  const t = useTranslations();
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -44,7 +43,7 @@ export function QuestionDetailCard({
               variant="secondary"
               className="text-sm font-medium tabular-nums"
             >
-              {getQuestionTypeLabel(question.type, tQuestionTypes)}
+              {getQuestionTypeLabel(question.type, useTranslations())}
             </Badge>
             {showDetailedScore &&
               (() => {
@@ -82,7 +81,7 @@ export function QuestionDetailCard({
           <>
             <div className="flex flex-col gap-1.5">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {t("yourAnswer")}
+                {t("Pages.participantDetails.yourAnswer")}
               </p>
               {question.essay.answers?.[0]?.answerText?.trim() ? (
                 <div className="min-w-0 overflow-hidden rounded-md border px-3 py-2 text-sm">
@@ -92,7 +91,7 @@ export function QuestionDetailCard({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground italic">
-                  {t("notAnswered")}
+                  {t("Pages.participantDetails.notAnswered")}
                 </p>
               )}
             </div>
@@ -100,7 +99,7 @@ export function QuestionDetailCard({
             {showCorrectAnswers && question.essay.answerText && (
               <div className="flex flex-col gap-1.5">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  {t("correctAnswer")}
+                  {t("Pages.participantDetails.correctAnswer")}
                 </p>
                 <div className="min-w-0 overflow-hidden rounded-md outline-1 outline-green-500/50 px-3 py-2 text-sm">
                   <PlateReadOnlyViewer value={question.essay.answerText} />
@@ -113,7 +112,7 @@ export function QuestionDetailCard({
               !scoreControl && (
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    {t("scoreExplanation")}
+                    {t("Pages.participantDetails.scoreExplanation")}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {question.essay.answers[0].scoreExplanation}
@@ -128,7 +127,7 @@ export function QuestionDetailCard({
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {t("yourAnswer")}
+                {t("Pages.participantDetails.yourAnswer")}
               </p>
               {question.choice.answers?.[0]?.choice ? (
                 <ChoiceItem
@@ -143,7 +142,7 @@ export function QuestionDetailCard({
                 </ChoiceItem>
               ) : (
                 <p className="text-sm text-muted-foreground italic">
-                  {t("notAnswered")}
+                  {t("Pages.participantDetails.notAnswered")}
                 </p>
               )}
             </div>
@@ -151,7 +150,7 @@ export function QuestionDetailCard({
             {showCorrectAnswers && (
               <div className="flex flex-col gap-1.5">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  {t("correctAnswer", { count: 1 })}
+                  {t("Pages.participantDetails.correctAnswer", { count: 1 })}
                 </p>
                 <div className="flex flex-col gap-2">
                   {question.choice.choices
@@ -175,7 +174,7 @@ export function QuestionDetailCard({
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {t("yourAnswer")}
+                {t("Pages.participantDetails.yourAnswer")}
               </p>
               {question.multipleSelect.answers?.[0]?.selectedChoices &&
               question.multipleSelect.answers[0].selectedChoices.length > 0 ? (
@@ -193,7 +192,7 @@ export function QuestionDetailCard({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground italic">
-                  {t("notAnswered")}
+                  {t("Pages.participantDetails.notAnswered")}
                 </p>
               )}
             </div>
@@ -201,7 +200,7 @@ export function QuestionDetailCard({
             {showCorrectAnswers && (
               <div className="flex flex-col gap-1.5">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  {t("correctAnswer", { count: 2 })}
+                  {t("Pages.participantDetails.correctAnswer", { count: 2 })}
                 </p>
                 <div className="flex flex-col gap-2">
                   {question.multipleSelect.multipleSelectChoices

@@ -20,7 +20,7 @@ export function EditableTextarea({
   debounceDelay = 500,
   ...props
 }: EditableTextareaProps) {
-  const t = useTranslations("Components.editableTextarea");
+  const t = useTranslations();
   const [value, setValue] = useState(initialValue);
   const [isSaving, setIsSaving] = useState(false);
   const [debouncedValue] = useDebounce(value, debounceDelay);
@@ -44,7 +44,7 @@ export function EditableTextarea({
         const err = error instanceof Error ? error : new Error(String(error));
         console.error("Failed to update value:", err);
         onUpdateError?.(err);
-        toast.error(t("saveFailed"));
+        toast.error(t("Components.editableTextarea.saveFailed"));
       } finally {
         setIsSaving(false);
       }

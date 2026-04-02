@@ -10,7 +10,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ParticipantsTab } from "./participants-tab/participants-tab";
 
 export function TestTabs({ test }: { test: TestSchema }) {
-  const t = useTranslations("Pages.test");
+  const t = useTranslations();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -41,13 +41,13 @@ export function TestTabs({ test }: { test: TestSchema }) {
     >
       <TabsList className="w-full border-b">
         <TabsTrigger value="settings" data-testid="tab-settings">
-          {t("tabSettings")}
+          {t("Pages.test.tabSettings")}
         </TabsTrigger>
         <TabsTrigger value="questions" data-testid="tab-questions">
-          {t("tabQuestions")}
+          {t("Pages.test.tabQuestions")}
         </TabsTrigger>
         <TabsTrigger value="participants" data-testid="tab-participants">
-          {t("tabParticipants")}
+          {t("Pages.test.tabParticipants")}
         </TabsTrigger>
       </TabsList>
       <TabsContent value="settings" data-testid="tabpanel-settings">

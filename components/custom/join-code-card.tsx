@@ -30,7 +30,7 @@ export function JoinCodeCard({
   initialCode: string | null;
   initialExpiresAt: Date | null;
 }) {
-  const t = useTranslations("Components.joinCode");
+  const t = useTranslations();
   const locale = useLocale();
   const dateFnsLocale = locale === "id" ? idLocale : enUS;
   const code = initialCode;
@@ -83,7 +83,7 @@ export function JoinCodeCard({
                 <QrCode />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{t("qrCode")}</TooltipContent>
+            <TooltipContent>{t("Components.joinCode.qrCode")}</TooltipContent>
           </Tooltip>
 
           {/* Code - absolutely centered, independent of buttons */}
@@ -99,7 +99,7 @@ export function JoinCodeCard({
                   </Label>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {t("expiresIn", {
+                  {t("Components.joinCode.expiresIn", {
                     time: formatDistanceToNow(expiresAt!, {
                       locale: dateFnsLocale,
                     }),
@@ -108,7 +108,7 @@ export function JoinCodeCard({
               </Tooltip>
             ) : (
               <span className="text-5xl font-bold text-muted-foreground select-none">
-                {isExpired ? t("expired") : "------"}
+                {isExpired ? t("Components.joinCode.expired") : "------"}
               </span>
             )}
           </div>
@@ -131,7 +131,7 @@ export function JoinCodeCard({
                   {copied ? <Check /> : <Copy />}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{t("copy")}</TooltipContent>
+              <TooltipContent>{t("Components.joinCode.copy")}</TooltipContent>
             </Tooltip>
           </div>
         </div>
@@ -140,10 +140,10 @@ export function JoinCodeCard({
         <Dialog open={showQR} onOpenChange={setShowQR}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>{t("qrCode")}</DialogTitle>
+              <DialogTitle>{t("Components.joinCode.qrCode")}</DialogTitle>
               {code && (
                 <DialogDescription>
-                  {t("qrCodeDescription", { code })}
+                  {t("Components.joinCode.qrCodeDescription", { code })}
                 </DialogDescription>
               )}
             </DialogHeader>
@@ -164,7 +164,7 @@ export function JoinCodeCard({
                 className="w-full"
               >
                 <Download className="w-4 h-4 mr-2" />
-                {t("download")}
+                {t("Components.joinCode.download")}
               </Button>
             </div>
           </DialogContent>

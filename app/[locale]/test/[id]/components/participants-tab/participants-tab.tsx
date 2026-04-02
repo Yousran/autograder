@@ -16,7 +16,7 @@ import type {
  * GET /api/participants?testid=... and renders a card per participant.
  */
 export function ParticipantsTab({ testId }: { testId: string }) {
-  const t = useTranslations("Components.participantsTab");
+  const t = useTranslations();
   const [participants, setParticipants] = useState<ParticipantSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,7 +29,9 @@ export function ParticipantsTab({ testId }: { testId: string }) {
         const res = await fetch(`/api/participants?testid=${testId}`);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          toast.error(data?.error ?? t("fetchFailed"));
+          toast.error(
+            data?.error ?? t("Components.participantsTab.fetchFailed"),
+          );
           return;
         }
         const data: GetParticipantsResponse = await res.json();
@@ -37,7 +39,8 @@ export function ParticipantsTab({ testId }: { testId: string }) {
           setParticipants(data.participants);
         }
       } catch {
-        if (!cancelled) toast.error(t("fetchFailed"));
+        if (!cancelled)
+          toast.error(t("Components.participantsTab.fetchFailed"));
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -63,7 +66,9 @@ export function ParticipantsTab({ testId }: { testId: string }) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
         <Users className="size-10 opacity-40" />
-        <p className="text-sm">{t("noParticipants")}</p>
+        <p className="text-sm">
+          {t("Components.participantsTab.noParticipants")}
+        </p>
       </div>
     );
   }

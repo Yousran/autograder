@@ -11,7 +11,7 @@ export default async function StartTestPage({
 }) {
   const { participantId } = await params;
   const locale = await getLocale();
-  const t = await getTranslations("Pages.testStart");
+  const t = await getTranslations();
 
   const participant = await prisma.participant.findUnique({
     where: { id: participantId },
@@ -103,7 +103,7 @@ export default async function StartTestPage({
       initialEssayAnswers={initialEssayAnswers}
       initialChoiceAnswers={initialChoiceAnswers}
       initialMultipleSelectAnswers={initialMultipleSelectAnswers}
-      noQuestionsLabel={t("noQuestions")}
+      noQuestionsLabel={t("Pages.testStart.noQuestions")}
     />
   );
 }

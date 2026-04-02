@@ -12,7 +12,7 @@ export function AddDivider({
   onClick: () => void;
   alwaysVisible?: boolean;
 }) {
-  const t = useTranslations("Components.questionsTab");
+  const t = useTranslations();
 
   return (
     <div
@@ -45,7 +45,7 @@ export function AddDivider({
             data-testid="btn-add-question"
           >
             <PlusIcon />
-            {t("addQuestion")}
+            {t("Components.questionsTab.addQuestion")}
           </Button>
         </div>
       </div>

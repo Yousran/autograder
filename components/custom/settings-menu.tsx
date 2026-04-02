@@ -22,7 +22,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { Button } from "../ui/button";
 
 export function SettingsMenu() {
-  const t = useTranslations("Components.settingsMenu");
+  const t = useTranslations();
   const { theme, setTheme } = useTheme();
   const locale = useLocale();
   const router = useRouter();
@@ -39,18 +39,22 @@ export function SettingsMenu() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
               <Settings />
-              <span className="sr-only">{t("settings")}</span>
+              <span className="sr-only">
+                {t("Components.settingsMenu.settings")}
+              </span>
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
-        <TooltipContent side="bottom">{t("settings")}</TooltipContent>
+        <TooltipContent side="bottom">
+          {t("Components.settingsMenu.settings")}
+        </TooltipContent>
       </Tooltip>
 
       <DropdownMenuContent align="end" className="w-48">
         {/* Theme */}
         <DropdownMenuLabel className="flex items-center gap-2 text-xs text-muted-foreground">
           <Monitor className="size-3.5" />
-          {t("theme")}
+          {t("Components.settingsMenu.theme")}
         </DropdownMenuLabel>
         <DropdownMenuRadioGroup
           value={theme ?? "system"}
@@ -58,15 +62,15 @@ export function SettingsMenu() {
         >
           <DropdownMenuRadioItem value="system" className="gap-2">
             <Monitor className="size-4" />
-            {t("themeSystem")}
+            {t("Components.settingsMenu.themeSystem")}
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="light" className="gap-2">
             <Sun className="size-4" />
-            {t("themeLight")}
+            {t("Components.settingsMenu.themeLight")}
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="dark" className="gap-2">
             <Moon className="size-4" />
-            {t("themeDark")}
+            {t("Components.settingsMenu.themeDark")}
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
 
@@ -75,7 +79,7 @@ export function SettingsMenu() {
         {/* Language */}
         <DropdownMenuLabel className="flex items-center gap-2 text-xs text-muted-foreground">
           <Globe className="size-3.5" />
-          {t("language")}
+          {t("Components.settingsMenu.language")}
         </DropdownMenuLabel>
         <DropdownMenuRadioGroup
           value={locale}

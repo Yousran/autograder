@@ -12,7 +12,7 @@ export function LoggedInUserOnlyToggle({
   testId: string;
   initialValue: boolean;
 }) {
-  const tApiTests = useTranslations("Api.tests");
+  const t = useTranslations();
   const [checked, setChecked] = useState(initialValue);
 
   async function handleCheckedChange(next: boolean) {
@@ -28,15 +28,15 @@ export function LoggedInUserOnlyToggle({
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         toast.error(
-          (data as { error?: string }).error ?? tApiTests("updateFailed"),
+          (data as { error?: string }).error ?? t("Api.tests.updateFailed"),
         );
         setChecked(!next);
         return;
       }
 
-      toast.success(tApiTests("updateSuccess"));
+      toast.success(t("Api.tests.updateSuccess"));
     } catch {
-      toast.error(tApiTests("updateFailed"));
+      toast.error(t("Api.tests.updateFailed"));
       setChecked(!next);
     }
   }

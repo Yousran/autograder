@@ -22,7 +22,7 @@ import { getInitials } from "@/lib/initials";
 import { SettingsMenu } from "@/components/custom/settings-menu";
 
 export default function Navbar() {
-  const t = useTranslations("Components.navbar");
+  const t = useTranslations();
   const router = useRouter();
   const { data: session } = authClient.useSession();
 
@@ -73,7 +73,7 @@ export default function Navbar() {
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  {user ? user.name : t("account")}
+                  {user ? user.name : t("Components.navbar.account")}
                 </TooltipContent>
               </Tooltip>
 
@@ -86,7 +86,7 @@ export default function Navbar() {
                         className="flex items-center gap-2"
                       >
                         <LogIn className="size-4" />
-                        {t("signIn")}
+                        {t("Components.navbar.signIn")}
                       </Link>
                     </DropdownMenuItem>
 
@@ -96,7 +96,7 @@ export default function Navbar() {
                         className="flex items-center gap-2"
                       >
                         <UserPlus className="size-4" />
-                        {t("signUp")}
+                        {t("Components.navbar.signUp")}
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -137,7 +137,7 @@ export default function Navbar() {
                       onSelect={handleSignOut}
                     >
                       <LogOut className="size-4" />
-                      {t("logout")}
+                      {t("Components.navbar.logout")}
                     </DropdownMenuItem>
                   </>
                 )}

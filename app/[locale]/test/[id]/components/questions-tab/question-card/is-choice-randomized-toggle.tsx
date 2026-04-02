@@ -13,7 +13,7 @@ export function IsChoiceRandomizedToggle({
 }: {
   question: QuestionWithDetails;
 }) {
-  const t = useTranslations("Api.questions");
+  const t = useTranslations();
 
   // Get current value based on question type
   const isChoice = question.type === QuestionType.CHOICE;
@@ -62,7 +62,9 @@ export function IsChoiceRandomizedToggle({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        toast.error((data as { error?: string }).error ?? t("updateFailed"));
+        toast.error(
+          (data as { error?: string }).error ?? t("Api.questions.updateFailed"),
+        );
         // Reconciliation: Rollback on error
         setChecked(previousData);
         if (isChoice) {
@@ -80,9 +82,9 @@ export function IsChoiceRandomizedToggle({
         }
         return;
       }
-      toast.success(t("updateSuccess"));
+      toast.success(t("Api.questions.updateSuccess"));
     } catch {
-      toast.error(t("updateFailed"));
+      toast.error(t("Api.questions.updateFailed"));
       // Reconciliation: Rollback on error
       setChecked(previousData);
       if (isChoice) {

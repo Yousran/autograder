@@ -72,7 +72,7 @@ export function BottomNavbar({
   /** Called when the user confirms finishing the test. */
   onFinish: () => void;
 }) {
-  const t = useTranslations("Pages.testStart");
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
 
@@ -91,13 +91,15 @@ export function BottomNavbar({
                 size="icon"
                 onClick={onPrev}
                 disabled={!hasPrev}
-                aria-label={t("prev")}
+                aria-label={t("Pages.testStart.prev")}
                 data-testid="btn-previous"
               >
                 <ChevronLeft />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top">{t("prev")}</TooltipContent>
+            <TooltipContent side="top">
+              {t("Pages.testStart.prev")}
+            </TooltipContent>
           </Tooltip>
 
           {/* Center: Question List toggle + Mark */}
@@ -108,14 +110,16 @@ export function BottomNavbar({
                   variant={isQuestionListOpen ? "default" : "outline"}
                   size="icon"
                   onClick={onToggleQuestionList}
-                  aria-label={t("questionList")}
+                  aria-label={t("Pages.testStart.questionList")}
                   aria-expanded={isQuestionListOpen}
                   data-testid="btn-question-list"
                 >
                   <List />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">{t("questionList")}</TooltipContent>
+              <TooltipContent side="top">
+                {t("Pages.testStart.questionList")}
+              </TooltipContent>
             </Tooltip>
 
             <Tooltip>
@@ -124,7 +128,11 @@ export function BottomNavbar({
                   variant={isMarked ? "default" : "outline"}
                   size="icon"
                   onClick={onToggleMark}
-                  aria-label={isMarked ? t("marked") : t("mark")}
+                  aria-label={
+                    isMarked
+                      ? t("Pages.testStart.marked")
+                      : t("Pages.testStart.mark")
+                  }
                   aria-pressed={isMarked}
                   data-testid="btn-mark"
                   className={
@@ -137,7 +145,9 @@ export function BottomNavbar({
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top">
-                {isMarked ? t("marked") : t("mark")}
+                {isMarked
+                  ? t("Pages.testStart.marked")
+                  : t("Pages.testStart.mark")}
               </TooltipContent>
             </Tooltip>
           </div>
@@ -153,25 +163,27 @@ export function BottomNavbar({
             >
               <AlertDialogTrigger asChild>
                 <Button
-                  aria-label={t("finish")}
+                  aria-label={t("Pages.testStart.finish")}
                   className="bg-green-500"
                   onClick={onSaveBeforeDialog}
                   disabled={isFinishing}
                   data-testid="btn-finish"
                 >
-                  {isFinishing ? <Spinner /> : t("finish")}
+                  {isFinishing ? <Spinner /> : t("Pages.testStart.finish")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>{t("finishDialogTitle")}</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    {t("Pages.testStart.finishDialogTitle")}
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
-                    {t("finishDialogDescription")}
+                    {t("Pages.testStart.finishDialogDescription")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel disabled={isFinishing}>
-                    {t("goBack")}
+                    {t("Pages.testStart.goBack")}
                   </AlertDialogCancel>
                   <AlertDialogAction
                     disabled={isPending || isFinishing}
@@ -184,7 +196,7 @@ export function BottomNavbar({
                     {isPending || isFinishing ? (
                       <Spinner />
                     ) : (
-                      t("confirmFinish")
+                      t("Pages.testStart.confirmFinish")
                     )}
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -196,13 +208,15 @@ export function BottomNavbar({
                 <Button
                   size="icon"
                   onClick={onNext}
-                  aria-label={t("next")}
+                  aria-label={t("Pages.testStart.next")}
                   data-testid="btn-next"
                 >
                   <ChevronRight />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">{t("next")}</TooltipContent>
+              <TooltipContent side="top">
+                {t("Pages.testStart.next")}
+              </TooltipContent>
             </Tooltip>
           )}
         </div>

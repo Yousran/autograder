@@ -33,7 +33,7 @@ export function NavbarTest({
   /** Remaining seconds for the countdown. Null means no time limit. */
   secondsRemaining: number | null;
 }) {
-  const t = useTranslations("Pages.testStart");
+  const t = useTranslations();
   const isWarning =
     secondsRemaining != null && secondsRemaining > 0 && secondsRemaining <= 300;
   const isExpired = secondsRemaining != null && secondsRemaining <= 0;
@@ -60,11 +60,13 @@ export function NavbarTest({
               className={`flex items-center gap-1 font-mono text-sm ${
                 isWarning && !isExpired ? "animate-pulse" : ""
               }`}
-              aria-label={t("timeRemaining")}
+              aria-label={t("Pages.testStart.timeRemaining")}
               aria-live="polite"
             >
               <Clock aria-hidden="true" />
-              {isExpired ? t("timeUp") : formatTime(secondsRemaining)}
+              {isExpired
+                ? t("Pages.testStart.timeUp")
+                : formatTime(secondsRemaining)}
             </Badge>
           )}
           <SettingsMenu />

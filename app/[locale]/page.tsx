@@ -2,6 +2,7 @@
 //TODO: on field error display instead of just showing a toast
 //TODO: ai grading and feedback generation using openrouter as default but with model provider selection support
 //TODO: better way to implement ai grading. make sure to update database with answer first then grade
+//TODO: loading state for test edit using context
 //TODO: scroll to top button on question editing page
 //TODO: scroll to newly created question
 //TODO: nextstepjs tour component for onboarding
@@ -36,7 +37,7 @@ import { QrScannerDialog } from "@/components/custom/qr-scanner-dialog";
 import { useRouter } from "@/i18n/navigation";
 
 export default function Home() {
-  const t = useTranslations("Pages.home");
+  const t = useTranslations();
   const [code, setCode] = useState("");
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
@@ -59,7 +60,7 @@ export default function Home() {
           <Card className="w-fit">
             <CardHeader>
               <CardTitle className="text-center text-lg">
-                {t("enterJoinCode")}
+                {t("Pages.home.enterJoinCode")}
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-6">
@@ -88,7 +89,7 @@ export default function Home() {
                   disabled={code.trim().length !== 6 || isJoining}
                   data-testid="btn-join-home"
                 >
-                  {isJoining ? <Spinner /> : t("join")}
+                  {isJoining ? <Spinner /> : t("Pages.home.join")}
                 </Button>
                 <TooltipProvider>
                   <Tooltip>
@@ -102,7 +103,7 @@ export default function Home() {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{t("scanQrCode")}</p>
+                      <p>{t("Pages.home.scanQrCode")}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -116,16 +117,18 @@ export default function Home() {
             <>
               <div className="flex w-full items-center gap-3">
                 <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">{t("or")}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t("Pages.home.or")}
+                </span>
                 <Separator className="flex-1" />
               </div>
 
               <div className="flex flex-col items-center gap-3 text-center">
                 <p className="text-sm font-semibold">
-                  {t("createTestHeading")}
+                  {t("Pages.home.createTestHeading")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {t("createTestDescription")}
+                  {t("Pages.home.createTestDescription")}
                 </p>
                 <CreateTestButton className="w-full" />
               </div>

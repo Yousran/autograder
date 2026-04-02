@@ -30,7 +30,7 @@ export default function ProfileAvatarClient({
   // Local state to show the new image instantly before the server refresh completes
   const [currentImage, setCurrentImage] = useState<string | null>(initialImage);
 
-  const t = useTranslations("Components.profile.avatar");
+  const t = useTranslations();
 
   const handleAvatarFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -81,7 +81,7 @@ export default function ProfileAvatarClient({
       setCurrentImage(newImageUrl);
       router.refresh();
 
-      toast.success(t("updateSuccess"));
+      toast.success(t("Components.profile.avatar.updateSuccess"));
     } catch (error) {
       console.error("Error uploading avatar:", error);
     } finally {
@@ -113,7 +113,7 @@ export default function ProfileAvatarClient({
           <Avatar className="size-28 ring-4 ring-background shadow-lg transition-all duration-200 group-hover:brightness-75">
             <AvatarImage
               src={currentImage ?? undefined}
-              alt={userName ?? t("userFallback")}
+              alt={userName ?? t("Components.profile.avatar.userFallback")}
               className="object-cover"
             />
             <AvatarFallback className="text-2xl font-bold">
@@ -138,7 +138,7 @@ export default function ProfileAvatarClient({
         <Avatar className="size-28 ring-4 ring-background shadow-lg">
           <AvatarImage
             src={currentImage ?? undefined}
-            alt={userName ?? "User"}
+            alt={userName ?? t("Components.profile.avatar.userFallback")}
             className="object-cover"
           />
           <AvatarFallback className="text-2xl font-bold">

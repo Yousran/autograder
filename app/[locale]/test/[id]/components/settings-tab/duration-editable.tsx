@@ -11,7 +11,7 @@ export function DurationEditable({
   testId: string;
   initialValue: number | null;
 }) {
-  const tApiTests = useTranslations("Api.tests");
+  const t = useTranslations();
 
   async function handleUpdate(value: number | null) {
     try {
@@ -24,14 +24,14 @@ export function DurationEditable({
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(
-          (data as { error?: string }).error ?? tApiTests("updateFailed"),
+          (data as { error?: string }).error ?? t("Api.tests.updateFailed"),
         );
       }
 
-      toast.success(tApiTests("updateSuccess"));
+      toast.success(t("Api.tests.updateSuccess"));
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : tApiTests("updateFailed");
+        error instanceof Error ? error.message : t("Api.tests.updateFailed");
       toast.error(message);
       throw error;
     }

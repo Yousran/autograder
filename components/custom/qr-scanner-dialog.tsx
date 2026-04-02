@@ -24,7 +24,7 @@ export function QrScannerDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const t = useTranslations("Pages.home");
+  const t = useTranslations();
   const router = useRouter();
 
   const handleScan = (detectedCodes: { rawValue: string }[]) => {
@@ -43,10 +43,10 @@ export function QrScannerDialog({
         onOpenChange(false);
         router.push(`/join/${joinCode}`);
       } else {
-        toast.error(t("invalidQrCode"));
+        toast.error(t("Pages.home.invalidQrCode"));
       }
     } catch {
-      toast.error(t("invalidQrCode"));
+      toast.error(t("Pages.home.invalidQrCode"));
     }
   };
 
@@ -54,8 +54,10 @@ export function QrScannerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("scanQrCode")}</DialogTitle>
-          <DialogDescription>{t("scanQrCodeDescription")}</DialogDescription>
+          <DialogTitle>{t("Pages.home.scanQrCode")}</DialogTitle>
+          <DialogDescription>
+            {t("Pages.home.scanQrCodeDescription")}
+          </DialogDescription>
         </DialogHeader>
 
         {open && (

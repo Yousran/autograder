@@ -84,9 +84,12 @@ export type QuestionPatchInput = z.infer<
  */
 export const createQuestionRequestSchema = (t: TranslateFn) =>
   z.object({
-    testId: z.cuid(t("testIdRequired")),
+    testId: z.cuid(t("Validation.testIdRequired")),
     // Optional: ID of question to insert after. null = insert at start, omitted = append at end.
-    insertAfterId: z.cuid(t("questionIdRequired")).nullable().optional(),
+    insertAfterId: z
+      .cuid(t("Validation.questionIdRequired"))
+      .nullable()
+      .optional(),
   });
 
 export type QuestionRequestCreateInput = z.infer<

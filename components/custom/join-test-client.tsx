@@ -48,7 +48,7 @@ export function JoinTestClient({
   /** Whether the current user is authenticated. */
   isLoggedIn: boolean;
 }) {
-  const t = useTranslations("Pages.join");
+  const t = useTranslations();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState(userName ?? "");
@@ -65,7 +65,9 @@ export function JoinTestClient({
 
   // Check if user needs to be logged in
   const loggedInError =
-    testInfo.isLoggedInUserOnly && !isLoggedIn ? t("loggedInOnly") : null;
+    testInfo.isLoggedInUserOnly && !isLoggedIn
+      ? t("Pages.join.loggedInOnly")
+      : null;
 
   useEffect(() => {
     const poll = async () => {
@@ -109,13 +111,13 @@ export function JoinTestClient({
         };
 
         if (!res.ok) {
-          setError(data.error ?? t("cancel"));
+          setError(data.error ?? t("Pages.join.cancel"));
           return;
         }
 
         router.push(`/test/start/${data.participantId}`);
       } catch {
-        setError(t("cancel"));
+        setError(t("Pages.join.cancel"));
       }
     });
   };
@@ -140,19 +142,21 @@ export function JoinTestClient({
           <CardContent className="grid grid-cols-3 gap-3">
             <StatCard
               icon={<FileQuestion />}
-              label={t("questions", { count: testInfo.questionCount })}
+              label={t("Pages.join.questions", {
+                count: testInfo.questionCount,
+              })}
             />
             <StatCard
               icon={<Clock />}
               label={
                 testInfo.testDuration
-                  ? t("duration", { minutes: testInfo.testDuration })
-                  : t("noDuration")
+                  ? t("Pages.join.duration", { minutes: testInfo.testDuration })
+                  : t("Pages.join.noDuration")
               }
             />
             <StatCard
               icon={<Users />}
-              label={t("participants", { count: participantCount })}
+              label={t("Pages.join.participants", { count: participantCount })}
             />
           </CardContent>
         </Card>
@@ -174,27 +178,33 @@ export function JoinTestClient({
                 data-testid="btn-start-test"
                 disabled={isPending}
               >
-                {isPending ? <Spinner /> : t("startButton")}
+                {isPending ? <Spinner /> : t("Pages.join.startButton")}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>{t("startDialogTitle")}</AlertDialogTitle>
+                <AlertDialogTitle>
+                  {t("Pages.join.startDialogTitle")}
+                </AlertDialogTitle>
                 <AlertDialogDescription>
-                  {t("startDialogDescription", { title: testInfo.title })}
+                  {t("Pages.join.startDialogDescription", {
+                    title: testInfo.title,
+                  })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
               {!isAcceptingResponses ? (
-                <ErrorAlert message={t("notAccepting")} />
+                <ErrorAlert message={t("Pages.join.notAccepting")} />
               ) : (
                 <>
                   <div className="flex flex-col gap-2 py-1">
-                    <Label htmlFor="participant-name">{t("nameLabel")}</Label>
+                    <Label htmlFor="participant-name">
+                      {t("Pages.join.nameLabel")}
+                    </Label>
                     <Input
                       id="participant-name"
                       data-testid="input-participant-name"
-                      placeholder={t("namePlaceholder")}
+                      placeholder={t("Pages.join.namePlaceholder")}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       disabled={isLoggedIn}
@@ -202,14 +212,14 @@ export function JoinTestClient({
                     />
                     {isLoggedIn && (
                       <p className="text-xs text-muted-foreground">
-                        {t("nameFromAccount")}
+                        {t("Pages.join.nameFromAccount")}
                       </p>
                     )}
                     {error && <ErrorAlert message={error} />}
                   </div>
                   <AlertDialogFooter>
                     <AlertDialogCancel disabled={isPending}>
-                      {t("cancel")}
+                      {t("Pages.join.cancel")}
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={(e) => {
@@ -218,7 +228,7 @@ export function JoinTestClient({
                       }}
                       disabled={isPending || !name.trim()}
                     >
-                      {isPending ? <Spinner /> : t("confirm")}
+                      {isPending ? <Spinner /> : t("Pages.join.confirm")}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </>
@@ -226,7 +236,7 @@ export function JoinTestClient({
             </AlertDialogContent>
           </AlertDialog>
         ) : (
-          <ErrorAlert message={t("notAccepting")} />
+          <ErrorAlert message={t("Pages.join.notAccepting")} />
         )}
       </div>
     </div>

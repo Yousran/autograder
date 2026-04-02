@@ -17,21 +17,21 @@ export function AnswerEssay({
   value: string;
   onChange: (value: string) => void;
 }) {
-  const t = useTranslations("Pages.testStart");
+  const t = useTranslations();
   const id = `essay-${questionId}`;
 
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={id} className="sr-only">
-        {t("essayPlaceholder")}
+        {t("Pages.testStart.essayPlaceholder")}
       </Label>
       <Textarea
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={t("essayPlaceholder")}
-        className="min-h-[200px] resize-y text-sm leading-relaxed"
-        aria-label={t("essayPlaceholder")}
+        placeholder={t("Pages.testStart.essayPlaceholder")}
+        className="min-h-50 resize-y text-sm leading-relaxed"
+        aria-label={t("Pages.testStart.essayPlaceholder")}
       />
     </div>
   );

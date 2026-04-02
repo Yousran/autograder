@@ -20,7 +20,7 @@ import { authClient } from "@/lib/auth-client";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function SignInPage() {
-  const t = useTranslations("Pages.auth");
+  const t = useTranslations();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -61,9 +61,9 @@ export default function SignInPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">
-            {t("signInTitle")}
+            {t("Pages.auth.signInTitle")}
           </CardTitle>
-          <CardDescription>{t("signInDescription")}</CardDescription>
+          <CardDescription>{t("Pages.auth.signInDescription")}</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">
@@ -80,7 +80,7 @@ export default function SignInPage() {
             ) : (
               <FcGoogle className="mr-2 h-5 w-5" />
             )}
-            {!googleLoading && t("continueWithGoogle")}
+            {!googleLoading && t("Pages.auth.continueWithGoogle")}
           </Button>
 
           {/* Divider */}
@@ -90,7 +90,7 @@ export default function SignInPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                {t("orContinueWith")}
+                {t("Pages.auth.orContinueWith")}
               </span>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function SignInPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">{t("email")}</Label>
+              <Label htmlFor="email">{t("Pages.auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -113,7 +113,7 @@ export default function SignInPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">{t("password")}</Label>
+                <Label htmlFor="password">{t("Pages.auth.password")}</Label>
               </div>
               <Input
                 id="password"
@@ -136,19 +136,19 @@ export default function SignInPage() {
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <Spinner /> : t("signIn")}
+              {loading ? <Spinner /> : t("Pages.auth.signIn")}
             </Button>
           </form>
         </CardContent>
 
         <CardFooter className="justify-center">
           <p className="text-sm text-muted-foreground">
-            {t("noAccount")}{" "}
+            {t("Pages.auth.noAccount")}{" "}
             <Link
               href="/auth/sign-up"
               className="font-medium text-primary hover:underline underline-offset-4"
             >
-              {t("signUp")}
+              {t("Pages.auth.signUp")}
             </Link>
           </p>
         </CardFooter>

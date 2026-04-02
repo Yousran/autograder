@@ -52,7 +52,7 @@ type AvailableTest = z.infer<typeof AvailableTestSchema>;
 // ---------------------------------------------------------------------------
 
 export function TestPrerequisiteCard({ testId }: { testId: string }) {
-  const t = useTranslations("Components.prerequisite");
+  const t = useTranslations();
 
   const [prerequisites, setPrerequisites] = useState<PrerequisiteItem[]>([]);
   const [availableTests, setAvailableTests] = useState<AvailableTest[]>([]);
@@ -77,7 +77,7 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
       setPrerequisites(data.prerequisites);
       setAvailableTests(data.availableTests);
     } catch {
-      toast.error(t("fetchFailed"));
+      toast.error(t("Components.prerequisite.fetchFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +99,7 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
 
   async function handleAdd() {
     if (!selectedTestId) {
-      toast.error(t("selectTestRequired"));
+      toast.error(t("Components.prerequisite.selectTestRequired"));
       return;
     }
 
@@ -134,7 +134,8 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(
-          (data as { error?: string }).error ?? t("createFailed"),
+          (data as { error?: string }).error ??
+            t("Components.prerequisite.createFailed"),
         );
       }
 
@@ -145,12 +146,16 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
         prev.map((p) => (p.id === tempId ? created : p)),
       );
 
-      toast.success(t("addSuccess"));
+      toast.success(t("Components.prerequisite.addSuccess"));
     } catch (err) {
       // Rollback
       setPrerequisites((prev) => prev.filter((p) => p.id !== tempId));
       if (prereqTest) setAvailableTests((prev) => [prereqTest, ...prev]);
-      toast.error(err instanceof Error ? err.message : t("createFailed"));
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : t("Components.prerequisite.createFailed"),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -177,16 +182,21 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
       if (!res.ok && res.status !== 204) {
         const data = await res.json().catch(() => ({}));
         throw new Error(
-          (data as { error?: string }).error ?? t("deleteFailed"),
+          (data as { error?: string }).error ??
+            t("Components.prerequisite.deleteFailed"),
         );
       }
 
-      toast.success(t("deleteSuccess"));
+      toast.success(t("Components.prerequisite.deleteSuccess"));
     } catch (err) {
       // Rollback to snapshots
       setPrerequisites(previousPrerequisites);
       setAvailableTests(previousAvailable);
-      toast.error(err instanceof Error ? err.message : t("deleteFailed"));
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : t("Components.prerequisite.deleteFailed"),
+      );
     }
   }
 
@@ -208,7 +218,9 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      const msg = (data as { error?: string }).error ?? t("updateFailed");
+      const msg =
+        (data as { error?: string }).error ??
+        t("Components.prerequisite.updateFailed");
       toast.error(msg);
       throw new Error(msg); // causes EditableNumberInput to revert
     }
@@ -219,7 +231,7 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
         p.id === prereq.id ? { ...p, minScoreRequired: score } : p,
       ),
     );
-    toast.success(t("updateSuccess"));
+    toast.success(t("Components.prerequisite.updateSuccess"));
   }
 
   // ---------------------------------------------------------------------------
@@ -230,10 +242,12 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
     <>
       <div className="flex flex-col gap-3" data-testid="section-prerequisites">
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">{t("loading")}</p>
+          <p className="text-sm text-muted-foreground">
+            {t("Components.prerequisite.loading")}
+          </p>
         ) : prerequisites.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {t("noPrerequisites")}
+            {t("Components.prerequisite.noPrerequisites")}
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
@@ -262,7 +276,7 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
                     size="icon"
                     className="size-7 text-destructive hover:text-destructive"
                     onClick={() => handleRemove(prereq)}
-                    aria-label={t("removeAriaLabel", {
+                    aria-label={t("Components.prerequisite.removeAriaLabel", {
                       title: prereq.prerequisiteTest.title,
                     })}
                     data-testid={`btn-remove-prerequisite-${prereq.id}`}
@@ -284,14 +298,14 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
           data-testid="btn-add-prerequisite"
         >
           <PlusIcon className="size-3.5 mr-1" />
-          {t("addButton")}
+          {t("Components.prerequisite.addButton")}
         </Button>
 
         {!isLoading &&
           availableTests.length === 0 &&
           prerequisites.length === 0 && (
             <p className="text-xs text-muted-foreground">
-              {t("noTestsAvailable")}
+              {t("Components.prerequisite.noTestsAvailable")}
             </p>
           )}
       </div>
@@ -303,20 +317,28 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
           data-testid="dialog-add-prerequisite"
         >
           <DialogHeader>
-            <DialogTitle>{t("dialogTitle")}</DialogTitle>
+            <DialogTitle>
+              {t("Components.prerequisite.dialogTitle")}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-1.5 min-w-0">
-              <Label htmlFor="prereq-test-select">{t("selectTestLabel")}</Label>
+              <Label htmlFor="prereq-test-select">
+                {t("Components.prerequisite.selectTestLabel")}
+              </Label>
               <Select value={selectedTestId} onValueChange={setSelectedTestId}>
                 <SelectTrigger
                   id="prereq-test-select"
                   className="w-full overflow-hidden"
-                  aria-label={t("selectTestLabel")}
+                  aria-label={t("Components.prerequisite.selectTestLabel")}
                   data-testid="select-prerequisite-test"
                 >
-                  <SelectValue placeholder={t("selectTestPlaceholder")} />
+                  <SelectValue
+                    placeholder={t(
+                      "Components.prerequisite.selectTestPlaceholder",
+                    )}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {availableTests.map((test) => (
@@ -331,7 +353,7 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label>{t("minScoreLabel")}</Label>
+              <Label>{t("Components.prerequisite.minScoreLabel")}</Label>
               <EditableNumberInput
                 initialValue={minScore}
                 min={0}
@@ -343,7 +365,7 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
                 data-testid="input-min-score"
               />
               <p className="text-xs text-muted-foreground">
-                {t("minScoreHint")}
+                {t("Components.prerequisite.minScoreHint")}
               </p>
             </div>
           </div>
@@ -354,14 +376,16 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
               onClick={() => setDialogOpen(false)}
               disabled={isSubmitting}
             >
-              {t("cancel")}
+              {t("Components.prerequisite.cancel")}
             </Button>
             <Button
               onClick={handleAdd}
               disabled={isSubmitting || !selectedTestId}
               data-testid="btn-confirm-prerequisite"
             >
-              {isSubmitting ? t("adding") : t("addConfirm")}
+              {isSubmitting
+                ? t("Components.prerequisite.adding")
+                : t("Components.prerequisite.addConfirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

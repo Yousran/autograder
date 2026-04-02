@@ -17,7 +17,7 @@ export default async function ParticipantDetailsPage({
 }) {
   const { participantId } = await params;
   const locale = await getLocale();
-  const t = await getTranslations("Pages.participantDetails");
+  const t = await getTranslations();
 
   // Fetch participant with test settings
   const participant = await prisma.participant.findUnique({
@@ -97,13 +97,15 @@ export default async function ParticipantDetailsPage({
         <Link href={`/test/result/${participantId}`}>
           <Button variant="ghost" size="sm">
             <ChevronLeft className="size-4" />
-            {t("backToResult")}
+            {t("Pages.participantDetails.backToResult")}
           </Button>
         </Link>
       </div>
 
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
+        <h1 className="text-2xl font-bold">
+          {t("Pages.participantDetails.title")}
+        </h1>
         <p className="text-muted-foreground">{participant.name}</p>
         <p className="text-sm text-muted-foreground">{test.title}</p>
       </div>
@@ -111,7 +113,7 @@ export default async function ParticipantDetailsPage({
       {/* Total score summary */}
       <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3">
         <span className="text-sm font-medium text-muted-foreground">
-          {t("totalScore")}
+          {t("Pages.participantDetails.totalScore")}
         </span>
         <Badge
           variant="outline"

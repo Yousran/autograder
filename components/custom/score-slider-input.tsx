@@ -23,7 +23,7 @@ export function ScoreSliderInput({
   initialScore: number;
   maxScore: number;
 }) {
-  const t = useTranslations("Components.scoreSliderInput");
+  const t = useTranslations();
   const [score, setScore] = useState(initialScore);
   const [isSaving, setIsSaving] = useState(false);
   const [debouncedScore] = useDebounce(score, 500);
@@ -51,7 +51,10 @@ export function ScoreSliderInput({
       } catch (err) {
         // Roll back on failure
         setScore(initialScore);
-        const msg = err instanceof Error ? err.message : t("updateFailed");
+        const msg =
+          err instanceof Error
+            ? err.message
+            : t("Components.scoreSliderInput.updateFailed");
         toast.error(msg);
       } finally {
         setIsSaving(false);
@@ -83,7 +86,7 @@ export function ScoreSliderInput({
         step={1}
         disabled={isSaving}
         className="flex-1"
-        aria-label={t("score")}
+        aria-label={t("Components.scoreSliderInput.score")}
       />
       <div className="flex items-center gap-2 shrink-0 min-w-16">
         <Badge variant="outline" className="tabular-nums justify-center">

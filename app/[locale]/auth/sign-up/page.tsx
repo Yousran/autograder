@@ -20,7 +20,7 @@ import { authClient } from "@/lib/auth-client";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function SignUpPage() {
-  const t = useTranslations("Pages.auth");
+  const t = useTranslations();
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -36,7 +36,7 @@ export default function SignUpPage() {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError(t("passwordMismatch"));
+      setError(t("Pages.auth.passwordMismatch"));
       return;
     }
 
@@ -70,9 +70,9 @@ export default function SignUpPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">
-            {t("signUpTitle")}
+            {t("Pages.auth.signUpTitle")}
           </CardTitle>
-          <CardDescription>{t("signUpDescription")}</CardDescription>
+          <CardDescription>{t("Pages.auth.signUpDescription")}</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">
@@ -89,7 +89,7 @@ export default function SignUpPage() {
             ) : (
               <FcGoogle className="mr-2 h-5 w-5" />
             )}
-            {!googleLoading && t("continueWithGoogle")}
+            {!googleLoading && t("Pages.auth.continueWithGoogle")}
           </Button>
 
           {/* Divider */}
@@ -99,7 +99,7 @@ export default function SignUpPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                {t("orContinueWith")}
+                {t("Pages.auth.orContinueWith")}
               </span>
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function SignUpPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">{t("name")}</Label>
+              <Label htmlFor="name">{t("Pages.auth.name")}</Label>
               <Input
                 id="name"
                 type="text"
@@ -121,7 +121,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">{t("email")}</Label>
+              <Label htmlFor="email">{t("Pages.auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -135,7 +135,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">{t("password")}</Label>
+              <Label htmlFor="password">{t("Pages.auth.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -148,7 +148,9 @@ export default function SignUpPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
+              <Label htmlFor="confirmPassword">
+                {t("Pages.auth.confirmPassword")}
+              </Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -170,19 +172,19 @@ export default function SignUpPage() {
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <Spinner /> : t("signUp")}
+              {loading ? <Spinner /> : t("Pages.auth.signUp")}
             </Button>
           </form>
         </CardContent>
 
         <CardFooter className="justify-center">
           <p className="text-sm text-muted-foreground">
-            {t("alreadyHaveAccount")}{" "}
+            {t("Pages.auth.alreadyHaveAccount")}{" "}
             <Link
               href="/auth/sign-in"
               className="font-medium text-primary hover:underline underline-offset-4"
             >
-              {t("signIn")}
+              {t("Pages.auth.signIn")}
             </Link>
           </p>
         </CardFooter>
