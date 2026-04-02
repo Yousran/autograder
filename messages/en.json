@@ -91,6 +91,16 @@
       "createFailed": "Failed to add prerequisite. Please try again.",
       "updateFailed": "Failed to update prerequisite. Please try again.",
       "deleteFailed": "Failed to remove prerequisite. Please try again."
+    },
+    "essayGradingModel": {
+      "unauthorized": "You must be signed in to manage essay grading models.",
+      "forbidden": "You are not authorized to manage this essay grading model.",
+      "notFound": "Essay grading model not found.",
+      "createFailed": "Failed to create essay grading model. Please try again.",
+      "updateFailed": "Failed to update essay grading model. Please try again.",
+      "deleteFailed": "Failed to delete essay grading model. Please try again.",
+      "fetchFailed": "Failed to fetch essay grading models. Please try again.",
+      "setDefaultFailed": "Failed to set as default. Please try again."
     }
   },
   "Validation": {
@@ -376,6 +386,28 @@
       "explanation": "Score Explanation",
       "explanationPlaceholder": "Add an explanation for the score...",
       "updateFailed": "Failed to update. Please try again."
+    },
+    "essayGradingModel": {
+      "createButton": "Add Model",
+      "editButton": "Edit Model",
+      "deleteButton": "Delete Model",
+      "setDefaultButton": "Set as Default",
+      "name": "Model Name",
+      "baseUrl": "Base URL",
+      "apiKey": "API Key",
+      "modelId": "Model ID (Optional)",
+      "isDefault": "Set as default model",
+      "noModels": "No essay grading models configured yet.",
+      "defaultModel": "(Default)",
+      "createSuccess": "Essay grading model created successfully.",
+      "updateSuccess": "Essay grading model updated successfully.",
+      "deleteSuccess": "Essay grading model deleted successfully.",
+      "deleteConfirmTitle": "Delete Essay Grading Model?",
+      "deleteConfirmDescription": "Are you sure you want to delete this essay grading model? This action cannot be undone.",
+      "namePlaceholder": "Enter model name",
+      "baseUrlPlaceholder": "https://api.example.com",
+      "modelIdPlaceholder": "e.g., gpt-4",
+      "apiKeyPlaceholder": "Enter your API key"
     },
     "prerequisite": {
       "loading": "Loading prerequisites...",

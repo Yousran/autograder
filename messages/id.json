@@ -91,6 +91,16 @@
       "createFailed": "Gagal menambahkan prasyarat. Silakan coba lagi.",
       "updateFailed": "Gagal memperbarui prasyarat. Silakan coba lagi.",
       "deleteFailed": "Gagal menghapus prasyarat. Silakan coba lagi."
+    },
+    "essayGradingModel": {
+      "unauthorized": "Anda harus masuk untuk mengelola model penilaian esai.",
+      "forbidden": "Anda tidak memiliki izin untuk mengelola model penilaian esai ini.",
+      "notFound": "Model penilaian esai tidak ditemukan.",
+      "createFailed": "Gagal membuat model penilaian esai. Silakan coba lagi.",
+      "updateFailed": "Gagal memperbarui model penilaian esai. Silakan coba lagi.",
+      "deleteFailed": "Gagal menghapus model penilaian esai. Silakan coba lagi.",
+      "fetchFailed": "Gagal mengambil daftar model penilaian esai. Silakan coba lagi.",
+      "setDefaultFailed": "Gagal mengatur sebagai default. Silakan coba lagi."
     }
   },
   "Validation": {
@@ -376,6 +386,28 @@
       "explanation": "Penjelasan Skor",
       "explanationPlaceholder": "Tambahkan penjelasan untuk skor...",
       "updateFailed": "Gagal memperbarui. Silakan coba lagi."
+    },
+    "essayGradingModel": {
+      "createButton": "Tambah Model",
+      "editButton": "Ubah Model",
+      "deleteButton": "Hapus Model",
+      "setDefaultButton": "Atur Sebagai Default",
+      "name": "Nama Model",
+      "baseUrl": "Base URL",
+      "apiKey": "Kunci API",
+      "modelId": "ID Model (Opsional)",
+      "isDefault": "Atur sebagai model default",
+      "noModels": "Belum ada model penilaian esai yang dikonfigurasi.",
+      "defaultModel": "(Default)",
+      "createSuccess": "Model penilaian esai berhasil dibuat.",
+      "updateSuccess": "Model penilaian esai berhasil diperbarui.",
+      "deleteSuccess": "Model penilaian esai berhasil dihapus.",
+      "deleteConfirmTitle": "Hapus Model Penilaian Esai?",
+      "deleteConfirmDescription": "Apakah Anda yakin ingin menghapus model penilaian esai ini? Tindakan ini tidak dapat dibatalkan.",
+      "namePlaceholder": "Masukkan nama model",
+      "baseUrlPlaceholder": "https://api.example.com",
+      "modelIdPlaceholder": "misalnya, gpt-4",
+      "apiKeyPlaceholder": "Masukkan kunci API Anda"
     },
     "prerequisite": {
       "loading": "Memuat prasyarat...",

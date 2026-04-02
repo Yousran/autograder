@@ -11,6 +11,7 @@
     "test:e2e:ui": "npx playwright test --ui"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.49",
     "@ariakit/react": "^0.4.21",
     "@base-ui/react": "^1.2.0",
     "@dnd-kit/core": "^6.3.1",
@@ -35,6 +36,7 @@
     "@udecode/cn": "^52.0.11",
     "@uploadthing/react": "^7.3.3",
     "@yudiel/react-qr-scanner": "^2.5.1",
+    "ai": "^6.0.143",
     "better-auth": "^1.4.19",
     "change-case": "^5.4.4",
     "class-variance-authority": "^0.7.1",
