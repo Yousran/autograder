@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { requireAuth } from "@/lib/dal";
 
 cloudinary.config({
@@ -83,8 +83,7 @@ function getResourceType(
  * @returns 200 with { secure_url: string }, or 400/401/413/500 on error
  */
 export async function POST(req: NextRequest) {
-  const locale = await getLocale();
-  const tUpload = await getTranslations({ locale, namespace: "Api.upload" });
+  const t = await getTranslations();
 
   try {
     const authResult = await requireAuth();
@@ -96,7 +95,7 @@ export async function POST(req: NextRequest) {
 
     if (!(file instanceof File)) {
       return NextResponse.json(
-        { error: tUpload("invalidFile") },
+        { error: t("Api.upload.invalidFile") },
         { status: 400 },
       );
     }
@@ -105,7 +104,7 @@ export async function POST(req: NextRequest) {
 
     if (!resourceType) {
       return NextResponse.json(
-        { error: tUpload("unsupportedFormat") },
+        { error: t("Api.upload.unsupportedFormat") },
         { status: 400 },
       );
     }
@@ -120,7 +119,7 @@ export async function POST(req: NextRequest) {
 
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: tUpload("fileTooLarge") },
+        { error: t("Api.upload.fileTooLarge") },
         { status: 400 },
       );
     }
@@ -140,7 +139,7 @@ export async function POST(req: NextRequest) {
     });
   } catch {
     return NextResponse.json(
-      { error: tUpload("uploadFailed") },
+      { error: t("Api.upload.uploadFailed") },
       { status: 500 },
     );
   }

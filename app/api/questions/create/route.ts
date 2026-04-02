@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { generateKeyBetween } from "fractional-indexing";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
@@ -27,28 +27,27 @@ function toFractionalKey(order: string): string | null {
  * @returns 200 with created question, or 400/401/403/404 on error
  */
 export async function POST(req: NextRequest) {
-  const locale = await getLocale();
-  const [tQuestions, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.questions" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const t = await getTranslations();
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: tQuestions("createFailed") },
+      { error: t("Api.questions.createFailed") },
       { status: 400 },
     );
   }
 
-  const schema = createQuestionRequestSchema((key) => tValidation(key));
+  const schema = createQuestionRequestSchema((key) => t("Validation." + key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? tQuestions("createFailed") },
+      {
+        error:
+          parsed.error.issues[0]?.message ?? t("Api.questions.createFailed"),
+      },
       { status: 422 },
     );
   }
@@ -59,18 +58,18 @@ export async function POST(req: NextRequest) {
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tQuestions("unauthorized") },
+        { error: t("Api.questions.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tQuestions("notFound") },
+        { error: t("Api.questions.notFound") },
         { status: 404 },
       );
     }
     return NextResponse.json(
-      { error: tQuestions("forbidden") },
+      { error: t("Api.questions.forbidden") },
       { status: 403 },
     );
   }
@@ -104,7 +103,7 @@ export async function POST(req: NextRequest) {
     const afterIndex = allQuestions.findIndex((q) => q.id === insertAfterId);
     if (afterIndex === -1) {
       return NextResponse.json(
-        { error: tQuestions("questionNotFound") },
+        { error: t("Api.questions.questionNotFound") },
         { status: 404 },
       );
     }
@@ -154,7 +153,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error creating question:", error);
     return NextResponse.json(
-      { error: tQuestions("createFailed") },
+      { error: t("Api.questions.createFailed") },
       { status: 500 },
     );
   }

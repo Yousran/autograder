@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getChoicesQuerySchema, defaultChoiceData } from "@/lib/schemas/choice";
 import { defaultMultipleSelectChoiceData } from "@/lib/schemas/multiple-choice";
@@ -15,14 +15,10 @@ import { requireTestCreator } from "@/lib/dal";
  * @returns 200 with created choice, or 401/403/404/422 on error
  */
 export async function POST(req: NextRequest) {
-  const locale = await getLocale();
-  const [tChoices, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.choices" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const t = await getTranslations();
 
   const { searchParams } = req.nextUrl;
-  const parsed = getChoicesQuerySchema(tValidation).safeParse({
+  const parsed = getChoicesQuerySchema(t).safeParse({
     questionid: searchParams.get("questionid"),
   });
 
@@ -30,7 +26,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          parsed.error.issues[0]?.message || tValidation("questionIdRequired"),
+          parsed.error.issues[0]?.message || t("Validation.questionIdRequired"),
       },
       { status: 422 },
     );
@@ -46,7 +42,7 @@ export async function POST(req: NextRequest) {
     });
     if (!question) {
       return NextResponse.json(
-        { error: tChoices("notFound") },
+        { error: t("Api.choices.notFound") },
         { status: 404 },
       );
     }
@@ -56,18 +52,18 @@ export async function POST(req: NextRequest) {
     if (!auth.ok) {
       if (auth.reason === "unauthenticated") {
         return NextResponse.json(
-          { error: tChoices("unauthorized") },
+          { error: t("Api.choices.unauthorized") },
           { status: 401 },
         );
       }
       if (auth.reason === "not_found") {
         return NextResponse.json(
-          { error: tChoices("notFound") },
+          { error: t("Api.choices.notFound") },
           { status: 404 },
         );
       }
       return NextResponse.json(
-        { error: tChoices("forbidden") },
+        { error: t("Api.choices.forbidden") },
         { status: 403 },
       );
     }
@@ -96,14 +92,14 @@ export async function POST(req: NextRequest) {
       );
     } else {
       return NextResponse.json(
-        { error: tChoices("unsupportedType") },
+        { error: t("Api.choices.unsupportedType") },
         { status: 400 },
       );
     }
   } catch (error) {
     console.error("Error creating choice:", error);
     return NextResponse.json(
-      { error: tChoices("createFailed") },
+      { error: t("Api.choices.createFailed") },
       { status: 500 },
     );
   }

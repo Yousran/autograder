@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { generateKeyBetween } from "fractional-indexing";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
@@ -25,13 +25,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const locale = await getLocale();
+  const t = await getTranslations();
   const { id } = await params;
-
-  const tQuestions = await getTranslations({
-    locale,
-    namespace: "Api.questions",
-  });
 
   const question = await prisma.question.findUnique({
     where: { id },
@@ -40,7 +35,7 @@ export async function DELETE(
 
   if (!question) {
     return NextResponse.json(
-      { error: tQuestions("questionNotFound") },
+      { error: t("Api.questions.questionNotFound") },
       { status: 404 },
     );
   }
@@ -49,18 +44,18 @@ export async function DELETE(
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tQuestions("unauthorized") },
+        { error: t("Api.questions.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tQuestions("notFound") },
+        { error: t("Api.questions.notFound") },
         { status: 404 },
       );
     }
     return NextResponse.json(
-      { error: tQuestions("forbidden") },
+      { error: t("Api.questions.forbidden") },
       { status: 403 },
     );
   }
@@ -80,7 +75,7 @@ export async function DELETE(
   } catch (error) {
     console.error("Error deleting question:", error);
     return NextResponse.json(
-      { error: tQuestions("deleteFailed") },
+      { error: t("Api.questions.deleteFailed") },
       { status: 500 },
     );
   }
@@ -101,12 +96,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const locale = await getLocale();
-
-  const [tQuestions, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.questions" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const t = await getTranslations();
 
   // Find the question to get its testId and current type
   const question = await prisma.question.findUnique({
@@ -116,7 +106,7 @@ export async function PATCH(
 
   if (!question) {
     return NextResponse.json(
-      { error: tQuestions("questionNotFound") },
+      { error: t("Api.questions.questionNotFound") },
       { status: 404 },
     );
   }
@@ -126,18 +116,18 @@ export async function PATCH(
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tQuestions("unauthorized") },
+        { error: t("Api.questions.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tQuestions("notFound") },
+        { error: t("Api.questions.notFound") },
         { status: 404 },
       );
     }
     return NextResponse.json(
-      { error: tQuestions("forbidden") },
+      { error: t("Api.questions.forbidden") },
       { status: 403 },
     );
   }
@@ -148,18 +138,21 @@ export async function PATCH(
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: tQuestions("updateFailed") },
+      { error: t("Api.questions.updateFailed") },
       { status: 400 },
     );
   }
 
   // Validate with discriminated union schema
-  const schema = patchQuestionSchema((key) => tValidation(key));
+  const schema = patchQuestionSchema((key) => t("Validation." + key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? tQuestions("updateFailed") },
+      {
+        error:
+          parsed.error.issues[0]?.message ?? t("Api.questions.updateFailed"),
+      },
       { status: 422 },
     );
   }
@@ -204,7 +197,7 @@ export async function PATCH(
     // Type guard: narrowing to discriminated union after reorder check
     if (!("type" in data)) {
       return NextResponse.json(
-        { error: tQuestions("updateFailed") },
+        { error: t("Api.questions.updateFailed") },
         { status: 400 },
       );
     }
@@ -398,7 +391,7 @@ export async function PATCH(
   } catch (error) {
     console.error("Error updating question:", error);
     return NextResponse.json(
-      { error: tQuestions("updateFailed") },
+      { error: t("Api.questions.updateFailed") },
       { status: 500 },
     );
   }

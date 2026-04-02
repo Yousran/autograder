@@ -1,45 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { createChoiceAnswerSchema } from "@/lib/schemas/answer";
 import { gradeChoiceAnswer } from "@/lib/graders/choice-grader";
-
-/**
- * Loads and returns translation functions for the Answer API and Validation namespaces.
- * Helper for async imports in route handlers.
- *
- * @returns Promise with tuple of [tAnswer, tValidation] translation functions
- */
-async function getT() {
-  const locale = await getLocale();
-  return Promise.all([
-    getTranslations({ locale, namespace: "Api.answer" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
-}
 
 /**
  * POST /api/answer/choice
  * Creates or updates a single-choice answer for the participant.
  */
 export async function POST(req: NextRequest) {
-  const [tAnswer, tValidation] = await getT();
+  const t = await getTranslations();
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: tAnswer("invalidBody") },
+      { error: t("Api.answer.invalidBody") },
       { status: 400 },
     );
   }
 
-  const schema = createChoiceAnswerSchema((key) => tValidation(key));
+  const schema = createChoiceAnswerSchema((key) => t("Validation." + key));
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? tAnswer("invalidBody") },
+      { error: parsed.error.issues[0]?.message ?? t("Api.answer.invalidBody") },
       { status: 422 },
     );
   }
@@ -52,7 +38,7 @@ export async function POST(req: NextRequest) {
   });
   if (!participant) {
     return NextResponse.json(
-      { error: tAnswer("participantNotFound") },
+      { error: t("Api.answer.participantNotFound") },
       { status: 404 },
     );
   }
@@ -63,7 +49,7 @@ export async function POST(req: NextRequest) {
   });
   if (!choiceQuestion) {
     return NextResponse.json(
-      { error: tAnswer("questionNotFound") },
+      { error: t("Api.answer.questionNotFound") },
       { status: 404 },
     );
   }
@@ -108,23 +94,23 @@ export async function POST(req: NextRequest) {
  * Updates an existing choice answer.
  */
 export async function PATCH(req: NextRequest) {
-  const [tAnswer, tValidation] = await getT();
+  const t = await getTranslations();
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: tAnswer("invalidBody") },
+      { error: t("Api.answer.invalidBody") },
       { status: 400 },
     );
   }
 
-  const schema = createChoiceAnswerSchema((key) => tValidation(key));
+  const schema = createChoiceAnswerSchema((key) => t("Validation." + key));
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? tAnswer("invalidBody") },
+      { error: parsed.error.issues[0]?.message ?? t("Api.answer.invalidBody") },
       { status: 422 },
     );
   }
@@ -137,7 +123,7 @@ export async function PATCH(req: NextRequest) {
   });
   if (!choiceQuestion) {
     return NextResponse.json(
-      { error: tAnswer("questionNotFound") },
+      { error: t("Api.answer.questionNotFound") },
       { status: 404 },
     );
   }

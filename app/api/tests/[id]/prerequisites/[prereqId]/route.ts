@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { updateTestPrerequisiteSchema } from "@/lib/schemas/prerequisite";
-
-/**
- * Loads and returns translation functions for the Prerequisites API and Validation namespaces.
- * Helper for async imports in route handlers.
- *
- * @returns Promise with tuple of [tPrerequisites, tValidation] translation functions
- */
-async function getT() {
-  const locale = await getLocale();
-  return Promise.all([
-    getTranslations({ locale, namespace: "Api.prerequisites" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
-}
 
 /**
  * PATCH /api/tests/[id]/prerequisites/[prereqId]
@@ -33,24 +19,24 @@ export async function PATCH(
 ) {
   const { id, prereqId } = await params;
 
-  const [tPrerequisites, tValidation] = await getT();
+  const t = await getTranslations();
 
   const auth = await requireTestCreator(id);
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tPrerequisites("unauthorized") },
+        { error: t("Api.prerequisites.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tPrerequisites("notFound") },
+        { error: t("Api.prerequisites.notFound") },
         { status: 404 },
       );
     }
     return NextResponse.json(
-      { error: tPrerequisites("forbidden") },
+      { error: t("Api.prerequisites.forbidden") },
       { status: 403 },
     );
   }
@@ -60,19 +46,20 @@ export async function PATCH(
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: tPrerequisites("updateFailed") },
+      { error: t("Api.prerequisites.updateFailed") },
       { status: 400 },
     );
   }
 
-  const schema = updateTestPrerequisiteSchema((key) => tValidation(key));
+  const schema = updateTestPrerequisiteSchema((key) => t("Validation." + key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
       {
         error:
-          parsed.error.issues[0]?.message ?? tPrerequisites("updateFailed"),
+          parsed.error.issues[0]?.message ??
+          t("Api.prerequisites.updateFailed"),
       },
       { status: 422 },
     );
@@ -85,7 +72,7 @@ export async function PATCH(
 
   if (!record) {
     return NextResponse.json(
-      { error: tPrerequisites("prereqNotFound") },
+      { error: t("Api.prerequisites.prereqNotFound") },
       { status: 404 },
     );
   }
@@ -115,24 +102,24 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; prereqId: string }> },
 ) {
   const { id, prereqId } = await params;
-  const [tPrerequisites] = await getT();
+  const t = await getTranslations();
 
   const auth = await requireTestCreator(id);
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tPrerequisites("unauthorized") },
+        { error: t("Api.prerequisites.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tPrerequisites("notFound") },
+        { error: t("Api.prerequisites.notFound") },
         { status: 404 },
       );
     }
     return NextResponse.json(
-      { error: tPrerequisites("forbidden") },
+      { error: t("Api.prerequisites.forbidden") },
       { status: 403 },
     );
   }
@@ -144,7 +131,7 @@ export async function DELETE(
 
   if (!record) {
     return NextResponse.json(
-      { error: tPrerequisites("prereqNotFound") },
+      { error: t("Api.prerequisites.prereqNotFound") },
       { status: 404 },
     );
   }

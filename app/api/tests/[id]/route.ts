@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { patchTestSchema, TestSchema } from "@/lib/schemas/test";
-
-/**
- * Loads and returns translation functions for the Tests API and Validation namespaces.
- * Helper for async imports in route handlers.
- *
- * @returns Promise with tuple of [tTests, tValidation] translation functions
- */
-async function getT() {
-  const locale = await getLocale();
-  return Promise.all([
-    getTranslations({ locale, namespace: "Api.tests" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
-}
 
 /**
  * GET /api/tests/[id]
@@ -32,14 +18,17 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const [tTests] = await getT();
+  const t = await getTranslations();
 
   const test = await prisma.test.findUnique({
     where: { id },
   });
 
   if (!test) {
-    return NextResponse.json({ error: tTests("notFound") }, { status: 404 });
+    return NextResponse.json(
+      { error: t("Api.tests.notFound") },
+      { status: 404 },
+    );
   }
   return NextResponse.json(TestSchema.parse(test));
 }
@@ -60,22 +49,28 @@ export async function PATCH(
 ) {
   const { id } = await params;
 
-  const [tTests, tValidation] = await getT();
+  const t = await getTranslations();
 
   // Auth + ownership check
   const auth = await requireTestCreator(id);
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tTests("unauthorized") },
+        { error: t("Api.tests.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
-      return NextResponse.json({ error: tTests("notFound") }, { status: 404 });
+      return NextResponse.json(
+        { error: t("Api.tests.notFound") },
+        { status: 404 },
+      );
     }
     // forbidden
-    return NextResponse.json({ error: tTests("forbidden") }, { status: 403 });
+    return NextResponse.json(
+      { error: t("Api.tests.forbidden") },
+      { status: 403 },
+    );
   }
 
   // Parse + validate body (partial — only provided fields are updated)
@@ -84,17 +79,17 @@ export async function PATCH(
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: tTests("updateFailed") },
+      { error: t("Api.tests.updateFailed") },
       { status: 400 },
     );
   }
 
-  const schema = patchTestSchema((key) => tValidation(key));
+  const schema = patchTestSchema((key) => t("Validation." + key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? tTests("updateFailed") },
+      { error: parsed.error.issues[0]?.message ?? t("Api.tests.updateFailed") },
       { status: 422 },
     );
   }

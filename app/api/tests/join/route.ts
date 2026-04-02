@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/dal";
 import { createJoinTestSchema } from "@/lib/schemas/participant";
@@ -52,25 +52,24 @@ export async function GET(req: NextRequest) {
  * @returns 200 with participant data, or 400/404/422 on error
  */
 export async function POST(req: NextRequest) {
-  const locale = await getLocale();
-  const [tJoin, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.join" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const t = await getTranslations();
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: tJoin("joinFailed") }, { status: 400 });
+    return NextResponse.json(
+      { error: t("Api.join.joinFailed") },
+      { status: 400 },
+    );
   }
 
-  const schema = createJoinTestSchema((key) => tValidation(key));
+  const schema = createJoinTestSchema((key) => t("Validation." + key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? tJoin("joinFailed") },
+      { error: parsed.error.issues[0]?.message ?? t("Api.join.joinFailed") },
       { status: 422 },
     );
   }
@@ -96,17 +95,26 @@ export async function POST(req: NextRequest) {
   });
 
   if (!test) {
-    return NextResponse.json({ error: tJoin("notFound") }, { status: 404 });
+    return NextResponse.json(
+      { error: t("Api.join.notFound") },
+      { status: 404 },
+    );
   }
 
   if (!test.isAcceptingResponses) {
-    return NextResponse.json({ error: tJoin("notAccepting") }, { status: 403 });
+    return NextResponse.json(
+      { error: t("Api.join.notAccepting") },
+      { status: 403 },
+    );
   }
 
   const session = await getSession();
 
   if (test.isLoggedInUserOnly && !session) {
-    return NextResponse.json({ error: tJoin("loggedInOnly") }, { status: 401 });
+    return NextResponse.json(
+      { error: t("Api.join.loggedInOnly") },
+      { status: 401 },
+    );
   }
 
   // Check prerequisites: logged-in users are matched by userId,
@@ -131,7 +139,7 @@ export async function POST(req: NextRequest) {
 
     if (!allCompleted) {
       return NextResponse.json(
-        { error: tJoin("prerequisiteNotMet") },
+        { error: t("Api.join.prerequisiteNotMet") },
         { status: 403 },
       );
     }
@@ -148,14 +156,17 @@ export async function POST(req: NextRequest) {
 
     if (!meetsAll) {
       return NextResponse.json(
-        { error: tJoin("prerequisiteInsufficientScore") },
+        { error: t("Api.join.prerequisiteInsufficientScore") },
         { status: 403 },
       );
     }
   }
 
   if (test.joinCodeExpiresAt && test.joinCodeExpiresAt < new Date()) {
-    return NextResponse.json({ error: tJoin("notFound") }, { status: 404 });
+    return NextResponse.json(
+      { error: t("Api.join.notFound") },
+      { status: 404 },
+    );
   }
 
   // Check if participant already has an ongoing session (incomplete) within duration
@@ -202,7 +213,7 @@ export async function POST(req: NextRequest) {
 
     if (attemptCount >= test.maxAttempts) {
       return NextResponse.json(
-        { error: tJoin("maxAttemptsReached") },
+        { error: t("Api.join.maxAttemptsReached") },
         { status: 403 },
       );
     }

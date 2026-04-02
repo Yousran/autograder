@@ -1,23 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { patchChoiceSchema } from "@/lib/schemas/choice";
 import { patchMultipleSelectChoiceSchema } from "@/lib/schemas/multiple-choice";
 import { requireTestCreator } from "@/lib/dal";
-
-/**
- * Loads and returns translation functions for the Answer API and Validation namespaces.
- * Helper for async imports in route handlers.
- *
- * @returns Promise with tuple of [tAnswer, tValidation] translation functions
- */
-async function getT() {
-  const locale = await getLocale();
-  return Promise.all([
-    getTranslations({ locale, namespace: "Api.choices" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
-}
 
 /**
  * PATCH /api/choices/[id]
@@ -28,14 +14,14 @@ async function getT() {
  * @returns 200 with updated choice, or 401/403/404/422 on error
  */
 export async function PATCH(req: NextRequest) {
-  const [tChoices, tValidation] = await getT();
+  const t = await getTranslations();
 
   // Extract choiceid from URL
   const choiceid = req.nextUrl.pathname.split("/").pop();
 
   if (!choiceid) {
     return NextResponse.json(
-      { error: tValidation("choiceIdRequired") },
+      { error: t("Api.choices.choiceIdRequired") },
       { status: 422 },
     );
   }
@@ -57,7 +43,7 @@ export async function PATCH(req: NextRequest) {
 
     if (!choiceRecord) {
       return NextResponse.json(
-        { error: tChoices("notFound") },
+        { error: t("Api.choices.notFound") },
         { status: 404 },
       );
     }
@@ -69,13 +55,16 @@ export async function PATCH(req: NextRequest) {
 
     if (!question) {
       return NextResponse.json(
-        { error: tChoices("notFound") },
+        { error: t("Api.choices.notFound") },
         { status: 404 },
       );
     }
   } catch (err) {
     console.error("Error fetching choice or question:", err);
-    return NextResponse.json({ error: tChoices("notFound") }, { status: 404 });
+    return NextResponse.json(
+      { error: t("Api.choices.notFound") },
+      { status: 404 },
+    );
   }
 
   // Authorization: require test creator
@@ -83,17 +72,20 @@ export async function PATCH(req: NextRequest) {
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tChoices("unauthorized") },
+        { error: t("Api.choices.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tChoices("notFound") },
+        { error: t("Api.choices.notFound") },
         { status: 404 },
       );
     }
-    return NextResponse.json({ error: tChoices("forbidden") }, { status: 403 });
+    return NextResponse.json(
+      { error: t("Api.choices.forbidden") },
+      { status: 403 },
+    );
   }
 
   // Parse body
@@ -103,7 +95,7 @@ export async function PATCH(req: NextRequest) {
   } catch (err) {
     console.error("Error parsing JSON:", err);
     return NextResponse.json(
-      { error: tValidation("invalidJson") },
+      { error: t("Validation.invalidJson") },
       { status: 400 },
     );
   }
@@ -112,12 +104,12 @@ export async function PATCH(req: NextRequest) {
   let updated;
   try {
     if (question.type === "CHOICE") {
-      parsed = patchChoiceSchema(tValidation).safeParse(body);
+      parsed = patchChoiceSchema(t).safeParse(body);
       if (!parsed.success) {
         return NextResponse.json(
           {
             error:
-              parsed.error.issues[0]?.message || tValidation("invalidInput"),
+              parsed.error.issues[0]?.message || t("Validation.invalidInput"),
           },
           { status: 422 },
         );
@@ -131,7 +123,7 @@ export async function PATCH(req: NextRequest) {
         });
         if (!existing) {
           return NextResponse.json(
-            { error: tChoices("notFound") },
+            { error: t("Api.choices.notFound") },
             { status: 404 },
           );
         }
@@ -147,7 +139,7 @@ export async function PATCH(req: NextRequest) {
 
           if (otherCorrect === 0) {
             return NextResponse.json(
-              { error: tChoices("cannotUnmarkOnlyCorrect") },
+              { error: t("Api.choices.cannotUnmarkOnlyCorrect") },
               { status: 400 },
             );
           }
@@ -170,12 +162,12 @@ export async function PATCH(req: NextRequest) {
       }
       return NextResponse.json({ choice: updated }, { status: 200 });
     } else if (question.type === "MULTIPLE_SELECT") {
-      parsed = patchMultipleSelectChoiceSchema(tValidation).safeParse(body);
+      parsed = patchMultipleSelectChoiceSchema(t).safeParse(body);
       if (!parsed.success) {
         return NextResponse.json(
           {
             error:
-              parsed.error.issues[0]?.message || tValidation("invalidInput"),
+              parsed.error.issues[0]?.message || t("Validation.invalidInput"),
           },
           { status: 422 },
         );
@@ -189,7 +181,7 @@ export async function PATCH(req: NextRequest) {
         });
         if (!existing) {
           return NextResponse.json(
-            { error: tChoices("notFound") },
+            { error: t("Api.choices.notFound") },
             { status: 404 },
           );
         }
@@ -205,7 +197,7 @@ export async function PATCH(req: NextRequest) {
 
           if (otherCorrect === 0) {
             return NextResponse.json(
-              { error: tChoices("cannotUnmarkOnlyCorrect") },
+              { error: t("Api.choices.cannotUnmarkOnlyCorrect") },
               { status: 400 },
             );
           }
@@ -222,14 +214,14 @@ export async function PATCH(req: NextRequest) {
       );
     } else {
       return NextResponse.json(
-        { error: tChoices("unsupportedType") },
+        { error: t("Api.choices.unsupportedType") },
         { status: 400 },
       );
     }
   } catch (err) {
     console.error("Error updating choice:", err);
     return NextResponse.json(
-      { error: tChoices("updateFailed") },
+      { error: t("Api.choices.updateFailed") },
       { status: 500 },
     );
   }
@@ -248,13 +240,13 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const [tChoices, tValidation] = await getT();
+  const t = await getTranslations();
 
   const { id } = await params;
 
   if (!id) {
     return NextResponse.json(
-      { error: tValidation("choiceIdRequired") },
+      { error: t("Validation.choiceIdRequired") },
       { status: 422 },
     );
   }
@@ -276,7 +268,7 @@ export async function DELETE(
 
     if (!choiceRecord) {
       return NextResponse.json(
-        { error: tChoices("notFound") },
+        { error: t("Api.choices.notFound") },
         { status: 404 },
       );
     }
@@ -288,13 +280,16 @@ export async function DELETE(
 
     if (!question) {
       return NextResponse.json(
-        { error: tChoices("notFound") },
+        { error: t("Api.choices.notFound") },
         { status: 404 },
       );
     }
   } catch (err) {
     console.error("Error fetching choice or question:", err);
-    return NextResponse.json({ error: tChoices("notFound") }, { status: 404 });
+    return NextResponse.json(
+      { error: t("Api.choices.notFound") },
+      { status: 404 },
+    );
   }
 
   // Authorization
@@ -302,17 +297,20 @@ export async function DELETE(
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tChoices("unauthorized") },
+        { error: t("Api.choices.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tChoices("notFound") },
+        { error: t("Api.choices.notFound") },
         { status: 404 },
       );
     }
-    return NextResponse.json({ error: tChoices("forbidden") }, { status: 403 });
+    return NextResponse.json(
+      { error: t("Api.choices.forbidden") },
+      { status: 403 },
+    );
   }
 
   try {
@@ -324,7 +322,7 @@ export async function DELETE(
       });
       if (!existing) {
         return NextResponse.json(
-          { error: tChoices("notFound") },
+          { error: t("Api.choices.notFound") },
           { status: 404 },
         );
       }
@@ -336,14 +334,14 @@ export async function DELETE(
 
       if (existing.isCorrect) {
         return NextResponse.json(
-          { error: tChoices("cannotDeleteCorrect") },
+          { error: t("Api.choices.cannotDeleteCorrect") },
           { status: 400 },
         );
       }
 
       if (total <= 2) {
         return NextResponse.json(
-          { error: tChoices("cannotDeleteMinChoices") },
+          { error: t("Api.choices.cannotDeleteMinChoices") },
           { status: 400 },
         );
       }
@@ -358,7 +356,7 @@ export async function DELETE(
       });
       if (!existing) {
         return NextResponse.json(
-          { error: tChoices("notFound") },
+          { error: t("Api.choices.notFound") },
           { status: 404 },
         );
       }
@@ -369,14 +367,14 @@ export async function DELETE(
 
       if (existing.isCorrect) {
         return NextResponse.json(
-          { error: tChoices("cannotDeleteCorrect") },
+          { error: t("Api.choices.cannotDeleteCorrect") },
           { status: 400 },
         );
       }
 
       if (total <= 2) {
         return NextResponse.json(
-          { error: tChoices("cannotDeleteMinChoices") },
+          { error: t("Api.choices.cannotDeleteMinChoices") },
           { status: 400 },
         );
       }
@@ -390,14 +388,14 @@ export async function DELETE(
       );
     } else {
       return NextResponse.json(
-        { error: tChoices("unsupportedType") },
+        { error: t("Api.choices.unsupportedType") },
         { status: 400 },
       );
     }
   } catch (err) {
     console.error("Error deleting choice:", err);
     return NextResponse.json(
-      { error: tChoices("deleteFailed") || tChoices("updateFailed") },
+      { error: t("Api.choices.deleteFailed") || t("Api.choices.updateFailed") },
       { status: 500 },
     );
   }

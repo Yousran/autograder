@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
@@ -16,14 +16,10 @@ import { MultipleSelectChoiceSchema } from "@/lib/schemas/multiple-choice";
  * @returns 200 with array of choices, or 401/403/404/422 on error
  */
 export async function GET(req: NextRequest) {
-  const locale = await getLocale();
-  const [tChoices, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.questions" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const t = await getTranslations();
 
   const { searchParams } = req.nextUrl;
-  const parsed = getChoicesQuerySchema(tValidation).safeParse({
+  const parsed = getChoicesQuerySchema(t).safeParse({
     questionid: searchParams.get("questionid"),
   });
 
@@ -31,7 +27,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          parsed.error.issues[0]?.message || tValidation("questionIdRequired"),
+          parsed.error.issues[0]?.message || t("Validation.questionIdRequired"),
       },
       { status: 422 },
     );
@@ -47,7 +43,7 @@ export async function GET(req: NextRequest) {
 
   if (!question) {
     return NextResponse.json(
-      { error: tChoices("questionNotFound") },
+      { error: t("Api.choices.questionNotFound") },
       { status: 404 },
     );
   }
@@ -56,17 +52,20 @@ export async function GET(req: NextRequest) {
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tChoices("unauthorized") },
+        { error: t("Api.choices.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tChoices("notFound") },
+        { error: t("Api.choices.notFound") },
         { status: 404 },
       );
     }
-    return NextResponse.json({ error: tChoices("forbidden") }, { status: 403 });
+    return NextResponse.json(
+      { error: t("Api.choices.forbidden") },
+      { status: 403 },
+    );
   }
 
   try {
@@ -93,7 +92,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Error fetching choices:", error);
     return NextResponse.json(
-      { error: tChoices("fetchFailed") },
+      { error: t("Api.choices.fetchFailed") },
       { status: 500 },
     );
   }

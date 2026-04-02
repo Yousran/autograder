@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { createEssayAnswerSchema } from "@/lib/schemas/answer";
 import { gradeEssayAnswerAsync } from "@/lib/graders/essay-grader";
-
-/**
- * Loads and returns translation functions for the Answer API and Validation namespaces.
- * Helper for async imports in route handlers.
- *
- * @returns Promise with tuple of [tAnswer, tValidation] translation functions
- */
-async function getT() {
-  const locale = await getLocale();
-  return Promise.all([
-    getTranslations({ locale, namespace: "Api.answer" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
-}
 
 /**
  * POST /api/answer/essay
@@ -24,23 +10,23 @@ async function getT() {
  * Answer is saved immediately, then graded asynchronously.
  */
 export async function POST(req: NextRequest) {
-  const [tAnswer, tValidation] = await getT();
+  const t = await getTranslations();
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: tAnswer("invalidBody") },
+      { error: t("Api.answer.invalidBody") },
       { status: 400 },
     );
   }
 
-  const schema = createEssayAnswerSchema((key) => tValidation(key));
+  const schema = createEssayAnswerSchema((key) => t("Validation." + key));
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? tAnswer("invalidBody") },
+      { error: parsed.error.issues[0]?.message ?? t("Api.answer.invalidBody") },
       { status: 422 },
     );
   }
@@ -53,7 +39,7 @@ export async function POST(req: NextRequest) {
   });
   if (!participant) {
     return NextResponse.json(
-      { error: tAnswer("participantNotFound") },
+      { error: t("Api.answer.participantNotFound") },
       { status: 404 },
     );
   }
@@ -70,7 +56,7 @@ export async function POST(req: NextRequest) {
   });
   if (!essay) {
     return NextResponse.json(
-      { error: tAnswer("questionNotFound") },
+      { error: t("Api.answer.questionNotFound") },
       { status: 404 },
     );
   }
@@ -97,8 +83,8 @@ export async function POST(req: NextRequest) {
 
     // Grade asynchronously in the background
     await gradeEssayAnswerAsync(answerId, answerText, questionId, {
-      exactMatch: tAnswer("exactMatch"),
-      noMatch: tAnswer("noMatch"),
+      exactMatch: t("Api.answer.exactMatch"),
+      noMatch: t("Api.answer.noMatch"),
     }).catch((err) => {
       console.error(`Background grading failed for ${answerId}:`, err);
     });
@@ -120,8 +106,8 @@ export async function POST(req: NextRequest) {
 
   // Grade asynchronously in the background
   await gradeEssayAnswerAsync(answerId, answerText, questionId, {
-    exactMatch: tAnswer("exactMatch"),
-    noMatch: tAnswer("noMatch"),
+    exactMatch: t("Api.answer.exactMatch"),
+    noMatch: t("Api.answer.noMatch"),
   }).catch((err) => {
     console.error(`Background grading failed for ${answerId}:`, err);
   });
@@ -135,23 +121,23 @@ export async function POST(req: NextRequest) {
  * Answer is updated immediately, then graded asynchronously.
  */
 export async function PATCH(req: NextRequest) {
-  const [tAnswer, tValidation] = await getT();
+  const t = await getTranslations();
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: tAnswer("invalidBody") },
+      { error: t("Api.answer.invalidBody") },
       { status: 400 },
     );
   }
 
-  const schema = createEssayAnswerSchema((key) => tValidation(key));
+  const schema = createEssayAnswerSchema((key) => t("Validation." + key));
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? tAnswer("invalidBody") },
+      { error: parsed.error.issues[0]?.message ?? t("Api.answer.invalidBody") },
       { status: 422 },
     );
   }
@@ -170,7 +156,7 @@ export async function PATCH(req: NextRequest) {
   });
   if (!essay) {
     return NextResponse.json(
-      { error: tAnswer("questionNotFound") },
+      { error: t("Api.answer.questionNotFound") },
       { status: 404 },
     );
   }
@@ -182,7 +168,7 @@ export async function PATCH(req: NextRequest) {
 
   if (!existing) {
     return NextResponse.json(
-      { error: tAnswer("answerNotFound") },
+      { error: t("Api.answer.answerNotFound") },
       { status: 404 },
     );
   }
@@ -196,8 +182,8 @@ export async function PATCH(req: NextRequest) {
 
   // Grade asynchronously in the background
   await gradeEssayAnswerAsync(existing.id, answerText, questionId, {
-    exactMatch: tAnswer("exactMatch"),
-    noMatch: tAnswer("noMatch"),
+    exactMatch: t("Api.answer.exactMatch"),
+    noMatch: t("Api.answer.noMatch"),
   }).catch((err) => {
     console.error(`Background grading failed for ${existing.id}:`, err);
   });

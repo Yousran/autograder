@@ -1,23 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/dal";
 import { recalculateParticipantScore } from "@/lib/graders/total-score";
-
-/**
- * Loads and returns translation functions for the Answer API and Validation namespaces.
- * Helper for async imports in route handlers.
- *
- * @returns Promise with tuple of [tAnswer, tValidation] translation functions
- */
-async function getT() {
-  const locale = await getLocale();
-  return Promise.all([
-    getTranslations({ locale, namespace: "Api.answer" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
-}
 
 /**
  * PATCH /api/answer/choice/[answerId]
@@ -29,12 +15,12 @@ export async function PATCH(
   { params }: { params: Promise<{ answerId: string }> },
 ) {
   const { answerId } = await params;
-  const [tAnswer, tValidation] = await getT();
+  const t = await getTranslations();
 
   const auth = await requireAuth();
   if (!auth.ok) {
     return NextResponse.json(
-      { error: tAnswer("unauthorized") },
+      { error: t("Api.answer.unauthorized") },
       { status: 401 },
     );
   }
@@ -51,13 +37,16 @@ export async function PATCH(
 
   if (!answer) {
     return NextResponse.json(
-      { error: tAnswer("answerNotFound") },
+      { error: t("Api.answer.answerNotFound") },
       { status: 404 },
     );
   }
 
   if (answer.participant.test.creatorId !== auth.session.user.id) {
-    return NextResponse.json({ error: tAnswer("forbidden") }, { status: 403 });
+    return NextResponse.json(
+      { error: t("Api.answer.forbidden") },
+      { status: 403 },
+    );
   }
 
   let body: unknown;
@@ -65,7 +54,7 @@ export async function PATCH(
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: tAnswer("invalidBody") },
+      { error: t("Api.answer.invalidBody") },
       { status: 400 },
     );
   }
@@ -73,14 +62,14 @@ export async function PATCH(
   const schema = z.object({
     score: z
       .number()
-      .int(tValidation("integer"))
-      .min(0, tValidation("scoreNonNegative")),
+      .int(t("Validation.integer"))
+      .min(0, t("Validation.scoreNonNegative")),
   });
 
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? tAnswer("invalidBody") },
+      { error: parsed.error.issues[0]?.message ?? t("Api.answer.invalidBody") },
       { status: 422 },
     );
   }
@@ -89,7 +78,7 @@ export async function PATCH(
 
   if (score > answer.question.maxScore) {
     return NextResponse.json(
-      { error: tAnswer("scoreTooHigh") },
+      { error: t("Api.answer.scoreTooHigh") },
       { status: 422 },
     );
   }

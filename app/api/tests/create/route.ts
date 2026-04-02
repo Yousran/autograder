@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { defaultTestData, TestSchema } from "@/lib/schemas/test";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { NextResponse } from "next/server";
 import { customAlphabet } from "nanoid";
 import { addDays } from "date-fns";
@@ -22,8 +22,7 @@ export async function POST() {
   const auth = await requireAuth();
   if (!auth.ok) return auth.response;
 
-  const locale = await getLocale();
-  const tTests = await getTranslations({ locale, namespace: "Api.tests" });
+  const t = await getTranslations();
 
   const expiresAt = addDays(new Date(), TTL_DAYS);
   const now = new Date();
@@ -67,7 +66,7 @@ export async function POST() {
   } catch (error) {
     console.error("Error creating test:", error);
     return NextResponse.json(
-      { error: tTests("createFailed") },
+      { error: t("Api.tests.createFailed") },
       { status: 500 },
     );
   }

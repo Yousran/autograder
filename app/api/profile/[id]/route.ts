@@ -1,18 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { requireAuth } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
-
-/**
- * Loads and returns translation functions for the Profile API namespace.
- * Helper for async imports in route handlers.
- *
- * @returns Promise with translation function for the Profile API
- */
-async function getT() {
-  const locale = await getLocale();
-  return Promise.all([getTranslations({ locale, namespace: "Api.profile" })]);
-}
 
 /**
  * PATCH /api/profile/[id]
@@ -27,7 +16,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const [tProfile] = await getT();
+  const t = await getTranslations();
   try {
     const authResult = await requireAuth();
     if (!authResult.ok) return authResult.response;
@@ -37,7 +26,7 @@ export async function PATCH(
 
     if (session.user.id !== id) {
       return NextResponse.json(
-        { error: tProfile("forbidden") },
+        { error: t("Api.profile.forbidden") },
         { status: 403 },
       );
     }
@@ -46,7 +35,7 @@ export async function PATCH(
     const image = body?.image as string | undefined;
     if (!image || typeof image !== "string") {
       return NextResponse.json(
-        { error: tProfile("invalidImage") },
+        { error: t("Api.profile.invalidImage") },
         { status: 400 },
       );
     }
@@ -61,7 +50,7 @@ export async function PATCH(
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: tProfile("serverError") },
+      { error: t("Api.profile.serverError") },
       { status: 500 },
     );
   }
@@ -81,7 +70,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const [tProfile] = await getT();
+  const t = await getTranslations();
   try {
     const authResult = await requireAuth();
     if (!authResult.ok) return authResult.response;
@@ -91,7 +80,7 @@ export async function DELETE(
 
     if (session.user.id !== id) {
       return NextResponse.json(
-        { error: tProfile("forbidden") },
+        { error: t("Api.profile.forbidden") },
         { status: 403 },
       );
     }
@@ -102,7 +91,7 @@ export async function DELETE(
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { error: tProfile("serverError") },
+      { error: t("Api.profile.serverError") },
       { status: 500 },
     );
   }

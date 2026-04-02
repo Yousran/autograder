@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -38,12 +38,11 @@ type AuthFailure = { ok: false; response: NextResponse };
 export async function requireAuth(): Promise<AuthSuccess | AuthFailure> {
   const session = await getSession();
   if (!session) {
-    const locale = await getLocale();
-    const tUpload = await getTranslations({ locale, namespace: "Api.upload" });
+    const t = await getTranslations();
     return {
       ok: false,
       response: NextResponse.json(
-        { error: tUpload("unauthorized") },
+        { error: t("Api.upload.unauthorized") },
         { status: 401 },
       ),
     };

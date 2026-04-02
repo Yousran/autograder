@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { createTestPrerequisiteSchema } from "@/lib/schemas/prerequisite";
-
-/**
- * Loads and returns translation functions for the Prerequisites API and Validation namespaces.
- * Helper for async imports in route handlers.
- *
- * @returns Promise with tuple of [tPrerequisites, tValidation] translation functions
- */
-async function getT() {
-  const locale = await getLocale();
-  return Promise.all([
-    getTranslations({ locale, namespace: "Api.prerequisites" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
-}
 
 /** GET /api/tests/[id]/prerequisites
  * Returns the prerequisites for the test along with available tests
@@ -32,24 +18,24 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const [tPrerequisites] = await getT();
+  const t = await getTranslations();
 
   const auth = await requireTestCreator(id);
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tPrerequisites("unauthorized") },
+        { error: t("Api.prerequisites.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tPrerequisites("notFound") },
+        { error: t("Api.prerequisites.notFound") },
         { status: 404 },
       );
     }
     return NextResponse.json(
-      { error: tPrerequisites("forbidden") },
+      { error: t("Api.prerequisites.forbidden") },
       { status: 403 },
     );
   }
@@ -91,24 +77,24 @@ export async function POST(
 ) {
   const { id } = await params;
 
-  const [tPrerequisites, tValidation] = await getT();
+  const t = await getTranslations();
 
   const auth = await requireTestCreator(id);
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tPrerequisites("unauthorized") },
+        { error: t("Api.prerequisites.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tPrerequisites("notFound") },
+        { error: t("Api.prerequisites.notFound") },
         { status: 404 },
       );
     }
     return NextResponse.json(
-      { error: tPrerequisites("forbidden") },
+      { error: t("Api.prerequisites.forbidden") },
       { status: 403 },
     );
   }
@@ -118,19 +104,20 @@ export async function POST(
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: tPrerequisites("createFailed") },
+      { error: t("Api.prerequisites.createFailed") },
       { status: 400 },
     );
   }
 
-  const schema = createTestPrerequisiteSchema((key) => tValidation(key));
+  const schema = createTestPrerequisiteSchema((key) => t("Validation." + key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
       {
         error:
-          parsed.error.issues[0]?.message ?? tPrerequisites("createFailed"),
+          parsed.error.issues[0]?.message ??
+          t("Api.prerequisites.createFailed"),
       },
       { status: 422 },
     );
@@ -141,7 +128,7 @@ export async function POST(
   // Guard: cannot add itself as its own prerequisite
   if (prerequisiteTestId === id) {
     return NextResponse.json(
-      { error: tPrerequisites("selfPrerequisite") },
+      { error: t("Api.prerequisites.selfPrerequisite") },
       { status: 422 },
     );
   }
@@ -154,7 +141,7 @@ export async function POST(
 
   if (!prereqTest) {
     return NextResponse.json(
-      { error: tPrerequisites("prereqTestNotFound") },
+      { error: t("Api.prerequisites.prereqTestNotFound") },
       { status: 404 },
     );
   }
@@ -167,7 +154,7 @@ export async function POST(
 
   if (existing) {
     return NextResponse.json(
-      { error: tPrerequisites("alreadyAdded") },
+      { error: t("Api.prerequisites.alreadyAdded") },
       { status: 409 },
     );
   }

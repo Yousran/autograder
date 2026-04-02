@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { requireTestCreator } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { getParticipantsQuerySchema } from "@/lib/schemas/participant";
@@ -13,11 +13,7 @@ import { getParticipantsQuerySchema } from "@/lib/schemas/participant";
  * @returns 200 with array of participants, or 401/403/404 if unauthorized
  */
 export async function GET(req: NextRequest) {
-  const locale = await getLocale();
-  const [tParticipants, tValidation] = await Promise.all([
-    getTranslations({ locale, namespace: "Api.participants" }),
-    getTranslations({ locale, namespace: "Validation" }),
-  ]);
+  const t = await getTranslations();
 
   const { searchParams } = req.nextUrl;
   const parsed = getParticipantsQuerySchema.safeParse({
@@ -27,7 +23,8 @@ export async function GET(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json(
       {
-        error: parsed.error.issues[0]?.message ?? tValidation("testIdRequired"),
+        error:
+          parsed.error.issues[0]?.message ?? t("Validation.testIdRequired"),
       },
       { status: 422 },
     );
@@ -39,18 +36,18 @@ export async function GET(req: NextRequest) {
   if (!auth.ok) {
     if (auth.reason === "unauthenticated") {
       return NextResponse.json(
-        { error: tParticipants("unauthorized") },
+        { error: t("Api.participants.unauthorized") },
         { status: 401 },
       );
     }
     if (auth.reason === "not_found") {
       return NextResponse.json(
-        { error: tParticipants("notFound") },
+        { error: t("Api.participants.notFound") },
         { status: 404 },
       );
     }
     return NextResponse.json(
-      { error: tParticipants("forbidden") },
+      { error: t("Api.participants.forbidden") },
       { status: 403 },
     );
   }
