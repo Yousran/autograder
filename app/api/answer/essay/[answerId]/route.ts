@@ -59,7 +59,7 @@ export async function PATCH(
     );
   }
 
-  const schema = createGradeEssayAnswerSchema((key) => t("Validation." + key));
+  const schema = createGradeEssayAnswerSchema((key) => t(key));
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(

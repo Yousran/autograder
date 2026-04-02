@@ -51,7 +51,7 @@ export async function PATCH(
     );
   }
 
-  const schema = updateTestPrerequisiteSchema((key) => t("Validation." + key));
+  const schema = updateTestPrerequisiteSchema((key) => t(key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {

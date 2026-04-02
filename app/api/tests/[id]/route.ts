@@ -84,7 +84,7 @@ export async function PATCH(
     );
   }
 
-  const schema = patchTestSchema((key) => t("Validation." + key));
+  const schema = patchTestSchema((key) => t(key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {

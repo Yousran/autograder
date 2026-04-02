@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const schema = createJoinTestSchema((key) => t("Validation." + key));
+  const schema = createJoinTestSchema((key) => t(key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {

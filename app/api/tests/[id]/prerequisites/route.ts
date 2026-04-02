@@ -109,7 +109,7 @@ export async function POST(
     );
   }
 
-  const schema = createTestPrerequisiteSchema((key) => t("Validation." + key));
+  const schema = createTestPrerequisiteSchema((key) => t(key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {

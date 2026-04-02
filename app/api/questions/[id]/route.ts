@@ -144,7 +144,7 @@ export async function PATCH(
   }
 
   // Validate with discriminated union schema
-  const schema = patchQuestionSchema((key) => t("Validation." + key));
+  const schema = patchQuestionSchema((key) => t(key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {

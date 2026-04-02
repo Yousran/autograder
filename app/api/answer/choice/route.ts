@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const schema = createChoiceAnswerSchema((key) => t("Validation." + key));
+  const schema = createChoiceAnswerSchema((key) => t(key));
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
@@ -106,7 +106,7 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  const schema = createChoiceAnswerSchema((key) => t("Validation." + key));
+  const schema = createChoiceAnswerSchema((key) => t(key));
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(

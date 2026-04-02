@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const schema = createQuestionRequestSchema((key) => t("Validation." + key));
+  const schema = createQuestionRequestSchema((key) => t(key));
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) {
