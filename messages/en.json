@@ -13,6 +13,14 @@
       "noMatch": "Answer does not match the expected answer"
     },
     "choices": {
+      "questionNotFound": "Question not found.",
+      "unauthorized": "You must be signed in to manage choices.",
+      "notFound": "Choice not found.",
+      "forbidden": "You are not authorized to manage this choice.",
+      "fetchFailed": "Failed to fetch choices. Please try again.",
+      "createFailed": "Failed to create choice. Please try again.",
+      "updateFailed": "Failed to update choice. Please try again.",
+      "unsupportedType": "Unsupported question type.",
       "cannotDeleteCorrect": "Cannot delete a choice marked as correct.",
       "cannotDeleteMinChoices": "At least 2 choices are required — cannot delete further.",
       "cannotUnmarkOnlyCorrect": "At least one choice must remain correct — cannot unmark the last correct choice."

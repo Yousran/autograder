@@ -13,6 +13,14 @@
       "noMatch": "Jawaban tidak sesuai dengan jawaban yang diharapkan"
     },
     "choices": {
+      "questionNotFound": "Pertanyaan tidak ditemukan.",
+      "unauthorized": "Anda harus masuk untuk mengelola pilihan.",
+      "notFound": "Pilihan tidak ditemukan.",
+      "forbidden": "Anda tidak memiliki izin untuk mengelola pilihan ini.",
+      "fetchFailed": "Gagal mengambil daftar pilihan. Silakan coba lagi.",
+      "createFailed": "Gagal membuat pilihan. Silakan coba lagi.",
+      "updateFailed": "Gagal memperbarui pilihan. Silakan coba lagi.",
+      "unsupportedType": "Jenis pertanyaan tidak didukung.",
       "cannotDeleteCorrect": "Tidak dapat menghapus pilihan yang ditandai benar.",
       "cannotDeleteMinChoices": "Minimal 2 pilihan diperlukan — tidak dapat menghapus lebih lanjut.",
       "cannotUnmarkOnlyCorrect": "Setidaknya satu pilihan harus tetap benar — tidak dapat membatalkan penandaan pilihan terakhir."
