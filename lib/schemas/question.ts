@@ -200,16 +200,16 @@ export const QUESTION_TYPES = [
 
 /**
  * Returns the i18n display label for a question type.
- * Pass `t` from `useTranslations("Components.questionsTab")`.
+ * Pass `t` from `useTranslations()` or any other translation function.
  */
 export function getQuestionTypeLabel(
   type: QuestionType,
   t: TranslateFn,
 ): string {
   const map: Record<QuestionType, string> = {
-    [QuestionType.ESSAY]: t("questionType.essay"),
-    [QuestionType.CHOICE]: t("questionType.choice"),
-    [QuestionType.MULTIPLE_SELECT]: t("questionType.multipleSelect"),
+    [QuestionType.ESSAY]: t("Components.questionsTab.questionType.essay"),
+    [QuestionType.CHOICE]: t("Components.questionsTab.questionType.choice"),
+    [QuestionType.MULTIPLE_SELECT]: t("Components.questionsTab.questionType.multipleSelect"),
   };
   return map[type];
 }

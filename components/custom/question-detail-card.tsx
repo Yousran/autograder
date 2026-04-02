@@ -43,7 +43,7 @@ export function QuestionDetailCard({
               variant="secondary"
               className="text-sm font-medium tabular-nums"
             >
-              {getQuestionTypeLabel(question.type, useTranslations())}
+              {getQuestionTypeLabel(question.type, t)}
             </Badge>
             {showDetailedScore &&
               (() => {
