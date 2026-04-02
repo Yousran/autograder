@@ -15,8 +15,8 @@ import type { ChoiceAnswer } from "../generated/prisma/client";
  */
 export const ChoiceAnswerValidationSchema = (t: TranslateFn) =>
   z.object({
-    participantId: z.string().min(1, t("participantIdRequired")),
-    questionId: z.string().min(1, t("questionIdRequired")),
+    participantId: z.string().min(1, t("Validation.participantIdRequired")),
+    questionId: z.string().min(1, t("Validation.questionIdRequired")),
     /** null means the participant skipped the question. */
     selectedChoiceId: z.string().nullable().optional(),
   });

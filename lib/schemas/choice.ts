@@ -15,7 +15,7 @@ import type { Choice } from "../generated/prisma/client";
  */
 export const getChoicesQuerySchema = (t: TranslateFn) =>
   z.object({
-    questionid: z.string().min(1, t("questionIdRequired")),
+    questionid: z.string().min(1, t("Validation.questionIdRequired")),
   });
 
 // ---------------------------------------------------------------------------
@@ -32,7 +32,7 @@ export const getChoicesQuerySchema = (t: TranslateFn) =>
 export const ChoiceValidationSchema = (t: TranslateFn) =>
   z.object({
     id: z.string().optional(),
-    choiceText: z.string().min(1, t("choiceTextRequired")),
+    choiceText: z.string().min(1, t("Validation.choiceTextRequired")),
     isCorrect: z.boolean(),
   });
 

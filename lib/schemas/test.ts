@@ -11,20 +11,23 @@ import { type Test } from "@/lib/generated/prisma/client";
  */
 export const TestValidationSchema = (t: TranslateFn) =>
   z.object({
-    title: z.string().min(1, t("titleRequired")).min(3, t("titleTooShort")),
+    title: z
+      .string()
+      .min(1, t("Validation.titleRequired"))
+      .min(3, t("Validation.titleTooShort")),
     description: z.string().optional(),
     testDuration: z
       .number()
-      .int(t("integer"))
-      .positive(t("positive"))
+      .int(t("Validation.integer"))
+      .positive(t("Validation.positive"))
       .nullable()
       .optional(),
     startTime: z.date().nullable().optional(),
     endTime: z.date().nullable().optional(),
     maxAttempts: z
       .number()
-      .int(t("integer"))
-      .positive(t("positive"))
+      .int(t("Validation.integer"))
+      .positive(t("Validation.positive"))
       .nullable()
       .optional(),
     isAcceptingResponses: z.boolean(),
@@ -84,7 +87,7 @@ export const createTestSchema = (t: TranslateFn) =>
         return true;
       },
       {
-        message: t("endTimeAfterStart"),
+        message: t("Validation.endTimeAfterStart"),
         path: ["endTime"],
       },
     );

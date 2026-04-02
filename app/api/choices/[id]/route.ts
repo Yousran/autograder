@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest) {
 
   if (!choiceid) {
     return NextResponse.json(
-      { error: t("Api.choices.choiceIdRequired") },
+      { error: t("Validation.choiceIdRequired") },
       { status: 422 },
     );
   }

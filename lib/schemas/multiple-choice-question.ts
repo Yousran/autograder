@@ -24,12 +24,15 @@ export type { MultipleSelectChoiceCreateInput } from "./multiple-choice";
 export const MultipleSelectQuestionValidationSchema = (t: TranslateFn) =>
   z.object({
     type: z.literal(QuestionType.MULTIPLE_SELECT),
-    questionText: z.string().min(1, t("questionTextRequired")),
+    questionText: z.string().min(1, t("Validation.questionTextRequired")),
     isChoiceRandomized: z.boolean(),
-    maxScore: z.number().int(t("integer")).positive(t("maxScorePositive")),
+    maxScore: z
+      .number()
+      .int(t("Validation.integer"))
+      .positive(t("Validation.maxScorePositive")),
     choices: z
       .array(createMultipleSelectChoiceSchema(t))
-      .min(2, t("atLeastTwoChoices")),
+      .min(2, t("Validation.atLeastTwoChoices")),
   });
 
 /**
@@ -42,7 +45,7 @@ export const MultipleSelectQuestionValidationSchema = (t: TranslateFn) =>
 export const createMultipleSelectQuestionSchema = (t: TranslateFn) =>
   MultipleSelectQuestionValidationSchema(t).refine(
     (data) => data.choices.some((c) => c.isCorrect),
-    { error: t("atLeastOneCorrect") },
+    { error: t("Validation.atLeastOneCorrect") },
   );
 
 /**

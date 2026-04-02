@@ -24,10 +24,15 @@ export type { ChoiceCreateInput } from "./choice";
 export const ChoiceQuestionValidationSchema = (t: TranslateFn) =>
   z.object({
     type: z.literal(QuestionType.CHOICE),
-    questionText: z.string().min(1, t("questionTextRequired")),
+    questionText: z.string().min(1, t("Validation.questionTextRequired")),
     isChoiceRandomized: z.boolean(),
-    maxScore: z.number().int(t("integer")).positive(t("maxScorePositive")),
-    choices: z.array(createChoiceSchema(t)).min(2, t("atLeastTwoChoices")),
+    maxScore: z
+      .number()
+      .int(t("Validation.integer"))
+      .positive(t("Validation.maxScorePositive")),
+    choices: z
+      .array(createChoiceSchema(t))
+      .min(2, t("Validation.atLeastTwoChoices")),
   });
 
 /**
@@ -40,7 +45,7 @@ export const ChoiceQuestionValidationSchema = (t: TranslateFn) =>
 export const createChoiceQuestionSchema = (t: TranslateFn) =>
   ChoiceQuestionValidationSchema(t).refine(
     (data) => data.choices.some((c) => c.isCorrect),
-    { error: t("atLeastOneCorrect") },
+    { error: t("Validation.atLeastOneCorrect") },
   );
 
 /**

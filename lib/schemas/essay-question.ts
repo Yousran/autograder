@@ -17,10 +17,13 @@ import type { EssayQuestion, Question } from "../generated/prisma/client";
 export const EssayQuestionValidationSchema = (t: TranslateFn) =>
   z.object({
     type: z.literal(QuestionType.ESSAY),
-    questionText: z.string().min(1, t("questionTextRequired")),
-    answerText: z.string().min(1, t("answerTextRequired")),
+    questionText: z.string().min(1, t("Validation.questionTextRequired")),
+    answerText: z.string().min(1, t("Validation.answerTextRequired")),
     isExactAnswer: z.boolean(),
-    maxScore: z.number().int(t("integer")).positive(t("maxScorePositive")),
+    maxScore: z
+      .number()
+      .int(t("Validation.integer"))
+      .positive(t("Validation.maxScorePositive")),
   });
 
 /**

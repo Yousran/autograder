@@ -10,8 +10,10 @@ import { TranslateFn } from "./translate";
  */
 export const SignInValidationSchema = (t: TranslateFn) =>
   z.object({
-    email: z.email({ error: t("invalidEmail") }).min(1, t("emailRequired")),
-    password: z.string().min(1, t("passwordRequired")),
+    email: z
+      .email({ error: t("Validation.invalidEmail") })
+      .min(1, t("Validation.emailRequired")),
+    password: z.string().min(1, t("Validation.passwordRequired")),
   });
 
 /**
@@ -38,13 +40,18 @@ export type SignInCreateInput = z.infer<ReturnType<typeof createSignInSchema>>;
  */
 export const SignUpValidationSchema = (t: TranslateFn) =>
   z.object({
-    name: z.string().min(1, t("nameRequired")).min(2, t("nameTooShort")),
-    email: z.email({ error: t("invalidEmail") }).min(1, t("emailRequired")),
+    name: z
+      .string()
+      .min(1, t("Validation.nameRequired"))
+      .min(2, t("Validation.nameTooShort")),
+    email: z
+      .email({ error: t("Validation.invalidEmail") })
+      .min(1, t("Validation.emailRequired")),
     password: z
       .string()
-      .min(1, t("passwordRequired"))
-      .min(8, t("passwordTooShort")),
-    confirmPassword: z.string().min(1, t("confirmPasswordRequired")),
+      .min(1, t("Validation.passwordRequired"))
+      .min(8, t("Validation.passwordTooShort")),
+    confirmPassword: z.string().min(1, t("Validation.confirmPasswordRequired")),
   });
 
 /**
@@ -58,7 +65,7 @@ export const createSignUpSchema = (t: TranslateFn) =>
   SignUpValidationSchema(t).refine(
     (data) => data.password === data.confirmPassword,
     {
-      error: t("passwordMismatch"),
+      error: t("Validation.passwordMismatch"),
       path: ["confirmPassword"],
     },
   );
@@ -78,9 +85,12 @@ export type SignUpCreateInput = z.infer<ReturnType<typeof createSignUpSchema>>;
  */
 export const UpdateProfileValidationSchema = (t: TranslateFn) =>
   z.object({
-    name: z.string().min(1, t("nameRequired")).min(2, t("nameTooShort")),
+    name: z
+      .string()
+      .min(1, t("Validation.nameRequired"))
+      .min(2, t("Validation.nameTooShort")),
     image: z
-      .url(t("invalidUrl"))
+      .url(t("Validation.invalidUrl"))
       .optional()
       .or(z.literal("").transform(() => undefined)),
   });

@@ -14,8 +14,8 @@ import { TranslateFn } from "./translate";
  */
 export const createEssayAnswerSchema = (t: TranslateFn) =>
   z.object({
-    participantId: z.string().min(1, t("participantIdRequired")),
-    questionId: z.string().min(1, t("questionIdRequired")),
+    participantId: z.string().min(1, t("Validation.participantIdRequired")),
+    questionId: z.string().min(1, t("Validation.questionIdRequired")),
     /** Participant's written response. Empty string is allowed (skipped). */
     answerText: z.string(),
   });
@@ -51,8 +51,8 @@ export type EssayAnswerUpdateInput = z.infer<
  */
 export const createChoiceAnswerSchema = (t: TranslateFn) =>
   z.object({
-    participantId: z.string().min(1, t("participantIdRequired")),
-    questionId: z.string().min(1, t("questionIdRequired")),
+    participantId: z.string().min(1, t("Validation.participantIdRequired")),
+    questionId: z.string().min(1, t("Validation.questionIdRequired")),
     /** null means the participant skipped the question. */
     selectedChoiceId: z.string().nullable().optional(),
   });
@@ -88,8 +88,8 @@ export type ChoiceAnswerUpdateInput = z.infer<
  */
 export const createMultipleSelectAnswerSchema = (t: TranslateFn) =>
   z.object({
-    participantId: z.string().min(1, t("participantIdRequired")),
-    questionId: z.string().min(1, t("questionIdRequired")),
+    participantId: z.string().min(1, t("Validation.participantIdRequired")),
+    questionId: z.string().min(1, t("Validation.questionIdRequired")),
     /** IDs of all selected choices. Empty array means skipped. */
     selectedChoiceIds: z.array(z.string()),
   });
@@ -126,11 +126,11 @@ export type MultipleSelectAnswerUpdateInput = z.infer<
  */
 export const createSubmitAnswersSchema = (t: TranslateFn) =>
   z.object({
-    participantId: z.string().min(1, t("participantIdRequired")),
+    participantId: z.string().min(1, t("Validation.participantIdRequired")),
     essayAnswers: z
       .array(
         z.object({
-          questionId: z.string().min(1, t("questionIdRequired")),
+          questionId: z.string().min(1, t("Validation.questionIdRequired")),
           answerText: z.string(),
         }),
       )
@@ -138,7 +138,7 @@ export const createSubmitAnswersSchema = (t: TranslateFn) =>
     choiceAnswers: z
       .array(
         z.object({
-          questionId: z.string().min(1, t("questionIdRequired")),
+          questionId: z.string().min(1, t("Validation.questionIdRequired")),
           selectedChoiceId: z.string().nullable().optional(),
         }),
       )
@@ -146,7 +146,7 @@ export const createSubmitAnswersSchema = (t: TranslateFn) =>
     multipleSelectAnswers: z
       .array(
         z.object({
-          questionId: z.string().min(1, t("questionIdRequired")),
+          questionId: z.string().min(1, t("Validation.questionIdRequired")),
           selectedChoiceIds: z.array(z.string()),
         }),
       )
@@ -170,7 +170,10 @@ export type SubmitAnswersInput = z.infer<
  */
 export const createGradeEssayAnswerSchema = (t: TranslateFn) =>
   z.object({
-    score: z.number().int(t("integer")).min(0, t("scoreNonNegative")),
+    score: z
+      .number()
+      .int(t("Validation.integer"))
+      .min(0, t("Validation.scoreNonNegative")),
     scoreExplanation: z.string().optional(),
   });
 

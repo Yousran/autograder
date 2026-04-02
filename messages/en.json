@@ -20,6 +20,7 @@
       "fetchFailed": "Failed to fetch choices. Please try again.",
       "createFailed": "Failed to create choice. Please try again.",
       "updateFailed": "Failed to update choice. Please try again.",
+      "deleteFailed": "Failed to delete choice. Please try again.",
       "unsupportedType": "Unsupported question type.",
       "cannotDeleteCorrect": "Cannot delete a choice marked as correct.",
       "cannotDeleteMinChoices": "At least 2 choices are required — cannot delete further.",
@@ -124,7 +125,10 @@
     "minScoreMin": "Minimum score must be at least 0",
     "minScoreMax": "Minimum score cannot exceed 100",
     "scoreNonNegative": "Score must be 0 or greater",
-    "atLeastOneChoice": "Please select at least one choice"
+    "atLeastOneChoice": "Please select at least one choice",
+    "choiceIdRequired": "Choice ID is required",
+    "invalidJson": "Invalid JSON format",
+    "invalidInput": "Invalid input"
   },
   "Common": {
     "loading": "Loading...",

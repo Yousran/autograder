@@ -62,13 +62,13 @@ export const createJoinTestSchema = (t: TranslateFn) =>
     /** The participant's display name shown to the test creator. */
     name: z
       .string()
-      .min(1, t("participantNameRequired"))
-      .min(2, t("nameTooShort")),
+      .min(1, t("Validation.participantNameRequired"))
+      .min(2, t("Validation.nameTooShort")),
     /** 6-character join code printed on / linked from the test. */
     joinCode: z
       .string()
-      .min(1, t("joinCodeRequired"))
-      .length(6, t("joinCodeLength")),
+      .min(1, t("Validation.joinCodeRequired"))
+      .length(6, t("Validation.joinCodeLength")),
   });
 
 export type JoinTestInput = z.infer<ReturnType<typeof createJoinTestSchema>>;
@@ -103,12 +103,12 @@ export const createGuestJoinSchema = (t: TranslateFn) =>
   z.object({
     name: z
       .string()
-      .min(1, t("participantNameRequired"))
-      .min(2, t("nameTooShort")),
+      .min(1, t("Validation.participantNameRequired"))
+      .min(2, t("Validation.nameTooShort")),
     joinCode: z
       .string()
-      .min(1, t("joinCodeRequired"))
-      .length(6, t("joinCodeLength")),
+      .min(1, t("Validation.joinCodeRequired"))
+      .length(6, t("Validation.joinCodeLength")),
   });
 
 export type GuestJoinInput = z.infer<ReturnType<typeof createGuestJoinSchema>>;

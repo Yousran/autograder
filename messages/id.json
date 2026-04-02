@@ -20,6 +20,7 @@
       "fetchFailed": "Gagal mengambil daftar pilihan. Silakan coba lagi.",
       "createFailed": "Gagal membuat pilihan. Silakan coba lagi.",
       "updateFailed": "Gagal memperbarui pilihan. Silakan coba lagi.",
+      "deleteFailed": "Gagal menghapus pilihan. Silakan coba lagi.",
       "unsupportedType": "Jenis pertanyaan tidak didukung.",
       "cannotDeleteCorrect": "Tidak dapat menghapus pilihan yang ditandai benar.",
       "cannotDeleteMinChoices": "Minimal 2 pilihan diperlukan — tidak dapat menghapus lebih lanjut.",
@@ -124,7 +125,10 @@
     "minScoreMin": "Skor minimum harus minimal 0",
     "minScoreMax": "Skor minimum tidak boleh melebihi 100",
     "scoreNonNegative": "Skor harus 0 atau lebih",
-    "atLeastOneChoice": "Harap pilih setidaknya satu pilihan"
+    "atLeastOneChoice": "Harap pilih setidaknya satu pilihan",
+    "choiceIdRequired": "ID pilihan wajib diisi",
+    "invalidJson": "Format JSON tidak valid",
+    "invalidInput": "Masukan tidak valid"
   },
   "Common": {
     "loading": "Memuat...",

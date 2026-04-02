@@ -16,7 +16,7 @@ import type { MultipleSelectChoice } from "../generated/prisma/client";
 export const MultipleSelectChoiceValidationSchema = (t: TranslateFn) =>
   z.object({
     id: z.string().optional(),
-    choiceText: z.string().min(1, t("choiceTextRequired")),
+    choiceText: z.string().min(1, t("Validation.choiceTextRequired")),
     isCorrect: z.boolean(),
   });
 

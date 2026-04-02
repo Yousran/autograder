@@ -14,11 +14,13 @@ import { TranslateFn } from "./translate";
  */
 export const createTestPrerequisiteObjectSchema = (t: TranslateFn) =>
   z.object({
-    prerequisiteTestId: z.string().min(1, t("prerequisiteTestIdRequired")),
+    prerequisiteTestId: z
+      .string()
+      .min(1, t("Validation.prerequisiteTestIdRequired")),
     minScoreRequired: z
       .number()
-      .min(0, t("minScoreMin"))
-      .max(100, t("minScoreMax")),
+      .min(0, t("Validation.minScoreMin"))
+      .max(100, t("Validation.minScoreMax")),
   });
 
 /**
@@ -32,8 +34,8 @@ export const createTestPrerequisiteSchema = (t: TranslateFn) =>
   createTestPrerequisiteObjectSchema(t).extend({
     minScoreRequired: z
       .number()
-      .min(0, t("minScoreMin"))
-      .max(100, t("minScoreMax"))
+      .min(0, t("Validation.minScoreMin"))
+      .max(100, t("Validation.minScoreMax"))
       .default(0),
   });
 
