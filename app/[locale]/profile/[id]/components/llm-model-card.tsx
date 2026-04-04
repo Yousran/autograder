@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Plus as PlusIcon, Trash2 as Trash2Icon } from "lucide-react";
+import { Plus, Trash } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   createEssayGradingModelSchema,
   essayGradingModelResponseSchema,
@@ -44,6 +45,7 @@ export function LLMModelCard() {
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingModel, setEditingModel] = useState<LLMModel | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     baseUrl: "",
@@ -81,12 +83,26 @@ export function LLMModelCard() {
   // ---------------------------------------------------------------------------
 
   function openDialog() {
+    setEditingModel(null);
     setFormData({
       name: "",
       baseUrl: "",
       model: "",
       apiKey: "",
       isDefault: false,
+    });
+    setFormErrors({});
+    setDialogOpen(true);
+  }
+
+  function openEditDialog(model: LLMModel) {
+    setEditingModel(model);
+    setFormData({
+      name: model.name,
+      baseUrl: model.baseUrl,
+      model: model.model,
+      apiKey: "", // API key is never shown/pre-filled for security
+      isDefault: model.isDefault,
     });
     setFormErrors({});
     setDialogOpen(true);
@@ -108,19 +124,54 @@ export function LLMModelCard() {
   }
 
   async function handleAdd() {
-    const schema = createEssayGradingModelSchema((key) => t(key));
-    const parsed = schema.safeParse(formData);
-
-    if (!parsed.success) {
+    if (editingModel) {
+      // Update existing model - validate only required fields
       const errors: Record<string, string> = {};
-      parsed.error.issues.forEach((issue) => {
-        const path = issue.path.join(".");
-        errors[path] = issue.message;
-      });
-      setFormErrors(errors);
-      return;
-    }
 
+      if (!formData.name.trim()) {
+        errors.name = t("Validation.fieldRequired", {
+          field: t("Components.llmModel.nameLabel"),
+        });
+      }
+      if (!formData.baseUrl.trim()) {
+        errors.baseUrl = t("Validation.fieldRequired", {
+          field: t("Components.llmModel.baseUrlLabel"),
+        });
+      }
+      if (!formData.model.trim()) {
+        errors.model = t("Validation.fieldRequired", {
+          field: t("Components.llmModel.modelLabel"),
+        });
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setFormErrors(errors);
+        return;
+      }
+
+      await handleUpdate(editingModel.id);
+    } else {
+      // Create new model - use full validation schema
+      const schema = createEssayGradingModelSchema((key) => t(key));
+      const parsed = schema.safeParse(formData);
+
+      if (!parsed.success) {
+        const errors: Record<string, string> = {};
+        parsed.error.issues.forEach((issue) => {
+          const path = issue.path.join(".");
+          errors[path] = issue.message;
+        });
+        setFormErrors(errors);
+        return;
+      }
+
+      await handleCreate(parsed.data);
+    }
+  }
+
+  async function handleCreate(
+    data: z.infer<ReturnType<typeof createEssayGradingModelSchema>>,
+  ) {
     setIsSubmitting(true);
 
     const tempId = `temp-${crypto.randomUUID()}`;
@@ -143,7 +194,7 @@ export function LLMModelCard() {
       const res = await fetch("/api/essay-grading-model", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        body: JSON.stringify(data),
       });
 
       if (!res.ok) {
@@ -168,6 +219,69 @@ export function LLMModelCard() {
         err instanceof Error
           ? err.message
           : t("Components.llmModel.createFailed"),
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleUpdate(modelId: string) {
+    setIsSubmitting(true);
+    const previousModels = models;
+
+    // Optimistically update the model
+    setModels((prev) =>
+      prev.map((m) =>
+        m.id === modelId
+          ? {
+              ...m,
+              name: formData.name,
+              baseUrl: formData.baseUrl,
+              model: formData.model,
+              isDefault: formData.isDefault,
+            }
+          : m,
+      ),
+    );
+    setDialogOpen(false);
+
+    try {
+      const updateData = {
+        name: formData.name,
+        baseUrl: formData.baseUrl,
+        model: formData.model,
+        isDefault: formData.isDefault,
+        ...(formData.apiKey ? { apiKey: formData.apiKey } : {}),
+      };
+
+      const res = await fetch(`/api/essay-grading-model/${modelId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          (data as { error?: string }).error ??
+            t("Components.llmModel.updateFailed"),
+        );
+      }
+
+      const updated = essayGradingModelResponseSchema.parse(await res.json());
+
+      // Replace with server response
+      setModels((prev) => prev.map((m) => (m.id === modelId ? updated : m)));
+
+      toast.success(t("Components.llmModel.updateSuccess"));
+    } catch (err) {
+      // Rollback
+      setModels(previousModels);
+      console.error(err);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : t("Components.llmModel.updateFailed"),
       );
     } finally {
       setIsSubmitting(false);
@@ -228,7 +342,8 @@ export function LLMModelCard() {
             {models.map((model) => (
               <li
                 key={model.id}
-                className="flex items-start justify-between gap-3 rounded-md border px-3 py-2"
+                className="flex items-center justify-between p-4 gap-4 rounded-md border cursor-pointer hover:bg-accent transition-colors"
+                onClick={() => openEditDialog(model)}
                 data-testid={`llm-model-item-${model.id}`}
               >
                 <div className="flex-1 min-w-0">
@@ -251,16 +366,18 @@ export function LLMModelCard() {
                 </div>
 
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="icon"
-                  className="size-7 text-destructive hover:text-destructive shrink-0"
-                  onClick={() => handleRemove(model)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemove(model);
+                  }}
                   aria-label={t("Components.llmModel.removeAriaLabel", {
                     name: model.name,
                   })}
                   data-testid={`btn-remove-llm-model-${model.id}`}
                 >
-                  <Trash2Icon className="size-3.5" />
+                  <Trash />
                 </Button>
               </li>
             ))}
@@ -269,13 +386,12 @@ export function LLMModelCard() {
 
         <Button
           variant="outline"
-          size="sm"
           className="self-start"
           onClick={openDialog}
           disabled={isLoading}
           data-testid="btn-add-llm-model"
         >
-          <PlusIcon className="size-3.5 mr-1" />
+          <Plus className="size-3.5 mr-1" />
           {t("Components.llmModel.addButton")}
         </Button>
       </div>
@@ -287,7 +403,11 @@ export function LLMModelCard() {
           data-testid="dialog-add-llm-model"
         >
           <DialogHeader>
-            <DialogTitle>{t("Components.llmModel.dialogTitle")}</DialogTitle>
+            <DialogTitle>
+              {editingModel
+                ? t("Components.llmModel.editDialogTitle")
+                : t("Components.llmModel.dialogTitle")}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="flex flex-col gap-4 py-2">
@@ -357,25 +477,25 @@ export function LLMModelCard() {
                 data-testid="input-api-key"
               />
               <p className="text-xs text-muted-foreground">
-                {t("Components.llmModel.apiKeyDescription")}
+                {editingModel
+                  ? t("Components.llmModel.apiKeyEditDescription")
+                  : t("Components.llmModel.apiKeyDescription")}
               </p>
             </div>
 
             {/* Is Default */}
-            <div className="flex items-center gap-2">
-              <input
-                id="is-default"
-                type="checkbox"
-                checked={formData.isDefault}
-                onChange={(e) =>
-                  handleInputChange("isDefault", e.target.checked)
-                }
-                data-testid="checkbox-is-default"
-                className="w-4 h-4 rounded border border-input"
-              />
+            <div className="flex items-center justify-between gap-4 p-2 rounded-md border">
               <Label htmlFor="is-default" className="cursor-pointer">
                 {t("Components.llmModel.isDefaultLabel")}
               </Label>
+              <Switch
+                id="is-default"
+                checked={formData.isDefault}
+                onCheckedChange={(value) =>
+                  handleInputChange("isDefault", value)
+                }
+                data-testid="switch-is-default"
+              />
             </div>
           </div>
 
@@ -393,8 +513,12 @@ export function LLMModelCard() {
               data-testid="btn-confirm-llm-model"
             >
               {isSubmitting
-                ? t("Components.llmModel.adding")
-                : t("Components.llmModel.addConfirm")}
+                ? editingModel
+                  ? t("Components.llmModel.updating")
+                  : t("Components.llmModel.adding")
+                : editingModel
+                  ? t("Components.llmModel.updateConfirm")
+                  : t("Components.llmModel.addConfirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

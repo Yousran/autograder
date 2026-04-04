@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Link } from "@/i18n/navigation";
 import DeleteAccountButton from "@/components/custom/delete-account-button";
 import { GaugeCombined } from "@/components/ui/gauge";
-import { LLMModelCard } from "@/components/custom/llm-model-card";
+import { LLMModelCard } from "./components/llm-model-card";
 import type { Participant, Test } from "@/lib/generated/prisma/client";
 
 type ParticipantWithTest = Participant & { test: Test };
