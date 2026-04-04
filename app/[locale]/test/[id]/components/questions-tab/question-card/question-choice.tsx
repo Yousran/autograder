@@ -19,6 +19,7 @@ import {
   getChoiceEditorPlainText,
 } from "@/components/custom/choice-editor";
 import { QuestionWithDetails } from "@/lib/schemas/question";
+import { useSync } from "../../../context/sync-context";
 
 export function QuestionChoice({
   question,
@@ -30,6 +31,7 @@ export function QuestionChoice({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { setSaving, setSaved, setError: setSyncError } = useSync();
 
   // Fetch choices based on question
   useEffect(() => {
@@ -123,10 +125,14 @@ export function QuestionChoice({
       prev.map((c) => ({ ...c, isCorrect: c.id === choiceId })),
     );
     setIsUpdating(true);
+    setSaving(true);
+    setSaved(false);
 
     // Temp choices aren't persisted yet — skip the server call
     if (choiceId.startsWith("temp-")) {
       setIsUpdating(false);
+      setSaving(false);
+      setSaved(true);
       return;
     }
 
@@ -142,7 +148,8 @@ export function QuestionChoice({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to update choice");
+        const errorMsg = data.error || "Failed to update choice";
+        throw new Error(errorMsg);
       }
 
       const res = await response.json();
@@ -158,12 +165,17 @@ export function QuestionChoice({
             : { ...c, isCorrect: c.id === updated.id },
         ),
       );
+      setSaved(true);
     } catch (err) {
       console.error("Error updating choice:", err);
       setChoices(previous);
-      setError(err instanceof Error ? err.message : "Failed to update choice");
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to update choice";
+      setError(errorMsg);
+      setSyncError(errorMsg);
     } finally {
       setIsUpdating(false);
+      setSaving(false);
     }
   };
 

@@ -23,6 +23,7 @@ import {
   getChoiceEditorPlainText,
 } from "@/components/custom/choice-editor";
 import { QuestionWithDetails } from "@/lib/schemas/question";
+import { useSync } from "../../../context/sync-context";
 
 export function QuestionMultipleChoice({
   question,
@@ -38,6 +39,7 @@ export function QuestionMultipleChoice({
   const [updatingChoices, setUpdatingChoices] = useState<Set<string>>(
     new Set(),
   );
+  const { setSaving, setSaved, setError: setSyncError } = useSync();
 
   useEffect(() => {
     if (question.id.startsWith("temp-")) {
@@ -154,6 +156,8 @@ export function QuestionMultipleChoice({
       ),
     );
     setUpdatingChoices((prev) => new Set([...prev, choiceId]));
+    setSaving(true);
+    setSaved(false);
 
     // If the choice is a temp one, don't call the server (it isn't persisted yet)
     if (choiceId.startsWith("temp-")) {
@@ -162,6 +166,8 @@ export function QuestionMultipleChoice({
         next.delete(choiceId);
         return next;
       });
+      setSaving(false);
+      setSaved(true);
       return;
     }
 
@@ -180,7 +186,8 @@ export function QuestionMultipleChoice({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to update choice");
+        const errorMsg = data.error || "Failed to update choice";
+        throw new Error(errorMsg);
       }
 
       const res = await response.json();
@@ -194,16 +201,21 @@ export function QuestionMultipleChoice({
       setChoices((prev) =>
         prev.map((c) => (c.id === updated.id ? updated : c)),
       );
+      setSaved(true);
     } catch (err) {
       console.error("Error updating choice:", err);
       setChoices(previous);
-      setError(err instanceof Error ? err.message : "Failed to update choice");
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to update choice";
+      setError(errorMsg);
+      setSyncError(errorMsg);
     } finally {
       setUpdatingChoices((prev) => {
         const next = new Set(prev);
         next.delete(choiceId);
         return next;
       });
+      setSaving(false);
     }
   };
 
