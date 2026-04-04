@@ -1,9 +1,10 @@
+//TODO: scroll to newly created question
+//TODO: randomize choices
+//TODO: theme changer support
+//TODO: nextstepjs tour component for onboarding
+//TODO: refactor all types, interfaces, prisma types, and zod schemas
 //TODO: make sure to use next-intl for all text content and add missing translations
 //TODO: on field error display instead of just showing a toast
-//TODO: scroll to top button on question editing page
-//TODO: scroll to newly created question
-//TODO: nextstepjs tour component for onboarding
-//TODO: theme changer support
 //TODO: predetermined random question support
 
 "use client";

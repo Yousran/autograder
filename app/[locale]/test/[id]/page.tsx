@@ -3,6 +3,7 @@ import { JoinCodeCard } from "@/components/custom/join-code-card";
 import Navbar from "@/components/custom/navbar";
 import { Card } from "@/components/ui/card";
 import { TestTabs } from "./components/test-tabs";
+import { ScrollToTopButton } from "@/components/custom/scroll-to-top-button";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { TestSchema } from "@/lib/schemas/test";
@@ -85,6 +86,7 @@ export default async function TestPage({
           <TestTabs test={test} />
         </div>
       </main>
+      <ScrollToTopButton />
     </div>
   );
 }

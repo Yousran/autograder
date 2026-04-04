@@ -566,6 +566,10 @@
       "saving": "Saving...",
       "saved": "Saved",
       "error": "Error saving"
+    },
+    "scrollToTop": {
+      "label": "Scroll to top",
+      "tooltip": "Back to top"
     }
   }
 }
