@@ -27,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useSync } from "../../../context/sync-context";
 
 export function QuestionCard({
   question,
@@ -40,19 +41,38 @@ export function QuestionCard({
   onTypeChange?: (type: QuestionType) => void;
 }) {
   const t = useTranslations();
+  const { setSaving, setSaved, setError } = useSync();
 
   const handleQuestionTextUpdate = useCallback(
     async (newText: string) => {
-      await fetch(`/api/questions/${question.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionText: newText,
-          type: question.type,
-        }),
-      });
+      setSaving(true);
+      setSaved(false);
+
+      try {
+        const res = await fetch(`/api/questions/${question.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            questionText: newText,
+            type: question.type,
+          }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Failed to update question text");
+        }
+
+        setSaved(true);
+      } catch (err) {
+        const errorMsg =
+          err instanceof Error ? err.message : "Failed to update question text";
+        setError(errorMsg);
+      } finally {
+        setSaving(false);
+      }
     },
-    [question.id, question.type],
+    [question.id, question.type, setSaving, setSaved, setError],
   );
 
   return (

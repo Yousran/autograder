@@ -9,10 +9,13 @@ import { MaxScoreEditable } from "./max-score-editable";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 import { QuestionWithDetails } from "@/lib/schemas/question";
 import { useQuestions } from "../../../context/question-context";
+import { useSync } from "../../../context/sync-context";
 
 export function QuestionEssay({ question }: { question: QuestionWithDetails }) {
   const t = useTranslations();
   const { updateQuestion } = useQuestions();
+
+  const { setSaving, setSaved, setError } = useSync();
 
   const handleUpdate = useCallback(
     async (value: string) => {
@@ -25,6 +28,8 @@ export function QuestionEssay({ question }: { question: QuestionWithDetails }) {
           ? { ...question.essay, answerText: value }
           : undefined,
       });
+      setSaving(true);
+      setSaved(false);
 
       try {
         // Execution: Make API call
@@ -39,22 +44,40 @@ export function QuestionEssay({ question }: { question: QuestionWithDetails }) {
 
         if (!res.ok) {
           // Reconciliation: Rollback on error
+          const data = await res.json();
+          const errorMsg = data.error || "Failed to update answer";
           updateQuestion(question.id, {
             essay: question.essay
               ? { ...question.essay, answerText: previousData }
               : undefined,
           });
+          setError(errorMsg);
+          return;
         }
-      } catch {
+
+        setSaved(true);
+      } catch (err) {
         // Reconciliation: Rollback on error
         updateQuestion(question.id, {
           essay: question.essay
             ? { ...question.essay, answerText: previousData }
             : undefined,
         });
+        const errorMsg =
+          err instanceof Error ? err.message : "Failed to update answer";
+        setError(errorMsg);
+      } finally {
+        setSaving(false);
       }
     },
-    [question.id, question.essay, updateQuestion],
+    [
+      question.id,
+      question.essay,
+      updateQuestion,
+      setSaving,
+      setSaved,
+      setError,
+    ],
   );
 
   return (

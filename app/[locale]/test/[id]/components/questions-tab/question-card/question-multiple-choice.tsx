@@ -35,11 +35,10 @@ export function QuestionMultipleChoice({
     Array<ChoiceSchemaType | MultipleSelectChoiceType>
   >([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [updatingChoices, setUpdatingChoices] = useState<Set<string>>(
     new Set(),
   );
-  const { setSaving, setSaved, setError: setSyncError } = useSync();
+  const { setSaving, setSaved, setError } = useSync();
 
   useEffect(() => {
     if (question.id.startsWith("temp-")) {
@@ -85,7 +84,7 @@ export function QuestionMultipleChoice({
     };
 
     fetchChoices();
-  }, [question.id, t]);
+  }, [question.id, setError, t]);
 
   const handleCreateChoice = async () => {
     try {
@@ -96,6 +95,8 @@ export function QuestionMultipleChoice({
         isCorrect: false,
       };
       setChoices((prev) => [...prev, optimisticChoice]);
+      setSaving(true);
+      setSaved(false);
 
       const response = await fetch(
         `/api/choices/create?questionid=${encodeURIComponent(question.id)}`,
@@ -122,10 +123,15 @@ export function QuestionMultipleChoice({
       setChoices((prev) =>
         prev.map((c) => (c.id === optimisticChoice.id ? validatedChoice : c)),
       );
+      setSaved(true);
     } catch (err) {
       console.error("Error creating choice:", err);
       setChoices((prev) => prev.filter((c) => !c.id.startsWith("temp-")));
-      setError(err instanceof Error ? err.message : "Failed to create choice");
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to create choice";
+      setError(errorMsg);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -208,7 +214,6 @@ export function QuestionMultipleChoice({
       const errorMsg =
         err instanceof Error ? err.message : "Failed to update choice";
       setError(errorMsg);
-      setSyncError(errorMsg);
     } finally {
       setUpdatingChoices((prev) => {
         const next = new Set(prev);
@@ -245,6 +250,8 @@ export function QuestionMultipleChoice({
 
     setChoices((prev) => prev.filter((c) => c.id !== choiceId));
     setUpdatingChoices((prev) => new Set([...prev, choiceId]));
+    setSaving(true);
+    setSaved(false);
 
     try {
       const response = await fetch(
@@ -258,16 +265,20 @@ export function QuestionMultipleChoice({
         const data = await response.json().catch(() => ({}));
         throw new Error(data.error || "Failed to delete choice");
       }
+      setSaved(true);
     } catch (err) {
       console.error("Error deleting choice:", err);
       setChoices(previous);
-      setError(err instanceof Error ? err.message : "Failed to delete choice");
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to delete choice";
+      setError(errorMsg);
     } finally {
       setUpdatingChoices((prev) => {
         const next = new Set(prev);
         next.delete(choiceId);
         return next;
       });
+      setSaving(false);
     }
   };
 
@@ -276,30 +287,33 @@ export function QuestionMultipleChoice({
       throw new Error(t("Validation.choiceTextRequired"));
     }
 
-    const res = await fetch(`/api/choices/${encodeURIComponent(choiceId)}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ choiceText: value }),
-    });
+    setSaving(true);
+    setSaved(false);
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.error || "Failed to update choice text");
+    try {
+      const res = await fetch(`/api/choices/${encodeURIComponent(choiceId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ choiceText: value }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to update choice text");
+      }
+      setSaved(true);
+    } catch (err) {
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to update choice text";
+      setError(errorMsg);
+      throw err;
+    } finally {
+      setSaving(false);
     }
   };
 
   if (isLoading) {
     return <ChoiceSkeleton />;
-  }
-
-  if (error) {
-    return (
-      <div>
-        <ChoiceItem>
-          <p className="text-red-600">{error}</p>
-        </ChoiceItem>
-      </div>
-    );
   }
 
   return (
