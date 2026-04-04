@@ -1,5 +1,5 @@
-//TODO: randomize choices
 //TODO: theme changer support
+//TODO: user preferences
 //TODO: nextstepjs tour component for onboarding
 //TODO: refactor all types, interfaces, prisma types, and zod schemas
 //TODO: make sure to use next-intl for all text content and add missing translations

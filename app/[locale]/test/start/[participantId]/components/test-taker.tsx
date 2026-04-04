@@ -115,6 +115,20 @@ function shuffleWithSeed<T>(array: T[], seed: string): T[] {
   return result;
 }
 
+/**
+ * Returns shuffled or original choices based on isChoiceRandomized flag.
+ * Uses deterministic shuffle based on participantId + questionId seed.
+ */
+function getDisplayChoices(
+  choices: Choice[],
+  isRandomized: boolean,
+  participantId: string,
+  questionId: string,
+): Choice[] {
+  if (!isRandomized) return choices;
+  return shuffleWithSeed(choices, `${participantId}-${questionId}`);
+}
+
 // ---------------------------------------------------------------------------
 // TestTaker (main client orchestrator)
 // ---------------------------------------------------------------------------
@@ -559,7 +573,12 @@ export function TestTaker({
             {currentQuestion.type === "CHOICE" && currentQuestion.choice && (
               <AnswerChoice
                 questionId={currentQuestion.id}
-                choices={currentQuestion.choice.choices}
+                choices={getDisplayChoices(
+                  currentQuestion.choice.choices,
+                  currentQuestion.choice.isChoiceRandomized,
+                  participantId,
+                  currentQuestion.id,
+                )}
                 value={choiceDraft[currentQuestion.id] ?? null}
                 onChange={(v) =>
                   setChoiceDraft((prev) => ({
@@ -574,7 +593,12 @@ export function TestTaker({
               currentQuestion.multipleSelect && (
                 <AnswerMultipleChoice
                   questionId={currentQuestion.id}
-                  choices={currentQuestion.multipleSelect.multipleSelectChoices}
+                  choices={getDisplayChoices(
+                    currentQuestion.multipleSelect.multipleSelectChoices,
+                    currentQuestion.multipleSelect.isChoiceRandomized,
+                    participantId,
+                    currentQuestion.id,
+                  )}
                   value={multiDraft[currentQuestion.id] ?? []}
                   onChange={(v) =>
                     setMultiDraft((prev) => ({
