@@ -14,9 +14,11 @@ import {
 } from "@/lib/schemas/question";
 import { QuestionType } from "@/lib/generated/prisma/browser";
 import { QuestionsProvider } from "../../context/question-context";
+import { useSync } from "../../context/sync-context";
 
 export function QuestionsTab({ testId }: { testId: string }) {
   const t = useTranslations();
+  const { setSaving, setSaved, setError } = useSync();
   const [questions, setQuestions] = useState<QuestionWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -79,23 +81,39 @@ export function QuestionsTab({ testId }: { testId: string }) {
 
     // 1. Optimistic: update visual order immediately
     setQuestions(newQuestions);
+    setSaving(true);
+    setSaved(false);
 
     const newIdx = overIndex;
     const beforeId = newIdx > 0 ? newQuestions[newIdx - 1].id : null;
     const afterId =
       newIdx < newQuestions.length - 1 ? newQuestions[newIdx + 1].id : null;
 
-    const res = await fetch(`/api/questions/${draggedItem.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ beforeId, afterId }),
-    }).catch(() => null);
+    try {
+      const res = await fetch(`/api/questions/${draggedItem.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ beforeId, afterId }),
+      });
 
-    if (!res || !res.ok) {
-      setQuestions(previous); // rollback
-      const data = await res?.json().catch(() => ({}));
-      toast.error(data?.error ?? t("Components.questionsTab.reorderFailed"));
-      return;
+      if (!res || !res.ok) {
+        setQuestions(previous); // rollback
+        const data = await res?.json().catch(() => ({}));
+        const errorMsg =
+          data?.error ?? t("Components.questionsTab.reorderFailed");
+        setError(errorMsg);
+        return;
+      }
+      setSaved(true);
+    } catch (err) {
+      setQuestions(previous);
+      const errorMsg =
+        err instanceof Error
+          ? err.message
+          : t("Components.questionsTab.reorderFailed");
+      setError(errorMsg);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -126,24 +144,41 @@ export function QuestionsTab({ testId }: { testId: string }) {
       next.splice(idx + 1, 0, tempItem);
       return next;
     });
-    const res = await fetch("/api/questions/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        testId,
-        insertAfterId: afterId,
-      }),
-    }).catch(() => null);
+    setSaving(true);
+    setSaved(false);
 
-    if (!res || !res.ok) {
+    try {
+      const res = await fetch("/api/questions/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          testId,
+          insertAfterId: afterId,
+        }),
+      });
+
+      if (!res || !res.ok) {
+        setQuestions((prev) => prev.filter((q) => q.id !== tempId));
+        const data = await res?.json().catch(() => ({}));
+        const errorMsg =
+          data?.error ?? t("Components.questionsTab.createFailed");
+        setError(errorMsg);
+        return;
+      }
+
+      const question: QuestionWithDetails = await res.json();
+      setQuestions((prev) => prev.map((q) => (q.id === tempId ? question : q)));
+      setSaved(true);
+    } catch (err) {
       setQuestions((prev) => prev.filter((q) => q.id !== tempId));
-      const data = await res?.json().catch(() => ({}));
-      toast.error(data?.error ?? t("Components.questionsTab.createFailed"));
-      return;
+      const errorMsg =
+        err instanceof Error
+          ? err.message
+          : t("Components.questionsTab.createFailed");
+      setError(errorMsg);
+    } finally {
+      setSaving(false);
     }
-
-    const question: QuestionWithDetails = await res.json();
-    setQuestions((prev) => prev.map((q) => (q.id === tempId ? question : q)));
   }
 
   async function handleTypeChange(
@@ -152,29 +187,40 @@ export function QuestionsTab({ testId }: { testId: string }) {
   ): Promise<void> {
     const previous = questions;
     setQuestions((prev) => prev.map((q) => (q.id === id ? { ...q, type } : q)));
+    setSaving(true);
+    setSaved(false);
 
-    const res = await fetch(`/api/questions/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type }),
-    }).catch(() => null);
-
-    if (!res || !res.ok) {
-      setQuestions(previous);
-      const data = await res?.json().catch(() => ({}));
-      toast.error(data?.error ?? t("Components.questionsTab.createFailed"));
-      return;
-    }
-    // Replace the local question with the server's authoritative response
-    // which includes related type-specific data (choices/essay/multipleSelect).
     try {
+      const res = await fetch(`/api/questions/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+
+      if (!res || !res.ok) {
+        setQuestions(previous);
+        const data = await res?.json().catch(() => ({}));
+        const errorMsg =
+          data?.error ?? t("Components.questionsTab.createFailed");
+        setError(errorMsg);
+        return;
+      }
+      // Replace the local question with the server's authoritative response
+      // which includes related type-specific data (choices/essay/multipleSelect).
       const updated = await res.json();
       setQuestions((prev) => prev.map((q) => (q.id === id ? updated : q)));
+      toast.success("Question type updated");
+      setSaved(true);
     } catch (err) {
-      // If parsing fails, silently ignore — optimistic update already applied.
-      console.error("Failed to parse updated question response:", err);
+      // If parsing fails, rollback optimistic update.
+      setQuestions(previous);
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to update question type";
+      console.error("Failed to update question type:", err);
+      setError(errorMsg);
+    } finally {
+      setSaving(false);
     }
-    toast.success("Question type updated");
   }
 
   if (isLoading) {
