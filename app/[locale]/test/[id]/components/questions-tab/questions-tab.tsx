@@ -169,6 +169,16 @@ export function QuestionsTab({ testId }: { testId: string }) {
       const question: QuestionWithDetails = await res.json();
       setQuestions((prev) => prev.map((q) => (q.id === tempId ? question : q)));
       setSaved(true);
+
+      // Scroll to the newly created question
+      setTimeout(() => {
+        const element = document.querySelector(
+          `[data-question-id="${question.id}"]`,
+        );
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
     } catch (err) {
       setQuestions((prev) => prev.filter((q) => q.id !== tempId));
       const errorMsg =

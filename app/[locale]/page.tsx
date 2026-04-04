@@ -1,4 +1,3 @@
-//TODO: scroll to newly created question
 //TODO: randomize choices
 //TODO: theme changer support
 //TODO: nextstepjs tour component for onboarding
