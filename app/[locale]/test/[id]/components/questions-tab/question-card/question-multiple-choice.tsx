@@ -35,6 +35,9 @@ export function QuestionMultipleChoice({
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [updatingChoices, setUpdatingChoices] = useState<Set<string>>(
+    new Set(),
+  );
 
   useEffect(() => {
     if (question.id.startsWith("temp-")) {
@@ -125,6 +128,9 @@ export function QuestionMultipleChoice({
   };
 
   const handleToggleCorrect = async (choiceId: string) => {
+    // Prevent spam on the same choice
+    if (updatingChoices.has(choiceId)) return;
+
     const previous = choices;
 
     const target = previous.find((c) => c.id === choiceId);
@@ -147,9 +153,17 @@ export function QuestionMultipleChoice({
         c.id === choiceId ? { ...c, isCorrect: !c.isCorrect } : c,
       ),
     );
+    setUpdatingChoices((prev) => new Set([...prev, choiceId]));
 
     // If the choice is a temp one, don't call the server (it isn't persisted yet)
-    if (choiceId.startsWith("temp-")) return;
+    if (choiceId.startsWith("temp-")) {
+      setUpdatingChoices((prev) => {
+        const next = new Set(prev);
+        next.delete(choiceId);
+        return next;
+      });
+      return;
+    }
 
     try {
       const target = previous.find((c) => c.id === choiceId);
@@ -184,10 +198,19 @@ export function QuestionMultipleChoice({
       console.error("Error updating choice:", err);
       setChoices(previous);
       setError(err instanceof Error ? err.message : "Failed to update choice");
+    } finally {
+      setUpdatingChoices((prev) => {
+        const next = new Set(prev);
+        next.delete(choiceId);
+        return next;
+      });
     }
   };
 
   const handleDeleteChoice = async (choiceId: string) => {
+    // Prevent spam on the same choice
+    if (updatingChoices.has(choiceId)) return;
+
     if (choiceId.startsWith("temp-")) {
       setChoices((prev) => prev.filter((c) => c.id !== choiceId));
       return;
@@ -209,6 +232,7 @@ export function QuestionMultipleChoice({
     const previous = choices;
 
     setChoices((prev) => prev.filter((c) => c.id !== choiceId));
+    setUpdatingChoices((prev) => new Set([...prev, choiceId]));
 
     try {
       const response = await fetch(
@@ -226,6 +250,12 @@ export function QuestionMultipleChoice({
       console.error("Error deleting choice:", err);
       setChoices(previous);
       setError(err instanceof Error ? err.message : "Failed to delete choice");
+    } finally {
+      setUpdatingChoices((prev) => {
+        const next = new Set(prev);
+        next.delete(choiceId);
+        return next;
+      });
     }
   };
 

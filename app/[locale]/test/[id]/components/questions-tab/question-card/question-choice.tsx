@@ -29,6 +29,7 @@ export function QuestionChoice({
   const [choices, setChoices] = useState<ChoiceSchemaType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Fetch choices based on question
   useEffect(() => {
@@ -113,15 +114,21 @@ export function QuestionChoice({
   };
 
   const handleMarkCorrect = async (choiceId: string) => {
+    if (isUpdating) return;
+
     const previous = choices;
 
     // Optimistically mark selected as correct and others as false
     setChoices((prev) =>
       prev.map((c) => ({ ...c, isCorrect: c.id === choiceId })),
     );
+    setIsUpdating(true);
 
     // Temp choices aren't persisted yet — skip the server call
-    if (choiceId.startsWith("temp-")) return;
+    if (choiceId.startsWith("temp-")) {
+      setIsUpdating(false);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -155,6 +162,8 @@ export function QuestionChoice({
       console.error("Error updating choice:", err);
       setChoices(previous);
       setError(err instanceof Error ? err.message : "Failed to update choice");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
