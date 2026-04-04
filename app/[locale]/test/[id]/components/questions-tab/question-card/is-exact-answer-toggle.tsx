@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 import { QuestionWithDetails } from "@/lib/schemas/question";
 import { useQuestions } from "../../../context/question-context";
+import { useSync } from "../../../context/sync-context";
 
 export function IsExactAnswerToggle({
   question,
@@ -18,6 +18,7 @@ export function IsExactAnswerToggle({
     question.essay?.isExactAnswer ?? false,
   );
   const [isLoading, setIsLoading] = useState(false);
+  const { setSaving, setSaved, setError } = useSync();
   const { updateQuestion } = useQuestions();
 
   async function handleCheckedChange(next: boolean) {
@@ -25,6 +26,8 @@ export function IsExactAnswerToggle({
     // Update Switch state first (immediate visual feedback)
     setChecked(next);
     setIsLoading(true);
+    setSaving(true);
+    setSaved(false);
 
     // Snapshot: Save current state
     const previousData = question.essay?.isExactAnswer ?? false;
@@ -49,9 +52,9 @@ export function IsExactAnswerToggle({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        toast.error(
-          (data as { error?: string }).error ?? t("Api.questions.updateFailed"),
-        );
+        const errorMsg =
+          (data as { error?: string }).error ?? t("Api.questions.updateFailed");
+        setError(errorMsg);
         // Reconciliation: Rollback on error
         setChecked(previousData);
         updateQuestion(question.id, {
@@ -62,9 +65,13 @@ export function IsExactAnswerToggle({
         return;
       }
 
-      toast.success(t("Api.questions.updateSuccess"));
-    } catch {
-      toast.error(t("Api.questions.updateFailed"));
+      setSaved(true);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : t("Api.questions.updateFailed"),
+      );
       // Reconciliation: Rollback on error
       setChecked(previousData);
       updateQuestion(question.id, {
@@ -74,6 +81,7 @@ export function IsExactAnswerToggle({
       });
     } finally {
       setIsLoading(false);
+      setSaving(false);
     }
   }
 

@@ -14,11 +14,13 @@ export function QuestionsOrderedToggle({
 }) {
   const t = useTranslations();
   const [checked, setChecked] = useState(initialValue);
-  const { saving, setSaving, setSaved, setError } = useSync();
+  const [isLoading, setIsLoading] = useState(false);
+  const { setSaving, setSaved, setError } = useSync();
 
   async function handleCheckedChange(next: boolean) {
-    if (saving) return;
+    if (isLoading) return;
     setChecked(next);
+    setIsLoading(true);
     setSaving(true);
     setSaved(false);
 
@@ -45,6 +47,7 @@ export function QuestionsOrderedToggle({
       );
       setChecked(!next);
     } finally {
+      setIsLoading(false);
       setSaving(false);
     }
   }
