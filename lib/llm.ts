@@ -55,7 +55,7 @@ export async function llm({
         minScore,
         maxScore,
       });
-
+      console.log("Custom LLM grading response");
       return parseGradingResponse(reply, minScore, maxScore);
     } else {
       // Fallback to OpenRouter
@@ -74,7 +74,7 @@ export async function llm({
       Jawaban peserta adalah : ${answer}`,
         },
       ]);
-
+      console.log("OpenRouter grading response");
       return parseGradingResponse(reply, minScore, maxScore);
     }
   } catch (error) {

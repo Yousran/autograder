@@ -88,6 +88,7 @@ export type UpdateEssayGradingModelInput = z.infer<
 /**
  * Schema for a single essay grading model response.
  * Includes all fields returned from the database.
+ * Handles both ISO string dates from JSON and native Date objects.
  *
  * @returns Zod schema for essay grading model response
  */
@@ -99,8 +100,8 @@ export const essayGradingModelResponseSchema = z.object({
   model: z.string(),
   apiKey: z.string().nullable(),
   isDefault: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export type EssayGradingModelResponse = z.infer<

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { llm } from "@/lib/llm";
+import { EssayGradingModel } from "@/lib/generated/prisma/browser";
 
 type EssayQuestionGradeContext = {
   answerText: string;
@@ -13,13 +14,14 @@ type GradeMessages = { exactMatch: string; noMatch: string };
 /**
  * Grades an essay answer using either exact matching or AI-powered grading.
  * If `isExactAnswer` is true, performs case-insensitive trimmed comparison (full score or 0).
- * If `isExactAnswer` is false, uses AI (via OpenRouter) to grade intelligently.
+ * If `isExactAnswer` is false, uses AI (via OpenRouter or custom model) to grade intelligently.
  * Falls back to 0 score if AI grading fails.
  *
  * @param question - The essay question context with answer key and scoring config
  * @param participantAnswer - The participant's written response
  * @param messages - Localized messages for exact match/no match feedback
  * @param questionText - The original question text (used for AI context)
+ * @param essayGradingModel - Optional custom essay grading model for this test
  * @returns Promise with { score, scoreExplanation } where explanation may be null on errors
  */
 export async function gradeEssayAnswer(
@@ -27,6 +29,7 @@ export async function gradeEssayAnswer(
   participantAnswer: string,
   messages: GradeMessages,
   questionText: string,
+  essayGradingModel?: EssayGradingModel | null,
 ): Promise<{ score: number; scoreExplanation: string | null }> {
   if (question.isExactAnswer) {
     const normalize = (s: string) => s.trim().toLowerCase();
@@ -47,6 +50,7 @@ export async function gradeEssayAnswer(
       answerKey: question.answerText,
       minScore: 0,
       maxScore: question.maxScore,
+      essayGradingModel: essayGradingModel || undefined,
     });
     return {
       score: result.score,
@@ -65,6 +69,7 @@ export async function gradeEssayAnswer(
 /**
  * Asynchronously grades and updates an essay answer.
  * This function runs in the background without blocking the response.
+ * Fetches the essay grading model from the test configuration if available.
  *
  * @param answerId - The ID of the essay answer to grade
  * @param answerText - The text of the answer
@@ -85,7 +90,12 @@ export async function gradeEssayAnswerAsync(
         answerText: true,
         isExactAnswer: true,
         maxScore: true,
-        question: { select: { questionText: true } },
+        question: {
+          select: {
+            questionText: true,
+            testId: true,
+          },
+        },
       },
     });
 
@@ -94,11 +104,27 @@ export async function gradeEssayAnswerAsync(
       return;
     }
 
+    // Fetch the test and its associated essay grading model
+    const test = await prisma.test.findUnique({
+      where: { id: essay.question.testId },
+      select: {
+        essayGradingModelId: true,
+      },
+    });
+
+    let essayGradingModel: EssayGradingModel | null = null;
+    if (test?.essayGradingModelId) {
+      essayGradingModel = await prisma.essayGradingModel.findUnique({
+        where: { id: test.essayGradingModelId },
+      });
+    }
+
     const { score, scoreExplanation } = await gradeEssayAnswer(
       essay,
       answerText,
       messages,
       essay.question.questionText,
+      essayGradingModel,
     );
 
     await prisma.essayAnswer.update({

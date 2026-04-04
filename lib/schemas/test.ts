@@ -30,6 +30,7 @@ export const TestValidationSchema = (t: TranslateFn) =>
       .positive(t("Validation.positive"))
       .nullable()
       .optional(),
+    essayGradingModelId: z.string().nullable().optional(),
     isAcceptingResponses: z.boolean(),
     isLoggedInUserOnly: z.boolean(),
     isShowDetailedScore: z.boolean(),
@@ -54,6 +55,7 @@ export const defaultTestData: Test = {
   startTime: null,
   endTime: null,
   maxAttempts: 1,
+  essayGradingModelId: null,
   isAcceptingResponses: true,
   isLoggedInUserOnly: false,
   isShowDetailedScore: true,
@@ -122,6 +124,7 @@ export const TestSchema: z.ZodType<Test> = z.object({
   startTime: z.coerce.date().nullable(),
   endTime: z.coerce.date().nullable(),
   maxAttempts: z.number().int().nullable(),
+  essayGradingModelId: z.string().nullable(),
   isAcceptingResponses: z.boolean(),
   isLoggedInUserOnly: z.boolean(),
   isShowDetailedScore: z.boolean(),

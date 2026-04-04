@@ -101,5 +101,5 @@ export async function PATCH(
     data,
   });
 
-  return NextResponse.json(updated);
+  return NextResponse.json(TestSchema.parse(updated));
 }

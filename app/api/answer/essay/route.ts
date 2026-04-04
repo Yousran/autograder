@@ -66,7 +66,6 @@ export async function POST(req: NextRequest) {
     select: { id: true },
   });
 
-  let answerId: string;
   if (existing) {
     // Upsert — update with new answer text, score starts at 0
     const updated = await prisma.essayAnswer.update({
@@ -79,14 +78,13 @@ export async function POST(req: NextRequest) {
         scoreExplanation: true,
       },
     });
-    answerId = updated.id;
 
     // Grade asynchronously in the background
-    await gradeEssayAnswerAsync(answerId, answerText, questionId, {
+    await gradeEssayAnswerAsync(updated.id, answerText, questionId, {
       exactMatch: t("Api.answer.exactMatch"),
       noMatch: t("Api.answer.noMatch"),
     }).catch((err) => {
-      console.error(`Background grading failed for ${answerId}:`, err);
+      console.error(`Background grading failed for ${updated.id}:`, err);
     });
 
     return NextResponse.json(updated, { status: 200 });
@@ -102,14 +100,13 @@ export async function POST(req: NextRequest) {
     },
     select: { id: true, answerText: true, score: true, scoreExplanation: true },
   });
-  answerId = created.id;
 
   // Grade asynchronously in the background
-  await gradeEssayAnswerAsync(answerId, answerText, questionId, {
+  await gradeEssayAnswerAsync(created.id, answerText, questionId, {
     exactMatch: t("Api.answer.exactMatch"),
     noMatch: t("Api.answer.noMatch"),
   }).catch((err) => {
-    console.error(`Background grading failed for ${answerId}:`, err);
+    console.error(`Background grading failed for ${created.id}:`, err);
   });
 
   return NextResponse.json(created, { status: 201 });
@@ -173,10 +170,10 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  // Update answer immediately with score reset to 0
+  // Update answer immediately
   const updated = await prisma.essayAnswer.update({
     where: { id: existing.id },
-    data: { answerText, score: 0, scoreExplanation: null },
+    data: { answerText },
     select: { id: true, answerText: true, score: true, scoreExplanation: true },
   });
 
