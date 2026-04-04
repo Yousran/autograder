@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Link } from "@/i18n/navigation";
 import DeleteAccountButton from "@/components/custom/delete-account-button";
 import { GaugeCombined } from "@/components/ui/gauge";
+import { LLMModelCard } from "@/components/custom/llm-model-card";
 import type { Participant, Test } from "@/lib/generated/prisma/client";
 
 type ParticipantWithTest = Participant & { test: Test };
@@ -229,7 +230,7 @@ export default async function Page({
               </Card>
             )}
 
-            {isOwner && PROVIDER_LABELS && (
+            {isOwner && (
               <Card>
                 <CardContent>
                   <h3
@@ -262,6 +263,26 @@ export default async function Page({
                         )}
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {isOwner && (
+              <Card>
+                <CardContent>
+                  <h2
+                    className="text-lg font-semibold"
+                    data-testid="profile-llm-models-section"
+                  >
+                    {t("Pages.profile.llmModels")}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t("Pages.profile.llmModelsDescription")}
+                  </p>
+
+                  <div className="mt-4">
+                    <LLMModelCard />
                   </div>
                 </CardContent>
               </Card>

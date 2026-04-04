@@ -61,6 +61,7 @@ export function TestTabs({ test }: { test: TestSchema }) {
           initialIsShowDetailedScore={test.isShowDetailedScore}
           initialIsShowCorrectAnswers={test.isShowCorrectAnswers}
           initialIsQuestionsOrdered={test.isQuestionsOrdered}
+          initialEssayGradingModelId={test.essayGradingModelId}
         />
       </TabsContent>
       <TabsContent value="questions" data-testid="tabpanel-questions">

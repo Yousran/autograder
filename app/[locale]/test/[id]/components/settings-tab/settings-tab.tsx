@@ -11,6 +11,7 @@ import { LoggedInUserOnlyToggle } from "./logged-in-user-only-toggle";
 import { ShowDetailedScoreToggle } from "./show-detailed-score-toggle";
 import { ShowCorrectAnswersToggle } from "./show-correct-answers-toggle";
 import { QuestionsOrderedToggle } from "./questions-ordered-toggle";
+import { LLMModelSelection } from "./llm-model-selection";
 import { TestPrerequisiteCard } from "./test-prerequisite-card";
 
 export function SettingsTab({
@@ -23,6 +24,7 @@ export function SettingsTab({
   initialIsShowDetailedScore,
   initialIsShowCorrectAnswers,
   initialIsQuestionsOrdered,
+  initialEssayGradingModelId,
 }: {
   testId: string;
   initialDescription: string | null;
@@ -33,6 +35,7 @@ export function SettingsTab({
   initialIsShowDetailedScore: boolean;
   initialIsShowCorrectAnswers: boolean;
   initialIsQuestionsOrdered: boolean;
+  initialEssayGradingModelId: string | null;
 }) {
   const t = useTranslations();
 
@@ -152,6 +155,20 @@ export function SettingsTab({
             testId={testId}
             initialValue={initialIsQuestionsOrdered}
           />
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <Label className="text-md font-bold" data-testid="label-llm-model">
+            {t("Components.test.llmModelLabel")}
+          </Label>
+          <p className="text-sm text-muted-foreground">
+            {t("Components.test.llmModelDesc")}
+          </p>
+          <div className="flex items-center mt-1">
+            <LLMModelSelection
+              testId={testId}
+              initialValue={initialEssayGradingModelId}
+            />
+          </div>
         </div>
       </Card>
       <Card className="p-6 flex flex-col gap-4">

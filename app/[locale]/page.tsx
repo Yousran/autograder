@@ -1,8 +1,6 @@
 //TODO: make sure to use next-intl for all text content and add missing translations
 //TODO: on field error display instead of just showing a toast
 //TODO: switch and button timeout to avoid spam clicking
-//TODO: ai grading and feedback generation using openrouter as default but with model provider selection support
-//TODO: better way to implement ai grading. make sure to update database with answer first then grade
 //TODO: loading state for test edit using context
 //TODO: scroll to top button on question editing page
 //TODO: scroll to newly created question
