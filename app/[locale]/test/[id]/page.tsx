@@ -9,6 +9,7 @@ import { TestSchema } from "@/lib/schemas/test";
 import { customAlphabet } from "nanoid";
 import type { TestSchema as TestType } from "@/lib/schemas/test";
 import { addDays, isPast } from "date-fns";
+import { SyncStatusIndicator } from "./components/sync-status-indicator";
 
 /** Human-readable alphabet: no 0/O/1/I to avoid confusion. */
 const nanoid = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 6);
@@ -77,6 +78,9 @@ export default async function TestPage({
               initialCode={test.joinCode}
               initialExpiresAt={test.joinCodeExpiresAt}
             />
+            <div className="flex justify-end">
+              <SyncStatusIndicator />
+            </div>
           </Card>
           <TestTabs test={test} />
         </div>

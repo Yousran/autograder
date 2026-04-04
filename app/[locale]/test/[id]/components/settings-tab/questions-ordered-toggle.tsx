@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
+import { useSync } from "../../context/sync-context";
 
 export function QuestionsOrderedToggle({
   testId,
@@ -14,12 +14,13 @@ export function QuestionsOrderedToggle({
 }) {
   const t = useTranslations();
   const [checked, setChecked] = useState(initialValue);
-  const [isLoading, setIsLoading] = useState(false);
+  const { saving, setSaving, setSaved, setError } = useSync();
 
   async function handleCheckedChange(next: boolean) {
-    if (isLoading) return;
+    if (saving) return;
     setChecked(next);
-    setIsLoading(true);
+    setSaving(true);
+    setSaved(false);
 
     try {
       const res = await fetch(`/api/tests/${testId}`, {
@@ -30,19 +31,21 @@ export function QuestionsOrderedToggle({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        toast.error(
-          (data as { error?: string }).error ?? t("Api.tests.updateFailed"),
-        );
+        const errorMsg =
+          (data as { error?: string }).error ?? t("Api.tests.updateFailed");
+        setError(errorMsg);
         setChecked(!next);
         return;
       }
 
-      toast.success(t("Api.tests.updateSuccess"));
-    } catch {
-      toast.error(t("Api.tests.updateFailed"));
+      setSaved(true);
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : t("Api.tests.updateFailed"),
+      );
       setChecked(!next);
     } finally {
-      setIsLoading(false);
+      setSaving(false);
     }
   }
 

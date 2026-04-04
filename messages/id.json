@@ -561,6 +561,11 @@
       "invalidUrl": "URL tidak valid",
       "cancel": "Batal",
       "accept": "Terima"
+    },
+    "syncStatus": {
+      "saving": "Menyimpan...",
+      "saved": "Tersimpan",
+      "error": "Gagal menyimpan"
     }
   }
 }

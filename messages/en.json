@@ -561,6 +561,11 @@
       "invalidUrl": "Invalid URL",
       "cancel": "Cancel",
       "accept": "Accept"
+    },
+    "syncStatus": {
+      "saving": "Saving...",
+      "saved": "Saved",
+      "error": "Error saving"
     }
   }
 }

@@ -1,6 +1,7 @@
 import { redirect } from "@/i18n/navigation";
 import { requireTestCreator } from "@/lib/dal";
 import { getLocale } from "next-intl/server";
+import { SyncProvider } from "./context/sync-context";
 
 export default async function TestLayout({
   children,
@@ -20,5 +21,5 @@ export default async function TestLayout({
     });
   }
 
-  return <>{children}</>;
+  return <SyncProvider>{children}</SyncProvider>;
 }
