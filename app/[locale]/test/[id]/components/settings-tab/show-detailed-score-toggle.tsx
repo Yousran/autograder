@@ -14,9 +14,12 @@ export function ShowDetailedScoreToggle({
 }) {
   const t = useTranslations();
   const [checked, setChecked] = useState(initialValue);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleCheckedChange(next: boolean) {
+    if (isLoading) return;
     setChecked(next);
+    setIsLoading(true);
 
     try {
       const res = await fetch(`/api/tests/${testId}`, {
@@ -38,6 +41,8 @@ export function ShowDetailedScoreToggle({
     } catch {
       toast.error(t("Api.tests.updateFailed"));
       setChecked(!next);
+    } finally {
+      setIsLoading(false);
     }
   }
 

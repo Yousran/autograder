@@ -17,14 +17,17 @@ export function IsExactAnswerToggle({
   const [checked, setChecked] = useState(
     question.essay?.isExactAnswer ?? false,
   );
+  const [isLoading, setIsLoading] = useState(false);
   const { updateQuestion } = useQuestions();
 
   async function handleCheckedChange(next: boolean) {
-    // Snapshot: Save current state
-    const previousData = question.essay?.isExactAnswer ?? false;
-
+    if (isLoading) return;
     // Update Switch state first (immediate visual feedback)
     setChecked(next);
+    setIsLoading(true);
+
+    // Snapshot: Save current state
+    const previousData = question.essay?.isExactAnswer ?? false;
 
     // Then update local data
     updateQuestion(question.id, {
@@ -69,6 +72,8 @@ export function IsExactAnswerToggle({
           ? { ...question.essay, isExactAnswer: previousData }
           : undefined,
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 

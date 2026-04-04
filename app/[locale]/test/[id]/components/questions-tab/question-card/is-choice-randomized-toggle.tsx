@@ -25,14 +25,17 @@ export function IsChoiceRandomizedToggle({
       : false;
 
   const [checked, setChecked] = useState(currentValue);
+  const [isLoading, setIsLoading] = useState(false);
   const { updateQuestion } = useQuestions();
 
   async function handleCheckedChange(next: boolean) {
-    // Snapshot: Save current state
-    const previousData = currentValue;
-
+    if (isLoading) return;
     // Update Switch state first (immediate visual feedback)
     setChecked(next);
+    setIsLoading(true);
+
+    // Snapshot: Save current state
+    const previousData = currentValue;
 
     // Then update local data
     if (isChoice) {
@@ -100,6 +103,8 @@ export function IsChoiceRandomizedToggle({
             : undefined,
         });
       }
+    } finally {
+      setIsLoading(false);
     }
   }
 
