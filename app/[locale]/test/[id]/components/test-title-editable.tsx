@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useSync } from "../context/sync-context";
 
 export function TestTitleEditable({
   testId,
@@ -29,8 +30,12 @@ export function TestTitleEditable({
   initialTitle: string;
 }) {
   const t = useTranslations();
+  const { setSaving, setSaved, setError } = useSync();
 
   async function handleSubmit(value: string) {
+    setSaving(true);
+    setSaved(false);
+
     try {
       const res = await fetch(`/api/tests/${testId}`, {
         method: "PATCH",
@@ -40,15 +45,21 @@ export function TestTitleEditable({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        toast.error(
-          (data as { error?: string }).error ?? t("Api.tests.updateFailed"),
-        );
+        const errorMsg =
+          (data as { error?: string }).error ?? t("Api.tests.updateFailed");
+        toast.error(errorMsg);
+        setError(errorMsg);
         return;
       }
 
-      toast.success(t("Api.tests.updateSuccess"));
-    } catch {
-      toast.error(t("Api.tests.updateFailed"));
+      setSaved(true);
+    } catch (error) {
+      const errorMsg =
+        error instanceof Error ? error.message : t("Api.tests.updateFailed");
+      toast.error(errorMsg);
+      setError(errorMsg);
+    } finally {
+      setSaving(false);
     }
   }
 

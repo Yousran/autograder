@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { EditableNumberInput } from "@/components/custom/editable-number-input";
+import { useSync } from "../../context/sync-context";
 
 export function MaxAttemptEditable({
   testId,
@@ -12,8 +13,12 @@ export function MaxAttemptEditable({
   initialValue: number | null;
 }) {
   const t = useTranslations();
+  const { setSaving, setSaved, setError } = useSync();
 
   async function handleUpdate(value: number | null) {
+    setSaving(true);
+    setSaved(false);
+
     try {
       const res = await fetch(`/api/tests/${testId}`, {
         method: "PATCH",
@@ -23,17 +28,22 @@ export function MaxAttemptEditable({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(
-          (data as { error?: string }).error ?? t("Api.tests.updateFailed"),
-        );
+        const errorMsg =
+          (data as { error?: string }).error ?? t("Api.tests.updateFailed");
+        toast.error(errorMsg);
+        setError(errorMsg);
+        throw new Error(errorMsg);
       }
 
-      toast.success(t("Api.tests.updateSuccess"));
+      setSaved(true);
     } catch (error) {
-      const message =
+      const errorMsg =
         error instanceof Error ? error.message : t("Api.tests.updateFailed");
-      toast.error(message);
+      toast.error(errorMsg);
+      setError(errorMsg);
       throw error;
+    } finally {
+      setSaving(false);
     }
   }
 

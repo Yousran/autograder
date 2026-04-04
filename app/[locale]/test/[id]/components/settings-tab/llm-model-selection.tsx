@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { useSync } from "../../context/sync-context";
 
 interface EssayGradingModel {
   id: string;
@@ -32,6 +33,7 @@ export function LLMModelSelection({
     initialValue || null,
   );
   const [isLoading, setIsLoading] = useState(true);
+  const { setSaving, setSaved, setError } = useSync();
 
   // Fetch models on mount
   useEffect(() => {
@@ -60,6 +62,8 @@ export function LLMModelSelection({
   async function handleSelectChange(nextValue: string) {
     const finalValue = nextValue === "default" ? null : nextValue;
     setSelectedValue(finalValue);
+    setSaving(true);
+    setSaved(false);
 
     try {
       const res = await fetch(`/api/tests/${testId}`, {
@@ -72,17 +76,23 @@ export function LLMModelSelection({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        toast.error(
-          (data as { error?: string }).error ?? t("Api.tests.updateFailed"),
-        );
+        const errorMsg =
+          (data as { error?: string }).error ?? t("Api.tests.updateFailed");
+        toast.error(errorMsg);
+        setError(errorMsg);
         setSelectedValue(initialValue || null);
         return;
       }
 
-      toast.success(t("Api.tests.updateSuccess"));
-    } catch {
-      toast.error(t("Api.tests.updateFailed"));
+      setSaved(true);
+    } catch (error) {
+      const errorMsg =
+        error instanceof Error ? error.message : t("Api.tests.updateFailed");
+      toast.error(errorMsg);
+      setError(errorMsg);
       setSelectedValue(initialValue || null);
+    } finally {
+      setSaving(false);
     }
   }
 
