@@ -3,6 +3,7 @@ import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { EssayGradingModel } from "./generated/prisma/browser";
 import { callOpenRouter } from "./openrouter";
+import * as Iron from "iron-webcrypto";
 
 /**
  * Uses AI (via Vercel AI SDK) to grade an essay answer against a key.
@@ -101,9 +102,19 @@ async function generateTextWithCustomModel({
   minScore: number;
   maxScore: number;
 }): Promise<string> {
+  // Decrypt the API key if it exists
+  let decryptedApiKey = null;
+  if (essayGradingModel.apiKey) {
+    decryptedApiKey = (await Iron.unseal(
+      essayGradingModel.apiKey,
+      process.env.BETTER_AUTH_SECRET!,
+      Iron.defaults,
+    )) as string;
+  }
+
   // Create OpenAI-compatible provider instance with custom configuration
   const openaiProvider = createOpenAI({
-    apiKey: essayGradingModel.apiKey || undefined,
+    apiKey: decryptedApiKey || undefined,
     baseURL: essayGradingModel.baseUrl,
   });
 

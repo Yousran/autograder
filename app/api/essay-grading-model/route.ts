@@ -7,6 +7,7 @@ import {
   essayGradingModelResponseSchema,
   essayGradingModelsListResponseSchema,
 } from "@/lib/schemas/essay-grading-model";
+import * as Iron from "iron-webcrypto";
 
 /**
  * GET /api/essay-grading-model
@@ -119,6 +120,15 @@ export async function POST(req: NextRequest) {
 
   const data = parsed.data;
 
+  let encryptedApiKey = null;
+  if (data.apiKey) {
+    encryptedApiKey = (await Iron.seal(
+      data.apiKey,
+      process.env.BETTER_AUTH_SECRET!,
+      Iron.defaults,
+    )) as string;
+  }
+
   try {
     const created = await prisma.essayGradingModel.create({
       data: {
@@ -126,7 +136,7 @@ export async function POST(req: NextRequest) {
         name: data.name,
         baseUrl: data.baseUrl,
         model: data.model,
-        apiKey: data.apiKey || null,
+        apiKey: encryptedApiKey || null,
         isDefault: data.isDefault,
       },
     });

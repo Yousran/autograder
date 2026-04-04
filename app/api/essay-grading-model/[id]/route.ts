@@ -6,6 +6,7 @@ import {
   updateEssayGradingModelSchema,
   essayGradingModelResponseSchema,
 } from "@/lib/schemas/essay-grading-model";
+import * as Iron from "iron-webcrypto";
 
 /**
  * PATCH /api/essay-grading-model/[id]
@@ -76,6 +77,15 @@ export async function PATCH(
 
   const data = parsed.data;
 
+  let encryptedApiKey = null;
+  if (data.apiKey) {
+    encryptedApiKey = (await Iron.seal(
+      data.apiKey,
+      process.env.BETTER_AUTH_SECRET!,
+      Iron.defaults,
+    )) as string;
+  }
+
   try {
     const updated = await prisma.essayGradingModel.update({
       where: { id },
@@ -83,7 +93,7 @@ export async function PATCH(
         name: data.name,
         baseUrl: data.baseUrl,
         model: data.model,
-        apiKey: data.apiKey,
+        apiKey: encryptedApiKey,
         isDefault: data.isDefault,
       },
     });

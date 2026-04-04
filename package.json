@@ -47,6 +47,7 @@
     "dotenv": "^17.3.1",
     "fractional-indexing": "^3.2.0",
     "input-otp": "^1.4.2",
+    "iron-webcrypto": "^2.0.0",
     "lodash": "^4.17.23",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.575.0",
