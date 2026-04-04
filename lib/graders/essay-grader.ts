@@ -5,6 +5,7 @@ import { EssayGradingModel } from "@/lib/generated/prisma/browser";
 type EssayQuestionGradeContext = {
   answerText: string;
   isExactAnswer: boolean;
+  minScore: number;
   maxScore: number;
   questionText?: string;
 };
@@ -13,9 +14,9 @@ type GradeMessages = { exactMatch: string; noMatch: string };
 
 /**
  * Grades an essay answer using either exact matching or AI-powered grading.
- * If `isExactAnswer` is true, performs case-insensitive trimmed comparison (full score or 0).
+ * If `isExactAnswer` is true, performs case-insensitive trimmed comparison (full score or minimum score).
  * If `isExactAnswer` is false, uses AI (via OpenRouter or custom model) to grade intelligently.
- * Falls back to 0 score if AI grading fails.
+ * Falls back to the minimum score if AI grading fails.
  *
  * @param question - The essay question context with answer key and scoring config
  * @param participantAnswer - The participant's written response
@@ -37,7 +38,7 @@ export async function gradeEssayAnswer(
       normalize(participantAnswer) === normalize(question.answerText);
 
     return {
-      score: isMatch ? question.maxScore : 0,
+      score: isMatch ? question.maxScore : question.minScore,
       scoreExplanation: isMatch ? messages.exactMatch : messages.noMatch,
     };
   }
@@ -48,7 +49,7 @@ export async function gradeEssayAnswer(
       questionText,
       answer: participantAnswer,
       answerKey: question.answerText,
-      minScore: 0,
+      minScore: question.minScore,
       maxScore: question.maxScore,
       essayGradingModel: essayGradingModel || undefined,
     });
@@ -58,9 +59,9 @@ export async function gradeEssayAnswer(
     };
   } catch (err) {
     console.error("AI grading failed:", err);
-    // Fallback to returning 0 score
+    // Fallback to returning the minimum score
     return {
-      score: 0,
+      score: question.minScore,
       scoreExplanation: messages.noMatch,
     };
   }
@@ -120,7 +121,10 @@ export async function gradeEssayAnswerAsync(
     }
 
     const { score, scoreExplanation } = await gradeEssayAnswer(
-      essay,
+      {
+        ...essay,
+        minScore: 1,
+      },
       answerText,
       messages,
       essay.question.questionText,
