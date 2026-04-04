@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EditableNumberInput } from "@/components/custom/editable-number-input";
+import { useSync } from "../../context/sync-context";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -53,6 +54,7 @@ type AvailableTest = z.infer<typeof AvailableTestSchema>;
 
 export function TestPrerequisiteCard({ testId }: { testId: string }) {
   const t = useTranslations();
+  const { setSaving, setSaved, setError } = useSync();
 
   const [prerequisites, setPrerequisites] = useState<PrerequisiteItem[]>([]);
   const [availableTests, setAvailableTests] = useState<AvailableTest[]>([]);
@@ -106,6 +108,8 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
     const score = minScore ?? 0;
 
     setIsSubmitting(true);
+    setSaving(true);
+    setSaved(false);
 
     // Optimistic: find the selected test info
     const prereqTest = availableTests.find((at) => at.id === selectedTestId);
@@ -147,17 +151,19 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
       );
 
       toast.success(t("Components.prerequisite.addSuccess"));
+      setSaved(true);
     } catch (err) {
       // Rollback
       setPrerequisites((prev) => prev.filter((p) => p.id !== tempId));
       if (prereqTest) setAvailableTests((prev) => [prereqTest, ...prev]);
-      toast.error(
+      const errorMsg =
         err instanceof Error
           ? err.message
-          : t("Components.prerequisite.createFailed"),
-      );
+          : t("Components.prerequisite.createFailed");
+      setError(errorMsg);
     } finally {
       setIsSubmitting(false);
+      setSaving(false);
     }
   }
 
@@ -172,6 +178,8 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
 
     setPrerequisites((prev) => prev.filter((p) => p.id !== prereq.id));
     setAvailableTests((prev) => [prereq.prerequisiteTest, ...prev]);
+    setSaving(true);
+    setSaved(false);
 
     try {
       const res = await fetch(
@@ -188,15 +196,18 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
       }
 
       toast.success(t("Components.prerequisite.deleteSuccess"));
+      setSaved(true);
     } catch (err) {
       // Rollback to snapshots
       setPrerequisites(previousPrerequisites);
       setAvailableTests(previousAvailable);
-      toast.error(
+      const errorMsg =
         err instanceof Error
           ? err.message
-          : t("Components.prerequisite.deleteFailed"),
-      );
+          : t("Components.prerequisite.deleteFailed");
+      setError(errorMsg);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -209,29 +220,45 @@ export function TestPrerequisiteCard({ testId }: { testId: string }) {
     value: number | null,
   ) {
     const score = value ?? 0;
+    setSaving(true);
+    setSaved(false);
 
-    const res = await fetch(`/api/tests/${testId}/prerequisites/${prereq.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ minScoreRequired: score }),
-    });
+    try {
+      const res = await fetch(
+        `/api/tests/${testId}/prerequisites/${prereq.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ minScoreRequired: score }),
+        },
+      );
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      const msg =
-        (data as { error?: string }).error ??
-        t("Components.prerequisite.updateFailed");
-      toast.error(msg);
-      throw new Error(msg); // causes EditableNumberInput to revert
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        const msg =
+          (data as { error?: string }).error ??
+          t("Components.prerequisite.updateFailed");
+        throw new Error(msg); // causes EditableNumberInput to revert
+      }
+
+      // Reconcile state on success so initialValue stays in sync
+      setPrerequisites((prev) =>
+        prev.map((p) =>
+          p.id === prereq.id ? { ...p, minScoreRequired: score } : p,
+        ),
+      );
+      toast.success(t("Components.prerequisite.updateSuccess"));
+      setSaved(true);
+    } catch (err) {
+      const errorMsg =
+        err instanceof Error
+          ? err.message
+          : t("Components.prerequisite.updateFailed");
+      setError(errorMsg);
+      throw err; // causes EditableNumberInput to revert
+    } finally {
+      setSaving(false);
     }
-
-    // Reconcile state on success so initialValue stays in sync
-    setPrerequisites((prev) =>
-      prev.map((p) =>
-        p.id === prereq.id ? { ...p, minScoreRequired: score } : p,
-      ),
-    );
-    toast.success(t("Components.prerequisite.updateSuccess"));
   }
 
   // ---------------------------------------------------------------------------
