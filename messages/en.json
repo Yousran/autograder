@@ -315,7 +315,8 @@
       "themeSystem": "System",
       "themeLight": "Light",
       "themeDark": "Dark",
-      "language": "Language"
+      "language": "Language",
+      "designStyle": "Design Style"
     },
     "questionsTab": {
       "addQuestion": "Add Question",

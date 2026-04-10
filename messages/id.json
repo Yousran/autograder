@@ -315,7 +315,8 @@
       "themeSystem": "Sistem",
       "themeLight": "Terang",
       "themeDark": "Gelap",
-      "language": "Bahasa"
+      "language": "Bahasa",
+      "designStyle": "Gaya Desain"
     },
     "questionsTab": {
       "addQuestion": "Tambah Pertanyaan",
