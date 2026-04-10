@@ -52,6 +52,7 @@ export function SyncStatusIndicator({
         config.className,
       )}
       {...props}
+      data-testid="sync-status-indicator"
     >
       {config.icon}
       {showLabel && <span>{config.label}</span>}

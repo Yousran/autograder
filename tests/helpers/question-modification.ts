@@ -137,20 +137,18 @@ export function getAddQuestionDivider(
 }
 
 /**
- * Helper: Wait for a PATCH response to /api/questions/{id}
- * Matches any PATCH response to the /api/questions/ endpoint with 200 status,
- * regardless of the specific question ID.
- * Used by functions that modify question settings via API.
+ * Helper: Wait for sync indicator to show saved status
+ * Checks the SyncStatusIndicator component instead of direct API responses.
+ * Better for e2e testing as it verifies the UI has updated.
  *
  * @param page - The Playwright page object
  */
 export async function waitForQuestionPatchResponse(page: Page): Promise<void> {
-  await page.waitForResponse(
-    (response) =>
-      response.url().includes("/api/questions/") &&
-      response.request().method() === "PATCH" &&
-      response.status() === 200,
-  );
+  const syncIndicator = page.getByTestId("sync-status-indicator");
+
+  // Wait for sync indicator to appear and show saved status (green-500 class)
+  await expect(syncIndicator).toBeVisible();
+  await expect(syncIndicator).toHaveClass(/text-green-500/);
 }
 
 /**

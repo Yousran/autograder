@@ -87,27 +87,18 @@ export function getToggleQuestionsOrdered(page: Page): Locator {
 }
 
 /**
- * Helper: Wait for a PATCH response to /api/tests/{testId}
- * Extracts testId from the current page URL automatically.
- * Used by functions that modify test settings via API.
+ * Helper: Wait for sync indicator to show saved status
+ * Checks the SyncStatusIndicator component instead of direct API responses.
+ * Better for e2e testing as it verifies the UI has updated.
  *
  * @param page - The Playwright page object
  */
 export async function waitForTestPatchResponse(page: Page): Promise<void> {
-  const url = page.url();
-  const testIdMatch = url.match(/test\/([a-z0-9]+)/i);
-  const testId = testIdMatch ? testIdMatch[1] : "";
+  const syncIndicator = page.getByTestId("sync-status-indicator");
 
-  if (!testId) {
-    throw new Error("Unable to extract testId from URL: " + url);
-  }
-
-  await page.waitForResponse(
-    (response) =>
-      response.url().includes(`/api/tests/${testId}`) &&
-      response.request().method() === "PATCH" &&
-      response.status() === 200,
-  );
+  // Wait for sync indicator to appear and show saved status (green-500 class)
+  await expect(syncIndicator).toBeVisible();
+  await expect(syncIndicator).toHaveClass(/text-green-500/);
 }
 
 /**
