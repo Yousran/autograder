@@ -2,6 +2,7 @@
 //TODO: refactor all types, interfaces, prisma types, and zod schemas
 //TODO: make sure to use next-intl for all text content and add missing translations
 //TODO: on field error display instead of just showing a toast
+//TODO: toast error display with error codes
 //TODO: predetermined random question support
 
 "use client";

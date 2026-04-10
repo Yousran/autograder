@@ -36,7 +36,7 @@ export function ScrollToTopButton() {
           <Button
             onClick={scrollToTop}
             aria-label={t("Components.scrollToTop.label")}
-            className="fixed bottom-1/2 right-6 z-50 size-11 rounded-full p-0 shadow-lg transition-all duration-200 hover:scale-110"
+            className="fixed bottom-6 right-6 z-50 size-11 rounded-full p-0 shadow-lg transition-all duration-200 hover:scale-110"
           >
             <ArrowUp className="size-5" />
           </Button>
