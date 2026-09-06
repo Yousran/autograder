@@ -11,6 +11,11 @@
       "sourceType": "github",
       "computedHash": "9ab075b5061be2a5f299c10505667345cc1ec76e8de4120901cfd586643e776f"
     },
+    "caveman": {
+      "source": "JuliusBrussee/caveman",
+      "sourceType": "github",
+      "computedHash": "ac5fb2168c653fa5d660b5f510a4688d210717c7e10eb8fd91ef0d9b59f4e96e"
+    },
     "create-auth-skill": {
       "source": "better-auth/skills",
       "sourceType": "github",

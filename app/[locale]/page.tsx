@@ -4,6 +4,7 @@
 //TODO: on field error display instead of just showing a toast
 //TODO: toast error display with error codes
 //TODO: predetermined random question support
+//TODO: subscription support
 
 "use client";
 

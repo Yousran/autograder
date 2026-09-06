@@ -113,13 +113,15 @@ async function generateTextWithCustomModel({
   }
 
   // Create OpenAI-compatible provider instance with custom configuration
+  // Note: ensure essayGradingModel.baseUrl is strictly "https://api.commandcode.ai/provider/v1" in your DB
   const openaiProvider = createOpenAI({
     apiKey: decryptedApiKey || undefined,
     baseURL: essayGradingModel.baseUrl,
   });
 
-  // Create model instance
-  const model = openaiProvider(essayGradingModel.model);
+  // Create model instance using .chat() to force standard /chat/completions endpoint
+  // INSTEAD of the default Vercel AI SDK Responses API (/responses)
+  const model = openaiProvider.chat(essayGradingModel.model);
 
   const reply = await generateText({
     model,
