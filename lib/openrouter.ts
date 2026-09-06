@@ -11,7 +11,7 @@ const apiKeys = [
 
 // 8-second timeout (leave 2s buffer before Vercel's 10s limit)
 const OPENROUTER_TIMEOUT_MS = 8000;
-const OPENROUTER_MODEL = "nvidia/nemotron-nano-12b-v2-vl:free";
+const OPENROUTER_MODEL = "nvidia/nemotron-3.5-lightning:free";
 
 /**
  * Calls the OpenRouter API with rolling API key support for redundancy.
